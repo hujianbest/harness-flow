@@ -36,6 +36,30 @@
         "形成 bridge to spec 语义",
         "下一步为 hf-discovery-review"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "我们讨论这个产品时已经有人开始说要上 PostgreSQL、做 comment_threads 表、再加一个 feedback-service。现在还没想清楚问题和 wedge。你按 discovery 节点正确推进。",
+      "expected_output": "应识别这些属于设计泄漏，discovery 阶段只能保留业务意图并收敛问题、用户与 wedge，而不是把数据库表、服务名写成 discovery 结论。",
+      "files": [],
+      "expectations": [
+        "识别 PostgreSQL、表结构、服务名属于实现或设计泄漏",
+        "保留业务意图而不是直接采纳技术方案",
+        "继续收敛 problem framing 与 wedge",
+        "不把 discovery 草稿写成设计文档"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "我们已经确认一个方向值得做，但 discovery 文档里还没有明确哪些结论足以进入 spec、哪些仍是 assumptions。请继续做 discovery。",
+      "expected_output": "应显式补出 Bridge to Spec，而不是在没有桥接语义时直接把流程推进到 hf-specify。",
+      "files": [],
+      "expectations": [
+        "识别缺少 Bridge to Spec 是当前 discovery 缺口",
+        "明确哪些结论已稳定、哪些仍是 assumptions",
+        "下一步仍为 hf-discovery-review",
+        "不会因为方向大致可行就直接跳过 discovery review"
+      ]
     }
   ]
 }

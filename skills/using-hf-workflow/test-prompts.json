@@ -16,6 +16,11 @@
   },
   {
     "id": 4,
+    "prompt": "请 review 这份 discovery 草稿：问题、用户、wedge 和 Bridge to Spec 都已经写好了。",
+    "expected": "识别这是 review-only 场景；若工件存在，应 direct invoke `hf-discovery-review`，而不是回到 hf-product-discovery 或重新走第二个 product 入口。"
+  },
+  {
+    "id": 5,
     "prompt": "继续推进上次任务，刚做完 code review，下一步该做什么？",
     "expected": "识别这属于 runtime recovery，而不是 entry shell；明确交给 hf-workflow-router。"
   }
