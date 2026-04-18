@@ -60,6 +60,41 @@
         "下一步仍为 hf-discovery-review",
         "不会因为方向大致可行就直接跳过 discovery review"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "请读取附件中的真实工件，作为 `hf-product-discovery` 把当前零散 discovery notes 收敛成可评审 discovery 草稿。不要直接进入 formal spec。",
+      "expected_output": "应从附件中识别 problem/user/why-now/wedge/later ideas，并把设计泄漏移出 discovery 结论，形成可交给 `hf-discovery-review` 的 discovery 草稿。",
+      "files": [
+        "fixtures/notes-to-draft/task-progress.md",
+        "fixtures/notes-to-draft/user-notes.md",
+        "fixtures/notes-to-draft/context-note.md"
+      ],
+      "expectations": [
+        "会读取附件中的 notes 和 task-progress，而不是只复述 prompt",
+        "识别反馈分散与处理状态不可见是核心问题",
+        "把自动催办、Slack 同步、BI 报表处理为 later ideas 或候选方向",
+        "不把 feedback_threads 表这类实现细节写成 discovery 结论",
+        "下一步为 hf-discovery-review"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "请读取附件中的真实工件，作为 `hf-product-discovery` 继续这一轮 discovery review 回修。不要重新开启整轮 discovery；你要根据附件判断哪些项可直接修，哪些项必须先向用户确认。",
+      "expected_output": "应根据 review record 做定向回修：直接补出 Bridge to Spec、分离 later ideas 与 assumptions；只把“当前轮主要用户未锁定”这一条作为最小 USER-INPUT 处理。",
+      "files": [
+        "fixtures/targeted-repair/task-progress.md",
+        "fixtures/targeted-repair/discovery-draft.md",
+        "fixtures/targeted-repair/discovery-review-record.md",
+        "fixtures/targeted-repair/user-answer.md"
+      ],
+      "expectations": [
+        "会读取 review findings 并按 USER-INPUT / LLM-FIXABLE 分类处理",
+        "直接修复 Bridge to Spec 缺失",
+        "直接整理 later ideas 与 assumptions 的分层",
+        "只把主要用户锁定作为最小定向确认点处理",
+        "不会重新展开整轮 discovery 发散"
+      ]
     }
   ]
 }
