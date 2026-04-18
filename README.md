@@ -83,6 +83,8 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 | `hf-spec-review` | Structured Walkthrough, Checklist-Based Review, Separation of Author/Reviewer Roles, Evidence-Based Verdict |
 | `hf-design` | ADR, C4 Model, Risk-Driven Architecture, YAGNI + Complexity Matching, ARC42 |
 | `hf-design-review` | ATAM, Structured Walkthrough, Separation of Author/Reviewer Roles, Traceability to Spec |
+| `hf-ui-design` | Information Architecture, Atomic Design, Design System / Design Tokens, Nielsen Heuristics, WCAG 2.2 AA, Interaction State Inventory, ADR |
+| `hf-ui-review` | ATAM (adapted to UI), Nielsen Heuristic Evaluation, Structured Walkthrough, Separation of Author/Reviewer Roles, Traceability to Spec |
 | `hf-tasks` | WBS, INVEST Criteria, Dependency Graph + Critical Path, Definition of Done |
 | `hf-tasks-review` | INVEST Validation, Dependency Graph Validation, Traceability Matrix, Structured Walkthrough |
 
@@ -282,8 +284,8 @@ using-hf-workflow
   -> hf-workflow-router
   -> hf-specify
   -> hf-spec-review
-  -> hf-design
-  -> hf-design-review
+  -> hf-design  (|| hf-ui-design if the spec declares a UI surface)
+  -> hf-design-review  (|| hf-ui-review)
   -> hf-tasks
   -> hf-tasks-review
   -> hf-test-driven-dev
@@ -294,6 +296,8 @@ using-hf-workflow
   -> hf-completion-gate
   -> hf-finalize
 ```
+
+When the spec declares a UI surface, the router activates `hf-ui-design` as a **conditional peer inside the design stage**. `hf-design` covers architecture, modules, API contracts, data models, and backend NFRs; `hf-ui-design` covers information architecture, user flows, interaction states, visual tokens, Atomic component mapping, and frontend a11y / i18n / responsive concerns. Both drafts go through their own independent review, and a joint `设计真人确认` is only opened after both `hf-design-review` and `hf-ui-review` return `通过`. See `skills/hf-workflow-router/references/ui-surface-activation.md` for the activation rules and Design Execution Modes (`parallel` / `architecture-first` / `ui-first`).
 
 The router can also branch into `hf-hotfix` and `hf-increment` when the request is really a defect recovery or a scope change rather than normal forward progress.
 

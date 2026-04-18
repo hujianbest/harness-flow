@@ -83,6 +83,8 @@ HF 的每个 skill 都会在自己的 `SKILL.md` 里显式声明方法论。在 
 | `hf-spec-review` | Structured Walkthrough、Checklist-Based Review、Separation of Author/Reviewer Roles、Evidence-Based Verdict |
 | `hf-design` | ADR、C4 Model、Risk-Driven Architecture、YAGNI + Complexity Matching、ARC42 |
 | `hf-design-review` | ATAM、Structured Walkthrough、Separation of Author/Reviewer Roles、Traceability to Spec |
+| `hf-ui-design` | Information Architecture、Atomic Design、Design System / Design Tokens、Nielsen Heuristics、WCAG 2.2 AA、Interaction State Inventory、ADR |
+| `hf-ui-review` | ATAM (adapted to UI)、Nielsen Heuristic Evaluation、Structured Walkthrough、Separation of Author/Reviewer Roles、Traceability to Spec |
 | `hf-tasks` | WBS、INVEST Criteria、Dependency Graph + Critical Path、Definition of Done |
 | `hf-tasks-review` | INVEST Validation、Dependency Graph Validation、Traceability Matrix、Structured Walkthrough |
 
@@ -275,8 +277,8 @@ using-hf-workflow
   -> hf-workflow-router
   -> hf-specify
   -> hf-spec-review
-  -> hf-design
-  -> hf-design-review
+  -> hf-design  (|| hf-ui-design 当规格声明 UI surface 时并行激活)
+  -> hf-design-review  (|| hf-ui-review)
   -> hf-tasks
   -> hf-tasks-review
   -> hf-test-driven-dev
@@ -287,6 +289,8 @@ using-hf-workflow
   -> hf-completion-gate
   -> hf-finalize
 ```
+
+当规格声明 UI surface（页面 / 组件 / 交互 / 前端 UX NFR）时，router 会把 `hf-ui-design` 作为 **设计阶段内部的 conditional peer skill** 激活，与 `hf-design` 并行起草：`hf-design` 负责架构、模块、API 契约、数据模型、后端 NFR；`hf-ui-design` 负责信息架构、用户流、交互状态、视觉 Design Token、Atomic 组件映射、前端 a11y / i18n / 响应式。两条设计各自独立评审，只有 `hf-design-review` 与 `hf-ui-review` **均通过** 后，父会话才发起联合的 `设计真人确认`。激活条件与 Design Execution Mode（`parallel` / `architecture-first` / `ui-first`）详见 `skills/hf-workflow-router/references/ui-surface-activation.md`。
 
 当请求本质上是缺陷修复或范围变化，而不是普通向前推进时，router 也可以分支到 `hf-hotfix` 和 `hf-increment`。
 
