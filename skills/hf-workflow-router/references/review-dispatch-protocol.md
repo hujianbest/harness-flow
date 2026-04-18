@@ -21,6 +21,7 @@
 | --- | --- |
 | `hf-spec-review` | `hf-spec-review` |
 | `hf-design-review` | `hf-design-review` |
+| `hf-ui-review` | `hf-ui-review`（仅当规格声明 UI surface 且 `hf-ui-design` 已产出草稿时） |
 | `hf-tasks-review` | `hf-tasks-review` |
 | `hf-test-review` | `hf-test-review` |
 | `hf-code-review` | `hf-code-review` |
@@ -32,7 +33,7 @@
 
 ```json
 {
-  "review_type": "spec|design|tasks|test|code|traceability",
+  "review_type": "spec|design|ui|tasks|test|code|traceability",
   "review_skill": "hf-xxx-review",
   "topic": "本次评审主题",
   "artifact_paths": [
@@ -45,9 +46,12 @@
   "worktree_path": "当前候选实现所在 worktree 根路径（若存在）",
   "worktree_branch": "当前候选实现分支（若存在）",
   "expected_record_path": "docs/reviews/... 或项目映射路径",
-  "current_profile": "full|standard|lightweight"
+  "current_profile": "full|standard|lightweight",
+  "design_execution_mode": "parallel|architecture-first|ui-first"
 }
 ```
+
+当 `review_type=ui` 时，`supporting_context_paths` 至少包含对应 `hf-design` 最新草稿路径，便于 reviewer 比对 peer 交接块一致性。
 
 ## 父会话职责
 
@@ -91,12 +95,15 @@ reviewer subagent 不负责：
 
 - `hf-spec-review`
 - `hf-design-review`
+- `hf-ui-review`
 - `hf-tasks-review`
 
 处理约束：
 
 - `interactive`：父会话等待用户确认
 - `auto`：父会话按 policy 写 approval record 后继续推进
+
+**联合 design approval 特殊规则**：当规格含 UI surface、`hf-design-review` 与 `hf-ui-review` 都被激活时，父会话只有在两条 review 均返回 `通过` 后才发起 `设计真人确认`；任一 `通过` 单独到达时，结论暂存，等待另一条汇合。任一返回 `需修改` / `阻塞` 时，对应起草 skill 回修，另一条 skill 的稳定部分保留。
 
 ## 失败与重编排
 

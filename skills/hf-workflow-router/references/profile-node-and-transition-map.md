@@ -19,7 +19,9 @@
 - `规格真人确认`
 - `hf-design`
 - `hf-design-review`
-- `设计真人确认`
+- `hf-ui-design`（conditional：仅当规格声明 UI surface 时激活，与 `hf-design` 并行）
+- `hf-ui-review`（conditional：仅当 `hf-ui-design` 被激活时存在）
+- `设计真人确认`（联合 approval：`hf-design-review` 与 `hf-ui-review` 均通过后由父会话发起；未激活 `hf-ui-design` 时退化为仅等待 `hf-design-review`）
 - `hf-tasks`
 - `hf-tasks-review`
 - `任务真人确认`
@@ -30,6 +32,11 @@
 - `hf-regression-gate`
 - `hf-completion-gate`
 - `hf-finalize`
+
+说明：
+
+- `hf-ui-design` / `hf-ui-review` 属于 **design stage 内部的 conditional peer**，不是 side-line。激活判定见 `ui-surface-activation.md`
+- `standard` / `lightweight` profile 不加入 `hf-ui-design` / `hf-ui-review` 节点；若新 iteration 需要改动 UI 设计，应升级到 `full`
 
 ### standard profile 主链推荐节点
 
@@ -74,9 +81,20 @@
 把下列主骨架视为默认路由图；任何实际迁移都必须同时满足 profile 合法集合、批准证据和迁移表规则：
 
 ```text
-full:
+full (no UI surface):
   hf-specify -> hf-spec-review -> 规格真人确认
   -> hf-design -> hf-design-review -> 设计真人确认
+  -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
+  -> hf-test-review -> hf-code-review
+  -> hf-traceability-review -> hf-regression-gate -> hf-completion-gate
+  -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
+  -> else: hf-finalize
+
+full (with UI surface, Design Execution Mode=parallel):
+  hf-specify -> hf-spec-review -> 规格真人确认
+  -> {hf-design || hf-ui-design}                      # 并行起稿
+  -> {hf-design-review || hf-ui-review}               # 各自独立 reviewer subagent
+  -> 设计真人确认                                       # 两条 review 均 `通过` 后由父会话汇总发起
   -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
   -> hf-test-review -> hf-code-review
   -> hf-traceability-review -> hf-regression-gate -> hf-completion-gate
@@ -122,11 +140,17 @@ branches:
 | `hf-spec-review` | `阻塞`（需重编排） | `hf-workflow-router` |
 | 规格真人确认 | approval step 完成 | `hf-design` |
 | 规格真人确认 | 要求修改 / approval step 未完成 | `hf-specify` |
-| `hf-design-review` | `通过` | 设计真人确认 |
+| `hf-design-review` | `通过`（UI surface 未激活） | 设计真人确认 |
+| `hf-design-review` | `通过`（UI surface 激活且 `hf-ui-review` 也已 `通过`） | 设计真人确认（联合 approval） |
+| `hf-design-review` | `通过`（UI surface 激活但 `hf-ui-review` 未通过或未完成） | 暂存结论，等待 `hf-ui-review` 汇合；期间按 `Design Execution Mode` 允许 peer 继续推进 |
 | `hf-design-review` | `需修改` / `阻塞` | `hf-design` |
 | `hf-design-review` | `阻塞`（需重编排） | `hf-workflow-router` |
+| `hf-ui-review` | `通过`（与 `hf-design-review` 均通过） | 设计真人确认（联合 approval） |
+| `hf-ui-review` | `通过`（`hf-design-review` 未通过或未完成） | 暂存结论，等待 `hf-design-review` 汇合 |
+| `hf-ui-review` | `需修改` / `阻塞` | `hf-ui-design` |
+| `hf-ui-review` | `阻塞`（需重编排 / 激活条件判定错 / peer 不可协调） | `hf-workflow-router` |
 | 设计真人确认 | approval step 完成 | `hf-tasks` |
-| 设计真人确认 | 要求修改 / approval step 未完成 | `hf-design` |
+| 设计真人确认 | 要求修改 / approval step 未完成 | `hf-design` 或 `hf-ui-design`（按真人反馈指向；若两者都要改，并行回修） |
 | `hf-tasks-review` | `通过` | 任务真人确认 |
 | `hf-tasks-review` | `需修改` / `阻塞` | `hf-tasks` |
 | `hf-tasks-review` | `阻塞`（需重编排） | `hf-workflow-router` |

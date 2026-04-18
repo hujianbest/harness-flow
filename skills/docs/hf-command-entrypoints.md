@@ -164,7 +164,7 @@
 默认偏向：
 
 - `using-hf-workflow`，作为命令入口的 family shell
-- 一个具体 review 节点：`hf-spec-review` / `hf-design-review` / `hf-tasks-review` / `hf-test-review` / `hf-code-review` / `hf-traceability-review`
+- 一个具体 review 节点：`hf-spec-review` / `hf-design-review` / `hf-ui-review` / `hf-tasks-review` / `hf-test-review` / `hf-code-review` / `hf-traceability-review`
 - 或一个具体 gate 节点：`hf-regression-gate` / `hf-completion-gate`
 
 ### Resolution Rules

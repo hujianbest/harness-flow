@@ -79,8 +79,9 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 |---------|----------|-----------|
 | 产品发现 / thesis / wedge / probe | `hf-product-discovery` | `hf-workflow-router` |
 | 规格澄清/修订 | `hf-specify` | `hf-workflow-router` |
+| UI / 前端 / 页面 / 交互 / 视觉 设计（规格已批准含 UI surface） | `hf-ui-design` | `hf-workflow-router` |
 | 当前活跃任务实现 | `hf-test-driven-dev` | `hf-workflow-router` |
-| review/gate 请求 | 具体 review/gate skill | `hf-workflow-router` |
+| review/gate 请求 | 具体 review/gate skill（含 `hf-ui-review`） | `hf-workflow-router` |
 | closeout/finalize | `hf-completion-gate` / `hf-finalize` | `hf-workflow-router` |
 | 线上问题修复 | `hf-hotfix` | `hf-workflow-router` |
 | 范围/验收/约束变化 | `hf-increment` | `hf-workflow-router` |
