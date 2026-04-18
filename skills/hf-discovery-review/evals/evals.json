@@ -60,6 +60,38 @@
         "下一步为 hf-workflow-router",
         "标记 reroute_via_router=true 或等价语义"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "请读取附件中的真实工件，作为 `hf-discovery-review` 判断这份 discovery 草稿是否已经足够进入 formal spec，以及下一步应该是什么。",
+      "expected_output": "应从附件中识别出 discovery 草稿已经具备问题、用户、why-now、wedge、事实/假设分离和 Bridge to Spec，因此可通过并把唯一下一步指向 `hf-specify`。",
+      "files": [
+        "fixtures/ready-for-spec/task-progress.md",
+        "fixtures/ready-for-spec/discovery-draft.md",
+        "fixtures/ready-for-spec/user-notes.md"
+      ],
+      "expectations": [
+        "会读取附件中的 discovery 草稿和 task-progress，而不是只复述 prompt",
+        "识别 Bridge to Spec 已足以支撑 handoff 到 hf-specify",
+        "给出通过结论",
+        "唯一下一步为 hf-specify"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "请读取附件中的真实工件，作为 `hf-discovery-review` 判断当前是否能合法进入正式 review，以及下一步应该是什么。",
+      "expected_output": "应从附件中识别出虽然存在 discovery 草稿，但 task-progress 已推进到 `hf-design` 且缺少 discovery review 证据，因此 precheck 直接阻塞；下一步应回到 `hf-workflow-router`。",
+      "files": [
+        "fixtures/stage-conflict/task-progress.md",
+        "fixtures/stage-conflict/discovery-draft.md",
+        "fixtures/stage-conflict/evidence-note.md"
+      ],
+      "expectations": [
+        "会读取附件中的 stable draft 与 stage/evidence 冲突",
+        "识别这是 precheck blocked，而不是正常 rubric review",
+        "把下一步明确指向 hf-workflow-router",
+        "返回 reroute_via_router=true 或等价语义"
+      ]
     }
   ]
 }

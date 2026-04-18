@@ -1,0 +1,1 @@
+Task progress has already moved to hf-design, but there is no discovery review record or any evidence that discovery was formally reviewed and handed off into hf-specify. This is a stage / evidence conflict and should block normal discovery review.
