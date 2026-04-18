@@ -1,0 +1,41 @@
+{
+  "skill_name": "hf-discovery-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "review 这份 discovery 草稿：它列了十几个功能想法，但没有明确用户、问题或 why-now。你按正确方式给出 discovery review verdict。",
+      "expected_output": "应识别 discovery 草稿仍停留在功能清单层，不能直接通过；至少应回到 hf-product-discovery 修订，而不是直接 handoff 到 hf-specify。",
+      "files": [],
+      "expectations": [
+        "识别问题与用户聚焦不足",
+        "不会因为功能想法很多就给通过",
+        "下一步为 hf-product-discovery",
+        "findings 具体指出缺失 problem framing"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "review 这份 discovery 草稿：问题、用户和 wedge 已经比较清楚，但文档把多个假设直接写成已确认结论，也没有单列 bridge to spec。你按 discovery review 正确推进。",
+      "expected_output": "应识别 assumptions 未显式化且 bridge-to-spec 缺失，结论至少为需修改，并明确回到 hf-product-discovery。",
+      "files": [],
+      "expectations": [
+        "识别事实与假设混写",
+        "识别缺少 bridge-to-spec",
+        "不直接进入 hf-specify",
+        "下一步为 hf-product-discovery"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "review 这份 discovery 草稿：问题、目标用户、why-now、当前 wedge、confirmed facts、assumptions、later ideas 和 bridge to spec 都已经明确，且 bridge 清楚标出哪些结论足以进入 formal spec。你按 discovery review 正确给结论。",
+      "expected_output": "应允许 handoff 到 hf-specify，而不是要求继续无限 discovery。",
+      "files": [],
+      "expectations": [
+        "对已达桥接门槛的 discovery 给出通过结论",
+        "唯一下一步为 hf-specify",
+        "不会越权写 formal spec",
+        "findings 不会凭空制造新的阻塞"
+      ]
+    }
+  ]
+}

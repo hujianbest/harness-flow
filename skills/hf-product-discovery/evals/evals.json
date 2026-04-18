@@ -1,0 +1,41 @@
+{
+  "skill_name": "hf-product-discovery",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我们想做一个面向设计团队的评审协作产品，但现在还没想清楚问题到底是什么。可能是审批慢、反馈散、版本来回改、老板也看不清进度。先别写 spec，先帮我做 discovery。",
+      "expected_output": "应先收敛问题、目标用户、why-now 和当前轮 wedge，把模糊抱怨整理成 discovery 草稿，而不是直接输出 formal spec 或实现方案。",
+      "files": [],
+      "expectations": [
+        "先定义问题、用户和 why-now，而不是直接列功能",
+        "区分已确认事实与待确认假设",
+        "输出 discovery 草稿的结构，而不是 formal spec 章节",
+        "下一步为 hf-discovery-review"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "我先倒一些零散想法：也许要做评论聚合、也许要做批量提醒、也许问题其实是没有人知道谁该给反馈。产品也许给设计师用，也许给主管用。你按 discovery 节点正确推进。",
+      "expected_output": "应把零散想法收敛为问题候选、用户候选、wedge 候选和假设，而不是把这些点直接写成稳定需求或实现计划。",
+      "files": [],
+      "expectations": [
+        "先对零散想法做归纳而不是逐条照抄",
+        "区分用户候选、问题候选与功能候选",
+        "明确哪些内容仍是假设",
+        "不把 discovery 结果直接写成规格需求"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "我们已经做了几轮访谈，现在大致确定：独立设计师提交设计后，反馈分散在 IM、文档和会议里，导致合并成本高。当前最值得验证的是“统一反馈收口”这个 wedge。请继续正确做 discovery，并给出进入 spec 前仍需验证的东西。",
+      "expected_output": "应把已有洞察整理成 discovery 草稿，明确稳定结论、仍待验证假设和 bridge to spec，而不是跳过 discovery review 直接进入 hf-specify。",
+      "files": [],
+      "expectations": [
+        "明确哪些结论已稳定到足以进入 spec",
+        "显式列出仍待验证假设或 probe",
+        "形成 bridge to spec 语义",
+        "下一步为 hf-discovery-review"
+      ]
+    }
+  ]
+}

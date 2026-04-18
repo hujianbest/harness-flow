@@ -11,6 +11,7 @@ HarnessFlow is a skill pack for AI agents that brings structure, quality discipl
 This repository currently focuses on the HarnessFlow coding workflow pack. The current pack covers:
 
 - public entry and workflow discovery
+- upstream product discovery authoring and review
 - runtime routing and recovery
 - spec, design, and task authoring
 - task-by-task test-driven implementation
@@ -66,6 +67,13 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 |-------|------------------|
 | `using-hf-workflow` | Front Controller Pattern, Evidence-Based Dispatch, Separation of Concerns |
 | `hf-workflow-router` | Finite State Machine Routing, Evidence-Based Decision Making, Escalation Pattern |
+
+### Upstream discovery
+
+| Skill | Core methodology |
+|-------|------------------|
+| `hf-product-discovery` | Problem Framing, Hypothesis-Driven Discovery, Opportunity / Wedge Mapping, Assumption Surfacing |
+| `hf-discovery-review` | Structured Walkthrough, Checklist-Based Review, Separation of Author/Reviewer Roles, Evidence-Based Verdict |
 
 ### Authoring
 
@@ -178,6 +186,7 @@ Use HarnessFlow to implement the current active task.
 | You say | What HarnessFlow should do |
 |---------|----------------------------|
 | `Use HarnessFlow and continue this repo from the current artifacts.` | Start from `using-hf-workflow` or `hf-workflow-router` and recover the correct next node from on-disk state. |
+| `Use HarnessFlow to figure out whether a product direction is worth pursuing before writing a spec.` | Bias toward `hf-product-discovery`, or hand off to `hf-workflow-router` if the current stage is still unclear. |
 | `Use HarnessFlow to write or revise the spec for rate limiting on the notifications API.` | Bias toward `hf-specify`, or hand off to `hf-workflow-router` if the current stage is still unclear. |
 | `Use HarnessFlow to review this design draft against the approved spec.` | Direct-invoke `hf-design-review` only if this is truly review-only and the design artifact is ready. |
 | `Use HarnessFlow to implement the current active task with TDD and fresh evidence.` | Move toward `hf-test-driven-dev` if a single active task is locked and upstream approvals are in place. |
@@ -268,6 +277,8 @@ A typical full flow looks like this:
 
 ```text
 using-hf-workflow
+  -> hf-product-discovery
+  -> hf-discovery-review
   -> hf-workflow-router
   -> hf-specify
   -> hf-spec-review

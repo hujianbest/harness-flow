@@ -31,11 +31,11 @@ HF workflow family 的 **public shell**。帮助你决定：
 - 需判断 direct invoke 还是 route-first
 - 用户要求 `auto mode` 但还没确定交给哪个节点
 
-不适用：已在 leaf skill 内部 → 继续当前 skill；需要 authoritative routing → 直接交给 `hf-workflow-router`；还在判断产品 thesis → 停在产品 discovery 上游；若工作区已安装对应 product workflow skill，再转交它。
+不适用：已在 leaf skill 内部 → 继续当前 skill；需要 authoritative routing → 直接交给 `hf-workflow-router`。
 
 ## Boundary With Product Skills
 
-若问题仍在产品 thesis/wedge/probe 层面 → 不进入 coding family。优先转到已安装的 product workflow skill；若当前工作区没有该 skill，就明确告知"仍处于产品 discovery，上游尚未收敛"，不要发明不存在的 skill 名。
+若问题仍在产品 thesis/wedge/probe 层面 → 仍由当前 public entry 统一分流，但目标 leaf 应是 `hf-product-discovery`，而不是再引入第二个 public shell。
 若已产出 `docs/insights/*-spec-bridge.md` 且目标是 formal spec/design/tasks → 可进入 coding family。
 
 ## Workflow
@@ -47,7 +47,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 ### 2. 识别主意图
 
-归到以下之一：新需求、继续推进、review-only、gate-only、当前任务实现、规格相关、hotfix、increment、closeout、Execution Mode 偏好。
+归到以下之一：新需求、product discovery、继续推进、review-only、gate-only、当前任务实现、规格相关、hotfix、increment、closeout、Execution Mode 偏好。
 
 ### 3. 提取 Execution Mode 偏好
 
@@ -77,6 +77,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 | 用户意图 | 可优先尝试 | 不明确时回退 |
 |---------|----------|-----------|
+| 产品发现 / thesis / wedge / probe | `hf-product-discovery` | `hf-workflow-router` |
 | 规格澄清/修订 | `hf-specify` | `hf-workflow-router` |
 | 当前活跃任务实现 | `hf-test-driven-dev` | `hf-workflow-router` |
 | review/gate 请求 | 具体 review/gate skill | `hf-workflow-router` |
@@ -108,7 +109,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 `direct invoke` 时，3 行之后继续追加目标 leaf skill 的最小 kickoff，规则如下：
 - 只做第一步，不展开整个下游 workflow
 - 只问最少必要问题；若可用默认假设推进，优先用 assume-and-confirm 压缩提问轮次
-- 若目标是 `hf-specify`、`hf-hotfix`、`hf-increment` 这类本来就以 intake 开场的 skill，紧接着给出最小问题集或默认假设
+- 若目标是 `hf-product-discovery`、`hf-specify`、`hf-hotfix`、`hf-increment` 这类本来就以 intake 开场的 skill，紧接着给出最小问题集或默认假设
 - 若目标是已能直接执行的 skill（如已有充分上下文的 review / gate / build），直接进入该 skill 的首个动作说明
 
 `route-first` 时，不回放 entry matrix、不重讲分层历史、不展开不相关的备选；只说明"为什么不能 direct invoke"然后立即转交。
@@ -120,7 +121,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | 新会话入口、意图识别、direct vs route | ✅ | |
 | runtime 恢复编排、profile/mode 判断 | | → `hf-workflow-router` |
 | 已在 leaf skill 内部 | | → 继续当前 skill |
-| 产品 thesis 层面 | | → 产品 discovery 上游；若已安装 product workflow skill，则转交它 |
+| 产品 thesis 层面 | | → `hf-product-discovery` |
 
 ## Red Flags
 
@@ -130,7 +131,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 - 因用户点名就跳过工件检查
 - review/gate 完成后仍在做恢复编排
 - 复制 router 的 transition map 或 pause-point rules
-- 引用当前工作区里并不存在的 product workflow skill
+- 在已有 `hf-product-discovery` 的前提下仍发明第二个 product public shell
 
 ## Supporting References
 
@@ -140,7 +141,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | `skills/docs/hf-command-entrypoints.md` | `/hf-*` 命令解释 |
 | `hf-workflow-router/SKILL.md` | authoritative runtime routing |
 
-如果工作区未来补装了 product workflow skill，可把它视为当前技能的**可选上游邻居**；在此之前，这个 skill 必须自己处理"产品 discovery 尚未完成"的 fallback 表达。
+当前 pack 已提供 `hf-product-discovery` 作为 discovery leaf；本 skill 继续作为唯一 public entry，不再引入第二个 product public shell。
 
 ## Verification
 

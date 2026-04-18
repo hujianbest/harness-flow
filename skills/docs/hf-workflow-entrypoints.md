@@ -22,9 +22,9 @@ direct invoke 不是主路径替代品，而是在“当前节点已经足够明
 
 在进入 HF coding workflow family 之前，先判断当前问题是否其实仍属于上游 product discovery。
 
-以下场景不要直接进入 coding family，而应先进入：
+以下场景不要直接进入 coding family，而应先由 `using-hf-workflow` 分流到：
 
-- `using-hf-product-workflow`
+- `hf-product-discovery`
 
 典型信号：
 
@@ -93,11 +93,11 @@ direct invoke 不是主路径替代品，而是在“当前节点已经足够明
 
 | 节点类别 | 代表 skill | 典型入口条件 | 不该这样进入的典型情况 |
 |---|---|---|---|
-| Upstream discovery | `using-hf-product-workflow` | 仍在判断产品 thesis、wedge、probe 或是否值得做 | 已明确进入 formal spec / design / task planning，且 coding family 前置条件已满足 |
+| Upstream discovery authoring | `hf-product-discovery` | 仍在判断产品 thesis、wedge、probe 或是否值得做 | 已明确进入 formal spec / design / task planning，且 coding family 前置条件已满足 |
 | Public Entry | `using-hf-workflow` | 新会话、命令入口、family discovery、需要判断 direct invoke 还是 route-first | 当前已经进入 runtime recovery、需要 authoritative route / stage / profile 判断 |
 | Orchestrator | `hf-workflow-router` | 阶段不清、需要恢复编排、需要判断 profile 或下一步 | 把它当成每次新会话都必须直接暴露给用户的 public shell |
-| Authoring | `hf-specify` / `hf-design` / `hf-tasks` | 当前明确是在补齐规格、设计或任务计划正文；上游前置条件满足 | 阶段不清、其实该做 review、其实该走支线、或已进入实现 |
-| Review | `hf-spec-review` / `hf-design-review` / `hf-tasks-review` / downstream reviews | 当前明确是 review-only，请求和工件都指向一个具体 review 节点 | 没有可评审草稿 / 记录、其实需要继续产出正文、或 route / stage 冲突 |
+| Authoring | `hf-product-discovery` / `hf-specify` / `hf-design` / `hf-tasks` | 当前明确是在补齐 discovery、规格、设计或任务计划正文；上游前置条件满足 | 阶段不清、其实该做 review、其实该走支线、或已进入实现 |
+| Review | `hf-discovery-review` / `hf-spec-review` / `hf-design-review` / `hf-tasks-review` / downstream reviews | 当前明确是 review-only，请求和工件都指向一个具体 review 节点 | 没有可评审草稿 / 记录、其实需要继续产出正文、或 route / stage 冲突 |
 | Implementation | `hf-test-driven-dev` | 已有唯一活跃任务，且任务计划已批准，或已有 hotfix handoff / 回流 findings | 无唯一活跃任务、批准状态冲突、其实要做 review / gate |
 | Standalone experience capture | `hf-bug-patterns` | AI 发现重复错误、recurring review finding、hotfix 教训或用户要求把经验固化成 bug pattern | 把它当成 `hf-test-review` 前的 mandatory gate、把它写成 canonical next action，或在没有历史证据时强行固化 |
 | Gates | `hf-regression-gate` / `hf-completion-gate` | 上游记录已落盘，当前就是要跑正式门禁 | 缺上游 handoff / verification 输入、缺环境、其实该回到实现或 router |
@@ -203,6 +203,7 @@ direct invoke 的 handoff 只表达“本节点之后推荐谁”，不替代 ro
 
 ## Canonical Direct Invoke Examples
 
+- “先把产品方向、问题和 wedge 收敛清楚，不要直接写 spec” -> 可 direct invoke `hf-product-discovery`
 - “先把需求梳理清楚，不要做设计” -> 可 direct invoke `hf-specify`
 - “帮我 review 这份 spec 草稿” -> 若规格草稿已存在且这是 review-only 请求，可 direct invoke `hf-spec-review`
 - “按 TDD 实现当前 active task” -> 若任务计划已批准且活跃任务唯一，可 direct invoke `hf-test-driven-dev`
