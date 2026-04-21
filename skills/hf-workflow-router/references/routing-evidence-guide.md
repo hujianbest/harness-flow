@@ -31,9 +31,9 @@
 
 优先使用项目已有工件，不要额外依赖根目录 JSON 信号文件。
 
-推荐的路由证据包括：
+推荐的路由证据包括（按 `docs/principles/sdd-artifact-layout.md` 的 *Minimal `docs/` Tiers*，**read-on-presence**：缺失视为未启用，不阻塞路由）：
 
-- `docs/index.md` 中标注的当前 active feature
+- 顶层导航中标注的当前 active feature：档 0/1 读仓库根 `README.md`；档 2 读 `docs/index.md`。两者都缺失时，回退到扫 `features/` 下最新的、未含 `closeout.md` 的目录
 - 当前 active feature 目录下的 `README.md` 与 `progress.md`（若存在 `Workspace Isolation` / `Worktree Path` / `Worktree Branch`，也应一并读取）
 - 当前 active feature 目录下的 `spec.md` / `design.md` / `tasks.md` 的存在情况与批准状态
 - `features/<active>/reviews/` 下的评审记录
@@ -47,14 +47,14 @@
 在会话开始时，`hf-workflow-router` 应按以下顺序判断：
 
 1. `AGENTS.md` 中与 `hf-workflow` 相关的映射与审批约定
-2. `docs/index.md` 中标注的当前 active feature
+2. 顶层导航：`docs/index.md`（档 2，若存在）→ 仓库根 `README.md`（档 0/1）→ 扫 `features/` 兜底
 3. `features/<active>/README.md` 与 `progress.md`
 4. `features/<active>/spec.md` / `design.md` / `tasks.md` 的存在情况与批准状态
 5. `features/<active>/reviews/`
 6. `features/<active>/approvals/`
 7. `features/<active>/verification/`
 8. `features/<active>/closeout.md`（如存在）
-9. `docs/release-notes/` + `CHANGELOG.md`
+9. release notes：`docs/release-notes/`（档 2，若存在）→ 仓库根 `CHANGELOG.md`（档 0 起）
 10. 用户当前请求
 
 若较高优先级工件与较低优先级工件冲突，应优先相信更基础、更上游的工件状态。
@@ -80,6 +80,8 @@
 - review 结论是 `通过`，但没有 approval step 完成证据
 - feature `progress.md` 写着“继续实现”，但 `spec.md` / `design.md` / `tasks.md` 没有批准证据
 - 只凭 `docs/release-notes/` 或 `CHANGELOG.md` 或零散提交信息推断阶段已经结束
+- 因为 `docs/index.md` 缺失就阻塞路由（档 0/1 时应回退到仓库根 `README.md`；都没有时回退到扫 `features/`）
+- 因为 `docs/runbooks/` / `docs/slo/` 等档 2 目录缺失就阻塞路由（这些目录未启用是合法状态）
 
 ## 批准信号
 
