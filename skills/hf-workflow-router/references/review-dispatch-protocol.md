@@ -45,7 +45,7 @@
   "workspace_isolation": "in-place|worktree-required|worktree-active",
   "worktree_path": "当前候选实现所在 worktree 根路径（若存在）",
   "worktree_branch": "当前候选实现分支（若存在）",
-  "expected_record_path": "docs/reviews/... 或项目映射路径",
+  "expected_record_path": "features/<active>/reviews/... 或项目映射路径",
   "current_profile": "full|standard|lightweight",
   "design_execution_mode": "parallel|architecture-first|ui-first"
 }

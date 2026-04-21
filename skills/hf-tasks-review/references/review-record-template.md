@@ -2,7 +2,7 @@
 
 ## 保存路径
 
-默认：`docs/reviews/tasks-review-<topic>.md`
+默认：`features/<active>/reviews/tasks-review-YYYY-MM-DD.md`
 
 若 `AGENTS.md` 声明了等价路径，按映射保存。
 
@@ -29,7 +29,7 @@
 
 ## 记录位置
 
-- `docs/reviews/tasks-review-<topic>.md` 或映射路径
+- `features/<active>/reviews/tasks-review-YYYY-MM-DD.md` 或映射路径
 
 ## 交接说明
 

@@ -37,7 +37,7 @@
 ```markdown
 # Task Board
 
-- Source Task Plan: docs/tasks/2026-04-09-parser-tasks.md
+- Source Task Plan: features/003-parser/tasks.md
 - Current Active Task: T1
 
 ## Task Queue
@@ -59,7 +59,7 @@
 ## Task Board 操作
 
 - 建议的首个活跃任务先写在任务计划正文中
-- 只有 review 通过且 approval step 完成后，才把权威版 Current Active Task 写入 task-progress.md
+- 只有 review 通过且 approval step 完成后，才把权威版 Current Active Task 写入 feature `progress.md`（默认 `features/<active>/progress.md`）
 - 后续任务切换由 hf-workflow-router 在每次 completion gate 通过后根据 queue projection 重选
 - 若需要新建 board，优先使用当前 skill pack 的 `templates/task-board-template.md`
 

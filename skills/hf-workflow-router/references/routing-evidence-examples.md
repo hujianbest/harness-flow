@@ -7,9 +7,9 @@
 更推荐使用以下证据来源：
 
 - 已批准的规格 / 设计 / 任务工件
-- `task-progress.md` 这类进度记录
-- `docs/reviews/` 下的评审记录
-- `docs/verification/` 下的验证记录
+- feature `progress.md` 这类进度记录（默认 `features/<active>/progress.md`）
+- `features/<active>/reviews/` 下的评审记录
+- `features/<active>/verification/` 下的验证记录
 - 用户明确表达的变更或热修复意图
 
 ## 推荐替代方式

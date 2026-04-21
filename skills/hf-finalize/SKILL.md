@@ -56,12 +56,13 @@ description: Use when completion gate already allows closeout and the remaining 
 ### 1. 读取 gate 记录和当前状态
 
 读：
-- completion records、regression records
-- profile-applicable review / verification records
-- 已批准任务计划 / task board（若存在）
-- `task-progress.md`（含 worktree 字段）
-- 项目 release notes / changelog（优先遵循 `AGENTS.md`；默认 `RELEASE_NOTES.md`）
-- 受影响入口文档
+- completion records、regression records（默认 `features/<active>/verification/`）
+- profile-applicable review / approval records（默认 `features/<active>/reviews/`、`features/<active>/approvals/`）
+- 已批准任务计划 / task board（默认 `features/<active>/tasks.md`、`features/<active>/task-board.md`）
+- feature `progress.md`（默认 `features/<active>/progress.md`，含 worktree 字段）
+- feature `README.md`（默认 `features/<active>/README.md`）
+- 项目 release notes / changelog（优先遵循 `AGENTS.md`；默认 `docs/release-notes/vX.Y.Z.md` + 仓库根 `CHANGELOG.md`）
+- 受影响的长期资产入口（默认 `docs/arc42/`、`docs/runbooks/`、`docs/slo/`、`docs/adr/`、`docs/index.md`）
 
 Profile-aware 证据矩阵：
 - `full` / `standard`：需要 closeout 所依赖的 reviews + gates 已落盘
@@ -106,9 +107,22 @@ Profile-aware 证据矩阵：
 
 如果用户不同意结束 workflow，或希望保留后续动作，则不要写 `null`，应回到 `hf-workflow-router`。
 
-### 4. 更新 release notes / changelog 和最小文档一致性
+### 4. 同步长期资产到 `docs/`，更新 release notes / CHANGELOG
 
-写入用户可见变化，并检查规格/设计/任务/状态文档是否与 closeout 结论一致。
+按 `docs/principles/sdd-artifact-layout.md` 的 promotion rules，把 feature 周期内已批准的变更同步到 `docs/`：
+
+- `docs/adr/NNNN-...md`：把状态 `proposed` 翻为 `accepted`（设计阶段已落地，此处仅状态翻转 + 必要 supersedes / superseded-by 双向链接）
+- `docs/arc42/...`：同步本次 feature 改变的架构图景节点
+- `docs/arc42/12_glossary.md`：补入新术语
+- `docs/runbooks/...`：新增或更新运维手册
+- `docs/slo/...`：新增或更新 SLO 定义
+- `docs/release-notes/vX.Y.Z.md`：写入用户可见变化（详细版本）
+- 仓库根 `CHANGELOG.md`：写入 vX.Y.Z 入口（Keep a Changelog 风格）
+- `docs/index.md`：更新 active feature / 最近 closeout 的 feature 列表
+
+并检查规格/设计/任务/状态文档（`features/<active>/` 内）是否与 closeout 结论一致。
+
+若 `docs/` 同步项缺失或与 closeout 结论不一致，应判 `blocked` 并回 `hf-workflow-router`，不得在 closeout pack 中伪造 sync 证据。
 
 ### 5. 形成 evidence matrix
 
@@ -119,7 +133,7 @@ Profile-aware 证据矩阵：
 
 ### 6. 产出 closeout pack
 
-使用 `templates/finalize-closeout-pack-template.md`，至少写出：
+写入 `features/<active>/closeout.md`（基于 `templates/finalize-closeout-pack-template.md`）。至少写出：
 - closeout type
 - 关闭的 scope（当前任务 / 整个 workflow）
 - 已消费的 evidence matrix
@@ -159,8 +173,14 @@ Profile-aware 证据矩阵：
 
 ## Release / Docs Sync
 
-- Release Notes Path:
-- Updated Docs:
+- Release Notes Path:                      # 例：docs/release-notes/v1.5.0.md
+- CHANGELOG Path:                          # 例：CHANGELOG.md（v1.5.0 入口）
+- Updated Long-Term Assets:                # 显式列出本次同步到 docs/ 的路径
+  - docs/arc42/...
+  - docs/runbooks/...
+  - docs/slo/...
+  - docs/adr/NNNN-...md（status: proposed → accepted）
+- Index Updated:                           # docs/index.md 是否已更新
 
 ## Handoff
 
@@ -205,7 +225,9 @@ Closeout type-specific 约束：
 - 不区分 `task closeout` 和 `workflow closeout`
 - 有剩余任务却宣称 workflow done
 - 没剩余任务却仍写回 `hf-workflow-router`
-- release notes / changelog 没更新就声称 closeout 完成
+- release notes / CHANGELOG 没更新就声称 closeout 完成
+- 长期资产（arc42 / runbooks / SLO / ADR 状态）未同步就宣称 closeout 完成
+- 把 closeout 后的 feature 目录移动到 `features/archived/`，破坏其它工件的反向引用
 - 用会话记忆代替 on-disk 记录
 - 忘记记录 worktree 最终 disposition
 
@@ -215,10 +237,14 @@ Closeout type-specific 约束：
 - [ ] 已判断 closeout type
 - [ ] gate 证据已引用
 - [ ] evidence matrix 已落盘
-- [ ] task-progress / release notes / docs 已同步
-- [ ] closeout pack 已形成
+- [ ] feature `progress.md` / release notes / CHANGELOG / `docs/` 长期资产已同步，且 closeout pack `Release / Docs Sync` 区块显式列出实际同步路径
+- [ ] 涉及的 ADR 状态已从 `proposed` 翻为 `accepted`（如适用）
+- [ ] `docs/index.md` 已更新（active feature / 最近 closeout）
+- [ ] feature `README.md` 中 Closed / Closeout Type / Linked Long-Term Assets 等区块已更新
+- [ ] closeout pack 已写入 `features/<active>/closeout.md`
 - [ ] worktree 状态已同步
 - [ ] `task closeout` 时 next action = `hf-workflow-router`
 - [ ] `workflow closeout` 时 next action = `null` 或项目 null 约定
 - [ ] `workflow closeout` 在 interactive 模式下已显式经过最终确认
+- [ ] feature 目录平铺保留在 `features/`，未被移动到 `features/archived/`
 - [ ] 下一个会话能继续而不需猜测

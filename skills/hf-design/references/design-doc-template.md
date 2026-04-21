@@ -62,7 +62,7 @@
 
 ## 保存路径
 
-默认：`docs/designs/YYYY-MM-DD-<topic>-design.md`
+默认：`features/<active>/design.md`
 
 若 `AGENTS.md` 声明了设计路径映射，优先使用映射路径。
 
@@ -70,5 +70,5 @@
 
 设计草稿交评审后，应同步：
 - 设计文档状态（`状态: 草稿`）
-- `task-progress.md` 中的 `Current Stage: hf-design`
-- `task-progress.md` 中的 `Next Action Or Recommended Skill: hf-design-review`
+- feature `progress.md`（默认 `features/<active>/progress.md`）中的 `Current Stage: hf-design`
+- feature `progress.md` 中的 `Next Action Or Recommended Skill: hf-design-review`

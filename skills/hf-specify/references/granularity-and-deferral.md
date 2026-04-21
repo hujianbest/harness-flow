@@ -98,7 +98,7 @@
 
 默认路径与规格文档相邻：
 
-- `docs/specs/YYYY-MM-DD-<topic>-deferred.md`
+- `features/<active>/spec-deferred.md`
 
 若 `AGENTS.md` 已声明等价路径，优先使用映射路径。
 

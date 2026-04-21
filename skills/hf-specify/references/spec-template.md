@@ -4,9 +4,9 @@
 
 ## 保存路径
 
-默认：`docs/specs/YYYY-MM-DD-<topic>-srs.md`
+默认：`features/<active>/spec.md`
 
-Deferred backlog（若存在）：`docs/specs/YYYY-MM-DD-<topic>-deferred.md`
+Deferred backlog（若存在）：`features/<active>/spec-deferred.md`
 
 若 `AGENTS.md` 声明了规格路径映射，优先使用映射路径。
 
@@ -57,5 +57,5 @@ Deferred backlog（若存在）：`docs/specs/YYYY-MM-DD-<topic>-deferred.md`
 
 规格草稿交评审后，应同步：
 - 规格文档状态（`状态: 草稿`）
-- `task-progress.md` 中的 `Current Stage: hf-specify`
-- `task-progress.md` 中的 `Next Action Or Recommended Skill: hf-spec-review`
+- feature `progress.md`（默认 `features/<active>/progress.md`）中的 `Current Stage: hf-specify`
+- feature `progress.md` 中的 `Next Action Or Recommended Skill: hf-spec-review`

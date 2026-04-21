@@ -47,5 +47,5 @@
 
 discovery 草稿交评审后，应同步：
 - 文档状态（`状态: 草稿`）
-- `task-progress.md` 中的 `Current Stage: hf-product-discovery`
-- `task-progress.md` 中的 `Next Action Or Recommended Skill: hf-discovery-review`
+- discovery 阶段进度记录中的 `Current Stage: hf-product-discovery`（discovery 阶段 feature 尚未创建，progress 记录可临时与 discovery 草稿同目录；进入 feature 后由 `features/<NNN>-<slug>/progress.md` 接管）
+- 同上：`Next Action Or Recommended Skill: hf-discovery-review`

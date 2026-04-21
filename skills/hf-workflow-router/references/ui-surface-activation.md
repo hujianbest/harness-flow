@@ -86,7 +86,7 @@
 - 核心交付物是界面体验，后端需要按 UI 需求整形数据
 - 规格含强可用性 / 性能预算要求，倒逼后端选择
 
-### 执行模式在 task-progress.md 的登记
+### 执行模式在 feature `progress.md` 的登记
 
 ```markdown
 - Current Stage: hf-design | hf-ui-design

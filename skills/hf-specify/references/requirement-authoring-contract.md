@@ -59,7 +59,7 @@
 - `用户请求: "审批通过后通知申请人"`
 - `spec-bridge: docs/insights/xxx-spec-bridge.md#关键假设 2`
 - `现有约束: AGENTS.md 中的浏览器兼容规则`
-- `review finding: docs/reviews/spec-review-approval.md#finding-3`
+- `review finding: features/<active>/reviews/spec-review-YYYY-MM-DD.md#finding-3`
 - `外部约束: 法规 / 合同 / 兼容要求`
 
 规则如下：

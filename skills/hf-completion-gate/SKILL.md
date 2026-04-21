@@ -109,7 +109,7 @@ full/standard 记录缺失/过旧 → `阻塞`。
 
 ## Output Contract
 
-记录保存到 `AGENTS.md` 声明的 verification 路径；若无项目覆写，默认使用 `docs/verification/completion-<task>.md`。若项目无专用格式，默认使用共享模板 `templates/verification-record-template.md`。
+记录保存到 `AGENTS.md` 声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/completion-task-NNN.md`。若项目无专用格式，默认使用共享模板 `templates/verification-record-template.md`。
 
 最少应包含：
 - 已消费的上游结论与证据矩阵
@@ -120,7 +120,7 @@ full/standard 记录缺失/过旧 → `阻塞`。
 - worktree 锚点（若适用）
 - 唯一门禁结论与唯一下一步
 
-在 task-progress.md 写回 canonical Next Action。
+在 feature `progress.md` 写回 canonical Next Action。
 
 ## Reference Guide
 
@@ -152,4 +152,4 @@ full/standard 记录缺失/过旧 → `阻塞`。
 - [ ] precheck blocker 与 worktree 锚点（若适用）已写清
 - [ ] 基于最新证据给出唯一门禁结论
 - [ ] worktree 状态已写出（若适用）
-- [ ] task-progress.md 已同步 canonical Next Action
+- [ ] feature `progress.md` 已同步 canonical Next Action

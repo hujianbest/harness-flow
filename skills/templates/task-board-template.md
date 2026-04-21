@@ -3,9 +3,9 @@
 使用说明：
 
 - 这是 `hf` 中用于 task-to-task 自动推进的可选 coordination artifact 模板。
-- 它应与已批准任务计划和 `task-progress.md` 配合使用；任务计划负责定义任务拓扑、依赖与完成条件，task board 负责投影当前队列状态。
-- 建议保存到 `docs/tasks/YYYY-MM-DD-<topic>-task-board.md`，并在 `task-progress.md` 中通过 `Task Board Path` 显式引用。
-- `Current Active Task` 仍以 `task-progress.md` 为权威；task board 中最多只应有一个 `in_progress` 任务，并且它应与 `Current Active Task` 保持一致。
+- 它应与已批准任务计划和 feature 范围内的 `progress.md` 配合使用；任务计划负责定义任务拓扑、依赖与完成条件，task board 负责投影当前队列状态。
+- **默认保存路径：`features/<NNN>-<slug>/task-board.md`**，并在 `features/<NNN>-<slug>/progress.md` 中通过 `Task Board Path` 显式引用。
+- `Current Active Task` 仍以 feature 的 `progress.md` 为权威；task board 中最多只应有一个 `in_progress` 任务，并且它应与 `Current Active Task` 保持一致。
 - 若 task board 与已批准任务计划冲突，或无法唯一判断 `next-ready task`，应停止自动推进并回到 `hf-workflow-router`。
 
 ## Metadata

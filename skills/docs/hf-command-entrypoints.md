@@ -138,8 +138,8 @@
 ### Minimum Inputs
 
 - 当前活跃任务或 hotfix handoff
-- `task-progress.md`
-- 必要 spec / design / task anchors
+- 当前 active feature 的 `progress.md`（默认 `features/<active>/progress.md`）
+- 必要 spec / design / task anchors（默认 `features/<active>/spec.md` / `design.md` / `tasks.md`）
 - `AGENTS.md` 中的 coding / testing 约定
 
 ### Expected Output Shape
@@ -217,9 +217,9 @@
 ### Minimum Inputs
 
 - 实现交接块
-- regression / completion 记录（视当前子阶段而定）
-- `task-progress.md`
-- 项目 release notes / changelog（若无项目覆写，默认 `RELEASE_NOTES.md`）
+- regression / completion 记录（视当前子阶段而定，默认 `features/<active>/verification/`）
+- 当前 active feature 的 `progress.md`（默认 `features/<active>/progress.md`）
+- 项目 release notes / changelog（若无项目覆写，默认 `docs/release-notes/vX.Y.Z.md` + 仓库根 `CHANGELOG.md`）
 
 ### Expected Output Shape
 
