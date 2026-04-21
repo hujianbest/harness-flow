@@ -109,20 +109,32 @@ Profile-aware 证据矩阵：
 
 ### 4. 同步长期资产到 `docs/`，更新 release notes / CHANGELOG
 
-按 `docs/principles/sdd-artifact-layout.md` 的 promotion rules，把 feature 周期内已批准的变更同步到 `docs/`：
+按 `docs/principles/sdd-artifact-layout.md` 的 *Minimal `docs/` Tiers* 与 promotion rules，遵循 **sync-on-presence** 原则：**同步范围按 `docs/` 实际存在的子目录 + 本 feature 触发了升级条件的子目录决定**，不要求项目同步未启用的资产。
+
+必须同步项（任何 tier）：
 
 - `docs/adr/NNNN-...md`：把状态 `proposed` 翻为 `accepted`（设计阶段已落地，此处仅状态翻转 + 必要 supersedes / superseded-by 双向链接）
-- `docs/arc42/...`：同步本次 feature 改变的架构图景节点
-- `docs/arc42/12_glossary.md`：补入新术语
-- `docs/runbooks/...`：新增或更新运维手册
-- `docs/slo/...`：新增或更新 SLO 定义
-- `docs/release-notes/vX.Y.Z.md`：写入用户可见变化（详细版本）
 - 仓库根 `CHANGELOG.md`：写入 vX.Y.Z 入口（Keep a Changelog 风格）
-- `docs/index.md`：更新 active feature / 最近 closeout 的 feature 列表
+- 顶层导航：档 0/1 更新仓库根 `README.md` 中的 active feature / 最近 closeout / ADR 索引行；档 2 更新 `docs/index.md`
+
+按存在同步项（仅当对应载体已启用或本 closeout 触发升级条件）：
+
+- 架构概述：`docs/architecture.md`（档 1）或 `docs/arc42/`（档 2）—— 同步本 feature 改变的架构图景；二者只能同时存在一份
+- Glossary：档 1 时归并到 `docs/architecture.md` 的术语表节；档 2 时落到 `docs/arc42/12_glossary.md`
+- `docs/runbooks/...`：仅当目录已存在或本 feature 引入第一个生产部署运维点
+- `docs/slo/...`：仅当目录已存在或本 feature 引入第一个 SLO
+- `docs/diagrams/...`：仅当目录已存在或本 feature 引入需要源码化的图
+- `docs/release-notes/vX.Y.Z.md`：仅当目录已启用（档 2）；档 0/1 时仅 `CHANGELOG.md` 即可
 
 并检查规格/设计/任务/状态文档（`features/<active>/` 内）是否与 closeout 结论一致。
 
-若 `docs/` 同步项缺失或与 closeout 结论不一致，应判 `blocked` 并回 `hf-workflow-router`，不得在 closeout pack 中伪造 sync 证据。
+判 `blocked` 的条件收紧为：
+
+- 必须同步项缺失或与 closeout 结论不一致；
+- 本 feature 触发了某类长期资产变化（例如新增模块、新增运维点、新增 SLO），但 closeout 既未同步现存目录，也未在合理升级时机启用新目录；
+- closeout pack 伪造 sync 证据。
+
+未启用的可选资产（如档 0/1 项目尚未启用的 `docs/runbooks/` / `docs/slo/`）不构成 `blocked` 依据，应在 closeout pack 中显式标 `N/A（项目当前未启用此资产）` 或 `N/A（本 feature 未触发该资产变化）`。
 
 ### 5. 形成 evidence matrix
 
@@ -173,14 +185,15 @@ Profile-aware 证据矩阵：
 
 ## Release / Docs Sync
 
-- Release Notes Path:                      # 例：docs/release-notes/v1.5.0.md
-- CHANGELOG Path:                          # 例：CHANGELOG.md（v1.5.0 入口）
-- Updated Long-Term Assets:                # 显式列出本次同步到 docs/ 的路径
-  - docs/arc42/...
-  - docs/runbooks/...
-  - docs/slo/...
+- Release Notes Path:                      # 档 0/1：CHANGELOG.md（vX.Y.Z 入口）；档 2：docs/release-notes/vX.Y.Z.md
+- CHANGELOG Path:                          # 例：CHANGELOG.md（v1.5.0 入口）—— 任何 tier 必填
+- Updated Long-Term Assets:                # 按存在同步：列出本次同步路径，未启用项写 N/A
   - docs/adr/NNNN-...md（status: proposed → accepted）
-- Index Updated:                           # docs/index.md 是否已更新
+  - 架构概述：docs/architecture.md（档 1）或 docs/arc42/...（档 2）；本 feature 未触发架构变化时写 N/A
+  - docs/runbooks/...：N/A（项目当前未启用此资产）/ N/A（本 feature 未触发）/ 实际路径
+  - docs/slo/...：同上
+  - docs/diagrams/...：同上
+- Index Updated:                           # 档 0/1：仓库根 README.md 中 active feature 行；档 2：docs/index.md
 
 ## Handoff
 
@@ -226,7 +239,9 @@ Closeout type-specific 约束：
 - 有剩余任务却宣称 workflow done
 - 没剩余任务却仍写回 `hf-workflow-router`
 - release notes / CHANGELOG 没更新就声称 closeout 完成
-- 长期资产（arc42 / runbooks / SLO / ADR 状态）未同步就宣称 closeout 完成
+- 长期资产（已存在的架构概述 / runbooks / SLO / ADR 状态）未同步就宣称 closeout 完成
+- 为项目当前未启用的可选资产（如档 0/1 没有的 `docs/runbooks/` / `docs/slo/`）误判 `blocked`
+- 同时存在 `docs/architecture.md` 与 `docs/arc42/`（架构概述应二选一）
 - 把 closeout 后的 feature 目录移动到 `features/archived/`，破坏其它工件的反向引用
 - 用会话记忆代替 on-disk 记录
 - 忘记记录 worktree 最终 disposition
@@ -237,10 +252,11 @@ Closeout type-specific 约束：
 - [ ] 已判断 closeout type
 - [ ] gate 证据已引用
 - [ ] evidence matrix 已落盘
-- [ ] feature `progress.md` / release notes / CHANGELOG / `docs/` 长期资产已同步，且 closeout pack `Release / Docs Sync` 区块显式列出实际同步路径
+- [ ] feature `progress.md` / release notes / CHANGELOG / `docs/` 长期资产已**按存在同步**，closeout pack `Release / Docs Sync` 区块显式列出实际同步路径与 `N/A` 项
 - [ ] 涉及的 ADR 状态已从 `proposed` 翻为 `accepted`（如适用）
-- [ ] `docs/index.md` 已更新（active feature / 最近 closeout）
+- [ ] 顶层导航已更新：档 0/1 更新仓库根 `README.md`；档 2 更新 `docs/index.md`
 - [ ] feature `README.md` 中 Closed / Closeout Type / Linked Long-Term Assets 等区块已更新
+- [ ] 未为项目当前未启用的可选资产（如档 0/1 没有的 `docs/slo/` / `docs/postmortems/`）误判 `blocked`
 - [ ] closeout pack 已写入 `features/<active>/closeout.md`
 - [ ] worktree 状态已同步
 - [ ] `task closeout` 时 next action = `hf-workflow-router`
