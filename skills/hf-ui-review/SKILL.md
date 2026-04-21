@@ -40,7 +40,7 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 ## Chain Contract
 
-读取：已批准规格、被评审 UI 设计文档、`hf-design` 当前设计（仅用于验证 peer 交接块一致性，不实际评审其内容）、`AGENTS.md` 评审约定、`task-progress.md` 当前状态、最少必要前端上下文。
+读取：已批准规格（默认 `features/<active>/spec.md`）、被评审 UI 设计文档（默认 `features/<active>/ui-design.md`）、`hf-design` 当前设计（默认 `features/<active>/design.md`，仅用于验证 peer 交接块一致性，不实际评审其内容）、`AGENTS.md` 评审约定、feature `progress.md`（默认 `features/<active>/progress.md`）当前状态、最少必要前端上下文。
 
 产出：review 记录正文 + 结构化 reviewer 返回摘要。
 
@@ -66,7 +66,7 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 ### 1. 建立证据基线
 
-读取并固定证据来源：已批准规格、当前 UI 设计文档、`hf-design` 当前草稿（用于 peer 交接块比对）、`AGENTS.md` 约定、`task-progress.md` 状态、必要前端上下文（项目已有 Design System、组件库、品牌规范等）。
+读取并固定证据来源：已批准规格（默认 `features/<active>/spec.md`）、当前 UI 设计文档（默认 `features/<active>/ui-design.md`）、`hf-design` 当前草稿（默认 `features/<active>/design.md`，用于 peer 交接块比对）、`AGENTS.md` 约定、feature `progress.md`（默认 `features/<active>/progress.md`）状态、必要前端上下文（项目已有 Design System、组件库、品牌规范等）。
 
 不要只根据会话记忆或零散聊天内容判断"已批准"或"UI 设计已经讲清楚"。
 

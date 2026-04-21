@@ -10,18 +10,22 @@
 
 ## 推荐工件布局
 
-除非项目已有已批准的等价路径，否则默认使用以下布局：
+除非项目已有已批准的等价路径，否则默认使用以下布局（详见 `docs/principles/sdd-artifact-layout.md` 与 `skills/docs/hf-workflow-shared-conventions.md` 的 *Default 逻辑工件布局*）：
 
 | 逻辑工件 | 推荐路径 | 说明 |
 |---|---|---|
-| 需求规格 | `docs/specs/YYYY-MM-DD-<topic>-srs.md` | 定义做什么 |
-| 设计文档 | `docs/designs/YYYY-MM-DD-<topic>-design.md` | 定义怎么做 |
-| 任务计划 | `docs/tasks/YYYY-MM-DD-<topic>-tasks.md` | 定义执行顺序 |
-| 进度记录 | `task-progress.md` | 支撑跨会话连续推进 |
-| 发布说明 | 项目 release notes / changelog（默认 `RELEASE_NOTES.md`） | 面向用户的变更说明 |
-| 评审记录 | `docs/reviews/` | 可选但建议提供 |
-| approval 记录 | `docs/approvals/` | `interactive` / `auto` 下的 approval 证据 |
-| 验证记录 | `docs/verification/` | 可选但建议提供 |
+| feature 入口 | `features/<active>/README.md` | 单 feature 状态总览，路由时第一时间读 |
+| 需求规格 | `features/<active>/spec.md` | 定义做什么 |
+| 设计文档 | `features/<active>/design.md` | 定义怎么做 |
+| 任务计划 | `features/<active>/tasks.md` | 定义执行顺序 |
+| 进度记录 | `features/<active>/progress.md` | 支撑跨会话连续推进；仓库根不再保留全局 progress 文件 |
+| 评审记录 | `features/<active>/reviews/<kind>-<scope>-YYYY-MM-DD.md` | 可选但建议提供 |
+| approval 记录 | `features/<active>/approvals/<kind>-<scope>-YYYY-MM-DD.md` | `interactive` / `auto` 下的 approval 证据 |
+| 验证记录 | `features/<active>/verification/<kind>-<scope>-YYYY-MM-DD.md` | 可选但建议提供 |
+| closeout pack | `features/<active>/closeout.md` | finalize 之后必需 |
+| 发布说明 | `docs/release-notes/vX.Y.Z.md` + `CHANGELOG.md` | 面向用户的变更说明 |
+| ADR pool | `docs/adr/NNNN-<slug>.md` | 仓库级长期资产，design 阶段直接落 |
+| 顶层导航 | `docs/index.md` | 列当前 active feature / 最近 closeout |
 
 ## 最小路由证据
 
@@ -29,11 +33,13 @@
 
 推荐的路由证据包括：
 
-- 需求规格、设计文档、任务计划的批准状态
-- `task-progress.md` 这类进度记录（若存在 `Workspace Isolation` / `Worktree Path` / `Worktree Branch`，也应一并读取）
-- `docs/reviews/` 下的评审记录
-- `docs/approvals/` 下的 approval 记录
-- `docs/verification/` 下的验证记录
+- `docs/index.md` 中标注的当前 active feature
+- 当前 active feature 目录下的 `README.md` 与 `progress.md`（若存在 `Workspace Isolation` / `Worktree Path` / `Worktree Branch`，也应一并读取）
+- 当前 active feature 目录下的 `spec.md` / `design.md` / `tasks.md` 的存在情况与批准状态
+- `features/<active>/reviews/` 下的评审记录
+- `features/<active>/approvals/` 下的 approval 记录
+- `features/<active>/verification/` 下的验证记录
+- `features/<active>/closeout.md`（如已存在，意味着 feature 已 closeout）
 - 用户明确提出的变更请求或热修复请求
 
 ## 路由时的证据优先级
@@ -41,13 +47,15 @@
 在会话开始时，`hf-workflow-router` 应按以下顺序判断：
 
 1. `AGENTS.md` 中与 `hf-workflow` 相关的映射与审批约定
-2. 需求规格 / 设计文档 / 任务计划的存在情况与批准状态
-3. `task-progress.md`
-4. `docs/reviews/`
-5. `docs/approvals/`
-6. `docs/verification/`
-7. 项目 release notes / changelog（默认 `RELEASE_NOTES.md`）
-8. 用户当前请求
+2. `docs/index.md` 中标注的当前 active feature
+3. `features/<active>/README.md` 与 `progress.md`
+4. `features/<active>/spec.md` / `design.md` / `tasks.md` 的存在情况与批准状态
+5. `features/<active>/reviews/`
+6. `features/<active>/approvals/`
+7. `features/<active>/verification/`
+8. `features/<active>/closeout.md`（如存在）
+9. `docs/release-notes/` + `CHANGELOG.md`
+10. 用户当前请求
 
 若较高优先级工件与较低优先级工件冲突，应优先相信更基础、更上游的工件状态。
 
@@ -70,8 +78,8 @@
 - 聊天里说“这个已经确认过了”，但工件中没有对应证据
 - 只存在草稿文档，没有状态字段或批准记录
 - review 结论是 `通过`，但没有 approval step 完成证据
-- `task-progress.md` 写着“继续实现”，但规格 / 设计 / 任务工件没有批准证据
-- 只凭项目 release notes / changelog（例如默认 `RELEASE_NOTES.md`）或零散提交信息推断阶段已经结束
+- feature `progress.md` 写着“继续实现”，但 `spec.md` / `design.md` / `tasks.md` 没有批准证据
+- 只凭 `docs/release-notes/` 或 `CHANGELOG.md` 或零散提交信息推断阶段已经结束
 
 ## 批准信号
 
@@ -103,7 +111,7 @@ approval step 的等价证据可以是：
 
 出现以下冲突时，采用保守处理：
 
-- `task-progress.md` 显示“进入实现”，但任务计划没有批准证据
+- feature `progress.md` 显示“进入实现”，但任务计划没有批准证据
 - 评审记录显示 `通过`，但工件状态仍是草稿
 - 用户说“继续编码”，但更上游工件仍未批准
 

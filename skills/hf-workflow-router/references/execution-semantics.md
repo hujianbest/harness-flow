@@ -21,7 +21,7 @@
 
 1. 用户当前请求中的显式模式要求
 2. `AGENTS.md` 中的默认模式与 auto 禁止条件
-3. `task-progress.md` 中已有且仍有效的 `Execution Mode`
+3. feature `progress.md`（默认 `features/<active>/progress.md`）中已有且仍有效的 `Execution Mode`
 4. 默认 `interactive`
 
 约束：
@@ -147,7 +147,7 @@
 | "用户已经点名某个 hf skill，就不用再经过入口了" | 点名 skill 也不等于当前时机正确，仍要由 router 判断是否应进入它。 |
 | "先做一点实现，后面再补 route 说明" | 路由必须先完成，之后才能进入下游 skill。 |
 | "这个改动很小，直接用 lightweight 就行" | Profile 由 router 根据信号判断，不允许用户或 agent 自行声称。 |
-| "`task-progress.md` 都写到实现了，可以直接下游继续" | 若它与批准状态或 review / gate 证据冲突，优先相信更保守、更上游的证据。 |
+| "feature `progress.md` 都写到实现了，可以直接下游继续" | 若它与批准状态或 review / gate 证据冲突，优先相信更保守、更上游的证据。 |
 | "没有明确热修复 / 变更证据，也可以先进支线处理" | 进入 `hf-hotfix` / `hf-increment` 必须有对应信号，不能把支线当快捷方式。 |
 | "缺了一两个评审或门禁也没关系，先推进再补" | 缺少必需 review / gate / approval step 证据时，不允许继续向下游推进。 |
 | "standard / lightweight 已经够了，不用升级" | 一旦发现缺上游依据或复杂度超出当前假设，就要升级 profile。 |

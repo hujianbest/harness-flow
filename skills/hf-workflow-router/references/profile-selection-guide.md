@@ -93,7 +93,7 @@
 
 ### 升级流程
 
-1. 在 `task-progress.md` 中更新 Workflow Profile 字段
+1. 在 feature `progress.md`（默认 `features/<active>/progress.md`）中更新 Workflow Profile 字段
 2. 在 Session Log 中记录升级原因
 3. 回到本 skill（`hf-workflow-router`）重新路由
 4. 按新 profile 的节点链路进入正确阶段

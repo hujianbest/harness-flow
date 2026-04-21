@@ -4,7 +4,7 @@
 
 评审完成后，将结论写入：
 
-- `docs/reviews/design-review-<topic>.md`
+- `features/<active>/reviews/design-review-YYYY-MM-DD.md`
 - 如 `AGENTS.md` 声明了等价路径，按映射路径保存
 
 若项目尚未形成固定 review 记录格式，默认使用当前模板。
@@ -32,7 +32,7 @@
 
 ## 记录位置
 
-- `docs/reviews/design-review-<topic>.md` 或映射路径
+- `features/<active>/reviews/design-review-YYYY-MM-DD.md` 或映射路径
 
 ## 交接说明
 
@@ -92,11 +92,11 @@ Precheck blocked 沿用 `阻塞` 返回规则，区别只是跳过正式 checkli
 
 ## 状态同步
 
-如果使用 `task-progress.md` 驱动 workflow，approval step 完成后由父会话同步更新：
+如果使用 feature `progress.md` 驱动 workflow，approval step 完成后由父会话同步更新：
 
 - 设计文档中的状态字段
-- `task-progress.md` 中的 `Current Stage`
-- `task-progress.md` 中的 `Next Action Or Recommended Skill`
+- feature `progress.md` 中的 `Current Stage`
+- feature `progress.md` 中的 `Next Action Or Recommended Skill`
 
 reviewer subagent 不代替父会话写入批准结论。
 

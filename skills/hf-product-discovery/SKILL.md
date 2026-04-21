@@ -110,8 +110,9 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 
 完成时产出：
 - discovery 草稿（默认路径：`docs/insights/YYYY-MM-DD-<topic>-discovery.md`；若 `AGENTS.md` 覆盖，优先遵循）
-- 文档中明确的 spec bridge 小节
-- `task-progress.md`（若项目使用）更新：`Current Stage` → `hf-product-discovery`，`Next Action Or Recommended Skill` → `hf-discovery-review`
+  - discovery 阶段 feature 尚未创建，因此 discovery 草稿落到 `docs/insights/` 长期资产目录；只有当 discovery 通过评审并决定推进为 feature 时，才由 `hf-specify` 创建 `features/<NNN>-<slug>/`
+- 文档中明确的 spec bridge 小节，作为后续 `hf-specify` 起草 `features/<NNN>-<slug>/spec.md` 的输入
+- discovery 阶段的进度可临时记录在 discovery 草稿中或与 discovery 同目录的 progress 文件；进入 feature 后，进度统一迁到 `features/<NNN>-<slug>/progress.md`
 
 若草稿未达评审门槛，不伪造 handoff；明确还缺什么。
 
@@ -146,4 +147,4 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 - [ ] confirmed facts、assumptions、later ideas 已显式分开
 - [ ] bridge 语义已明确，足以支撑 `hf-specify` 读取
 - [ ] discovery 正文未混入 formal spec / design 细节
-- [ ] `task-progress.md`（若使用）已同步到 `hf-discovery-review`
+- [ ] discovery 阶段进度记录（若使用）已同步到 `hf-discovery-review`；进入 feature 后续 progress 落到 `features/<NNN>-<slug>/progress.md`

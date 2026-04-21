@@ -100,7 +100,7 @@ Profile-aware 回归范围：
 
 ## Output Contract
 
-记录保存到 `AGENTS.md` 声明的 verification 路径；若无项目覆写，默认使用 `docs/verification/regression-<task>.md`。若项目无专用格式，默认使用共享模板 `templates/verification-record-template.md`。
+记录保存到 `AGENTS.md` 声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/regression-YYYY-MM-DD.md`（如需对应到具体任务，可写 `regression-task-NNN.md`）。若项目无专用格式，默认使用共享模板 `templates/verification-record-template.md`。
 
 最少应包含：
 - 已消费的上游证据（至少写清 implementation handoff、traceability review、相关 review/gate records）
@@ -137,4 +137,4 @@ Profile-aware 回归范围：
 - [ ] 回归面定义、evidence bundle 已写清
 - [ ] precheck blocker 与 worktree 锚点（若适用）已写清
 - [ ] 基于最新证据给出唯一门禁结论
-- [ ] task-progress.md 已同步
+- [ ] feature `progress.md` 已同步

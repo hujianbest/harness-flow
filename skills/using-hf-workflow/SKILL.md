@@ -19,7 +19,7 @@ HF workflow family 的 **public shell**。帮助你决定：
 | 方法 | 核心原则 | 来源 | 落地步骤 |
 |------|----------|------|----------|
 | **Front Controller Pattern** | 作为统一入口点，解析用户意图后分发到对应处理节点 | GoF 设计模式 / Martin Fowler, "Patterns of Enterprise Application Architecture" | 步骤 1 — 判断 entry vs recovery；步骤 7 — 正确结束 |
-| **Evidence-Based Dispatch** | 通过读取 task-progress.md 和工件状态判断 entry vs recovery | 项目化实践（HF 核心约定） | 步骤 1 — entry vs runtime recovery；步骤 4 — direct invoke 判断 |
+| **Evidence-Based Dispatch** | 通过读取 feature `progress.md` 与工件状态判断 entry vs recovery | 项目化实践（HF 核心约定） | 步骤 1 — entry vs runtime recovery；步骤 4 — direct invoke 判断 |
 | **Separation of Concerns** | 入口层只负责意图识别和分发，不做 authoritative routing 或状态修改 | 项目化实践（分层架构原则） | 步骤 7 — 只输出两类结果 |
 
 ## When to Use

@@ -57,7 +57,7 @@
       "expectations": [
         "优先读取 AGENTS.md 中的规格路径映射",
         "优先采用 AGENTS.md 中声明的章节骨架",
-        "不强行写入默认 `docs/specs/YYYY-MM-DD-<topic>-srs.md` 路径",
+        "不强行写入默认 `features/<active>/spec.md` 路径",
         "完成后仍交给 hf-spec-review"
       ]
     },

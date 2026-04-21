@@ -219,8 +219,8 @@ branches:
 当某个节点完成后，按以下顺序恢复状态机：
 
 1. 读取该节点的最新结论
-2. 确认当前 workflow profile（从 `task-progress.md` 读取）
-3. 若 `task-progress.md` 或等价工件已经写入合法或可归一化的 `Next Action Or Recommended Skill`，且它来自上一个已完成节点并与最新证据不冲突，优先采用这个显式下一步
+2. 确认当前 workflow profile（从 feature `progress.md`，默认 `features/<active>/progress.md` 读取）
+3. 若 feature `progress.md` 或等价工件已经写入合法或可归一化的 `Next Action Or Recommended Skill`，且它来自上一个已完成节点并与最新证据不冲突，优先采用这个显式下一步
 4. 否则检查该结论对应的上游 / 下游迁移是否在当前 profile 迁移表中有明确规则
 5. 若当前结论是 `hf-completion-gate=通过`，优先检查已批准任务计划或 `Task Board Path` 指向的等价工件：
    - 若存在唯一 `next-ready task`，先把 `Current Active Task` 切换到该任务，并把显式下一步锁定为 `hf-test-driven-dev`
@@ -236,18 +236,18 @@ branches:
 前提工件：
 
 ```markdown
-# task-progress.md
+# features/003-parser/progress.md
 
 - Current Stage: hf-completion-gate
 - Workflow Profile: standard
 - Execution Mode: auto
 - Current Active Task: T1
 - Next Action Or Recommended Skill: hf-completion-gate
-- Task Board Path: `docs/tasks/2026-04-09-parser-task-board.md`
+- Task Board Path: `features/003-parser/task-board.md`
 ```
 
 ```markdown
-# docs/tasks/2026-04-09-parser-task-board.md
+# features/003-parser/task-board.md
 
 ## Task Queue
 

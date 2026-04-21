@@ -2,7 +2,7 @@
 
 ## 保存路径
 
-默认：`docs/tasks/YYYY-MM-DD-<topic>-tasks.md`
+默认：`features/<active>/tasks.md`
 
 若 `AGENTS.md` 声明了任务计划路径映射，优先使用映射路径。
 
@@ -56,5 +56,5 @@
 - 主题或范围标识
 - 当前活跃任务选择规则
 - 可供评审定位的章节结构
-- `task-progress.md` 中的 `Current Stage: hf-tasks`
-- `task-progress.md` 中的 `Next Action Or Recommended Skill: hf-tasks-review`
+- feature `progress.md`（默认 `features/<active>/progress.md`）中的 `Current Stage: hf-tasks`
+- feature `progress.md` 中的 `Next Action Or Recommended Skill: hf-tasks-review`

@@ -2,7 +2,7 @@
 
 ## 保存路径
 
-默认：`docs/reviews/code-review-<task>.md`
+默认：`features/<active>/reviews/code-review-task-NNN.md`
 
 若 `AGENTS.md` 声明了等价路径，按映射保存。
 

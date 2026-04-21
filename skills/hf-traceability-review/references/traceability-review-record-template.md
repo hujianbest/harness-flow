@@ -2,7 +2,7 @@
 
 ## 保存路径
 
-默认：`docs/reviews/traceability-review-<task>.md`
+默认：`features/<active>/reviews/traceability-review.md`（全 feature 一次性 review；如同一 feature 内多次复审，追加日期或序号后缀）
 
 若 `AGENTS.md` 声明了等价路径，按映射保存。
 

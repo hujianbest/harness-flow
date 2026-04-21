@@ -43,7 +43,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 ### 1. 阅读已批准输入并提取拆解信号
 
-阅读：已批准规格、已批准设计、项目上下文、`AGENTS.md` 路径映射、`task-progress.md`。
+阅读：已批准规格、已批准设计（默认 `features/<active>/spec.md` / `design.md`）、项目上下文、`AGENTS.md` 路径映射、feature `progress.md`（默认 `features/<active>/progress.md`）。
 
 **若 UI surface 被激活**（存在 `hf-ui-design` 的已批准文档）：除技术设计外，也需读取 UI 设计文档，提取组件粒度、关键页面 wireframe、交互状态矩阵、Design Token 映射；前端任务拆解必须承接 Atomic 分层与状态矩阵，避免把"实现某页面"当作单任务。
 
@@ -124,11 +124,13 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 ## Output Contract
 
 完成时产出：
-- 可评审任务计划（保存到 `AGENTS.md` 声明的 task-plan 路径；若无项目覆写，使用默认任务计划路径，如 `docs/tasks/YYYY-MM-DD-<topic>-tasks.md`）
+- 可评审任务计划（默认 `features/<active>/tasks.md`；若 `AGENTS.md` 声明覆盖路径，优先遵循）
 - 里程碑、追溯、工件影响图、测试设计种子、任务队列投影
+- 可选 task board（默认 `features/<active>/task-board.md`），并在 progress 中通过 `Task Board Path` 引用
+- feature `README.md` 中 Artifacts 表的 Tasks 行已更新
 - canonical handoff：`hf-tasks-review`
 
-状态同步：`task-progress.md` `Current Stage` → `hf-tasks`，`Next Action Or Recommended Skill` → `hf-tasks-review`。
+状态同步：feature `progress.md`（默认 `features/<active>/progress.md`） `Current Stage` → `hf-tasks`，`Next Action Or Recommended Skill` → `hf-tasks-review`。
 
 若计划未达评审门槛，不伪造 handoff；明确写出缺口。
 
@@ -168,4 +170,4 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 - [ ] 关键任务的 Acceptance、Files、Verify、完成条件已写清
 - [ ] 需求/设计追溯与工件影响图已给出
 - [ ] 测试设计种子、Current Active Task 规则、queue projection 已提供
-- [ ] `task-progress.md` 已按 canonical schema 同步，下一步为 `hf-tasks-review`
+- [ ] feature `progress.md` 已按 canonical schema 同步，下一步为 `hf-tasks-review`

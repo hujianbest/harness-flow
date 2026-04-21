@@ -7,7 +7,7 @@
 它回答 4 个问题：
 
 1. 什么时候应要求隔离工作目录
-2. `task-progress.md` 里如何表达这类状态
+2. feature `progress.md` 里如何表达这类状态
 3. `hf-test-driven-dev` 与 review dispatch 应如何复用同一 worktree
 4. closeout 时如何记录 worktree 的最终处置，而不是把它留在聊天里
 
@@ -20,7 +20,7 @@
 
 ## Coordination Fields
 
-这些字段不是 canonical progress core 的强制字段，但当 workflow 需要隔离工作目录时，推荐追加到 `task-progress.md` 或等价状态工件：
+这些字段不是 canonical progress core 的强制字段，但当 workflow 需要隔离工作目录时，推荐追加到 feature `progress.md`（默认 `features/<active>/progress.md`）或等价状态工件：
 
 | 字段 | 推荐值 / 写法 | 含义 |
 |---|---|---|
