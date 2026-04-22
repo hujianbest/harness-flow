@@ -39,6 +39,45 @@
         "The response does not reinterpret `auto` as permission to skip approval semantics.",
         "The response preserves the single-task TDD discipline rather than switching tasks or bypassing the gate."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "User request:\n测试都绿了，我顺便把同一个 service 文件里另外一个长函数也提取了几个辅助方法，然后把通知 handler 里几个 magic number 替换成常量了，这次和测试逻辑一起 commit 掉。\n\nProject snapshot:\n- `Current Active Task`: TASK-021，给通知接口加 status 过滤。\n- 任务测试设计 approval 已完成。\n- RED 与 GREEN 步骤已经完成，所有任务测试绿。\n- 用户描述的 cleanup 仅在 task 触碰文件范围内，但与新行为代码混在同一个 commit。\n- 已批准设计未变更，未跨模块。\n\nAs `hf-test-driven-dev`, 下一步该怎么做？",
+      "expected_output": "应识别 GREEN 步内做 cleanup + 同 commit 内既加新行为又改结构 = Two Hats 帽子混戴；要求拆分 commit 把 cleanup 归到独立的 REFACTOR 步，并在 Refactor Note 的 In-task Cleanups 字段用 Fowler vocabulary（Extract Method / Replace Magic Number with Symbolic Constant）记录；GREEN 与 REFACTOR 必须分别保留 fresh evidence；不允许把 cleanup 当作 GREEN 的延伸",
+      "files": [],
+      "expectations": [
+        "识别同 commit 内既加新行为又改结构是 Two Hats 帽子混戴",
+        "要求把 cleanup 拆出来归到独立的 REFACTOR 步骤",
+        "要求 Refactor Note 用 Fowler vocabulary 记录 In-task Cleanups（Extract Method / Replace Magic Number with Symbolic Constant 等）",
+        "要求 GREEN 与 REFACTOR 分别保留 fresh evidence",
+        "不把 GREEN 步内的 cleanup 合理化为 'TDD 的 refactor 部分'"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "User request:\nTASK-035 让我在通知服务里加一个 webhook 通道。我看了下，现有的通知 service 和 HTTP handler 耦合得很深，干脆顺便把整个通知模块按 Clean Architecture 重新分层：把 use case 抽出来、handler 只做 HTTP 解析、通道实现挪到 adapter 层。一并改了 5 个模块，跑出来测试都绿，可以进 hf-test-review 了吗？\n\nProject snapshot:\n- `Current Active Task`: TASK-035，新增 webhook 通道。\n- 已批准 hf-design 中的模块边界没有声明这次重新分层。\n- 改动跨 5 个模块。\n- ADR-0042 描述了当前通知 service 的依赖方向，本次改动实质改变了它。\n- 任务测试与回归测试均为绿。\n\nAs `hf-test-driven-dev`, 下一步该怎么做？",
+      "expected_output": "应识别这是跨 ≥3 模块 + 改 ADR + 改模块边界，触发 escalation 边界；不能在 task 内 '顺手' 做 Clean Architecture 重新分层，即使测试全绿；应停止当前 task，把 escalation triggers 写入 Refactor Note，把 Next Action 设为 hf-workflow-router（不是 hf-test-review），由 router 路由到 hf-increment 或回到 hf-design 修订；告诫不能把 escalation-bypass 合理化为 Boy Scout 或 opportunistic refactor",
+      "files": [],
+      "expectations": [
+        "识别跨 ≥3 模块 + 改 ADR + 改模块边界都触发 escalation 边界",
+        "明确不允许在 task 内做 Clean Architecture 重新分层，即使测试全绿",
+        "要求停 task，Next Action 设为 hf-workflow-router 而非 hf-test-review",
+        "要求把 Escalation Triggers 写入 Refactor Note 并指向 hf-increment / hf-design",
+        "拒绝把 escalation-bypass 合理化为 Boy Scout 或 opportunistic refactor"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "User request:\nTASK-040 加完通知 status 过滤后，我准备返回 Next Action = hf-test-review。Refactor Note 我打算就写 'Did some cleanups in notification service' 一行说明，因为反正只是几个小改动，没必要太细。\n\nProject snapshot:\n- `Current Active Task`: TASK-040.\n- RED / GREEN / REFACTOR 都已完成，全绿。\n- task 触碰范围内做了几处命名调整、提取了 1 个辅助函数、替换了 2 个 magic number 为常量。\n- 没有跨模块变更，没有改 ADR。\n\nAs `hf-test-driven-dev`, 这样的 Refactor Note 是否可以？为什么？",
+      "expected_output": "应拒绝该 Refactor Note；说明 Refactor Note 是 first-class 输出且必须使用 Fowler vocabulary 命名 In-task Cleanups（Rename / Extract Method / Replace Magic Number with Symbolic Constant 等），并写明文件:范围；同时必须显式给出 Hat Discipline、Architectural Conformance、Documented Debt、Escalation Triggers、Fitness Function Evidence 字段（即使 Documented Debt / Escalation Triggers 为 none 也要显式写 none）；模糊的 'Did some cleanups' 既无 vocabulary 也无影响范围，会让 hf-code-review 无法做 CR7 评审，是 undocumented refactor，必须重写",
+      "files": [],
+      "expectations": [
+        "拒绝模糊的 'Did some cleanups' 写法",
+        "要求每条 In-task Cleanup 用 Fowler vocabulary 命名（Rename / Extract Method / Replace Magic Number with Symbolic Constant 等）并写明文件:范围",
+        "要求 Refactor Note 显式给出 Hat Discipline、Architectural Conformance、Documented Debt、Escalation Triggers、Fitness Function Evidence 字段",
+        "说明即使 Documented Debt / Escalation Triggers 为 none 也要显式写 none",
+        "指出 undocumented refactor 会让 hf-code-review 无法做 CR7 评审"
+      ]
     }
   ]
 }

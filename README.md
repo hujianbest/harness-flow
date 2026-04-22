@@ -52,6 +52,8 @@ HF draws from a small set of explicit engineering methods:
 
 - Martin Fowler / Thoughtworks style **spec-driven development**
 - Kent Beck style **test-driven development**
+- Kent Beck / Fowler **Two Hats** discipline and **opportunistic / preparatory refactoring** for continuous architectural and code health during implementation
+- Robert C. Martin style **Clean Architecture** conformance and SOLID checks at the implementation node
 - **Fagan-style structured reviews** for review nodes
 - **end-to-end traceability** for spec -> design -> tasks -> implementation -> verification
 - **fresh evidence** as a first-class completion rule
@@ -92,9 +94,9 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 
 | Skill | Core methodology |
 |-------|------------------|
-| `hf-test-driven-dev` | TDD, Walking Skeleton, Test Design Before Implementation, Fresh Evidence Principle |
+| `hf-test-driven-dev` | TDD, Walking Skeleton, Test Design Before Implementation, Fresh Evidence Principle, Two Hats (Beck/Fowler), Opportunistic + Boy Scout Refactoring, Preparatory Refactoring, Clean Architecture Conformance, Escalation Boundary |
 | `hf-test-review` | Fail-First Validation, Coverage Categories, Bug-Pattern-Driven Testing, Structured Walkthrough |
-| `hf-code-review` | Fagan Code Inspection, Design Conformance Check, Defense-in-Depth Review, Separation of Author/Reviewer Roles |
+| `hf-code-review` | Fagan Code Inspection, Design Conformance Check, Defense-in-Depth Review, Clean Architecture Conformance Check, Two Hats / Refactoring Hygiene Review, Architectural Smells Detection, Separation of Author/Reviewer Roles |
 | `hf-traceability-review` | End-to-End Traceability, Zigzag Validation, Impact Analysis |
 
 ### Gates and closeout
@@ -131,8 +133,8 @@ HF does not assign methods arbitrarily. Each skill gets the methods that best ma
 |-------|-----------------------|
 | `hf-specify` | It turns ambiguity into testable requirements, so it needs requirement syntax, prioritization, and elicitation methods rather than implementation methods. |
 | `hf-design` | It turns approved intent into structure, interfaces, and tradeoffs, so it needs ADR, C4, and risk-driven architecture methods. |
-| `hf-test-driven-dev` | It is where implementation claims must be proven against running behavior, so TDD and fresh evidence are central instead of optional. |
-| `hf-code-review` | Passing tests is not enough to prove correctness, robustness, or safety, so inspection and defense-in-depth methods belong here. |
+| `hf-test-driven-dev` | It is where implementation claims must be proven against running behavior, so TDD and fresh evidence are central instead of optional. The same node is also the natural REFACTOR window for keeping clean architecture and clean code healthy, so Two Hats discipline, opportunistic / preparatory refactoring, Clean Architecture conformance, and an explicit escalation boundary live here too. |
+| `hf-code-review` | Passing tests is not enough to prove correctness, robustness, or safety, so inspection and defense-in-depth methods belong here. The same node also enforces architectural health and refactoring hygiene by reviewing the implementation node's Refactor Note and checking conformance against the approved design and architectural smells. |
 | `hf-completion-gate` | Completion is a judgment over combined artifacts, not a single test result, so definition-of-done and evidence-bundle thinking fit this node. |
 | `hf-finalize` | Workflow closure includes state sync, release notes, and handoff, so closeout methods belong here instead of in implementation or gates. |
 
@@ -310,6 +312,7 @@ HarnessFlow is built around a few strong defaults:
 - one active task is implemented at a time
 - review and gates are first-class nodes
 - quality claims require fresh evidence
+- architectural and code health are maintained continuously inside the TDD REFACTOR window via Two Hats and an explicit escalation boundary, not deferred to a separate cleanup pass
 - closeout is part of engineering, not an afterthought
 
 ## Repository Layout
@@ -340,6 +343,7 @@ If you want to understand the pack quickly, read these files first:
 2. `skills/hf-workflow-router/SKILL.md`
 3. `docs/principles/hf-sdd-tdd-skill-design.md`
 4. `docs/principles/skill-anatomy.md`
+5. `docs/principles/architectural-health-during-tdd.md`
 
 ## Who It Is For
 

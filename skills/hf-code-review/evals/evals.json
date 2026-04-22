@@ -73,6 +73,59 @@
         "返回 reroute_via_router=true",
         "不继续展开正式代码质量判断"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "评审 TASK-040 的实现。实现交接块齐全，但其中的 Refactor Note 只有一句 'Did some cleanups in notification service'，没有列出 In-task Cleanups vocabulary、没有 Hat Discipline / Architectural Conformance / Documented Debt / Escalation Triggers 字段；从 diff 看触碰文件确实有几处命名调整、提取了 1 个辅助函数、替换了 magic number 为常量。请给出 CR7 评审结论。",
+      "expected_output": "应识别 Refactor Note 不完整（CA7 undocumented-refactor）：缺 Fowler vocabulary、缺 Hat Discipline / Architectural Conformance / Documented Debt / Escalation Triggers / Fitness Function Evidence 字段；CR7.2 子维度低于 6/10，整个 CR7 不得通过；verdict 给需修改，下一步指向 hf-test-driven-dev 让实现节点补齐 Refactor Note，不直接放过去 traceability review。",
+      "files": [],
+      "expectations": [
+        "识别 Refactor Note 不完整属于 CA7 undocumented-refactor",
+        "明确 CR7.2 子维度不达标导致整个 CR7 不通过",
+        "verdict 为需修改，不直接通过到 hf-traceability-review",
+        "下一步指向 hf-test-driven-dev 让实现节点补齐 Refactor Note 字段并使用 Fowler vocabulary",
+        "finding 带 rule_id（CR7 / CR7.2 / CA7 之一）"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "评审 TASK-035。Refactor Note 写明：本轮在加 webhook 通道时顺手按 Clean Architecture 重新分层，把 use case 抽出来、handler 只做 HTTP 解析、通道实现挪到 adapter 层；改动跨 5 个模块；ADR-0042 描述的依赖方向被实质改变；任务测试与回归测试均为绿。请给出 CR7 评审结论。",
+      "expected_output": "应识别 CR7 触发 CA8 escalation-bypass：跨 ≥3 模块 + 实质修改 ADR + 改变模块边界，本应停 task 走 hf-workflow-router → hf-increment / hf-design，但被在 task 内 '顺手' 做了；即使测试全绿，也应给出阻塞结论；下一步指向 hf-workflow-router，reroute_via_router=true；不允许在 review 内重新讨论是否应该重新分层（这是 hf-design 的工作）。",
+      "files": [],
+      "expectations": [
+        "识别跨 ≥3 模块 + 改 ADR + 改模块边界触发 CA8 escalation-bypass",
+        "不因测试全绿就放过 escalation-bypass",
+        "verdict 为阻塞",
+        "下一步指向 hf-workflow-router 并 reroute_via_router=true",
+        "不在 review 内重新讨论是否应该重新分层（不重论证架构决策）"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "评审 TASK-052。Refactor Note 标明 In-task Cleanups: Extract Method @ user_service.py:120-180; Replace Magic Number with Symbolic Constant @ notification_handler.py:45,67; Hat Discipline: RGR 步骤独立，preparatory refactor 未触发；Architectural Conformance: 与 hf-design / ADR-0042 一致；Documented Debt: none; Escalation Triggers: none; Fitness Function Evidence: import-linter green。从 diff 看：notification_handler.py 出现明显的循环依赖——它新引入了对 internal queue 模块的直接 import，而 internal queue 又会 import handler 包。Refactor Note 没提及这个循环依赖。请给出 CR7 评审结论。",
+      "expected_output": "应识别 cyclic-dep 是触碰范围内可见的 architectural smell 但被遗漏（CA10 architectural-smell-ignored），并且这通常会触发 layering / dependency 方向问题；评估 CR7.4 子维度低于 6/10，整个 CR7 不通过；verdict 给需修改，下一步指向 hf-test-driven-dev，要求在 Refactor Note 中识别该 cyclic-dep 并按 escalation 边界处理（多半是 escalation 而非 in-task fix）。",
+      "files": [],
+      "expectations": [
+        "识别 cyclic-dep 是触碰范围内的 architectural smell 且被遗漏（CA10）",
+        "明确 CR7.4 子维度不达标导致整个 CR7 不通过",
+        "不因 Refactor Note 自称 conformance 一致就放过 diff 中可见的 smell",
+        "verdict 为需修改",
+        "下一步指向 hf-test-driven-dev，要求在 Refactor Note 中识别 cyclic-dep 并按 escalation 边界处理",
+        "finding 带 rule_id（CR7 / CR7.4 / CA10 之一）"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "评审 TASK-061。Refactor Note 写道：为了让本轮加的 webhook 通道更 'clean'，引入了一层新的 NotificationChannelStrategyFactory + 抽象基类 BaseChannelDispatcher，理由是 '未来可能要支持更多通道类型'；hf-design / ADR 中并未声明这层抽象；当前只有 email 与 webhook 两种通道；测试全绿。请给出 CR7 评审结论。",
+      "expected_output": "应识别 over-abstraction（CA9）：引入 design 未声明的新抽象层，理由是 '未来可能用得到'，违反 YAGNI 与 Clean Architecture dependency rule；评估 CR7.3 与 CR7.4 子维度受影响；若可在 task 内回退到 design 声明的边界，verdict 给需修改，下一步指向 hf-test-driven-dev 要求回退；若回退会引发更大变更或确实需要新抽象层，则应升级为 hf-increment / hf-design 决定，verdict 为阻塞，下一步指向 hf-workflow-router。",
+      "files": [],
+      "expectations": [
+        "识别引入 design 未声明的新抽象层是 over-abstraction（CA9）",
+        "援引 YAGNI 与 Clean Architecture dependency rule",
+        "若可在 task 内回退则给需修改，要求回退到 design 声明的边界",
+        "若需新抽象层则给阻塞，下一步指向 hf-workflow-router 升级到 hf-increment / hf-design",
+        "不因 '看起来更 clean' 或 '测试全绿' 就放过 over-abstraction"
+      ]
     }
   ]
 }

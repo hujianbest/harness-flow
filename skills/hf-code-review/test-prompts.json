@@ -2,11 +2,21 @@
   {
     "id": 1,
     "prompt": "test review 通过了，请正式 review 当前实现代码，看能不能进入 traceability review。",
-    "expected": "基于实现交接块、代码变更和测试记录做多维代码评审，输出 findings、verdict 和唯一下一步。"
+    "expected": "基于实现交接块（含 Refactor Note）、代码变更和测试记录做 7 维代码评审（CR1-CR7），输出 findings、verdict 和唯一下一步。"
   },
   {
     "id": 2,
     "prompt": "功能测过了，但我担心状态转换和错误处理，请按 HF code review 的方式审一下。",
-    "expected": "重点检查正确性、设计一致性、状态/错误/安全，识别实现层风险，不改代码。"
+    "expected": "重点检查正确性、设计一致性、状态/错误/安全，识别实现层风险，不改代码；同时按 CR7 评 Two Hats / Refactor Note / Architectural Conformance / Smells / Boy Scout。"
+  },
+  {
+    "id": 3,
+    "prompt": "Refactor Note 只写了 'did some cleanups in notification service'，diff 里能看到几处命名调整和提取函数。可以判通过吗？",
+    "expected": "不能。识别为 CA7 undocumented-refactor，CR7.2 不达标，verdict 为需修改，下一步 hf-test-driven-dev 让实现节点补齐 Refactor Note 字段并使用 Fowler vocabulary。"
+  },
+  {
+    "id": 4,
+    "prompt": "为加新通道顺手按 Clean Architecture 重新分层，跨 5 个模块、改了 ADR-0042 描述的依赖方向，测试全绿，能批通过吗？",
+    "expected": "不能。CR7 触发 CA8 escalation-bypass；verdict 为阻塞，下一步 hf-workflow-router，reroute_via_router=true。reviewer 不重新讨论是否应该重新分层。"
   }
 ]

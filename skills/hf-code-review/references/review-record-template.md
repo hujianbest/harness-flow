@@ -15,7 +15,7 @@
 
 ## 发现项
 
-- [critical|important|minor][USER-INPUT|LLM-FIXABLE][CR2|CR5|CA3] 问题
+- [critical|important|minor][USER-INPUT|LLM-FIXABLE][CR2|CR5|CR7|CR7.3|CA3|CA8] 问题
 
 ## 代码风险与薄弱项
 

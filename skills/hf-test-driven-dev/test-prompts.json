@@ -2,11 +2,21 @@
   {
     "id": 1,
     "prompt": "当前 active task 是 T-014：为结果列表加 status 过滤，按 HF TDD 实现。",
-    "expected": "先产出测试设计并完成确认，再做有效 RED/GREEN，最后写实现交接块和 canonical next action。"
+    "expected": "先产出测试设计并完成确认，再做有效 RED/GREEN，REFACTOR 步内完成 Architectural Health Check 并写完整 Refactor Note，最后写实现交接块和 canonical next action。"
   },
   {
     "id": 2,
     "prompt": "code-review 退回一个可定向修复 finding，请只修当前 active task 并写 fresh evidence。",
-    "expected": "按回流修订协议只处理当前任务相关问题，必要时重做测试设计确认，不切换下一任务。"
+    "expected": "按回流修订协议只处理当前任务相关问题，必要时重做测试设计确认，不切换下一任务；修订完成后重新执行 Architectural Health Check 并刷新 Refactor Note。"
+  },
+  {
+    "id": 3,
+    "prompt": "测试绿了，我顺便把同一文件里另一个长函数也提取了，cleanup 和测试逻辑在同一 commit。",
+    "expected": "识别 Two Hats 帽子混戴；要求拆 commit 把 cleanup 归到独立 REFACTOR 步，并用 Fowler vocabulary 记入 Refactor Note。"
+  },
+  {
+    "id": 4,
+    "prompt": "为加新通道顺手按 Clean Architecture 重新分层，跨 5 个模块、改了 ADR-0042 描述的依赖方向，测试全绿，可以进 hf-test-review 吗？",
+    "expected": "识别 escalation 边界触发；停 task，Next Action 设为 hf-workflow-router（不是 hf-test-review），escalate 到 hf-increment / hf-design；不在 task 内做。"
   }
 ]
