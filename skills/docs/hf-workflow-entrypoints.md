@@ -94,6 +94,7 @@ direct invoke 不是主路径替代品，而是在“当前节点已经足够明
 | 节点类别 | 代表 skill | 典型入口条件 | 不该这样进入的典型情况 |
 |---|---|---|---|
 | Upstream discovery authoring | `hf-product-discovery` | 仍在判断产品 thesis、wedge、probe 或是否值得做 | 已明确进入 formal spec / design / task planning，且 coding family 前置条件已满足 |
+| Hypothesis validation (Phase 0) | `hf-experiment` | discovery / spec 中存在 Blocking 或低 confidence 关键假设，需要一次最小 probe；reviewer 显式要求先验证假设 | 假设 confidence 已高、或问题本质是澄清需求（→ `hf-specify`）、或需要新起 discovery（→ `hf-product-discovery`）、或阶段不清（→ `hf-workflow-router`） |
 | Public Entry | `using-hf-workflow` | 新会话、命令入口、family discovery、需要判断 direct invoke 还是 route-first | 当前已经进入 runtime recovery、需要 authoritative route / stage / profile 判断 |
 | Orchestrator | `hf-workflow-router` | 阶段不清、需要恢复编排、需要判断 profile 或下一步 | 把它当成每次新会话都必须直接暴露给用户的 public shell |
 | Authoring | `hf-product-discovery` / `hf-specify` / `hf-design` / `hf-ui-design` / `hf-tasks` | 当前明确是在补齐 discovery、规格、设计（架构或 UI）或任务计划正文；上游前置条件满足 | 阶段不清、其实该做 review、其实该走支线、或已进入实现 |
@@ -205,8 +206,9 @@ direct invoke 的 handoff 只表达“本节点之后推荐谁”，不替代 ro
 
 ## Canonical Direct Invoke Examples
 
-- “先把产品方向、问题和 wedge 收敛清楚，不要直接写 spec” -> 可 direct invoke `hf-product-discovery`
-- “先把需求梳理清楚，不要做设计” -> 可 direct invoke `hf-specify`
+- "先把产品方向、问题和 wedge 收敛清楚，不要直接写 spec" -> 可 direct invoke `hf-product-discovery`
+- "这条假设没把握，先做个最小 probe 再决定 spec" -> 可 direct invoke `hf-experiment`
+- "先把需求梳理清楚，不要做设计" -> 可 direct invoke `hf-specify`
 - “帮我 review 这份 spec 草稿” -> 若规格草稿已存在且这是 review-only 请求，可 direct invoke `hf-spec-review`
 - “按 TDD 实现当前 active task” -> 若任务计划已批准且活跃任务唯一，可 direct invoke `hf-test-driven-dev`
 - “这是线上 bug，先收敛 root cause 和最小修复边界” -> 可 direct invoke `hf-hotfix`
