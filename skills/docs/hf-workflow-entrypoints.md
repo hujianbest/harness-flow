@@ -24,16 +24,18 @@ direct invoke 不是主路径替代品，而是在“当前节点已经足够明
 
 以下场景不要直接进入 coding family，而应先由 `using-hf-workflow` 分流到：
 
-- `hf-product-discovery`
+- `hf-product-discovery`（仍在判断 thesis / wedge / candidate direction）
+- `hf-experiment`（Phase 0 新增：thesis / wedge 基本清晰但仍存在 Blocking 或低 confidence 关键假设，需要先做一次最小 probe）
 
 典型信号：
 
-- 用户还在问“这个产品值不值得做”
-- 用户还在问“为什么现在的方向没有吸引力”
-- 用户还在问“应该先打哪个 wedge / concept / opportunity”
-- 用户还在问“先验证哪个假设、先跑什么 probe”
+- 用户还在问"这个产品值不值得做" → `hf-product-discovery`
+- 用户还在问"为什么现在的方向没有吸引力" → `hf-product-discovery`
+- 用户还在问"应该先打哪个 wedge / concept / opportunity" → `hf-product-discovery`
+- 用户说"方向基本清楚了，但这条假设没把握，先做个小验证" → `hf-experiment`
+- 用户说"先验证哪个假设、先跑什么 probe" → 通常 `hf-experiment`；若假设尚未显式沉淀到 discovery / spec，先回 `hf-product-discovery`
 
-只有当当前请求已经主要转为“把方向写成正式规格、设计或任务计划”，才进入 coding family。
+只有当当前请求已经主要转为"把方向写成正式规格、设计或任务计划"，才进入 coding family。
 
 如果上游已经产出：
 
