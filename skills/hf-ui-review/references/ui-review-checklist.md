@@ -1,6 +1,6 @@
 # UI 设计评审检查清单
 
-评审 UI 设计文档时，至少对以下 8 个维度逐项审查。每个维度内部评分 `0-10`，评分帮助区分轻微缺口与阻塞问题。
+评审 UI 设计文档时，至少对以下 9 个维度逐项审查。每个维度内部评分 `0-10`，评分帮助区分轻微缺口与阻塞问题。
 
 ## 评分辅助规则
 
@@ -18,8 +18,9 @@
 | `U4` | 视觉一致性与 Design Token 合规 | typography / color / spacing / radius / motion 走 token；无硬编码；Atomic 分层与来源显式 |
 | `U5` | 可访问性（WCAG 2.2 AA） | 色彩对比、键盘可达、语义/ARIA、focus 可见、reduced motion、目标大小等逐项声明 |
 | `U6` | 响应式 / i18n / 性能预算适配 | 若规格含要求，均已落到具体布局 / token / 预算数字 |
-| `U7` | 决策质量与 trade-offs | 至少比较两个视觉/交互方向，选型理由与代价可冷读；关键决策有 ADR |
+| `U7` | 决策质量与 trade-offs | 至少比较两个视觉/交互方向（含至少 1 条沿用既有视觉语汇 + 至少 1 条有意识偏离），选型理由与代价可冷读；关键决策有 ADR |
 | `U8` | 任务规划准备度与 peer 交接 | 组件粒度、状态矩阵、a11y 实现边界足以支撑 `hf-tasks`；与 `hf-design` 的 peer 依赖交接块显式 |
+| `U9` | 设计上下文与反 AI slop 合规 | 设计上下文（既有 DS / 品牌 / 既有产品视觉语汇摘要）已取或显式标注与用户确认；系统宣言（vocalize the system）已写出；按 `../hf-ui-design/references/anti-slop-checklist.md` 不命中 AI 默认审美与填充式内容反模式 |
 
 ### `U1` 需求覆盖与追溯
 
@@ -98,6 +99,30 @@
 - 是否还存在会直接破坏任务拆解的 UI 空洞？
 - 文档是否显式说明了 task planning readiness，而不是把缺口留给下游猜？
 
+### `U9` 设计上下文与反 AI slop 合规
+
+见 `../hf-ui-design/references/design-context-acquisition.md` 与 `../hf-ui-design/references/anti-slop-checklist.md`。评审时至少确认：
+
+- **设计上下文已取**：文档顶部存在"视觉语汇摘要"（色板 / 字体 / scale / 圆角 / 阴影 / 密度 / 动效 / 微文案语气 / iconography），或显式标注"无既有产品上下文，已与用户确认本轮采用通用专业语境默认"
+- **候选方向沿用 vs 偏离的对照存在**：至少 1 条沿用既有视觉语汇、至少 1 条做有意识偏离（偏离条必须 ADR 解释偏离理由与可逆性）
+- **系统宣言（vocalize the system）已写出**：layout grid / 节奏锚点 / 背景色用法 / 标题与图像分工 / 全局视觉约束在 wireframe 之前已显式声明
+- **不命中 AI 默认审美 slop**（按 `anti-slop-checklist.md` 第 1 节 S1–S8）：
+  - S1 渐变滥用（大面积彩色背景渐变 / 渐变主按钮 / 渐变描边）
+  - S2 所有 callout / alert / quote 都是"左 4px 彩条 + 圆角卡片"
+  - S3 typography 直接套 Inter / Roboto / Arial / 系统栈而无理由说明
+  - S4 紫色 / 紫蓝渐变默认主色、品牌 #6366F1 类 Tailwind 默认色当主色
+  - S5 自画"科技感" SVG / 用 emoji 当图标
+  - S6 千篇一律 dashboard 模板（顶 nav + 左 rail + 卡片网格 + 趋势图 + KPI 大数字，无场景化裁剪）
+  - S7 glassmorphism / 高斯模糊滥用且无对比度计算
+  - S8 同页 5+ 不同阴影深度 / 所有卡片"浮起来"
+- **不命中内容 slop**（按 `anti-slop-checklist.md` 第 2 节 C1–C5）：填充式 hero copy、无业务定义的数据徽标、规格之外擅自加 section、伪装成正文的占位文本、无语义的图标堆叠
+- **不命中结构 slop**（按 `anti-slop-checklist.md` 第 3 节 ST1–ST4）：无来源 token、未声明的视觉宣言、状态切换无设计、happy-path-only IA
+- **嵌入既有产品时**（按 `anti-slop-checklist.md` 第 4 节 E1–E3）：不命中"未读既有视觉语汇就开始新设计"、"新增组件无既有对应物对照"、"两套命名 / 两套 token 并存"
+- **缺资源处使用 placeholder**：图标 / 插画 / 真实图片 / 文案缺失时使用 `{{ image:... }}` / `{{ icon:... }}` / `{{ copy:... }}` 等带语义的占位标记，而非 LLM 自补
+- **扩展色板用 OKLCH 推导**：新增色值能说出与既有色板的色域关系，而不是凭感觉调 RGB
+
+任一关键项失败（设计上下文缺失、系统宣言缺失、命中两个及以上 slop 反模式）→ 通常 `important` 起；若同时与无障碍达标冲突 → `critical`。
+
 ## Anti-Pattern 检测
 
 评审时主动检测以下常见反模式：
@@ -114,6 +139,12 @@
 | `AU8` | 状态转换无设计 | 画了状态但没画状态切换的过渡/反馈 | 补过渡时机、反馈方式、是否符合 reduced-motion |
 | `AU9` | 未比较的"推荐方案" | 只给一个方案 + 一个明显的稻草人 | 至少两个真实可行方向 + 完整矩阵 |
 | `AU10` | peer 交接含糊 | "需要和后端对齐"、"API 待定"类含糊表述 | 具体到字段、时序、错误码、状态码 |
+| `AU11` | 设计上下文缺失就开工 | 文档无视觉语汇摘要；候选方向不引用任何既有产品 / DS / 品牌资产 | 回 `hf-ui-design` 步骤 0 取上下文；缺资源时显式标注与用户确认 |
+| `AU12` | 系统宣言（vocalize the system）缺失 | 各页面 wireframe 的背景色 / layout grid / 节奏锚点彼此不一致；整体看不出统一系统 | 在视觉方向 ADR 之后、wireframe 之前补写系统宣言 |
+| `AU13` | AI 默认审美 slop | 紫色 / 紫蓝渐变默认主色、Inter / Roboto 默认字体、左 4px 彩条 + 圆角卡片单一信息层级范式、千篇一律 dashboard 模板、emoji 当图标 | 按 `anti-slop-checklist.md` S1–S8 修正；视觉方向 ADR 显式说明拒绝这些惯性的理由 |
+| `AU14` | 填充式内容 / 数据 slop | 规格之外擅自加 Testimonials / Features grid / FAQ；仪表盘塞满"+12.4%"等无业务定义数字 | 按 `anti-slop-checklist.md` C1–C5；规格未要求的 section 先问用户而非先加 |
+| `AU15` | LLM 自补缺失资源 | 自画"科技感" SVG 插画 / 自编正文 / 自造品牌色 | 用 `{{ image:... }}` / `{{ copy:... }}` / `{{ icon:... }}` 占位；扩展色板用 OKLCH 在既有色域内推导 |
+| `AU16` | 候选方向无沿用 vs 偏离对照 | 3 条候选方向都是"全新视觉"或都是同维度微调（只换主色 hue） | 至少 1 条沿用既有视觉语汇 + 至少 1 条有意识偏离；3 条之间至少 2 个维度有显著差异 |
 
 ## Finding 写法对比
 
