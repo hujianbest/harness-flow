@@ -349,6 +349,7 @@ If you want to understand the pack quickly, read these files first:
 3. `docs/principles/hf-sdd-tdd-skill-design.md`
 4. `docs/principles/skill-anatomy.md`
 5. `docs/principles/architectural-health-during-tdd.md`
+6. `docs/principles/methodology-coherence.md` (methodology collaboration rules, anti-substitution pairs, Phase × profile activation matrix)
 
 ## Who It Is For
 

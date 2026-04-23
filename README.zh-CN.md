@@ -342,6 +342,7 @@ docs/principles/
 3. `docs/principles/hf-sdd-tdd-skill-design.md`
 4. `docs/principles/skill-anatomy.md`
 5. `docs/principles/architectural-health-during-tdd.md`
+6. `docs/principles/methodology-coherence.md`（方法论协作 / 反替代规则 / Phase × profile 激活表）
 
 ## 适合谁
 
