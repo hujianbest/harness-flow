@@ -10,32 +10,43 @@
 - 状态: 草稿
 - 主题: <主题>
 - Peer: 对应 hf-design 文档路径
+- 设计上下文: <已取 P0+P1 / 显式标注无既有产品上下文，已与用户确认>
 
+## 0. 视觉语汇摘要（Visual Vocabulary Brief，既有产品冷读）
 ## 1. 概述与范围
 ## 2. UI 驱动因素（规格映射 + UX NFR）
 ## 3. 信息架构（站点地图 / 导航结构 / 内容分组）
 ## 4. 关键用户流（User Flow，含异常与回退路径）
-## 5. 候选视觉 / 交互方向与对比
+## 5. 候选视觉 / 交互方向与对比（至少 1 条沿用既有视觉语汇 + 至少 1 条有意识偏离）
 ## 6. 选定方向与关键 UI 决策（ADR 摘要）
+## 6.5 系统宣言（Vocalize the System，进入 wireframe 之前必填）
+   - layout grid / 内容上限宽度 / 响应式断点
+   - 节奏与变化锚点
+   - 背景色用法（最多 1-2 种背景色用法）
+   - 标题与图像的分工
+   - 全局视觉约束（动效缓动函数、圆角档位等）
 ## 7. 视觉系统（Design Token 映射）
    - 7.1 Typography
-   - 7.2 Color（含 semantic tokens）
+   - 7.2 Color（含 semantic tokens；扩展色板用 OKLCH 推导关系）
    - 7.3 Spacing / Layout grid
    - 7.4 Radius / Elevation / Shadow
    - 7.5 Motion（时长、缓动、reduced-motion 策略）
-## 8. 关键页面 wireframe
+## 8. 关键页面 wireframe（缺资源处用 `{{ image:... }}` / `{{ icon:... }}` / `{{ copy:... }}` 占位）
 ## 9. Atomic 组件映射（Atoms / Molecules / Organisms / Templates / Pages）
 ## 10. 交互状态矩阵（关键交互 × 状态集合）
-## 11. 可访问性（WCAG 2.2 AA 声明）
+## 11. 可访问性（WCAG 2.2 AA 声明，含触控/移动端 hit target ≥ 44×44px）
 ## 12. 响应式与多端（若规格含要求）
 ## 13. i18n / 国际化（若规格含要求）
 ## 14. 前端性能预算（若规格含要求）
-## 15. Microcopy 与语气
+## 15. Microcopy 与语气（占位与定稿用 `{{ copy:... }}` 标记）
 ## 16. 与 hf-design 的 peer 依赖交接
 ## 17. 任务规划准备度（task planning readiness）
 ## 18. 明确排除与延后项
 ## 19. 风险与开放问题（区分阻塞 / 非阻塞）
+## 20. 反 AI slop 自检记录（按 anti-slop-checklist.md 第 5 节冷读 5 项）
 ```
+
+`## 0. 视觉语汇摘要` 与 `## 6.5 系统宣言` 是结构化锚点；前者由 `references/design-context-acquisition.md` 第 3 节产出，后者由本 skill 步骤 4 末尾 vocalize the system 阶段产出。两者缺失即视为 reviewer 阻塞项。
 
 ## 编写要求
 

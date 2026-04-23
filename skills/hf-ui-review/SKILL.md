@@ -61,6 +61,8 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 3. **a11y 评估不可跳过** — 可访问性不是可选项；关键页面 WCAG 2.2 AA 关键项未达标 = 阻塞级问题
 4. **视觉决策必须走 token** — 硬编码色值/字号/间距是系统性缺陷，不是局部问题
 5. **peer 交接块不可含糊** — UI 设计与 `hf-design` 的跨界依赖必须显式写出；含糊表述不得通过
+6. **设计上下文缺失 = 阻塞** — 缺既有 Design System / 品牌 / 既有产品视觉语汇且未与用户确认时不得通过；从零起手必然落入 AI 默认审美
+7. **AI 默认审美 slop 视为系统性缺陷** — 紫色默认主色、Inter / Roboto 默认字体、左 4px 彩条 + 圆角卡片单一信息层级范式、千篇一律 dashboard 模板等命中 2 项及以上视为阻塞
 
 ## Workflow
 
@@ -88,7 +90,7 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 ### 2. 多维评分与挑战式审查
 
-对 8 个维度做内部评分（`0-10`）：需求覆盖与追溯、IA 与用户流完整性、交互状态覆盖、视觉一致性与 Design Token 合规、可访问性、响应式/i18n/性能预算适配、决策质量与 trade-offs、任务规划准备度。
+对 9 个维度做内部评分（`0-10`）：需求覆盖与追溯、IA 与用户流完整性、交互状态覆盖、视觉一致性与 Design Token 合规、可访问性、响应式/i18n/性能预算适配、决策质量与 trade-offs、任务规划准备度、设计上下文与反 AI slop 合规。
 
 评分辅助区分：轻微缺口 vs 需修改 vs 阻塞。按 `references/ui-review-checklist.md` 逐项审查。
 
@@ -96,12 +98,12 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 - `severity`（`critical` / `important` / `minor`）
 - `classification`（`USER-INPUT` / `LLM-FIXABLE`）
-- `rule_id`（如 `U1`、`U5`、`AU2`）
+- `rule_id`（如 `U1`、`U5`、`U9`、`AU2`、`AU13`）
 
 默认分类：
 
-- `USER-INPUT`：品牌/语气/视觉方向需真人拍板、规格未确认的目标设备/语种、关键 UX trade-off 仍需业务侧裁决
-- `LLM-FIXABLE`：缺少候选方向对比、状态矩阵不全、a11y 声明只写"达成"、组件映射缺来源/token 依赖、peer 交接块缺失或含糊
+- `USER-INPUT`：品牌/语气/视觉方向需真人拍板、规格未确认的目标设备/语种、关键 UX trade-off 仍需业务侧裁决、缺少既有 Design System / 品牌资产 / 既有产品视觉语汇等 P0 + P1 设计上下文
+- `LLM-FIXABLE`：缺少候选方向对比、状态矩阵不全、a11y 声明只写"达成"、组件映射缺来源/token 依赖、peer 交接块缺失或含糊、视觉语汇摘要缺失但 P0+P1 已存在、系统宣言缺失、命中 AI 默认审美 slop（紫色默认 / Inter 默认 / 左 4px 彩条 / dashboard 模板等）、规格之外的填充式 section、LLM 自补图标 / 文案 / 色值而非用 placeholder
 
 ### 3. 形成结论、severity 与下一步
 
@@ -132,8 +134,10 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 |------|-----------|---------|
 | UI 评审检查清单 | `references/ui-review-checklist.md` | 执行 Step 2 多维审查时 |
 | UI 评审记录模板 | `references/ui-review-record-template.md` | 执行 Step 4 写评审记录时 |
-| a11y 检查清单 | `../hf-ui-design/references/a11y-checklist.md` | 评审 U5 可访问性维度时（与 hf-ui-design 共用） |
+| a11y 检查清单（含最小尺寸表） | `../hf-ui-design/references/a11y-checklist.md` | 评审 U5 可访问性维度时（与 hf-ui-design 共用） |
 | 交互状态清单 | `../hf-ui-design/references/interaction-state-inventory.md` | 评审 U3 交互状态覆盖时（与 hf-ui-design 共用） |
+| 设计上下文获取 | `../hf-ui-design/references/design-context-acquisition.md` | 评审 U9 设计上下文存在性时 |
+| 反 AI slop 设计清单 | `../hf-ui-design/references/anti-slop-checklist.md` | 评审 U9 反 slop 合规与 AU11–AU16 anti-pattern 检测时 |
 
 ## 和其他 Skill 的区别
 
@@ -158,6 +162,9 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 - 文档长度长就认为 UI 设计充分
 - 跨权评审 `hf-design` 的架构/API 决策（应只 flag peer 不一致，不代位评审）
 - 顺手把任务也列出来"更完整"（reviewer 是 gate，不是拆任务）
+- 缺设计上下文却以"反正实现时会调整"为由放行视觉语汇摘要 / 系统宣言缺失
+- 命中 AI 默认审美 slop（紫色默认 / Inter 默认 / 左 4px 彩条 / dashboard 模板）却以"看上去能用"为由放行
+- 接受"自画 SVG 插画"、"自编 hero copy"、"自造品牌色"等 LLM 自补行为，未要求换为 placeholder
 
 ## Verification
 
