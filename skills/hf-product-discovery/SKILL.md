@@ -176,12 +176,20 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 
 ## Reference Guide
 
-| 文件 | 用途 |
-|------|------|
-| `references/discovery-template.md` | 默认 discovery 文档骨架、各章节最小语义与 profile 密度分级 |
-| `references/jtbd-framework.md` | JTBD / Jobs Stories / 四力分析最小契约 |
-| `references/opportunity-solution-tree.md` | Outcome → Opportunity → Solution → Assumption 的收敛骨架与剪枝规则 |
-| `references/prioritization-quant.md` | RICE / ICE / Kano 的使用场景、写法约定与 MoSCoW 协作关系 |
+按需加载详细参考内容。任一 reference 未命中其"加载时机"时，不需要提前读取。
+
+| 主题 | Reference | 加载时机 | 最小 profile |
+|------|-----------|---------|--------------|
+| discovery 文档骨架 | `references/discovery-template.md` | 起草 discovery 草稿时；每次会话至少读一次 | lightweight / standard / full 全档必读 |
+| JTBD / Jobs Stories / 四力 | `references/jtbd-framework.md` | 需要把"要功能"翻译成"要进展"；或主题属于切换型（push/pull/anxiety/habit） | standard / full；lightweight 仅当问题陈述仍卡在功能语言时 |
+| Opportunity Solution Tree | `references/opportunity-solution-tree.md` | 候选方向 ≥ 2 个、或需要剪枝到当前轮 wedge | standard / full；lightweight 候选 ≤ 1 可跳过 |
+| RICE / ICE / Kano 量化优先级 | `references/prioritization-quant.md` | 多个候选 opportunity / solution 难以用 MoSCoW 直接收敛 | 按需；候选 ≤ 2 或分数无法带来源时跳过 |
+
+加载策略：
+
+- `lightweight` 会话默认只读 `discovery-template.md`；JTBD / OST / 量化只在模板章节显式触发时再按上表加载
+- `standard` 会话默认读 `discovery-template.md` + `jtbd-framework.md`；其余按命中条件
+- `full` 会话按实际需要加载；若主题已明确为切换型或多候选并排，预读对应 reference
 
 ## Verification
 

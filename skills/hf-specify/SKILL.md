@@ -233,15 +233,23 @@ Phase 0 起必须显式落下以下 **hard anchor** 章节，不可省略：
 
 ## Reference Guide
 
-| 文件 | 用途 |
-|------|------|
-| `references/requirement-authoring-contract.md` | 核心需求最小字段契约与编号规范 |
-| `references/granularity-and-deferral.md` | G1-G6 粒度信号、拆分规则、deferred 判断 |
-| `references/spec-template.md` | 默认规格模板结构、保存路径与 profile 密度分级 |
-| `references/reviewer-handoff.md` | reviewer 派发协议、结果处理、定向回修规则 |
-| `references/nfr-quality-attribute-scenarios.md` | ISO 25010 分类 + QAS 五要素最小契约 |
-| `references/success-metrics-and-hypotheses.md` | Success Metrics / Key Hypotheses 最小契约与下游衔接 |
-| `hf-product-discovery/references/prioritization-quant.md` | RICE / ICE / Kano 写法约定（跨 skill 引用） |
+按需加载详细参考内容。任一 reference 未命中其"加载时机"时，不需要提前读取。
+
+| 主题 | Reference | 加载时机 | 最小 profile |
+|------|-----------|---------|--------------|
+| 需求最小字段契约 | `references/requirement-authoring-contract.md` | 写 FR / NFR / CON / IFR / ASM / EXC 条目时；每次 spec 至少读一次 | 全档必读 |
+| 粒度与延后判断 | `references/granularity-and-deferral.md` | 核心需求出现 G1-G6 过大信号、或需要判断是否进 deferred backlog 时 | standard / full；lightweight 仅当确实命中过大信号 |
+| 规格文档模板 | `references/spec-template.md` | 起草或修订 spec 文档时；每次会话至少读一次 | 全档必读 |
+| reviewer 派发协议 | `references/reviewer-handoff.md` | 准备派发 `hf-spec-review` 时 | 全档必读（派发时机） |
+| NFR + QAS 最小契约 | `references/nfr-quality-attribute-scenarios.md` | 写任一核心 NFR 时；或 NFR 章节 Response Measure 缺阈值时 | 全档必读（存在 NFR 时） |
+| Success Metrics / Key Hypotheses | `references/success-metrics-and-hypotheses.md` | 起草 section 3 / section 4；或承接 discovery 的 Desired Outcome / OST 假设时 | 全档必读 |
+| 跨 skill：量化优先级 | `hf-product-discovery/references/prioritization-quant.md` | 多条 Must 候选冲突、或需要 RICE / ICE 辅助取舍时 | 按需；默认不加载 |
+
+加载策略：
+
+- `lightweight`：默认读 `spec-template.md` + `requirement-authoring-contract.md` + `success-metrics-and-hypotheses.md`；NFR 存在时加 `nfr-quality-attribute-scenarios.md`。其余按命中条件
+- `standard`：在 lightweight 基础上预读 `granularity-and-deferral.md`
+- `full`：按实际需要加载；多 Must 冲突时预读跨 skill 量化优先级
 
 ## Verification
 

@@ -179,9 +179,16 @@ probe 执行完毕后（或触发 Timebox），产出 **probe result** 文档：
 
 ## Reference Guide
 
-| 文件 | 用途 |
-|---|---|
-| `references/probe-plan-template.md` | probe plan / result 的默认结构与保存路径 |
+按需加载详细参考内容。任一 reference 未命中其"加载时机"时，不需要提前读取。
+
+| 主题 | Reference | 加载时机 | 最小 profile |
+|---|---|---|---|
+| probe plan / result 模板 | `references/probe-plan-template.md` | 起草 plan 或记录 result 时；每次 probe 至少读一次 | 全档必读 |
+
+加载策略：
+
+- 本 skill 仅在 `full` profile 下激活（standard / lightweight 不激活 `hf-experiment`）
+- reference 数量仅 1，full profile 下直接读即可
 
 ## Verification
 
