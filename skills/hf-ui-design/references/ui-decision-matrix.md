@@ -10,6 +10,16 @@
 - `主要风险` 与 `可逆性` 必须显式，不能只写"低"或"小"
 - `NFR / 约束匹配` 逐项承接规格的可用性 / a11y / i18n / 响应式 / 性能预算要求，缺任一视为未完成比较
 
+## 候选方向的多样性策略
+
+参考 Anthropic Claude `Claude-Design` 系统提示词中的"give options: try to give 3+ variations across several dimensions ... mix by-the-book designs that match existing patterns with new and novel interactions"。本 skill 在工程化语境下采纳如下规则：
+
+- **沿用 + 突破必须共存**：候选方向至少包含 1 条"沿用既有视觉语汇 / 既有 Design System 的保守锚点"，再至少 1 条"在保守锚点之上做有意识偏离的突破方向"。突破方向的偏离点必须显式列出（如"放弃既有侧栏导航，改 command-palette-first"）并在 ADR 中记录可逆性
+- **跨维度变化，而非同维度微调**：3 条方向之间应至少有 2 个维度有显著差异（如 typography 风格 + 导航范式、色彩温度 + 信息密度），不接受 3 条只有主色 hue 不同的"伪方向"
+- **拒绝稻草人**：每条方向都必须可独立交付；不允许"故意写一条明显劣的方向用来反衬推荐方向"
+- **目标不是给用户最优解，而是探索 trade-off 空间**：让用户能在矩阵中冷读"如果选 A，会失去 B 的什么；选 B，会失去 A 的什么"
+- **避免 AI 默认审美的同质化**：3 条方向若都是"卡片网格 + 紫色主色 + Inter 字体"，等于 1 条方向。按 `anti-slop-checklist.md` S3/S4/S6 自检
+
 ## 默认矩阵
 
 ```markdown
