@@ -14,6 +14,7 @@
 ## 2. 设计驱动因素
 ## 3. 需求覆盖与追溯
 ## 4. Domain Strategic Model (Bounded Context / Ubiquitous Language / Context Map)
+## 4.5 Tactical Model per Bounded Context (Aggregates / VOs / Repositories / Domain Services / Application Services / Domain Events)
 ## 5. Event Storming Snapshot（按 profile 分档；lightweight 允许纯自然语言）
 ## 6. 架构模式选择
 ## 7. 候选方案总览
@@ -33,9 +34,10 @@
 ## 21. 风险与开放问题（区分阻塞 / 非阻塞）
 ```
 
-Phase 0 新增章节（4 / 5 / 14 / 15）是**结构化锚点**：
+Phase 0 新增章节（4 / 4.5 / 5 / 14 / 15）是**结构化锚点**：
 
 - 章节 4（Domain Strategic Model）在 spec 存在多概念 / 多角色 / 跨系统交互时必填；纯脚本 / 单模块可显式跳过并说明理由。
+- 章节 4.5（Tactical Model per Bounded Context）在战术触发条件满足时必填（Bounded Context ≥ 2 / 单 Context 多实体 + 一致性约束 / 并发或事务边界 / 领域事件 / 跨聚合不变量）；不触发时显式跳过并说明理由。**GoF 代码模式不写入本章节**（见 `docs/principles/emergent-vs-upfront-patterns.md`）。
 - 章节 5（Event Storming Snapshot）按 profile 分档：`lightweight` 自然语言、`standard` Event Timeline、`full` Event Timeline + Process Modeling。
 - 章节 14（NFR QAS 承接）必填；承接 spec 中的 QAS，按 `nfr-checklist.md` 结构化表格。
 - 章节 15（STRIDE Threat Model）在触发条件满足时必填（见 `threat-model-stride.md`）。
@@ -61,6 +63,34 @@ Phase 0 新增章节（4 / 5 / 14 / 15）是**结构化锚点**：
 - Ubiquitous Language 词表（先覆盖跨 Context 容易歧义的术语）
 - Context Map（用 Mermaid 或紧凑列表；表达 Shared Kernel / Customer-Supplier / ACL / Conformist / Open-Host / Published Language / Separate Ways / Partnership 中的现实关系）
 - 若本轮不做战略建模，显式写明理由
+
+## Tactical Model 最小要求
+
+按 `ddd-tactical-modeling.md`：
+
+**触发条件**（任一满足即必填；否则每个 Context 下显式写 "本 Context 不做战术建模，理由：..."）：
+
+- Bounded Context 数量 ≥ 2
+- 单个 Bounded Context 内存在多实体 + 跨实体一致性约束
+- 存在并发修改 / 事务边界 / 领域事件 / 跨聚合不变量
+
+**每个触发 Context 至少填**（按 `ddd-tactical-modeling.md` 提供的紧凑表格）：
+
+- Aggregates（Root / Members / Invariants / Transaction Boundary / Concurrency）
+- Value Objects（Attributes / Operations）
+- Repositories（Target Aggregate Root / Key Methods / Query Style）
+- Application Services（Use Case / FR Ref / Orchestration / Tx Scope / Events Emitted）
+- Domain Events（过去时命名 / Payload / Emitted By / Consumers / Delivery）
+
+可选：Domain Services（动词短语命名；仅在行为不属于任何 Entity / VO 时引入）。
+
+**禁止**：
+
+- 把 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）作为前置决策列入本章节——这类模式属于实现层 emergent 浮现，见 `docs/principles/emergent-vs-upfront-patterns.md`
+- 用 "XxxAggregate" / "XxxEntity" / "XxxVO" 这类技术后缀命名，应直接使用 Ubiquitous Language 名词
+- 未显式回答事务边界 / 并发策略的聚合
+- 服务多个 Aggregate Root 的 Repository
+- 现在时 / 将来时命名的 Domain Event
 
 ## Event Storming Snapshot 最小要求（按 profile）
 

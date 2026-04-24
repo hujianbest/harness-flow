@@ -120,7 +120,9 @@ product idea
 | 性能预算 | Performance budget、RUM 预期值、容量规划 | NFR reference 缺失 |
 | 可观测性契约 | SLO / SLI、Error budget、Logs / Metrics / Traces 最小契约（Google SRE） | spec / design 都没有「observability-by-design」字段 |
 | 成本 / FinOps | 容量与成本评估、FinOps 原则 | 完全缺失 |
-| DDD 战略建模 | Bounded Context、Ubiquitous Language、Context Map、Event Storming | `hf-design` 以 C4 开始，战略上游缺 DDD / Event Storming |
+| DDD 战略建模 | Bounded Context、Ubiquitous Language、Context Map、Event Storming | ✅ Phase 0 已落地：`hf-design/references/ddd-strategic-modeling.md` + `event-storming.md` |
+| DDD 战术建模 | Entity / Value Object / Aggregate / Repository / Domain Service / Application Service / Domain Event | ✅ Phase 0 已落地：`hf-design/references/ddd-tactical-modeling.md`；触发条件 + design-doc § 4.5；`A10 tactical-model-absent` 反模式 |
+| Emergent vs Upfront Patterns 治理 | 区分战术模式（前置）与 GoF 代码模式（emergent 浮现） | ✅ Phase 0 已落地：`docs/principles/emergent-vs-upfront-patterns.md` + `hf-test-driven-dev` SUT Form 声明 + `A11 upfront-gof-pattern` 反模式 |
 
 **影响**：HF 当前 spec / design 对后端系统是「功能 + 模块 + API」的骨架，对「上线后能不能跑稳、能不能合规、能不能安全」的覆盖相对表面。
 

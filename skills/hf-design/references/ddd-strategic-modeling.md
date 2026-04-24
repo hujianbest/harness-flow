@@ -116,6 +116,8 @@ DDD 战略建模的产物**不替代** C4，但是为 C4 提供边界输入：
 
 ## 衔接
 
+- 战略建模锁定 Bounded Context 之后，每个 Context **内部**的建模见 `ddd-tactical-modeling.md`（战术层 Aggregate / VO / Repository / Domain Service / Application Service / Domain Event）
 - Event-flow 视角的补充见 `event-storming.md`
 - NFR 向设计承接的 QAS 映射见 `nfr-checklist.md`（Phase 0 扩展版）
 - 风险与可逆性决策仍由 ADR 承载（见 `adr-template.md`）
+- 前置 / emergent 模式分工立场见 `docs/principles/emergent-vs-upfront-patterns.md`
