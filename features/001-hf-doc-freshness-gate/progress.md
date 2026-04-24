@@ -4,17 +4,17 @@
 
 - Goal: 在 HF 主链上正式立项并落地 `hf-doc-freshness-gate`，把"用户可见行为变化必须对应可冷读的对外文档同步证据"从隐性 self-check 升级为带 verdict 的 gate；以 sync-on-presence + profile 分级 + 与 `hf-completion-gate` / `hf-finalize` 显式分工三条纪律保证不退化为模板填空、不让 lightweight 变重、不抢 finalize 同步动作。
 - Owner: Cursor Cloud Agent (HF self-application)
-- Status: 规格已 approved；hf-design 已起草（design.md + 3 个 ADR）；待 hf-design-review
+- Status: 任务已 approved（含 11 LLM-FIXABLE 回修）；进入 hf-test-driven-dev T1..T7 单 session 闭环
 - Last Updated: 2026-04-23
 
 ## Current Workflow State
 
-- Current Stage: hf-design（已起草）
+- Current Stage: hf-tasks（已起草）
 - Workflow Profile: standard
 - Execution Mode: auto
 - Current Active Feature: `features/001-hf-doc-freshness-gate/`
-- Current Active Task: N/A（design 阶段尚未拆任务）
-- Pending Reviews And Gates: **hf-design-review（next）** → 设计真人确认 → hf-tasks / hf-tasks-review → 任务真人确认 → hf-test-driven-dev → test / code / traceability review → regression-gate / **doc-freshness-gate** / completion-gate → hf-finalize
+- Current Active Task: 待 tasks-approval 后锁定 T1
+- Pending Reviews And Gates: **hf-tasks-review（next）** → 任务真人确认 → hf-test-driven-dev (T1..T7) → test / code / traceability review → regression-gate (N/A 预期) / **doc-freshness-gate** (dogfooding) / completion-gate → hf-finalize
 - Relevant Files:
   - `features/001-hf-doc-freshness-gate/spec.md`
   - `docs/insights/2026-04-23-hf-doc-freshness-gate-discovery.md`（上游 discovery，已通过 review）
@@ -35,6 +35,9 @@
   - 2026-04-23: hf-spec-review 通过 + 4 LLM-FIXABLE finding 已回修；HYP-002 (U2) 由 reviewer 冷读 §6.2 责任矩阵关闭（confidence medium → high，Blocking 是 → 否）；reviewer subagent ID: 1fb2f95f-bad4-48c0-b0be-7932b3d093eb；review record: `reviews/spec-review-2026-04-23.md`
   - 2026-04-23: spec-approval 落盘（auto-mode follow-up 授权）；下一节点 hf-design
   - 2026-04-23: hf-design 完成草稿（design.md 21 章 + 3 ADR）；HYP-003 通过 ADR-0003 关闭（5 transitions ≤ 6）；HYP-004 通过 §10.3 + §16 dry run 估算关闭（≤ 5 分钟 + ≤ 30 行）；启用 `docs/adr/` ADR pool（ADR-0001 元决策）
+  - 2026-04-23: hf-design-review verdict=需修改 + 6 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: 0876f73f-23da-4f99-9cfa-305c1d62ca78)；按 reviewer 协议无需重派 → design-approval 落盘 (auto-mode follow-up)；HYP-004 状态精确化为 "preliminarily closed by estimation, final validation deferred to T7 dogfooding"
+  - 2026-04-23: hf-tasks 完成草稿 (T1..T7 sequential, M1..M4 milestones)；待 hf-tasks-review
+  - 2026-04-23: hf-tasks-review verdict=需修改 + 11 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: ee4d8ebb-6cd7-4f90-a200-e377569301f3)；按 reviewer 协议无需重派 → tasks-approval 落盘 (auto-mode follow-up)；进入 hf-test-driven-dev T1
 - Evidence Paths:
   - `docs/reviews/discovery-review-hf-doc-freshness-gate.md`（discovery review verdict）
   - `docs/experiments/2026-04-23-hf-doc-freshness-gate-hyp-001/probe-result.md`
@@ -47,7 +50,9 @@
   - `docs/adr/0003-doc-freshness-gate-router-position-parallel-tier.md`（status: proposed；含 P3 sequential closure 段 + slug 命名遗留注）
   - `features/001-hf-doc-freshness-gate/reviews/design-review-2026-04-23.md`（design review 需修改 + 6 LLM-FIXABLE 全部已回修；按 reviewer 协议无需重派）
   - `features/001-hf-doc-freshness-gate/approvals/design-approval-2026-04-23.md`（auto-mode follow-up 授权 approval）
-  - `features/001-hf-doc-freshness-gate/tasks.md`（draft，T1..T7）
+  - `features/001-hf-doc-freshness-gate/tasks.md`（approved，T1..T7，含 11 LLM-FIXABLE 已回修）
+  - `features/001-hf-doc-freshness-gate/reviews/tasks-review-2026-04-23.md`（tasks review 需修改 + 11 LLM-FIXABLE 全部已回修；按 reviewer 协议无需重派）
+  - `features/001-hf-doc-freshness-gate/approvals/tasks-approval-2026-04-23.md`（auto-mode follow-up 授权 approval）
 - Session Log: discovery → discovery-review (4d5926b5...) → experiment (HYP-001 Pass) → specify → spec-review (1fb2f95f..., 通过+4回修) → 规格真人确认 (auto) → design (3 ADR) → design-review (0876f73f..., 需修改+6回修，无需重派) → 设计真人确认 (auto) → tasks
 - Open Risks:
   - HYP-001 desk-research 单方法 probe；future Phase 1+ 真实用户访谈如有反向证据，应通过 hf-increment 修订
@@ -65,10 +70,10 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: **hf-design-review**（dispatch reviewer subagent，readonly，author/reviewer 分离）
+- Next Action Or Recommended Skill: **hf-tasks-review**（dispatch reviewer subagent，readonly，author/reviewer 分离）
 - Blockers:
-  - hf-design-review 通过前不允许进入 设计真人确认；设计真人确认前不允许 hf-tasks 启动
-  - auto mode 仍不可跳 design / tasks / completion 各阶段的 reviewer subagent 派发（角色分离）
+  - hf-tasks-review 通过前不允许进入 任务真人确认；任务真人确认前不允许 hf-test-driven-dev 启动
 - Notes:
-  - hf-design-review LLM-FIXABLE finding 由父会话回修（不转嫁用户）；USER-INPUT finding → 立即停回用户
-  - design-review verdict 通过后写 design-approval-YYYY-MM-DD.md（auto-mode follow-up 授权落盘，与 spec-approval 同模式）
+  - hf-tasks-review LLM-FIXABLE finding 由父会话回修；USER-INPUT finding → 立即停回用户
+  - tasks-review 后写 tasks-approval-YYYY-MM-DD.md (auto-mode follow-up，与 spec/design approval 同模式)
+  - 任务真人确认后由 router 锁定 T1，进入 hf-test-driven-dev 单 session 闭环（standard profile：每任务过 test-review/code-review/traceability-review/regression-gate/doc-freshness-gate(dogfooding)/completion-gate 6 个评审 gate，最终 hf-finalize workflow closeout）

@@ -12,9 +12,9 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-design（已起草）→ hf-design-review pending
-- Current Active Task:
-- Pending Reviews And Gates: hf-design-review → 设计真人确认 → hf-tasks → hf-tasks-review → 任务真人确认 → hf-test-driven-dev → 测试 / 代码 / 追溯评审 → 回归 / 完成 / doc-freshness gate → 收尾
+- Current Stage: hf-tasks（已起草）→ hf-tasks-review pending
+- Current Active Task: 待 tasks-approval 后由 router 锁定 T1
+- Pending Reviews And Gates: hf-tasks-review → 任务真人确认 → hf-test-driven-dev (T1..T7 闭环) → test/code/traceability review → regression-gate / doc-freshness-gate (dogfooding) / completion-gate → hf-finalize
 - Closeout Type:
 
 ## Artifacts
@@ -22,11 +22,11 @@
 | 工件 | 路径 | 状态 |
 |---|---|---|
 | Spec | `spec.md` | approved (spec-approval-2026-04-23.md) |
-| Design | `design.md` | draft（含 §10 lightweight checklist 草样 / §16 walking skeleton / §14 NFR 承接全表）；待 hf-design-review |
+| Design | `design.md` | approved (design-approval-2026-04-23.md；含 6 LLM-FIXABLE 已回修) |
 | UI Design（如适用） | `ui-design.md` | N/A（无 UI surface） |
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
-| Tasks | `tasks.md` | N/A（待 design 通过） |
+| Tasks | `tasks.md` | approved (tasks-approval-2026-04-23.md；含 11 LLM-FIXABLE 已回修) |
 | Task Board（如适用） | `task-board.md` | N/A |
 | Progress | `progress.md` | live |
 | Closeout | `closeout.md` | pending |
@@ -44,8 +44,8 @@
 | design-review | `reviews/design-review-2026-04-23.md` | 需修改 → 6 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: 0876f73f-23da-4f99-9cfa-305c1d62ca78) | 2026-04-23 |
 | ui-review（如适用） | N/A（无 UI surface） | | |
 | design-approval | `approvals/design-approval-2026-04-23.md` | approved (auto-mode follow-up; reviewer 协议允许 LLM-FIXABLE post-fix 直接 approve) | 2026-04-23 |
-| tasks-review | `reviews/tasks-review-2026-04-23.md` | pending（reviewer subagent 待派发） | |
-| tasks-approval | `approvals/tasks-approval-YYYY-MM-DD.md` | | |
+| tasks-review | `reviews/tasks-review-2026-04-23.md` | 需修改 → 11 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: ee4d8ebb-6cd7-4f90-a200-e377569301f3) | 2026-04-23 |
+| tasks-approval | `approvals/tasks-approval-2026-04-23.md` | approved (auto-mode follow-up; 同 spec/design approval 边界) | 2026-04-23 |
 | code-review（每任务） | `reviews/code-review-task-NNN.md` | | |
 | test-review（每任务） | `reviews/test-review-task-NNN.md` | | |
 | traceability-review | `reviews/traceability-review.md` | | |

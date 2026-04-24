@@ -145,9 +145,30 @@
   - 主行为：跑 5 个 verdict 路径，verify router 能稳定路由
   - 关键边界：full profile 主链节点列表 + 三迁移表 + canonical route map text 段（"hf-test-review -> hf-code-review -> hf-traceability-review -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate"）三处都同步修改
   - fail-first：故意只改一张迁移表不改 canonical route map text，verify reviewer 能发现
-- Verify: `grep -c "hf-doc-freshness-gate" skills/hf-workflow-router/references/profile-node-and-transition-map.md` ≥ 18（5 logical × 3 profile + 3 节点列表行 + canonical route map 占用）
-- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T5-router-transition-modified.log`（含修改前后 grep 计数 diff）
-- 完成条件: 三 profile 主链 + 三迁移表 + canonical route map 全部同步修改 + 三链通过
+- Verify:
+  - 总出现次数（按 5 logical × 3 profile 迁移表 = 15 + 3 主链节点列表行 + 4 条 canonical route map chain 各 1 行 = 22）：
+    ```bash
+    test "$(grep -c "hf-doc-freshness-gate" skills/hf-workflow-router/references/profile-node-and-transition-map.md)" -ge 22 || echo "GREP COUNT < 22"
+    ```
+  - 三 profile 主链节点列表分别含本节点（逐 anchor 检查）：
+    ```bash
+    for p in "full profile 主链推荐节点" "standard profile 主链推荐节点" "lightweight profile 主链推荐节点"; do
+      awk "/$p/,/^### /" skills/hf-workflow-router/references/profile-node-and-transition-map.md | grep -F "hf-doc-freshness-gate" > /dev/null || echo "MISSING IN: $p"
+    done
+    ```
+  - canonical route map 4 条 chain 文本段全部含本节点：
+    ```bash
+    expected_chains=("hf-regression-gate -> hf-doc-freshness-gate" "hf-doc-freshness-gate -> hf-completion-gate")
+    for c in "${expected_chains[@]}"; do
+      test "$(grep -c "$c" skills/hf-workflow-router/references/profile-node-and-transition-map.md)" -ge 4 || echo "ROUTE MAP CHAIN COUNT < 4: $c"
+    done
+    ```
+  - **boundary check (R1 缓解 cold-readable)**：本任务对 router 文件的修改仅新增、无删除：
+    ```bash
+    test "$(git diff skills/hf-workflow-router/references/profile-node-and-transition-map.md | grep -E '^-[^-]' | wc -l)" = "0" || echo "DELETED LINES > 0 — VIOLATES BOUNDARY"
+    ```
+- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T5-router-transition-modified.log`（含修改前后 grep 计数 diff + git diff 删除行计数）
+- 完成条件: 总出现 ≥ 22 + 三 profile 主链 + 4 条 canonical route map chain + 三迁移表（隐含在 grep 总数中）+ git diff 删除行 = 0 + 三链通过
 
 ### T6. 修改 `skills/hf-completion-gate/SKILL.md`
 
@@ -186,9 +207,28 @@
   - 主行为：本 feature 自身的 README / spec / tasks 作为 reviewer subagent 的输入，按 lightweight checklist 模板跑出 verdict
   - 关键边界：跑完后实测耗时 + 行数；判定 N/A 维度时 evidence 内容
   - fail-first：跑前先估算"本仓库会有哪些维度判定"，跑后比对，确认估算与实测一致
-- Verify: 3 个 evidence 文件存在 + 各文件均含实测耗时记录；progress.md HYP-004 行已更新
-- 预期证据: 3 个 dry run evidence 文件本身就是预期证据
-- 完成条件: HYP-004 final closure + 三链通过 + 本任务作为 walking skeleton 同时验证 NFR-002 / NFR-003 / NFR-004
+  - **NFR-001 一致性测试（追加 T-NFR-001-consistency）**：对 lightweight checklist 同输入派发**两次**独立 reviewer subagent，diff 两份 verdict 文件，确认 verdict + dimension breakdown 完全一致（允许 evidence 文件名 timestamp 不同；与 design §14 NFR-001 QAS 一致）。落到 evidence 文件 `dry-run-T-NFR-001-consistency.md`
+- Verify:
+  - 4 个 dry run evidence 文件存在（追加 T-NFR-001）：
+    ```bash
+    for f in dry-run-T-NFR-001-consistency dry-run-T-NFR-002-lightweight-time dry-run-T-NFR-003-no-tools dry-run-T-NFR-004-sync-on-presence; do
+      test -f "features/001-hf-doc-freshness-gate/evidence/${f}.md" || echo "MISSING: ${f}.md"
+    done
+    ```
+  - T-NFR-001 evidence 文件含 "verdict 一致" 关键句：
+    ```bash
+    grep -E "verdict.*一致|consistency.*pass|两次.*verdict.*相同" features/001-hf-doc-freshness-gate/evidence/dry-run-T-NFR-001-consistency.md > /dev/null || echo "MISSING NFR-001 CONSISTENCY EVIDENCE"
+    ```
+  - T-NFR-002 evidence 含实测耗时记录与行数：
+    ```bash
+    grep -E "耗时|时间|minute|行数|line" features/001-hf-doc-freshness-gate/evidence/dry-run-T-NFR-002-lightweight-time.md > /dev/null || echo "MISSING NFR-002 TIMING EVIDENCE"
+    ```
+  - progress.md HYP-004 行已更新为 "fully closed by dogfooding dry run on 2026-04-23"：
+    ```bash
+    grep -F "fully closed by dogfooding" features/001-hf-doc-freshness-gate/progress.md > /dev/null || echo "HYP-004 STATUS NOT UPDATED"
+    ```
+- 预期证据: 4 个 dry run evidence 文件本身就是预期证据（追加 T-NFR-001-consistency 后总数 = 4）
+- 完成条件: HYP-004 final closure + NFR-001 一致性 evidence 落盘 + 三链通过 + 本任务作为 walking skeleton 同时验证 NFR-001 / NFR-002 / NFR-003 / NFR-004
 
 ## 6. 依赖与关键路径
 
