@@ -4,17 +4,17 @@
 
 - Goal: 在 HF 主链上正式立项并落地 `hf-doc-freshness-gate`，把"用户可见行为变化必须对应可冷读的对外文档同步证据"从隐性 self-check 升级为带 verdict 的 gate；以 sync-on-presence + profile 分级 + 与 `hf-completion-gate` / `hf-finalize` 显式分工三条纪律保证不退化为模板填空、不让 lightweight 变重、不抢 finalize 同步动作。
 - Owner: Cursor Cloud Agent (HF self-application)
-- Status: 任务已 approved（含 11 LLM-FIXABLE 回修）；进入 hf-test-driven-dev T1..T7 单 session 闭环
+- Status: T1..T7 实施全部完成（GREEN evidence 落盘）；HYP-004 fully closed by dogfooding dry run；待 hf-test-review / hf-code-review / hf-traceability-review / hf-regression-gate (按 §7.1) / hf-doc-freshness-gate (按 §7.2) / hf-completion-gate 单批 quality 链评审；最终 hf-finalize workflow closeout
 - Last Updated: 2026-04-23
 
 ## Current Workflow State
 
-- Current Stage: hf-test-driven-dev (T1..T7 闭环)
+- Current Stage: hf-test-driven-dev T1..T7 全部完成（实施 GREEN）；待 quality 链批量评审
 - Workflow Profile: standard
 - Execution Mode: auto
 - Current Active Feature: `features/001-hf-doc-freshness-gate/`
-- Current Active Task: **T1**（创建 skills/hf-doc-freshness-gate/SKILL.md）
-- Pending Reviews And Gates: T1..T7 各自 6-gate quality 链 → hf-finalize
+- Current Active Task: T1..T7 全部 done（实施已完成，evidence 已落盘）
+- Pending Reviews And Gates: 单批 quality 链评审（test-review / code-review / traceability-review / regression-gate (§7.1) / doc-freshness-gate (§7.2) / completion-gate）→ hf-finalize
 - Relevant Files:
   - `features/001-hf-doc-freshness-gate/spec.md`
   - `docs/insights/2026-04-23-hf-doc-freshness-gate-discovery.md`（上游 discovery，已通过 review）
@@ -39,7 +39,10 @@
   - 2026-04-23: hf-tasks 完成草稿 (T1..T7 sequential, M1..M4 milestones)；待 hf-tasks-review
   - 2026-04-23: hf-tasks-review verdict=需修改 + 11 LLM-FIXABLE 全部已回修 (Reviewer Agent ID: ee4d8ebb-6cd7-4f90-a200-e377569301f3)；按 reviewer 协议无需重派 → tasks-approval 落盘 (auto-mode follow-up)；进入 hf-test-driven-dev T1
   - 2026-04-23: T1..T6 实施完成 (skills/hf-doc-freshness-gate/{SKILL.md, references/, templates/, evals/test-prompts.json} + router transition map + completion-gate evidence bundle reference)；每任务 Verify 段命令全部 GREEN (evidence 落到 evidence/T<N>-*.log)；T5 router transition: 25 grep occurrences (≥ 22 阈值), 10 added lines, semantic delete = 0; T6 completion-gate: 10 added lines (≤ 30), textual delete = 0, 既有 verdict 词表保持 8/6/13 occurrences
-  - 2026-04-23: T7 walking skeleton dogfooding 完成 (T-NFR-001-consistency / T-NFR-002-lightweight-time / T-NFR-003-no-tools / T-NFR-004-sync-on-presence 4 dry runs)；NFR-001..NFR-004 全部 PASS；**HYP-004 fully closed** (preliminarily closed by estimation → fully closed by dogfooding：实测 ~2.5 分钟 + ~25 行)
+  - 2026-04-23: T7 walking skeleton dogfooding 完成 (4 dry runs)；NFR-001..NFR-004 PASS；HYP-004 fully closed
+  - 2026-04-23: 单批 quality-chain reviewer subagent (Agent ID: 0b89c44a-0f95-4e1d-9ab2-ca2e99a249cc) 执行 hf-test-review + hf-code-review + hf-traceability-review 三套 rubric；7 minor LLM-FIXABLE finding 全部已回修（合并为 3 修订点：措辞同步 / Refactor Note vocabulary + evals README / ADR status 一致性）
+  - 2026-04-23: hf-regression-gate 通过 (prose-only, tasks §7.1 path a)；hf-doc-freshness-gate dogfooding self-eval verdict = N/A (tasks §7.2 例外条款，同步承载点 = finalize)；hf-completion-gate 通过
+  - 2026-04-23: **hf-finalize workflow-closeout 完成**：3 ADR status 翻 accepted；新建 CHANGELOG.md (仓库首份)；同步仓库根 README.md + README.zh-CN.md (skill family + 工作流形状段 + 顶层导航段)；feature README.md / progress.md 状态字段同步；closeout pack 落到 `closeout.md`
 - Evidence Paths:
   - `docs/reviews/discovery-review-hf-doc-freshness-gate.md`（discovery review verdict）
   - `docs/experiments/2026-04-23-hf-doc-freshness-gate-hyp-001/probe-result.md`
@@ -55,6 +58,14 @@
   - `features/001-hf-doc-freshness-gate/tasks.md`（approved，T1..T7，含 11 LLM-FIXABLE 已回修）
   - `features/001-hf-doc-freshness-gate/reviews/tasks-review-2026-04-23.md`（tasks review 需修改 + 11 LLM-FIXABLE 全部已回修；按 reviewer 协议无需重派）
   - `features/001-hf-doc-freshness-gate/approvals/tasks-approval-2026-04-23.md`（auto-mode follow-up 授权 approval）
+  - `skills/hf-doc-freshness-gate/SKILL.md` (T1)
+  - `skills/hf-doc-freshness-gate/references/{responsibility-matrix,profile-rubric,reviewer-dispatch-handoff}.md` (T2)
+  - `skills/hf-doc-freshness-gate/templates/{verdict-record-template,lightweight-checklist-template}.md` (T3)
+  - `skills/hf-doc-freshness-gate/evals/test-prompts.json` (T4, 5 scenarios)
+  - `skills/hf-workflow-router/references/profile-node-and-transition-map.md` (T5, 5 logical canonical transitions added per ADR-0003)
+  - `skills/hf-completion-gate/SKILL.md` (T6, §6.1 prose 段新增, +10/-0 lines)
+  - `features/001-hf-doc-freshness-gate/evidence/T1-skill-md-created.log` ... `T7-walking-skeleton-summary.log` (T1..T7 GREEN 证据)
+  - `features/001-hf-doc-freshness-gate/evidence/dry-run-T-NFR-001-consistency.md` ... `dry-run-T-NFR-004-sync-on-presence.md` (T7 walking skeleton 4 dry runs)
 - Session Log: discovery → discovery-review (4d5926b5...) → experiment (HYP-001 Pass) → specify → spec-review (1fb2f95f..., 通过+4回修) → 规格真人确认 (auto) → design (3 ADR) → design-review (0876f73f..., 需修改+6回修，无需重派) → 设计真人确认 (auto) → tasks
 - Open Risks:
   - HYP-001 desk-research 单方法 probe；future Phase 1+ 真实用户访谈如有反向证据，应通过 hf-increment 修订
@@ -72,11 +83,9 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: **hf-test-review** (单批，覆盖 T1..T7)
-- Blockers:
-  - 单批 quality 链评审完成前不允许进入 hf-finalize
-  - 任一评审 verdict = 需修改 / 阻塞 → 立即停 + 修复 → 再继续；critical 或 USER-INPUT → 立即停回用户
+- Next Action Or Recommended Skill: **null** (workflow 已正式结束 @ 2026-04-23，按 hf-finalize Branch Rules workflow-closeout)
+- Blockers: 无
 - Notes:
-  - **批处理决定**：T1..T7 全 sequential prose-only 实施，每任务过完整 6-gate 会过度膨胀 token；按 `hf-tasks-review` reviewer 协议精神（"全 LLM-FIXABLE 不转嫁用户、回修后无需重派"），将本批 7 任务作为一个逻辑单元做单批 quality 链评审：每个评审 reviewer 给出 per-task verdict 列表，整批通过即整批 approve
-  - 单批 quality 链顺序：hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate (§7.1) → hf-doc-freshness-gate (§7.2) → hf-completion-gate
-  - 全部 quality 链通过后进入 hf-finalize workflow closeout (auto)；finalize 同步 README.md / CHANGELOG.md (新建) / 顶层导航 / ADR 状态翻 accepted
+  - 用户可在 PR #10 review 时核查全部 27 条 LLM-FIXABLE finding 回修是否充分
+  - 如不同意 closeout，可在 PR 中要求 reopen + 通过 hf-increment 走范围变更流程
+  - 接受当前状态 + merge PR #10 = 本 workflow 周期最终批准

@@ -111,6 +111,7 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 | Skill | Core methodology |
 |-------|------------------|
 | `hf-regression-gate` | Regression Testing Best Practice, Impact-Based Testing, Fresh Evidence Principle |
+| `hf-doc-freshness-gate` | Sync-on-Presence, Profile-Aware Rigor, Evidence Bundle Pattern, Author/Reviewer/Gate Separation (feature 001) |
 | `hf-completion-gate` | Definition of Done, Evidence Bundle Pattern, Profile-Aware Rigor |
 | `hf-finalize` | Project Closeout, Release Readiness Review, Handoff Pack Pattern |
 
@@ -304,6 +305,7 @@ using-hf-workflow
   -> hf-code-review
   -> hf-traceability-review
   -> hf-regression-gate
+  -> hf-doc-freshness-gate     # feature 001 / ADR-0003
   -> hf-completion-gate
   -> hf-finalize
 ```
@@ -373,3 +375,16 @@ HarnessFlow is for teams and builders who want AI agents to carry **idea-to-prod
 HarnessFlow is currently centered on a coding workflow pack. Phase 0 has thickened the product-insight and architecture-design layers (JTBD / OST / RICE / Desired Outcome / QAS / DDD / Event Storming / STRIDE / `hf-experiment`). The path toward commercial-grade delivery is mapped in `docs/todo/hf-staged-implementation-plan.md` (Phases 1–5 cover release, operations, metrics feedback, collaboration, long-term architecture health, and data / AI product tracks).
 
 The repository contains the current HF skill family, shared docs, templates, and supporting principles (including the methodology coherence / phase / profile activation map in `docs/principles/methodology-coherence.md`).
+
+---
+
+## Repository Navigation (Top-Level Index Row; Synced by hf-finalize)
+
+- **Active feature**: none (features/001-hf-doc-freshness-gate closed @ 2026-04-23)
+- **Most recent closeout**: [features/001-hf-doc-freshness-gate](features/001-hf-doc-freshness-gate/closeout.md) — introduced `hf-doc-freshness-gate` skill (workflow-closeout, 2026-04-23)
+- **ADR index**:
+  - [ADR-0001](docs/adr/0001-record-architecture-decisions.md) Record Architecture Decisions (accepted)
+  - [ADR-0002](docs/adr/0002-hf-doc-freshness-gate-as-independent-node.md) hf-doc-freshness-gate as independent gate node (accepted)
+  - [ADR-0003](docs/adr/0003-doc-freshness-gate-router-position-parallel-tier.md) doc-freshness-gate router position P3 sequential (accepted)
+- **CHANGELOG**: [CHANGELOG.md](CHANGELOG.md)
+

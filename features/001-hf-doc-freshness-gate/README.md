@@ -59,8 +59,12 @@
 
 ## Linked Long-Term Assets
 
-- ADRs: ADR-0001（启用 ADR pool）/ ADR-0002（独立 gate 节点）/ ADR-0003（router 位置 regression 后、completion 前）—— 状态全为 `proposed`，待 design-review 通过 + 设计真人确认 + hf-finalize 翻为 `accepted`
-- arc42 sections affected: 项目当前未启用 `docs/arc42/`，按 `sdd-artifact-layout.md` 档 0 用 `README.md` + ADR pool 承接
+- ADRs: ADR-0001（启用 ADR pool, accepted）/ ADR-0002（独立 gate 节点, accepted）/ ADR-0003（router 位置 regression 后、completion 前 P3 sequential, accepted）—— hf-finalize closeout @ 2026-04-23 同步翻 accepted
+- arc42 sections affected: N/A（项目当前未启用 `docs/arc42/`）
+- Runbooks updated/created: N/A
+- SLO updated: N/A
+- Release notes: N/A（项目未启用 `docs/release-notes/` 档 2 目录）
+- CHANGELOG entry: `CHANGELOG.md` Unreleased 段（仓库首份 CHANGELOG，hf-finalize closeout @ 2026-04-23 创建）
 - Runbooks updated/created: N/A（本 feature 不引入运维点）
 - SLO updated: N/A
 - Release notes: 待 closeout

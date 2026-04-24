@@ -1,8 +1,6 @@
 # ADR-0003: `hf-doc-freshness-gate` 在 router 中的位置与 transition
 
-## 状态
-
-已接受
+accepted（hf-finalize closeout @ 2026-04-23 同步翻转 from `proposed` → `accepted`；遵循 ADR-0001 流程）
 
 ## 背景
 

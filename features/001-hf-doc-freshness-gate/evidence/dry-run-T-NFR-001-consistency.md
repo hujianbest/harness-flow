@@ -78,6 +78,10 @@ N/A
 hf-completion-gate
 ```
 
+## 严格度声明
+
+> **重要**: 本 dry run 是 dogfooding pre-launch 的"单父会话先后两次手动按 lightweight checklist 填写"，**不是**真实双独立 reviewer subagent dispatch。chicken-and-egg 启动语义（design Q2 + tasks.md §7.2 例外条款已识别）：本 gate skill 在创建过程中评估自己，第一份真实双 dispatch 验证应延后到本 skill 首次被真实 feature consume 时（属 Phase 1+ 后续 `hf-increment` 的范围）。本文件用作 spec NFR-001 closure 的**初步证据**（与 HYP-004 "preliminarily closed by estimation → fully closed by dogfooding" 同款分级），不是终态严格双 dispatch 证据。
+
 ## NFR-001 一致性判定
 
 **verdict 一致**：

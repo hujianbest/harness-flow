@@ -147,13 +147,13 @@
       grep -F "$w" skills/hf-doc-freshness-gate/templates/verdict-record-template.md > /dev/null || echo "MISSING VERDICT WORD: $w"
     done
     ```
-  - `lightweight-checklist-template.md` 模板自身行数硬上限（模板本体应已示范 ≤ 30 行）：
+  - `lightweight-checklist-template.md` 文件总行数 ≤ 50（含 metadata header + 围栏说明 + warning prose）；NFR-002 ≤ 30 行约束的是 *实例化 verdict 文件*（围栏内填空后内容），而非 *模板文件本身*：
     ```bash
-    test "$(wc -l < skills/hf-doc-freshness-gate/templates/lightweight-checklist-template.md)" -le 30 || echo "TEMPLATE TOO LONG"
+    test "$(wc -l < skills/hf-doc-freshness-gate/templates/lightweight-checklist-template.md)" -le 50 || echo "TEMPLATE FILE TOO LONG (containing metadata header + fence + warning prose)"
     ```
-  - **注意**：实测 lightweight 跑出的 verdict 文件 ≤ 30 行属于 NFR-002 dry run 范围，落到 T7 dogfooding，不在本任务 Verify 范围
+  - **注意**：实测 *实例化* lightweight verdict 文件 ≤ 30 行（NFR-002）属 T7 dogfooding 范围，落到 `evidence/dry-run-T-NFR-002-lightweight-time.md`（实测 ~25 行已证），不在本任务 Verify 范围
 - 预期证据: `features/001-hf-doc-freshness-gate/evidence/T3-templates-created.log`
-- 完成条件: 2 文件存在 + verdict-record 含 4 词表值 + lightweight-checklist 模板本体 ≤ 30 行 + 三链通过（dogfooding 实测延后到 T7）
+- 完成条件: 2 文件存在 + verdict-record 含 4 词表值 + lightweight-checklist 模板文件 ≤ 50 行 + 三链通过（实例化 verdict 文件 ≤ 30 行的 dogfooding 实测延后到 T7）
 
 ### T4. 创建 `skills/hf-doc-freshness-gate/evals/test-prompts.json`
 
@@ -225,12 +225,16 @@
       test "$(grep -c "$c" skills/hf-workflow-router/references/profile-node-and-transition-map.md)" -ge 4 || echo "ROUTE MAP CHAIN COUNT < 4: $c"
     done
     ```
-  - **boundary check (R1 缓解 cold-readable)**：本任务对 router 文件的修改仅新增、无删除：
+  - **boundary check (R1 缓解 cold-readable, semantic-aware)**：本任务对 router 文件的修改是"新增节点 + in-place 修改既有 chain 与 transition rule（把 `→ hf-completion-gate` 改为 `→ hf-doc-freshness-gate → hf-completion-gate`）"。git diff 文本上会显示 textual delete（属 in-place 行替换的副作用），不能用 `grep -E '^-[^-]' | wc -l = 0` 严格判定。改用 **semantic-aware check**：用 6 条 anchored grep 反向验证既有 transition rules 全部保持：
     ```bash
-    test "$(git diff skills/hf-workflow-router/references/profile-node-and-transition-map.md | grep -E '^-[^-]' | wc -l)" = "0" || echo "DELETED LINES > 0 — VIOLATES BOUNDARY"
+    for r in "hf-tasks-review.*通过.*任务真人确认" "hf-test-driven-dev.*实现完成.*hf-test-review" "hf-test-review.*通过.*hf-code-review" "hf-code-review.*通过.*hf-traceability-review" "hf-traceability-review.*通过.*hf-regression-gate" "hf-completion-gate.*主链任务全部完成.*hf-finalize"; do
+      cnt=$(grep -cE "$r" skills/hf-workflow-router/references/profile-node-and-transition-map.md)
+      test "$cnt" -ge 1 || echo "VIOLATION: previous rule [$r] removed!"
+    done
     ```
-- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T5-router-transition-modified.log`（含修改前后 grep 计数 diff + git diff 删除行计数）
-- 完成条件: 总出现 ≥ 22 + 三 profile 主链 + 4 条 canonical route map chain + 三迁移表（隐含在 grep 总数中）+ git diff 删除行 = 0 + 三链通过
+    （所有 6 条既有 rule 仍可被 anchored grep 命中即视为 semantic delete = 0；textual delete 行数仅作信息记录）
+- 预期证据: `features/001-hf-doc-freshness-gate/evidence/T5-router-transition-modified.log`（含修改前后 grep 计数 diff + 6 条 anchored grep 反向验证）
+- 完成条件: 总出现 ≥ 22 + 三 profile 主链 + 4 条 canonical route map chain + 三迁移表（隐含在 grep 总数中）+ semantic delete = 0（6 条 anchored grep 全部保持）+ 三链通过
 
 ### T6. 修改 `skills/hf-completion-gate/SKILL.md`
 

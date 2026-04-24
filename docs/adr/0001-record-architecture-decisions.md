@@ -1,8 +1,6 @@
 # ADR-0001: 采用轻量 ADR 记录关键架构决策
 
-## 状态
-
-已接受
+accepted（hf-finalize closeout @ 2026-04-23 同步翻转 from `proposed` → `accepted`；上游 design-review 通过 + 设计真人确认 完成）
 
 ## 背景
 
