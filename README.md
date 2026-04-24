@@ -13,7 +13,7 @@ HarnessFlow's primary path covers the full **idea-to-product** arc:
 - **Upstream product discovery**: problem framing, JTBD, Opportunity Solution Tree, RICE / ICE, Desired Outcome / North Star
 - **Hypothesis validation**: `hf-experiment` — minimal probes when blocking or low-confidence hypotheses exist
 - **Specification**: EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
-- **Architecture design**: DDD Strategic Modeling + Event Storming + C4 + ADR + ARC42 + NFR QAS uptake + lightweight STRIDE
+- **Architecture design**: DDD Strategic Modeling + DDD Tactical Modeling (Aggregate / VO / Repository / Domain Service / Application Service / Domain Event) + Event Storming + C4 + ADR + ARC42 + NFR QAS uptake + lightweight STRIDE + Emergent vs Upfront Patterns governance (GoF intentionally emergent)
 - **UI design** (activated when the spec declares a UI surface): IA + Atomic Design + Design Tokens + Nielsen + WCAG 2.2 AA + interaction state inventory
 - **Task breakdown**: WBS + INVEST + dependency graph / critical path + Definition of Done
 - **Single-task TDD implementation**: Canon TDD + Walking Skeleton + Two Hats + Clean Architecture conformance + fresh evidence
@@ -90,7 +90,7 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 |-------|------------------|
 | `hf-specify` | EARS, BDD / Gherkin, MoSCoW Prioritization, Socratic Elicitation, INVEST, ISO/IEC 25010 + Quality Attribute Scenarios, Success Metrics & Key Hypotheses Framing, RICE / ICE / Kano (carried from discovery) |
 | `hf-spec-review` | Structured Walkthrough, Checklist-Based Review, Separation of Author/Reviewer Roles, Evidence-Based Verdict |
-| `hf-design` | ADR, C4 Model, Risk-Driven Architecture, YAGNI + Complexity Matching, ARC42, DDD Strategic Modeling (Bounded Context / Ubiquitous Language / Context Map), Event Storming (spec→design bridge), Quality Attribute Scenarios (NFR uptake), Lightweight STRIDE Threat Modeling |
+| `hf-design` | ADR, C4 Model, Risk-Driven Architecture, YAGNI + Complexity Matching, ARC42, DDD Strategic Modeling (Bounded Context / Ubiquitous Language / Context Map), DDD Tactical Modeling (Aggregate / VO / Repository / Domain Service / Application Service / Domain Event), Event Storming (spec→design bridge), Quality Attribute Scenarios (NFR uptake), Lightweight STRIDE Threat Modeling, Emergent vs Upfront Patterns governance |
 | `hf-design-review` | ATAM, Structured Walkthrough, Separation of Author/Reviewer Roles, Traceability to Spec |
 | `hf-ui-design` | Information Architecture, Atomic Design, Design System / Design Tokens, Nielsen Heuristics, WCAG 2.2 AA, Interaction State Inventory, ADR |
 | `hf-ui-review` | ATAM (adapted to UI), Nielsen Heuristic Evaluation, Structured Walkthrough, Separation of Author/Reviewer Roles, Traceability to Spec |

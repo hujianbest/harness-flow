@@ -41,6 +41,7 @@ HF 的设计前提是：方法论按**层**先分工，再按**字段**分工，
 | 方法 | 主要职责 | 不承担的事 |
 |---|---|---|
 | DDD Strategic Modeling | 锁 Bounded Context / Ubiquitous Language / Context Map | 画视图；画部署 |
+| DDD Tactical Modeling | 每个 Bounded Context 内的 Aggregate / VO / Repository / Domain Service / Application Service / Domain Event | GoF 代码模式前置决策（留给实现层 emergent） |
 | Event Storming | spec→design 桥，事件视角摊开流程 | 直接定模块；替代 sequence 图 |
 | C4 Model | Container / Component 视图 | 战略边界；关键决策 |
 | ADR (Nygard) | 关键决策及可逆性 | 方案对比视图 |
@@ -67,6 +68,8 @@ HF 的设计前提是：方法论按**层**先分工，再按**字段**分工，
 | Two Hats（Beck/Fowler） | 同一时刻只戴 Change 或 Refactor 一顶帽子 | 跨任务重构 |
 | Opportunistic / Boy Scout Refactoring | in-task cleanup | 结构性重构 |
 | Preparatory Refactoring | RED 之前的扩展点重构 | 混进 RED |
+| Refactoring to Patterns（Kerievsky）/ Emergent GoF | REFACTOR 步按 Fowler vocabulary 浮现 GoF 模式（Strategy / Factory / Adapter / ...） | 前置 GoF 决策；浮现理由写 "未来可能" |
+| SUT Form Declaration | 测试设计 approval 中声明 `naive / pattern:<tactical> / emergent`，锁定本轮 RGR 合法形态 | 在声明中写 GoF 模式名 |
 | Hypothesis-Driven Development | 把假设变成 probe | 代替实现 |
 | Build-Measure-Learn | probe 循环 | 自动上线 |
 | Pre-registered Success Threshold | probe 事先声明阈值 | 事后合理化 |
@@ -130,6 +133,9 @@ HF 的设计前提是：方法论按**层**先分工，再按**字段**分工，
 | EARS | BDD / Gherkin | 两者**同时存在**于同一条需求的不同字段，不互替 | `hf-specify/references/requirement-authoring-contract.md` |
 | ISO 25010 | QAS | ISO 25010 是分类，QAS 是格式；必须**同时**满足，不互替 | `hf-specify/references/nfr-quality-attribute-scenarios.md` |
 | DDD Bounded Context | C4 Container / Component | Container / Component 切分**必须与 Bounded Context 一致**，不允许静默不一致；不一致时用 ADR 显式解释 | `hf-design/SKILL.md` MUST DO + Verification |
+| DDD Tactical Pattern 前置决策 | GoF Pattern 前置决策 | 两者**不互相替代**。战术模式（Aggregate / VO / Repository / Domain Service / Application Service / Domain Event）在 `hf-design` § 4.5 前置决策；GoF 模式刻意 emergent，在 `hf-test-driven-dev` REFACTOR 步按 Fowler vocabulary 浮现 | `docs/principles/emergent-vs-upfront-patterns.md`；`hf-design-review` `A11`；`hf-test-driven-dev` sut_form allowlist |
+| SUT Form 声明 `pattern:<tactical>` | SUT Form 声明 `pattern:<GoF>` | allowlist 仅含战术模式；GoF 名写入 sut_form 声明 = 前置 over-abstraction，不合法；GoF 只能作为 Refactor Note 的 `Pattern Actual` 浮现结果出现 | `hf-test-driven-dev/SKILL.md` Hard Gates；`refactoring-playbook.md` Pattern Emergence 节 |
+| Fowler refactoring 浮现 GoF | 省略 REFACTOR 步 | 浮现必须是 **Fowler vocabulary 驱动的结果**（Replace Conditional with Polymorphism / Extract Factory Method / ...）；没有 vocabulary 命名 = undocumented-refactor（CA7） | `refactoring-playbook.md`；`hf-code-review` `CA7` |
 | Event Storming | sequence diagram | Event Storming 要记**业务事件**，不是接口交互；不能把两者混写成一张图 | `hf-design/references/event-storming.md` Red Flags |
 | Canon TDD「test list」 | HF「测试设计 approval」 | HF 在 Canon 前加了"测试设计 approval"前置步；不允许以 Canon 为由跳过 approval | `hf-test-driven-dev/SKILL.md` |
 | Two Hats | Preparatory Refactoring | 都是 Beck / Fowler 纪律；preparatory 必须**独立成步**且在 RED 之前，不允许混进 RED | `hf-test-driven-dev/SKILL.md` workflow |
@@ -189,6 +195,9 @@ Phase 0 之后仍存在的冲突风险，按优先级排列：
 | Key Hypotheses | Phase 0 | 至少 1 条或显式"无 Blocking" | 列表形式 | 全字段表格 |
 | `hf-experiment`（skill） | Phase 0 | 不激活 | 不激活 | 按 Blocking 假设激活 |
 | DDD Strategic Modeling | Phase 0 | 显式跳过允许 | 跨系统或多角色时必须 | Bounded Context ≥ 2 时必须 |
+| DDD Tactical Modeling | Phase 0 | 显式跳过允许 | 触发条件满足时必须（单 Context 多实体 + 一致性约束 / 事务边界 / 领域事件 / 跨聚合不变量） | Bounded Context ≥ 2 或存在聚合 / 事件时必须 |
+| Emergent vs Upfront Patterns（治理文档） | Phase 0 | 必读（一次 / 每次设计决策前） | 必读 | 必读 |
+| SUT Form Declaration（测试设计 approval 字段） | Phase 0 | 必须（sut_form ∈ naive / pattern:<tactical> / emergent） | 必须 | 必须 |
 | Event Storming | Phase 0 | 自然语言描述 | Event Timeline | + Process Modeling |
 | STRIDE（轻量） | Phase 0 | 触发时必须 | 触发时必须 | 触发时必须 |
 | ADR / C4 / ARC42 / YAGNI / Risk-Driven | Phase 0 之前 | 必须 | 必须 | 必须 |
