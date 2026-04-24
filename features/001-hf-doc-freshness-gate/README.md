@@ -12,17 +12,17 @@
 
 ## Status Snapshot
 
-- Current Stage: 规格真人确认（pending; auto mode 不可跳）
+- Current Stage: hf-design（已起草）→ hf-design-review pending
 - Current Active Task:
-- Pending Reviews And Gates: 规格真人确认 → hf-design / hf-design-review → 设计真人确认 → hf-tasks → hf-tasks-review → 任务真人确认 → hf-test-driven-dev → 测试 / 代码 / 追溯评审 → 回归 / 完成 gate → 收尾
+- Pending Reviews And Gates: hf-design-review → 设计真人确认 → hf-tasks → hf-tasks-review → 任务真人确认 → hf-test-driven-dev → 测试 / 代码 / 追溯评审 → 回归 / 完成 / doc-freshness gate → 收尾
 - Closeout Type:
 
 ## Artifacts
 
 | 工件 | 路径 | 状态 |
 |---|---|---|
-| Spec | `spec.md` | spec-review 通过 + 4 LLM-FIXABLE 已回修；待 规格真人确认 |
-| Design | `design.md` | N/A（待 spec 通过） |
+| Spec | `spec.md` | approved (spec-approval-2026-04-23.md) |
+| Design | `design.md` | draft（含 §10 lightweight checklist 草样 / §16 walking skeleton / §14 NFR 承接全表）；待 hf-design-review |
 | UI Design（如适用） | `ui-design.md` | N/A（无 UI surface） |
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
@@ -40,8 +40,8 @@
 |---|---|---|---|
 | discovery-review | `../../docs/reviews/discovery-review-hf-doc-freshness-gate.md` | 通过 | 2026-04-23 |
 | spec-review | `reviews/spec-review-2026-04-23.md` | 通过（Reviewer Agent ID: 1fb2f95f-bad4-48c0-b0be-7932b3d093eb） | 2026-04-23 |
-| spec-approval（规格真人确认） | `approvals/spec-approval-YYYY-MM-DD.md` | **pending（auto mode 仍不可跳；等待真人确认）** | |
-| design-review | `reviews/design-review-YYYY-MM-DD.md` | | |
+| spec-approval（规格真人确认） | `approvals/spec-approval-2026-04-23.md` | approved (auto-mode follow-up 授权落盘) | 2026-04-23 |
+| design-review | `reviews/design-review-2026-04-23.md` | pending（reviewer subagent 待派发） | |
 | ui-review（如适用） | N/A（无 UI surface） | | |
 | design-approval | `approvals/design-approval-YYYY-MM-DD.md` | | |
 | tasks-review | `reviews/tasks-review-YYYY-MM-DD.md` | | |
@@ -59,8 +59,8 @@
 
 ## Linked Long-Term Assets
 
-- ADRs: 待 design 阶段分配
-- arc42 sections affected: 项目当前未启用 `docs/arc42/`，按 `sdd-artifact-layout.md` 档 0/1 用 `README.md` + ADR pool 承接
+- ADRs: ADR-0001（启用 ADR pool）/ ADR-0002（独立 gate 节点）/ ADR-0003（router 位置 regression 后、completion 前）—— 状态全为 `proposed`，待 design-review 通过 + 设计真人确认 + hf-finalize 翻为 `accepted`
+- arc42 sections affected: 项目当前未启用 `docs/arc42/`，按 `sdd-artifact-layout.md` 档 0 用 `README.md` + ADR pool 承接
 - Runbooks updated/created: N/A（本 feature 不引入运维点）
 - SLO updated: N/A
 - Release notes: 待 closeout
