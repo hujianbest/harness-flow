@@ -82,10 +82,11 @@
 
 ### Desirability（用户真的想要吗）
 
-- **A1**：HF 用户**普遍**希望"每次完成增量开发后" README / 公共文档自动被纳入 fresh-evidence 验证，而不是只想要"workflow closeout 时刷一下"。
-  - 不成立则 wedge 站不住：可能用户只想扩 `hf-finalize` 的同步范围，而不需要新 gate。
-  - **Confidence: medium**。证据：当前对话的用户原话明确点名"每次完成增量开发"，指向任务级；但样本量 = 1。
-  - Probe 建议：在 `hf-experiment` 中做一次最小 probe——把候选 spec 草稿同时呈现两个方案（"扩 finalize" vs "新 gate"），观察 1–2 个真实 HF 项目的偏好（最小可接受 N=2）。
+- **A1（HYP-001）**：HF 用户**普遍**希望"每次完成增量开发后" README / 公共文档自动被纳入 fresh-evidence 验证，而不是只想要"workflow closeout 时刷一下"——更具体地，偏好**新增独立 gate**（`hf-doc-freshness-gate`）而不是把合同硬塞回 `hf-finalize` 或嵌入既有 review。
+  - **Confidence: high**（**Closed by HYP-001 probe, 2026-04-23**）。
+  - **Blocking?**: ~~是~~ → **否**（已通过）。
+  - 证据：`docs/experiments/2026-04-23-hf-doc-freshness-gate-hyp-001/probe-result.md` —— desk research 5 / 5 维度全部命中"A1 在 HF 现行治理框架下严格优于 A2 / A3"；门槛 ≥ 3 / 5 大幅超过；无反向硬证据。
+  - 历史 Probe 设计与执行轨迹：`./probe-plan.md` + `./artifacts/desk-research-evidence.md`。
 
 ### Viability（对 HF / 业务有价值吗）
 
@@ -111,9 +112,9 @@
 - **U2**：用户能稳定区分 `hf-doc-freshness-gate` vs `hf-finalize` vs `hf-increment` 的责任边界，不重叠不抢戏。
   - **Confidence: medium**。这是 spec / design 阶段必须明确解决的语义边界问题，不解决就是 product risk。
 
-### 高风险、低 confidence 的关键假设 → 建议 `hf-experiment`
+### 高风险、低 confidence 的关键假设 → `hf-experiment`
 
-- **A1**（用户偏好"新 gate" vs "扩 finalize"）confidence 偏低 → 建议在进入 `hf-specify` 之前走 `hf-experiment` 做一次最小 probe（detail 见 §8）。
+- ~~**A1**（用户偏好"新 gate" vs "扩 finalize"）confidence 偏低 → 建议在进入 `hf-specify` 之前走 `hf-experiment` 做一次最小 probe~~ → **已关闭**：见 `docs/experiments/2026-04-23-hf-doc-freshness-gate-hyp-001/probe-result.md`，结论 Pass，confidence 升至 high，Blocking 翻为否。剩余唯一 P0 假设为 **U2（责任边界稳定）**，留给 spec 阶段通过显式责任矩阵 + reviewer 判定关闭。
 
 ## 7. 候选方向与排除项
 
@@ -157,7 +158,7 @@
 
 | 假设 | Probe 方向 | 优先级 | 成功阈值 |
 |---|---|---|---|
-| **A1** 用户偏好"新 gate" vs "扩 finalize" | 把两个候选 spec outline 同时给 ≥ 2 个真实 HF 项目维护者，让其指出"哪个更能解决我的痛点"+ 1 个理由 | P0（阻塞 spec 立项） | ≥ 2/2 倾向"新 gate"，或反之；若 1/1 split，回到 discovery 加做用户访谈 |
+| ~~**A1** 用户偏好"新 gate" vs "扩 finalize"~~ → **CLOSED 2026-04-23** | desk research 对 HF 治理文档与既有合同 5 维度证据汇总（实际执行：访谈通道在 cloud agent 环境不可用，按 `hf-experiment` Step 3 lowest-cost-first 改用 desk research） | P0（已关闭） | **5 / 5 命中 → Pass**；evidence 见 `docs/experiments/2026-04-23-hf-doc-freshness-gate-hyp-001/` |
 | **A3** router FSM 复杂度可控 | 在 design 阶段做一次 transition map dry run，检查新增 transition 数 ≤ 6 | P1（spec 后 / design 前） | 新增 ≤ 6 条 transition，且无 dead end |
 | **U1** lightweight 不退化 | 在 spec / design 内置一份"lightweight 5 行 checklist 样例"，让 1 个真实 lightweight 项目跑一次 dry run | P1（design 阶段） | 跑一次耗时 ≤ 5 分钟，且 verdict 可被冷读 |
 | **U2** 责任边界稳定 | 在 spec 中显式列 `hf-doc-freshness-gate` vs `hf-finalize` vs `hf-increment` 的责任矩阵；评审时 reviewer 必须能逐项判 `pass` | P0（spec 阶段） | reviewer 评审无"哪条该哪个 skill 管"歧义 |
@@ -313,5 +314,8 @@ Opportunity B（次，本轮不做）：HF 知识沉淀维度单一（仅 hf-bug
   2. wedge（新 gate vs 扩 finalize vs 嵌 review）是否合理收敛
   3. §6 / §11 中假设分层是否完整
   4. §12 Bridge to Spec 是否足以让 `hf-specify` 起草 `features/<NNN>-hf-doc-freshness-gate/spec.md`
-- **若评审通过**: 由 `hf-specify` 创建 `features/<NNN>-hf-doc-freshness-gate/`（feature 目录在 spec 阶段创建，遵循 `docs/principles/sdd-artifact-layout.md`）。**前置条件钉死**：`hf-spec-review` 通过前，必须先关闭 §6 A1（用户偏好新 gate vs 扩 finalize，medium confidence）与 §6 U2（责任边界稳定）两条 P0 假设；前者通过 `hf-experiment` probe 关闭（见 §8），后者通过 spec 内显式责任矩阵 + reviewer 判定关闭。任一未关闭，spec 不允许进入 `hf-spec-review`（与 `hf-specify` Hard Gates "Blocking 假设未验证前不得通过评审" 一致）。
-- **若评审 request-changes 且 P0 probe 必要**: 走 `hf-experiment` 跑 §8 中 A1 probe，结果回流到本草稿后重审
+- **若评审通过**: 由 `hf-specify` 创建 `features/<NNN>-hf-doc-freshness-gate/`（feature 目录在 spec 阶段创建，遵循 `docs/principles/sdd-artifact-layout.md`）。**前置条件状态**：
+  - §6 **A1**（用户偏好新 gate vs 扩 finalize）→ ✅ 已关闭（HYP-001 probe Pass，2026-04-23）
+  - §6 **U2**（责任边界稳定）→ ⏳ 仍 P0，将在 spec 内通过显式责任矩阵 + reviewer 判定关闭
+  - 与 `hf-specify` Hard Gates "Blocking 假设未验证前不得通过评审" 一致：U2 在 spec review 前必须落到 spec 内 reviewer 可冷读判定的形式。
+- **若评审 request-changes 且 P0 probe 必要**: ~~走 `hf-experiment` 跑 §8 中 A1 probe，结果回流到本草稿后重审~~ → A1 已关闭，本路径不再适用
