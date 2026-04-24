@@ -178,6 +178,50 @@ HF 不强制项目集成 fitness functions；但鼓励：
 
 若 fitness function 转红：与任何回归相同——这是有效 RED 信号，必须修，不能宣称完成。
 
+## Pattern Emergence（GoF 模式只能在 REFACTOR 步以 Fowler vocabulary 浮现）
+
+源：Joshua Kerievsky, *Refactoring to Patterns*；Kent Beck, *TDD by Example* 后记；Martin Fowler, *Refactoring*。治理立场：`docs/principles/emergent-vs-upfront-patterns.md`。
+
+HF 的立场：
+
+- **领域语义驱动的模式**（Aggregate / Value Object / Repository / Domain Service / Application Service / Domain Event）→ **前置决策**，在 `hf-design` § 4.5 锁定
+- **GoF 代码模式**（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton / Composite / Command / Template Method / Visitor 等）→ **emergent 浮现**，在本 skill 的 REFACTOR 步以 Fowler refactoring 的结果形式出现，**不前置决策**
+
+### 测试设计 approval 与 SUT Form 声明的耦合
+
+测试设计 approval 中声明的 `SUT Form` 决定了本轮 RGR 的合法范围：
+
+| SUT Form 声明 | 允许在 RED/GREEN 步出现的实现形态 | REFACTOR 步允许浮现的形态 |
+|---|---|---|
+| `naive` | 单函数 / 单类 / 简单过程；无模式 | 任意 Fowler vocabulary cleanup；若浮现出 GoF 形态（如 Replace Conditional with Polymorphism → Strategy），记入 Pattern Actual |
+| `pattern:<tactical>` | 仅允许该战术模式（Aggregate / VO / Repository / Domain Service / Application Service / Domain Event）的骨架 | 同上；GoF 级浮现合法 |
+| `emergent` | 直写最小实现，不预判任何形态 | 按实际 cleanup 需要浮现结构 |
+
+**禁区**：`SUT Form` 声明中写 `pattern:Strategy / pattern:Factory / pattern:Adapter / ...` 等 GoF 名——不合法。若你觉得本轮"需要"某个 GoF 模式：
+
+1. 先把声明改成 `emergent`
+2. RED/GREEN 走最小实现
+3. REFACTOR 步如果 Fowler refactoring（Replace Conditional with Polymorphism / Extract Factory Method / Extract Interface / Introduce Null Object / ...）**自然**导向某个 GoF 形态，再把"实际浮现"的模式名写入 Refactor Note 的 `Pattern Actual` 字段
+4. 若该浮现跨 ≥ 3 模块 / 改 ADR / 改模块边界 → escalate，不在 task 内做
+
+### 允许的 Fowler → GoF 浮现链（举例，不穷举）
+
+| Fowler Refactoring | 可能浮现的 GoF 形态 | 判断信号 |
+|---|---|---|
+| Replace Conditional with Polymorphism | Strategy / State | 多个 if/switch 分支按类型分发且分支数稳定 |
+| Extract Factory Method | Factory Method | 构造过程含 if/switch + 多态返回 |
+| Introduce Parameter Object | —（不是 GoF） | 参数列表过长且参数之间有语义关联 |
+| Extract Interface | —（多见于 DIP conformance，非独立 GoF） | 实现需替换或测试需 mock |
+| Introduce Null Object | Null Object | 大量 null 检查重复 |
+| Extract Class + Move Method | Composite / Decorator / Adapter | 结构层面职责重新归属 |
+
+### 红线
+
+- RED/GREEN 步直接引入 Strategy / Factory / Adapter 等 GoF 模式 → 帽子混戴 + 绕过 sut_form 声明锁，**立即停下**，把 sut_form 改为 `emergent`，重做 RED/GREEN 为最小实现，然后在 REFACTOR 步按 Fowler 浮现
+- 浮现的 GoF 模式需要改 `hf-design`、改 ADR、跨 ≥ 3 模块 → escalation，不在 task 内做
+- "未来可能要支持更多类型" 作为浮现理由 → 拒绝；浮现必须由**当前 task 内已出现的重复 / 分支 / 嫁接点**驱动，而不是未来假设（YAGNI）
+- Refactor Note 的 `Pattern Actual` 字段空白或写 "optimized a bit"，但 diff 里能看到新抽象层 → documented-refactor 违规
+
 ## SOLID Conformance Check（不重论证，只做检查）
 
 源：Robert C. Martin, *Clean Architecture*。
@@ -202,6 +246,9 @@ REFACTOR 步骤的最后做一次 conformance pass（针对 task 触碰范围）
 ### Refactor Note
 
 - Hat Discipline: <RGR 是否守住 Two Hats；是否有独立 preparatory refactor 步骤>
+- SUT Form Declared: <approval 中声明的 sut_form：naive | pattern:<tactical name> | emergent>
+- Pattern Actual: <REFACTOR 后 SUT 实际形态：naive-unchanged | pattern:<tactical name, 承接 design § 4.5> | emergent→<Fowler vocabulary 链, e.g. Replace Conditional with Polymorphism → Strategy> | emergent-unchanged>
+- SUT Form Drift: <声明 vs 实际：一致 | Fowler 触发的合法浮现 | 不一致 - 需解释>
 - In-task Cleanups:
   - <Fowler vocabulary> @ <文件:范围> — <一行说明>
   - ...
@@ -219,6 +266,19 @@ REFACTOR 步骤的最后做一次 conformance pass（针对 task 触碰范围）
 
 写不出 vocabulary、写不出影响范围、写不出 escalation 决定 → 回去想清楚再写。
 
+**Pattern Actual 的合法写法举例**：
+
+- `naive-unchanged`（声明 naive，实际仍是朴素实现）
+- `emergent → Replace Conditional with Polymorphism → Strategy`（声明 emergent，REFACTOR 浮现了 Strategy 形态）
+- `pattern:Aggregate (Order) + pattern:Repository (OrderRepository)`（声明 pattern:Aggregate，实际承接 design § 4.5 的 Order 聚合 + 其 Repository）
+- `emergent → Introduce Null Object`（声明 emergent，REFACTOR 浮现了 Null Object）
+
+**Pattern Actual 的非法写法举例**：
+
+- 空白 / `optimized`（模糊，违反 vocabulary 要求）
+- `pattern:Strategy`（在 sut_form 声明中 allowlist 外；GoF 只能作为浮现结果出现，不作为声明）
+- `refactored for extensibility`（未绑定具体 Fowler vocabulary）
+
 ## Common Excuses（红灯信号）
 
 | 借口 | 现实 |
@@ -230,6 +290,10 @@ REFACTOR 步骤的最后做一次 conformance pass（针对 task 触碰范围）
 | "顺手把模块边界也调了" | escalation 触发条件，不能在 task 内做 |
 | "Refactor Note 写'做了些清理'就够了" | 不够。必须 vocabulary + 范围 + escalation 决定 |
 | "fitness function 红了但和我无关" | 在 task 触碰范围内的红灯就是有效 RED；要么修，要么 escalate，不能跳过 |
+| "sut_form 写 pattern:Strategy 比较清楚" | 不合法。sut_form 的 pattern:<name> allowlist 只含 design § 4.5 战术模式；GoF 模式只能作为 Pattern Actual 浮现结果出现，立场见 `docs/principles/emergent-vs-upfront-patterns.md` |
+| "既然要浮现出 Strategy，RED 直接用 Strategy 接口写测试不是更高效吗" | 帽子混戴 + 绕过 sut_form 声明锁。改 sut_form 为 emergent，RED/GREEN 走最小实现，REFACTOR 步让 Fowler refactoring 浮现 Strategy |
+| "未来可能要支持更多类型，先把抽象层留出来" | YAGNI 违规 + over-abstraction (CA9)。浮现必须由当前 task 内已出现的重复 / 分支 / 嫁接点驱动 |
+| "Pattern Actual 写 'refactored for extensibility'" | 未绑定 Fowler vocabulary；和"做了些清理"一样模糊，不合格 |
 
 ## 速查决策表
 
