@@ -303,6 +303,8 @@ using-hf-workflow
   -> hf-finalize
 ```
 
+> **范围说明**：当前 Workflow Shape 的终点是 `hf-finalize`（工程级 closeout）。**发布与上线**侧（部署管线 / 可观测 / 事故响应 / 度量回流 / 上线后运维）当前**不是**主链一等阶段，详见 `docs/todo/hf-staged-implementation-plan.md` 的 Phase 1+。这与 `docs/principles/soul.md` 的"现状脚注"一致——HF 必须把这一缺口显式抛回用户，而**不能**悄悄把"代码合并 / 工程 closeout"当作"上线"。
+
 `hf-experiment` 是 Phase 0 引入的 **discovery / spec stage 内部的 conditional insertion**：只在存在 Blocking 或低 confidence 关键假设时临时插入，`probe-result` 回流后按结果回到原插入点或上游修订节点。具体激活与回流规则见 `hf-workflow-router/references/profile-node-and-transition-map.md`。
 
 当规格声明 UI surface（页面 / 组件 / 交互 / 前端 UX NFR）时，router 会把 `hf-ui-design` 作为 **设计阶段内部的 conditional peer skill** 激活，与 `hf-design` 并行起草：`hf-design` 负责架构、模块、API 契约、数据模型、后端 NFR；`hf-ui-design` 负责信息架构、用户流、交互状态、视觉 Design Token、Atomic 组件映射、前端 a11y / i18n / 响应式。两条设计各自独立评审，只有 `hf-design-review` 与 `hf-ui-review` **均通过** 后，父会话才发起联合的 `设计真人确认`。激活条件与 Design Execution Mode（`parallel` / `architecture-first` / `ui-first`）详见 `skills/hf-workflow-router/references/ui-surface-activation.md`。

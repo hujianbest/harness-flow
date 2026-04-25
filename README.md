@@ -310,6 +310,8 @@ using-hf-workflow
   -> hf-finalize
 ```
 
+> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout). **Release & runtime concerns** (deployment pipelines, observability, incident response, metric feedback, post-launch operations) are **not** first-class stages of the main chain today; they are tracked in `docs/todo/hf-staged-implementation-plan.md` Phase 1+. This is consistent with the "scope footnote" in `docs/principles/soul.md`—HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production".
+
 `hf-experiment` is a Phase 0 **conditional insertion inside the discovery / spec stage**: it only kicks in when the draft holds blocking or low-confidence assumptions. After the probe result lands, the flow either returns to the original insertion point (assumption cleared) or falls back to the upstream authoring node (assumption falsified). See `hf-workflow-router/references/profile-node-and-transition-map.md` for activation and flow-back rules.
 
 When the spec declares a UI surface, the router activates `hf-ui-design` as a **conditional peer inside the design stage**. `hf-design` covers architecture, modules, API contracts, data models, and backend NFRs; `hf-ui-design` covers information architecture, user flows, interaction states, visual tokens, Atomic component mapping, and frontend a11y / i18n / responsive concerns. Both drafts go through their own independent review, and a joint `设计真人确认` is only opened after both `hf-design-review` and `hf-ui-review` return `通过`. See `skills/hf-workflow-router/references/ui-surface-activation.md` for the activation rules and Design Execution Modes (`parallel` / `architecture-first` / `ui-first`).
