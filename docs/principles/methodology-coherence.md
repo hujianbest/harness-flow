@@ -1,5 +1,11 @@
 # HF Methodology Coherence（方法论协作与冲突地图）
 
+- 定位: HF 方法论治理文档，定义 30+ 方法论的分工、反替代规则、Phase × profile 激活矩阵。
+- 关联:
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - 工件管理约定: `docs/principles/sdd-artifact-layout.md`
+  - SDD + TDD 设计原则: `docs/principles/hf-sdd-tdd-skill-design.md`
+
 ## Purpose
 
 HF 目前引用的方法论已超过 30 种（见 `README.md` / `README.zh-CN.md` 的 pack-level methodology 表）。这带来一个现实问题：**它们之间会不会冲突？按什么规则协作？什么时候允许激活哪些？**
@@ -230,3 +236,5 @@ Phase 0 之后仍存在的冲突风险，按优先级排列：
 ---
 
 Bottom line：HF 的方法论规模已经可以撑起"从 idea 到产品落地"的骨架，但**治理不能靠约定俗成**。本文件把分工、反替代、Phase 激活显式落盘，任何未来新增方法都应通过这份地图来检验，防止"方法堆砌"退化成"方法打架"。
+
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。

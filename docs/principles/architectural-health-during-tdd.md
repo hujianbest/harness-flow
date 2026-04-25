@@ -1,5 +1,10 @@
 # Architectural Health During TDD
 
+- 关联:
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - SDD + TDD 设计原则: `docs/principles/hf-sdd-tdd-skill-design.md`
+  - 模式前置 vs 浮现: `docs/principles/emergent-vs-upfront-patterns.md`
+
 ## Purpose
 
 本文回答一个具体问题：**HF 的编码环节（`hf-test-driven-dev`）除了按 TDD 完成编码外，如何实时维护 clean architecture 和 clean code 的健康度？**
@@ -198,3 +203,5 @@ HF 在编码环节维护架构健康的关键不是"再加一个节点"，而是
 - **Refactor Note** 让 reviewer 与 gate 能稳定看见架构健康证据，而不是凭直觉判断
 
 这就是本设计要在 `hf-test-driven-dev` 与 `hf-code-review` 中落地的全部内容。
+
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。
