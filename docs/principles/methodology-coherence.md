@@ -1,5 +1,11 @@
 # HF Methodology Coherence（方法论协作与冲突地图）
 
+- 定位: HF 方法论治理文档，定义 30+ 方法论的分工、反替代规则、Phase × profile 激活矩阵。
+- 关联:
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - 工件管理约定: `docs/principles/sdd-artifact-layout.md`
+  - SDD + TDD 设计原则: `docs/principles/hf-sdd-tdd-skill-design.md`
+
 ## Purpose
 
 HF 目前引用的方法论已超过 30 种（见 `README.md` / `README.zh-CN.md` 的 pack-level methodology 表）。这带来一个现实问题：**它们之间会不会冲突？按什么规则协作？什么时候允许激活哪些？**
@@ -193,7 +199,7 @@ Phase 0 之后仍存在的冲突风险，按优先级排列：
 | EARS / BDD / MoSCoW / INVEST / 六分类 | Phase 0 之前 | 必须 | 必须 | 必须 |
 | ISO 25010 + QAS | Phase 0 | 对关键 1–2 条 NFR | 核心 NFR 均需 | 全部核心 + 次要 NFR |
 | Key Hypotheses | Phase 0 | 至少 1 条或显式"无 Blocking" | 列表形式 | 全字段表格 |
-| `hf-experiment`（skill） | Phase 0 | 不激活 | 不激活 | 按 Blocking 假设激活 |
+| `hf-experiment`（skill） | Phase 0 | 默认不激活；存在 Blocking 假设时仍**必须**临时插入（与 router `profile-node-and-transition-map` 对齐） | 默认不激活；存在 Blocking 假设时仍**必须**临时插入 | 按 Blocking 假设激活 |
 | DDD Strategic Modeling | Phase 0 | 显式跳过允许 | 跨系统或多角色时必须 | Bounded Context ≥ 2 时必须 |
 | DDD Tactical Modeling | Phase 0 | 显式跳过允许 | 触发条件满足时必须（单 Context 多实体 + 一致性约束 / 事务边界 / 领域事件 / 跨聚合不变量） | Bounded Context ≥ 2 或存在聚合 / 事件时必须 |
 | Emergent vs Upfront Patterns（治理文档） | Phase 0 | 必读（一次 / 每次设计决策前） | 必读 | 必读 |
@@ -230,3 +236,5 @@ Phase 0 之后仍存在的冲突风险，按优先级排列：
 ---
 
 Bottom line：HF 的方法论规模已经可以撑起"从 idea 到产品落地"的骨架，但**治理不能靠约定俗成**。本文件把分工、反替代、Phase 激活显式落盘，任何未来新增方法都应通过这份地图来检验，防止"方法堆砌"退化成"方法打架"。
+
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。

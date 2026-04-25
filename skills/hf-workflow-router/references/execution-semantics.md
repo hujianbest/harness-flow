@@ -69,6 +69,16 @@
 - `auto`：approval step 只有在 policy 允许且 approval record 已写入后，才算完成并可继续进入下游节点
 - 若 `auto` 模式下无法写 approval record、无法绑定上游 record / artifact hash，或当前 approval kind 被 policy 禁止，则该 approval step 升级为 hard stop
 
+### auto 与"用户验收"的边界
+
+`auto` 模式与 `docs/principles/soul.md` 第 1 / 2 / 5 条纪律（方向 / 取舍 / 标准最终权在用户、HF 不替用户验收自己、HF 永远不假装架构师）共存，必须遵守以下边界，避免把"自动落盘"误读为"代理验收"：
+
+- **approval record 是组织策略下的可追溯代理**，记录"在已声明 policy 下，何节点放行、绑定的上游 record / artifact hash 是什么"。
+- **它不替代产品负责人对最终产物（spec / design / 上线候选物）的真人确认**。`auto` 只改变等待方式，不改变 approval 语义；任何节点都不得以"已 auto 通过"为由跳过 review、gate 或 approval 工件本身。
+- **soul 兜底优先级高于 policy**：当 policy 未覆盖、与 soul 第 1 条冲突、或当前请求触及方向 / 取舍 / 标准空白时，必须升级为 hard stop 并回到父会话，**不得**以 auto policy 兜底。
+- **严格合规场景**可在 `AGENTS.md` 中声明禁用 `auto`（例如 `Execution Mode: auto disallowed`）；router 必须遵守，不允许任何节点在该范围内自动放行。
+- **超范围信号**：当 reviewer / gate 反馈触及方向 / 取舍 / 标准本身（而非工件正确性），即使 policy 允许 auto，也必须按 hard stop 回到用户，由用户重新拍板。
+
 ## Hard Stop
 
 只有以下场景才停止自动推进并等待用户输入或显式报告阻塞：

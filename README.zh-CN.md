@@ -164,6 +164,8 @@ cd HarnessFlow
 
 如果你要把 HarnessFlow vendor 到另一个 skill workspace，不要只拷贝零散的 `hf-*` 文件夹；请保留整套 pack 结构，因为这些 skills 共享 pack 级文档和模板。
 
+> **推荐起步**：把 `skills/templates/AGENTS.md.example` 复制到你项目仓库根作为 `AGENTS.md`，并按本项目实际情况填空。HF 从仓库根的 `AGENTS.md` 读取"项目级标准注入点"（按 soul.md，"立标准"是架构师/用户的职责，不是 HF 的）。
+
 目前这套 pack 还没有提供一条命令完成安装的 registry 入口。
 
 ## Quick Start
@@ -303,6 +305,8 @@ using-hf-workflow
   -> hf-finalize
 ```
 
+> **范围说明**：当前 Workflow Shape 的终点是 `hf-finalize`（工程级 closeout）。**发布与上线**侧（部署管线 / 可观测 / 事故响应 / 度量回流 / 上线后运维）当前**不是**主链一等阶段，详见 `docs/todo/hf-staged-implementation-plan.md` 的 Phase 1+。这与 `docs/principles/soul.md` 的"现状脚注"一致——HF 必须把这一缺口显式抛回用户，而**不能**悄悄把"代码合并 / 工程 closeout"当作"上线"。
+
 `hf-experiment` 是 Phase 0 引入的 **discovery / spec stage 内部的 conditional insertion**：只在存在 Blocking 或低 confidence 关键假设时临时插入，`probe-result` 回流后按结果回到原插入点或上游修订节点。具体激活与回流规则见 `hf-workflow-router/references/profile-node-and-transition-map.md`。
 
 当规格声明 UI surface（页面 / 组件 / 交互 / 前端 UX NFR）时，router 会把 `hf-ui-design` 作为 **设计阶段内部的 conditional peer skill** 激活，与 `hf-design` 并行起草：`hf-design` 负责架构、模块、API 契约、数据模型、后端 NFR；`hf-ui-design` 负责信息架构、用户流、交互状态、视觉 Design Token、Atomic 组件映射、前端 a11y / i18n / 响应式。两条设计各自独立评审，只有 `hf-design-review` 与 `hf-ui-review` **均通过** 后，父会话才发起联合的 `设计真人确认`。激活条件与 Design Execution Mode（`parallel` / `architecture-first` / `ui-first`）详见 `skills/hf-workflow-router/references/ui-surface-activation.md`。
@@ -338,8 +342,10 @@ docs/principles/
 
 - `skills/` 存放可安装的 workflow skills。
 - `skills/docs/` 存放 pack 级共享文档。
-- `skills/templates/` 存放可复用的记录与交接模板。
+- `skills/templates/` 存放跨 skill 复用的记录与交接模板。
 - `docs/principles/` 存放这套 pack 的更高层设计原则与方法论背景。
+
+> **模板分两层**：跨 skill 复用的模板在 `skills/templates/`；各阶段专用长模板（spec / design / tasks / discovery / probe-plan / ADR）就近放在对应 skill 的 `references/` 目录下。审计或生成工件时按二者并集查找。
 
 ## 从哪里开始看
 

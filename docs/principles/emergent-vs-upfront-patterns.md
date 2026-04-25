@@ -1,5 +1,10 @@
 # Emergent vs Upfront Patterns（HF 对"何时前置决策 / 何时 emergent 浮现"的立场）
 
+- 关联:
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - 编码期架构健康: `docs/principles/architectural-health-during-tdd.md`
+  - 方法论协作与冲突地图: `docs/principles/methodology-coherence.md`
+
 ## Purpose
 
 HF 讨论"设计模式"时，必须先区分**哪一档模式**再谈"什么时候决策"。
@@ -160,3 +165,5 @@ HF 在讨论 "设计模式" 时区分四档：
 - **GoF 代码模式**（实现细节驱动）刻意 emergent——`hf-test-driven-dev` REFACTOR 步的 Fowler vocabulary 浮现
 
 这是 HF 基于 Beck / Fowler / Martin / Kerievsky 的工程判断，不是疏忽。
+
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。

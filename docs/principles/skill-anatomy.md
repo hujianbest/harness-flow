@@ -3,6 +3,7 @@
 - 定位: 项目级原则文档，定义 Garage 所有 skill（包括 HF workflow skills 及未来其他 family）的目标态写法。
 - 来源: 由 D020 设计文档提炼，经评审后上收为项目原则。
 - 关联:
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
   - HF family 共享文档: `skills/docs/`
   - Coding pack 设计: `docs/design/D120-garage-coding-pack-design.md`
 
@@ -427,3 +428,5 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 ## 一句话约束
 
 HF 的目标态 skill anatomy，是把 `SKILL.md` 写成一个短而硬的运行时 contract：description 负责分类，正文负责执行，边界必须显式，长材料下沉，退出条件可验证。
+
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。

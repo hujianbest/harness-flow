@@ -164,6 +164,8 @@ Keep these directories together:
 
 If you vendor HarnessFlow into another skill workspace, copy the full pack structure rather than only isolated `hf-*` folders, because the skills share pack-level docs and templates.
 
+> **Recommended starter**: copy `skills/templates/AGENTS.md.example` to your repository root as `AGENTS.md` and fill in project-specific sections. HF reads `AGENTS.md` from the repository root as the project-level "standards injection point" (per soul.md, "立标准" is the architect/user's responsibility, not HF's).
+
 There is not yet a one-command registry install for this pack.
 
 ## Quick Start
@@ -310,6 +312,8 @@ using-hf-workflow
   -> hf-finalize
 ```
 
+> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout). **Release & runtime concerns** (deployment pipelines, observability, incident response, metric feedback, post-launch operations) are **not** first-class stages of the main chain today; they are tracked in `docs/todo/hf-staged-implementation-plan.md` Phase 1+. This is consistent with the "scope footnote" in `docs/principles/soul.md`—HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production".
+
 `hf-experiment` is a Phase 0 **conditional insertion inside the discovery / spec stage**: it only kicks in when the draft holds blocking or low-confidence assumptions. After the probe result lands, the flow either returns to the original insertion point (assumption cleared) or falls back to the upstream authoring node (assumption falsified). See `hf-workflow-router/references/profile-node-and-transition-map.md` for activation and flow-back rules.
 
 When the spec declares a UI surface, the router activates `hf-ui-design` as a **conditional peer inside the design stage**. `hf-design` covers architecture, modules, API contracts, data models, and backend NFRs; `hf-ui-design` covers information architecture, user flows, interaction states, visual tokens, Atomic component mapping, and frontend a11y / i18n / responsive concerns. Both drafts go through their own independent review, and a joint `设计真人确认` is only opened after both `hf-design-review` and `hf-ui-review` return `通过`. See `skills/hf-workflow-router/references/ui-surface-activation.md` for the activation rules and Design Execution Modes (`parallel` / `architecture-first` / `ui-first`).
@@ -345,8 +349,10 @@ docs/principles/
 
 - `skills/` contains the installable workflow skills.
 - `skills/docs/` contains shared guidance used across the pack.
-- `skills/templates/` contains reusable record and handoff templates.
+- `skills/templates/` contains cross-skill reusable record and handoff templates.
 - `docs/principles/` contains the higher-level design rationale behind the pack.
+
+> **Templates live in two layers**: cross-skill reusable templates are in `skills/templates/`; per-stage long templates (spec / design / tasks / discovery / probe-plan / ADR) are co-located inside each skill's `references/` directory. When auditing or generating artifacts, look at the union of both locations.
 
 ## Start Here
 
