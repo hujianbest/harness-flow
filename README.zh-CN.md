@@ -164,6 +164,8 @@ cd HarnessFlow
 
 如果你要把 HarnessFlow vendor 到另一个 skill workspace，不要只拷贝零散的 `hf-*` 文件夹；请保留整套 pack 结构，因为这些 skills 共享 pack 级文档和模板。
 
+> **推荐起步**：把 `skills/templates/AGENTS.md.example` 复制到你项目仓库根作为 `AGENTS.md`，并按本项目实际情况填空。HF 从仓库根的 `AGENTS.md` 读取"项目级标准注入点"（按 soul.md，"立标准"是架构师/用户的职责，不是 HF 的）。
+
 目前这套 pack 还没有提供一条命令完成安装的 registry 入口。
 
 ## Quick Start

@@ -164,6 +164,8 @@ Keep these directories together:
 
 If you vendor HarnessFlow into another skill workspace, copy the full pack structure rather than only isolated `hf-*` folders, because the skills share pack-level docs and templates.
 
+> **Recommended starter**: copy `skills/templates/AGENTS.md.example` to your repository root as `AGENTS.md` and fill in project-specific sections. HF reads `AGENTS.md` from the repository root as the project-level "standards injection point" (per soul.md, "立标准" is the architect/user's responsibility, not HF's).
+
 There is not yet a one-command registry install for this pack.
 
 ## Quick Start
