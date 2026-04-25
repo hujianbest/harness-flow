@@ -342,8 +342,10 @@ docs/principles/
 
 - `skills/` 存放可安装的 workflow skills。
 - `skills/docs/` 存放 pack 级共享文档。
-- `skills/templates/` 存放可复用的记录与交接模板。
+- `skills/templates/` 存放跨 skill 复用的记录与交接模板。
 - `docs/principles/` 存放这套 pack 的更高层设计原则与方法论背景。
+
+> **模板分两层**：跨 skill 复用的模板在 `skills/templates/`；各阶段专用长模板（spec / design / tasks / discovery / probe-plan / ADR）就近放在对应 skill 的 `references/` 目录下。审计或生成工件时按二者并集查找。
 
 ## 从哪里开始看
 

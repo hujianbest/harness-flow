@@ -349,8 +349,10 @@ docs/principles/
 
 - `skills/` contains the installable workflow skills.
 - `skills/docs/` contains shared guidance used across the pack.
-- `skills/templates/` contains reusable record and handoff templates.
+- `skills/templates/` contains cross-skill reusable record and handoff templates.
 - `docs/principles/` contains the higher-level design rationale behind the pack.
+
+> **Templates live in two layers**: cross-skill reusable templates are in `skills/templates/`; per-stage long templates (spec / design / tasks / discovery / probe-plan / ADR) are co-located inside each skill's `references/` directory. When auditing or generating artifacts, look at the union of both locations.
 
 ## Start Here
 

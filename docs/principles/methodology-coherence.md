@@ -199,7 +199,7 @@ Phase 0 之后仍存在的冲突风险，按优先级排列：
 | EARS / BDD / MoSCoW / INVEST / 六分类 | Phase 0 之前 | 必须 | 必须 | 必须 |
 | ISO 25010 + QAS | Phase 0 | 对关键 1–2 条 NFR | 核心 NFR 均需 | 全部核心 + 次要 NFR |
 | Key Hypotheses | Phase 0 | 至少 1 条或显式"无 Blocking" | 列表形式 | 全字段表格 |
-| `hf-experiment`（skill） | Phase 0 | 不激活 | 不激活 | 按 Blocking 假设激活 |
+| `hf-experiment`（skill） | Phase 0 | 默认不激活；存在 Blocking 假设时仍**必须**临时插入（与 router `profile-node-and-transition-map` 对齐） | 默认不激活；存在 Blocking 假设时仍**必须**临时插入 | 按 Blocking 假设激活 |
 | DDD Strategic Modeling | Phase 0 | 显式跳过允许 | 跨系统或多角色时必须 | Bounded Context ≥ 2 时必须 |
 | DDD Tactical Modeling | Phase 0 | 显式跳过允许 | 触发条件满足时必须（单 Context 多实体 + 一致性约束 / 事务边界 / 领域事件 / 跨聚合不变量） | Bounded Context ≥ 2 或存在聚合 / 事件时必须 |
 | Emergent vs Upfront Patterns（治理文档） | Phase 0 | 必读（一次 / 每次设计决策前） | 必读 | 必读 |
