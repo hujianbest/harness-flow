@@ -114,16 +114,18 @@ HF 更适合第二档，也就是 `spec-anchored`。
 
 HF 的 `SDD + TDD` 体系要站得住，关键不在 prompt 漂不漂亮，而在工件是否权威。
 
-最少应保证以下工件层：
+最少应保证以下工件层（路径以 `docs/principles/sdd-artifact-layout.md` 为唯一权威，本节仅列工件类别；本文件不重复定义具体目录）：
 
-- `spec`：在本仓库里默认映射到 `docs/features/` 下的 feature specs
-- `design`
-- `tasks`
-- `task-progress.md`
-- `docs/reviews/`
-- `docs/approvals/`
-- `docs/verification/`
-- `RELEASE_NOTES.md`
+- `spec`         → 默认落在 `features/<NNN-slug>/spec.md`
+- `design`       → 默认落在 `features/<NNN-slug>/design.md`（ADR 通过编号引用 `docs/adr/` 中的 ADR 本体）
+- `tasks`        → 默认落在 `features/<NNN-slug>/tasks.md`
+- `progress`     → 默认落在 `features/<NNN-slug>/progress.md`（feature 唯一权威；不再保留全局 `task-progress.md`）
+- `reviews`      → 默认落在 `features/<NNN-slug>/reviews/`
+- `approvals`    → 默认落在 `features/<NNN-slug>/approvals/`
+- `verification` → 默认落在 `features/<NNN-slug>/verification/` 与 `features/<NNN-slug>/evidence/`
+- `CHANGELOG`    → 仓库根 `CHANGELOG.md`（必备，Keep a Changelog 惯例）；`docs/release-notes/vX.Y.Z.md` 仅在 `sdd-artifact-layout.md` 档 2 启用时存在。
+
+> 路径冲突或扩展时以 `sdd-artifact-layout.md` 为准。本文件不重复定义具体目录。
 
 原则：
 
@@ -273,7 +275,7 @@ hf-increment -> 先影响分析、同步工件，再重入正确主链节点
 
 ### `spec` 应至少包含什么
 
-在本仓库中，逻辑 `spec` 默认对应 `docs/features/` 下的 feature specs。
+在本仓库中，逻辑 `spec` 默认对应 `features/<NNN-slug>/spec.md`（以 `docs/principles/sdd-artifact-layout.md` 为权威）。
 
 建议最少包含：
 
