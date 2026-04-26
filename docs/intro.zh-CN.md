@@ -38,7 +38,28 @@ HF 与"再写一套 prompt 模板"的根本差别，是它把 **30+ 条经过验
 
 方法之间的分工、反替代规则、Phase × profile 激活矩阵单独沉淀在 [`docs/principles/methodology-coherence.md`](principles/methodology-coherence.md)；任何新方法引入都要先经过这份治理文档检验，避免方法堆砌退化成方法打架。
 
-### 1.3 把工程纪律拆成一等阶段，而不是一个大 prompt
+### 1.3 轻 harness，重 skills
+
+HF 内部刻意把"调度逻辑"（harness）和"工程方法"（skills）拆开。harness 部分薄到只剩两件事：
+
+- public entry 判断（`using-hf-workflow`）
+- 权威路由 / profile / 支线选择 / review dispatch（`hf-workflow-router`）
+
+真正承载方法论与质量纪律的，是 20+ 个 leaf skill。这样设计的目的是让 **skills 可以独立进化**——添加一种新的 review 维度、引入一种新方法（例如 Phase 1 的 Performance budget / SLO）、收敛一个新发现的 bug pattern，都只需要新增或修改对应 skill，不需要动 harness、也不需要重构整条流水线。
+
+反过来说，如果把方法论焊死进 harness，每次方法演化都会变成一次工作流引擎升级——这恰恰是 HF 想避免的。轻 harness、重 skills 的代价是 skill 本身要写得严（详见第五节"Skills 设计原则"）；收益是方法论侧能持续积累、替换、淘汰，而工作流引擎保持稳定。
+
+### 1.4 工作流自动路由，每一步都有落盘交付件
+
+HF 默认前提是**会话记忆不可靠**——长会话里 agent 会忘记上一个 verdict、会把已经被打回的设计当作通过、会在切支线后回不到正确节点。HF 的应对方式是：
+
+- **每一步都把结论落到磁盘**：spec / design / tasks 是工件；review 是 verdict 文件；TDD 是 RED/GREEN evidence + Refactor Note；gate 是 evidence bundle；closeout 是 release notes + handoff pack。
+- **路由不读会话，只读工件**：`hf-workflow-router` 决定下一步去哪里时，只看 `progress.md` / `reviews/` / `verification/` / `approvals/` 与上游工件的批准状态——不依赖"我们刚才聊到哪了"。
+- **整条链路是可恢复的**：哪怕中间换了会话、换了人、断了上下文，下一次进入 HF 只要仓库还在，就能从证据中还原"现在站在哪里、下一步是什么"。
+
+省掉这一层的代价是：纯靠会话记忆做路由的 agent，长链路一定漂移——你以为它在做 design review，实际它在合并一份已经被打回的 spec。
+
+### 1.5 把工程纪律拆成一等阶段，而不是一个大 prompt
 
 普通 agent workflow 的问题，是把"想清楚需要做什么"、"决定怎么做"、"动手做"、"判断有没有做对"压扁到一次推理里。HF 把它们拆成显式的、独立的节点：
 
@@ -51,7 +72,7 @@ HF 与"再写一套 prompt 模板"的根本差别，是它把 **30+ 条经过验
 
 每个节点的职责单一，且其结论必须落到磁盘工件上，下一节点才能基于证据继续推进。这套划分直接来自 `docs/principles/methodology-coherence.md` 的"HF 六层"。
 
-### 1.4 三条不让步的工程默认值
+### 1.6 三条不让步的工程默认值
 
 | 默认值 | 含义 | 反面（HF 拒绝的做法） |
 |---|---|---|
