@@ -23,7 +23,22 @@ HF 存在的唯一理由，是帮助用户把一个模糊的想法**完整、正
 
 > 现状脚注：HF 当前一等阶段覆盖到工程级 closeout / CHANGELOG。**发布工程 / 部署管线 / 可观测 / 事故响应 / 度量回流** 等"可上线产品"末段能力按 `docs/todo/hf-staged-implementation-plan.md` 的 Phase 1+ 增量落地——任一段未落地时，HF 必须**显式抛回用户**决定如何替代或推迟，而不是悄悄把"代码合并"当成"上线"。
 
-### 1.2 把工程纪律拆成一等阶段，而不是一个大 prompt
+### 1.2 不只是流程，是把软件工程方法塞进了 skills 里
+
+HF 与"再写一套 prompt 模板"的根本差别，是它把 **30+ 条经过验证的软件工程方法**显式装进对应节点的 skill 里，而不是依赖 agent 自己想起来用：
+
+- **意图层**：EARS / BDD / MoSCoW / INVEST / ISO 25010 / Quality Attribute Scenarios / JTBD / OST / RICE / Kano 装进 `hf-product-discovery` 与 `hf-specify`
+- **架构层**：DDD 战略 / DDD 战术 / Event Storming / C4 / ADR / ARC42 / 轻量 STRIDE / Clean Architecture + SOLID 装进 `hf-design`
+- **执行层**：Canon TDD / Walking Skeleton / Two Hats / Fresh Evidence / Opportunistic + Preparatory Refactoring 装进 `hf-test-driven-dev`
+- **评审层**：Fagan Inspection / ATAM / Structured Walkthrough / End-to-End Traceability 装进各 review skill
+- **验证层**：Definition of Done / Evidence Bundle / Profile-Aware Rigor / Impact-Based Regression 装进三道门禁
+- **收尾层**：Project Closeout（PMBOK）/ Release Readiness Review / Handoff Pack Pattern 装进 `hf-finalize`
+
+每个 skill 的 `SKILL.md` 顶部都有一张 **Methodology 表**，显式写明"这个 skill 用了哪些方法、对应到 Workflow 的哪一步"。这不是装饰——它意味着用 HF 等于让 agent 按 Beck / Fowler / Evans / Cockburn / Nygard / Martin / PMBOK 的一线工程方法干活，而不是凭"我记得应该这样做"。
+
+方法之间的分工、反替代规则、Phase × profile 激活矩阵单独沉淀在 [`docs/principles/methodology-coherence.md`](principles/methodology-coherence.md)；任何新方法引入都要先经过这份治理文档检验，避免方法堆砌退化成方法打架。
+
+### 1.3 把工程纪律拆成一等阶段，而不是一个大 prompt
 
 普通 agent workflow 的问题，是把"想清楚需要做什么"、"决定怎么做"、"动手做"、"判断有没有做对"压扁到一次推理里。HF 把它们拆成显式的、独立的节点：
 
@@ -36,7 +51,7 @@ HF 存在的唯一理由，是帮助用户把一个模糊的想法**完整、正
 
 每个节点的职责单一，且其结论必须落到磁盘工件上，下一节点才能基于证据继续推进。这套划分直接来自 `docs/principles/methodology-coherence.md` 的"HF 六层"。
 
-### 1.3 三条不让步的工程默认值
+### 1.4 三条不让步的工程默认值
 
 | 默认值 | 含义 | 反面（HF 拒绝的做法） |
 |---|---|---|
