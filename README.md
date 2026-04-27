@@ -23,7 +23,7 @@ HarnessFlow's primary path covers the full **idea-to-product** arc:
 - **Runtime routing and recovery**: `using-hf-workflow` / `hf-workflow-router` resume orchestration from artifacts, not chat memory
 - **Side branches and learning loops**: `hf-hotfix` / `hf-increment` / `hf-bug-patterns`
 
-Further evolution toward commercial-grade delivery (release, ops, metrics feedback, team collaboration, long-term architecture health, data / AI product tracks) is mapped in `docs/todo/hf-staged-implementation-plan.md` (Phase 0 landed; Phases 1–5 planned).
+Further evolution toward commercial-grade delivery (release, ops, metrics feedback, team collaboration, long-term architecture health, data / AI product tracks) is planned but not yet landed.
 
 Internally, the current skill family uses the `hf-*` naming convention.
 
@@ -111,7 +111,7 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 | Skill | Core methodology |
 |-------|------------------|
 | `hf-regression-gate` | Regression Testing Best Practice, Impact-Based Testing, Fresh Evidence Principle |
-| `hf-doc-freshness-gate` | Sync-on-Presence, Profile-Aware Rigor, Evidence Bundle Pattern, Author/Reviewer/Gate Separation (feature 001) |
+| `hf-doc-freshness-gate` | Sync-on-Presence, Profile-Aware Rigor, Evidence Bundle Pattern, Author/Reviewer/Gate Separation |
 | `hf-completion-gate` | Definition of Done, Evidence Bundle Pattern, Profile-Aware Rigor |
 | `hf-finalize` | Project Closeout, Release Readiness Review, Handoff Pack Pattern |
 
@@ -307,12 +307,12 @@ using-hf-workflow
   -> hf-code-review
   -> hf-traceability-review
   -> hf-regression-gate
-  -> hf-doc-freshness-gate     # feature 001 / ADR-0003
+  -> hf-doc-freshness-gate
   -> hf-completion-gate
   -> hf-finalize
 ```
 
-> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout). **Release & runtime concerns** (deployment pipelines, observability, incident response, metric feedback, post-launch operations) are **not** first-class stages of the main chain today; they are tracked in `docs/todo/hf-staged-implementation-plan.md` Phase 1+. This is consistent with the "scope footnote" in `docs/principles/soul.md`—HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production".
+> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout). **Release & runtime concerns** (deployment pipelines, observability, incident response, metric feedback, post-launch operations) are **not** first-class stages of the main chain today. This is consistent with the "scope footnote" in `docs/principles/soul.md`—HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production".
 
 `hf-experiment` is a Phase 0 **conditional insertion inside the discovery / spec stage**: it only kicks in when the draft holds blocking or low-confidence assumptions. After the probe result lands, the flow either returns to the original insertion point (assumption cleared) or falls back to the upstream authoring node (assumption falsified). See `hf-workflow-router/references/profile-node-and-transition-map.md` for activation and flow-back rules.
 
@@ -378,19 +378,6 @@ HarnessFlow is for teams and builders who want AI agents to carry **idea-to-prod
 
 ## Current Status
 
-HarnessFlow is currently centered on a coding workflow pack. Phase 0 has thickened the product-insight and architecture-design layers (JTBD / OST / RICE / Desired Outcome / QAS / DDD / Event Storming / STRIDE / `hf-experiment`). The path toward commercial-grade delivery is mapped in `docs/todo/hf-staged-implementation-plan.md` (Phases 1–5 cover release, operations, metrics feedback, collaboration, long-term architecture health, and data / AI product tracks).
+HarnessFlow is currently centered on a coding workflow pack. Phase 0 has thickened the product-insight and architecture-design layers (JTBD / OST / RICE / Desired Outcome / QAS / DDD / Event Storming / STRIDE / `hf-experiment`). Continued evolution toward commercial-grade delivery (release, operations, metrics feedback, collaboration, long-term architecture health, and data / AI product tracks) is planned for later phases.
 
 The repository contains the current HF skill family, shared docs, templates, and supporting principles (including the methodology coherence / phase / profile activation map in `docs/principles/methodology-coherence.md`).
-
----
-
-## Repository Navigation (Top-Level Index Row; Synced by hf-finalize)
-
-- **Active feature**: none (features/001-hf-doc-freshness-gate closed @ 2026-04-23)
-- **Most recent closeout**: [features/001-hf-doc-freshness-gate](features/001-hf-doc-freshness-gate/closeout.md) — introduced `hf-doc-freshness-gate` skill (workflow-closeout, 2026-04-23)
-- **ADR index**:
-  - [ADR-0001](docs/adr/0001-record-architecture-decisions.md) Record Architecture Decisions (accepted)
-  - [ADR-0002](docs/adr/0002-hf-doc-freshness-gate-as-independent-node.md) hf-doc-freshness-gate as independent gate node (accepted)
-  - [ADR-0003](docs/adr/0003-doc-freshness-gate-router-position-parallel-tier.md) doc-freshness-gate router position P3 sequential (accepted)
-- **CHANGELOG**: [CHANGELOG.md](CHANGELOG.md)
-

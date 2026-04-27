@@ -1,8 +1,0 @@
-=== T1 GREEN: file exists ===
-OK: file exists
-=== 8 standard sections anchor check ===
-OK: all 8 sections present
-=== description length check ===
-OK: description 317 chars (within 1024 limit)
-=== file stats ===
-  177 13691 skills/hf-doc-freshness-gate/SKILL.md
