@@ -1,33 +1,41 @@
-# Skill Anatomy — Garage Skill 写作原则
+# Skill Anatomy — HF Skill 写作原则
 
-- 定位: 项目级原则文档，定义 Garage 所有 skill（包括 HF workflow skills 及未来其他 family）的目标态写法。
-- 来源: 由 D020 设计文档提炼，经评审后上收为项目原则。
+- 定位: 项目级原则文档，定义 HF skill 的目标态写法；对 workflow skill 来说，它是 `01 skill-node-define.md` 在 `SKILL.md` 层的落地 anatomy。
+- 来源: 由 D020 设计文档提炼，并基于 `00 soul.md` 与 `01 skill-node-define.md` 刷新。
 - 关联:
-  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - 灵魂文档（最高锚点）: `docs/principles/00 soul.md`
+  - Skill-node 设计契约: `docs/principles/01 skill-node-define.md`
   - HF family 共享文档: `skills/docs/`
-  - Coding pack 设计: `docs/design/D120-garage-coding-pack-design.md`
 
 ## 定位
 
-本文定义 Garage skill 的目标态写法。
+本文定义 HF skill 的目标态写法。
 
 它不是现状说明，也不是单个 skill 的写作模板大全；它的任务是给出一套稳定、可执行、可搜索、可维护的 anatomy，让不同 skill 既能被单独正确调用，也能在链路中稳定编排。
+
+对 HF workflow skill 来说，`01 skill-node-define.md` 定义“一个 skill 如何成为 workflow node”，本文定义“这个 node contract 应该如何写进 `SKILL.md`、`references/`、`evals/` 与 supporting files”。
 
 ## 核心原则
 
 1. **Skill 是可复用技术参考，不是一次性解法叙述。**
    写 skill 是为未来的 agent 放路标，不是记录这次会话怎么做成了。
-2. **`SKILL.md` 是本地 contract，不是概念长文。**
+2. **Skill 要服从 soul：用户是架构师，HF 是工程团队。**
+   skill 可以执行、暴露风险、留下证据；不能替用户定方向、做取舍、改标准或验收自己。
+3. **`SKILL.md` 是本地 contract，不是概念长文。**
    共享语义放 family-level `docs/`，长资料放 `references/`。
-3. **Description 是分类器，不是摘要。**
+4. **Description 是分类器，不是摘要。**
    它只负责帮助系统判断“现在要不要加载这个 skill”，不负责复述流程。
-4. **Workflow 和 evidence 优先于解释性 prose。**
-   会改变运行时行为的内容留在主文件；不会改变行为的长说明下沉。
-5. **边界必须显式。**
+5. **对象、方法、workflow 和 evidence 优先于解释性 prose。**
+   workflow skill 必须说明自己处理的对象、使用的方法、具体 todo list、产出的证据或记录。
+6. **Workflow step 必须支撑职责达成。**
+   每一步都要能解释“它如何推进本 skill 的 primary object，并服务于本节点职责”；不能堆无关检查。
+7. **边界必须显式。**
    每个 skill 都要说明何时使用、何时不用、和相邻 skill 的区别、冲突时回哪里。
-6. **主文件要短，且有量化预算。**
+8. **产出必须可回读、可恢复。**
+   会改变 workflow 状态的结果必须落到 artifact、record、evidence、progress 或 handoff；不能只留在对话里。
+9. **主文件要短，且有量化预算。**
    `SKILL.md` 正文建议 < 500 行 / < 5000 tokens。超过此预算的内容应下沉到 `references/`。运行时 compaction 后仅保留前 5000 tokens，多个 skill 共享约 25000 tokens 总预算——每个多余 token 都在和对话历史、系统提示竞争注意力。
-7. **路径写法要可迁移。**
+10. **路径写法要可迁移。**
    不要把 skill 绑定到某个仓库安装根、某个 pack 名或某个项目私有目录。项目工件路径优先遵循 `AGENTS.md` / 项目权威约定；skill pack 内共享资料用当前 pack 语义或稳定相对路径表达。
 
 ## Skill 类型
@@ -56,6 +64,23 @@ HF workflow skill 大多是 `Technique + Pattern` 的混合体；当某个节点
 | Gate | `hf-regression-gate` / `hf-completion-gate` | evidence bundle、门禁结论、唯一下一步 |
 | Branch / Re-entry | `hf-hotfix` / `hf-increment` | 分岔分析、同步、re-entry |
 | Finalize | `hf-finalize` | closeout、状态闭合、release notes、handoff pack |
+| Knowledge Side Node | `hf-bug-patterns` | 可选经验沉淀、长期模式记录 |
+
+## HF Skill-Node Contract
+
+对 HF workflow skill，`SKILL.md` 必须把 `01 skill-node-define.md` 的节点契约写成运行时可执行内容。
+
+| Contract | 在 `SKILL.md` 中怎么体现 | 不足时的后果 |
+|---|---|---|
+| Identity | frontmatter、H1 开场、`When to Use`、相邻 skill 边界 | 系统误触发或漏触发 |
+| Object | `Object Contract`、workflow step 的 `Object` 字段、output 对象说明 | agent 不知道自己加工什么，容易越权 |
+| Method | `Methodology`、workflow step 的 `Method` 字段、rubric / verification | 只剩 checklist，没有可靠做法 |
+| Workflow | 编号 todo list、precheck、reroute、handoff | 节点不可执行或不可恢复 |
+| Quality | `Hard Gates`、`Red Flags`、`Verification`、evals | 节点会绕过证据或自我验收 |
+
+其中 Object Contract 用来向 agent 说明：本 skill-node 正在处理的 primary object 是什么，它来自哪个 frontend input object，完成后会变成哪个 backend output object。这里的对象可以是用户意图、spec、design model、task plan、active task、review finding set、evidence bundle 或 closeout pack，不必是代码 class。
+
+如果一个 workflow skill 无法说清自己的 primary object，通常说明它的职责边界还不稳定；不要先靠更长的 workflow 弥补。
 
 ## 目录 anatomy
 
@@ -144,7 +169,9 @@ description: Use when route/stage/profile is unclear, review or gate just finish
 | H1 标题 + 1-2 句开场 | 必需 | 定义职责和非目标 |
 | `## When to Use` | 必需 | 定义触发条件、反向边界、邻接 skill 边界 |
 | `## Hard Gates` | 建议 | 写不可协商的停止条件 |
-| `## Workflow` | 必需 | 写步骤、判断点、reroute 点 |
+| `## Object Contract` | HF workflow skill 必需 | 写 primary object、frontend input object、backend output object 与边界 |
+| `## Methodology` | HF workflow skill 必需 | 写本节点用什么方法完成职责，以及方法如何落地 |
+| `## Workflow` | 必需 | 写带 object / method / input / output / stop rule 的 todo list |
 | `## Output Contract` | 按需 | 写落盘工件、状态同步、canonical next action |
 | `## Red Flags` | 必需 | 写运行时 stop sign |
 | `## Common Mistakes` | 按需 | 写 mistake -> consequence/fix |
@@ -157,9 +184,9 @@ description: Use when route/stage/profile is unclear, review or gate just finish
 - `Overview`
 - `Standalone Contract`
 - `Chain Contract`
-- `Inputs / Required Artifacts`
-- `Core Authority`
-- `Quality Bar`
+- `Inputs / Required Artifacts`（应并入 `Object Contract`、`Workflow` 或 `Output Contract`）
+- `Core Authority`（应并入开场、`Hard Gates` 或 `Verification`）
+- `Quality Bar`（应并入 `Hard Gates`、`Red Flags` 或 `Verification`）
 - `Common Rationalizations`
 
 这些内容应尽量吸收到已有骨架里，而不是再长一层。
@@ -182,15 +209,71 @@ description: Use when route/stage/profile is unclear, review or gate just finish
 - direct invoke 线索
 - 与相邻 skill 的边界
 
+### `Hard Gates`
+
+Hard Gates 写不可协商的停止条件，尤其要体现 `00 soul.md` 的硬纪律：
+
+- 方向、取舍、标准不清时，停下来抛回用户，而不是让 skill 自己拍板。
+- 需要独立 review / approval 的地方，当前 skill 不能替用户或 reviewer 验收自己。
+- 缺少可回读工件、record、evidence 或 progress 时，不得假装 workflow 可恢复。
+- 质量证据不足时，不能为了推进速度降低门禁。
+
+Hard Gates 不是普通建议，也不是“最好检查一下”的 checklist。命中后必须停止、回修、reroute 或升级给用户。
+
+### `Object Contract`
+
+HF workflow skill 必须说明自己处理的对象：
+
+- `Primary Object`: 本 skill 真正加工、评审、验证或交接的对象。
+- `Frontend Input Object`: 从用户请求、上游工件、progress、review record 或 evidence 接收的对象。
+- `Backend Output Object`: 完成后交给下游的对象。
+- `Object Transformation`: 输入对象如何变成输出对象。
+- `Object Boundaries`: 当前 skill 不应修改、创造或替代哪些对象。
+- `Object Invariants`: 对象在执行前后必须保持的关键约束。
+
+如果这些内容太长，可以把对象字段定义下沉到 `references/`，但 `SKILL.md` 主文件必须保留最小对象契约。否则 agent 容易把用户自然语言、上游工件、当前节点对象和下游产物混成一团。
+
+### `Methodology`
+
+HF workflow skill 不只写“做什么”，还要写“用什么方法做”。
+
+`Methodology` 至少回答：
+
+- 本节点采用哪些方法。
+- 每个方法解决什么风险。
+- 方法作用于哪个 primary object。
+- 方法如何支撑 `Frontend Input Object -> Primary Object -> Backend Output Object`。
+- 哪些方法是 hard rule，哪些只是辅助参考。
+
+方法论不能只停留在 pack-level README 或概念表格里。只要会改变节点行为，就必须在 `Workflow`、`Hard Gates`、`Verification`、rubric 或 reference 中有可执行落点。
+
 ### `Workflow`
 
 要求：
 
 - 用编号步骤
 - 先读最少必要证据
+- 每步说明处理的 object
+- 每步说明使用的 method
+- 每步说明 input / output
+- 每步说明 stop / continue rule
+- 每步都要支撑当前 skill 的职责达成
 - 决策点明确
 - reroute 路径明确
 - 复杂 rubric / 模板 / map 优先下沉到 `references/`
+
+推荐每个 step 至少包含：
+
+```markdown
+1. <todo>
+   - Object:
+   - Method:
+   - Input:
+   - Output:
+   - Stop / continue:
+```
+
+不要把 `Workflow` 写成阶段标题堆叠，例如“读取 -> 分析 -> 输出”。HF 的 workflow 是可执行 todo list，必须能让下一个 agent 知道当前步骤如何加工对象、应用方法并留下证据。
 
 ### `Output Contract`
 
@@ -264,6 +347,8 @@ description: Use when route/stage/profile is unclear, review or gate just finish
 不应下沉：
 
 - 当前节点最核心的进入条件
+- 当前节点的 primary object / object transformation
+- 当前节点使用的方法论及其 hard-rule 落点
 - 核心 workflow 步骤
 - 最关键的 output / verification 规则
 
@@ -287,7 +372,13 @@ evals/
 - `evals.json` 说明 prompt、expectations、files
 - `fixtures/` 用真实工件片段模拟高风险场景
 
-`evals/` 测的是行为 contract，不是措辞复读。
+`evals/` 测的是行为 contract，不是措辞复读。对 HF workflow skill，eval 至少应覆盖：
+
+- 正确识别或拒绝错误的 primary object。
+- 不把 frontend input object 直接当成可执行下游对象。
+- 方法论是否实际影响 workflow 判断，而不是只出现在 prose。
+- 缺少 record / evidence / approval 时是否停止或 reroute。
+- 是否避免替用户定方向、做取舍、改标准或验收自己。
 
 ### `evals/` 评测方法论
 
@@ -329,6 +420,11 @@ evals/
 |---|---|---|
 | `description` 写成流程摘要 | 系统可能按摘要行事，不读正文 | 改成纯触发条件 / 边界 |
 | skill 写成一次性故事 | 不可复用 | 抽象成规则、模式、步骤 |
+| HF workflow skill 不写 primary object | agent 不知道自己加工什么，容易越权或跳步 | 补 `Object Contract`，明确 input / primary / output object |
+| 只有方法论名，没有 workflow 落点 | 方法成了装饰，不能改变行为 | 把方法映射到 step、rubric、hard gate 或 verification |
+| Workflow step 不服务节点职责 | checklist 变长但执行不更准 | 删除无关步骤，保留能推进对象转换和证据闭环的 todo |
+| skill 替用户做方向 / 取舍 / 标准决定 | 违反 soul，HF 假装自己是架构师 | 写成 hard gate，抛回用户或记录待决问题 |
+| 实现节点或 authoring 节点自称通过 | 违反“HF 不替用户验收自己” | 交给独立 review / approval / gate 产出 verdict |
 | 不写与相邻 skill 的区别 | 容易误触发 | 在 `When to Use` 或专节中补边界 |
 | 共享约定在每个 skill 里重复展开 | 主文件臃肿、漂移 | 上收至 family-level `docs/` |
 | 核心规则被藏进 `references/` | 主文件失去 runtime contract | 把关键规则搬回主文件 |
@@ -384,15 +480,24 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 
 ## Hard Gates
 
+## Object Contract
+
+## Methodology
+
 ## Workflow
+
+1. <todo>
+   - Object:
+   - Method:
+   - Input:
+   - Output:
+   - Stop / continue:
 
 ## Output Contract
 
 ## Red Flags
 
 ## Common Mistakes
-
-## 和其他 Skill 的区别
 
 ## Reference Guide
 
@@ -401,8 +506,9 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 
 说明：
 
+- `Object Contract` 与 `Methodology` 对 HF workflow skill 是必需项；对非 workflow 的 technique / reference skill，可以按需合并进开场或 `Workflow`。
 - `Hard Gates`、`Output Contract`、`Common Mistakes`、`和其他 Skill 的区别`、`Reference Guide` 都是按需出现。
-- 对薄节点，可以只保留：开场、`When to Use`、`Workflow`、`Red Flags`、`Verification`。
+- 对薄节点，可以只保留：开场、`When to Use`、最小 `Object Contract`、`Workflow`、`Red Flags`、`Verification`。
 - 标题名可以按节点需要轻微变化，但语义职责不能漂移。
 
 ## 检查清单
@@ -412,21 +518,30 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 - `description` 是否是分类器，而不是摘要
 - `description` 是否使用祈使句，是否前置关键触发场景
 - H1 下的开场是否足够短
+- 开场是否清楚写出唯一职责和不替代什么
+- 是否符合 `00 soul.md`：没有替用户定方向、做取舍、改标准或验收自己
 - `When to Use` 是否写清触发条件和边界
 - 是否明确说明了与相邻 skill 的区别
+- HF workflow skill 是否写清 primary object
+- 是否写清 frontend input object、backend output object 和 object transformation
+- 是否写清 object boundaries 与 invariants
+- 是否声明采用的方法论，以及每个核心方法如何落到 workflow / hard gate / verification
 - `Workflow` 是否先读最少必要证据
+- `Workflow` 每步是否包含 object / method / input / output / stop rule
+- `Workflow` 每步是否支撑本 skill 职责达成，而不是堆无关检查
 - 需要落盘工件时，是否写了 `Output Contract`
+- 需要交接时，是否写出 canonical next action 或 reroute 条件
 - 路径引用是否避免写死 repo-local 安装前缀，且项目工件路径是否 `AGENTS.md` 优先
 - 是否区分了 `Red Flags` 与 `Common Mistakes`
 - 共享语义是否已上收至 `docs/`
 - 长 reference 是否已下沉到 `references/`
-- 高风险边界行为是否有 `evals/`
+- 高风险边界行为是否有 `evals/`，且 eval 覆盖对象误判、方法落地、证据缺失和越权验收
 - `SKILL.md` 正文是否 < 500 行 / < 5000 tokens
 - `scripts/` 文件名是否具备语义，是否可独立执行
 - 是否有版本快照和质量退化信号追踪机制
 
 ## 一句话约束
 
-HF 的目标态 skill anatomy，是把 `SKILL.md` 写成一个短而硬的运行时 contract：description 负责分类，正文负责执行，边界必须显式，长材料下沉，退出条件可验证。
+HF 的目标态 skill anatomy，是把 `SKILL.md` 写成一个短而硬的运行时 contract：description 负责分类，正文说明对象、方法和执行 todo，边界必须显式，长材料下沉，产出可回读，退出条件可验证。
 
-> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。
+> 冲突仲裁：本文件与 `docs/principles/00 soul.md` 出现冲突时，以 soul 为准；与 `docs/principles/01 skill-node-define.md` 出现 workflow-node 设计口径冲突时，先按 `01` 修正本文。
