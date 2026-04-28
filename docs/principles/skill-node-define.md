@@ -2,8 +2,8 @@
 
 - 定位: HF workflow node 的设计契约，定义一个 `hf-*` skill 如何成为可编排、可恢复、可审计的 workflow 节点。
 - 关联:
-  - Skill 通用写法: `skills/principles/skill-anatomy.md`
-  - 方法论治理: `skills/principles/methodology-coherence.md`
+  - Skill 通用写法: `docs/principles/skill-anatomy.md`
+  - 方法论治理: `docs/principles/methodology-coherence.md`
   - 路由与迁移: `skills/hf-workflow-router/references/profile-node-and-transition-map.md`
   - 共享状态与交接约定: `skills/docs/hf-workflow-shared-conventions.md`
 

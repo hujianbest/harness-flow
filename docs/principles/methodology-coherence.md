@@ -2,9 +2,9 @@
 
 - 定位: HF 方法论治理文档，定义 30+ 方法论的分工、反替代规则、Phase × profile 激活矩阵。
 - 关联:
-  - 灵魂文档（最高锚点）: `skills/principles/soul.md`
-  - 工件管理约定: `skills/principles/sdd-artifact-layout.md`
-  - SDD + TDD 设计原则: `skills/principles/hf-sdd-tdd-skill-design.md`
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - 工件管理约定: `docs/principles/sdd-artifact-layout.md`
+  - SDD + TDD 设计原则: `docs/principles/hf-sdd-tdd-skill-design.md`
 
 ## Purpose
 
@@ -139,14 +139,14 @@ HF 的设计前提是：方法论按**层**先分工，再按**字段**分工，
 | EARS | BDD / Gherkin | 两者**同时存在**于同一条需求的不同字段，不互替 | `hf-specify/references/requirement-authoring-contract.md` |
 | ISO 25010 | QAS | ISO 25010 是分类，QAS 是格式；必须**同时**满足，不互替 | `hf-specify/references/nfr-quality-attribute-scenarios.md` |
 | DDD Bounded Context | C4 Container / Component | Container / Component 切分**必须与 Bounded Context 一致**，不允许静默不一致；不一致时用 ADR 显式解释 | `hf-design/SKILL.md` MUST DO + Verification |
-| DDD Tactical Pattern 前置决策 | GoF Pattern 前置决策 | 两者**不互相替代**。战术模式（Aggregate / VO / Repository / Domain Service / Application Service / Domain Event）在 `hf-design` § 4.5 前置决策；GoF 模式刻意 emergent，在 `hf-test-driven-dev` REFACTOR 步按 Fowler vocabulary 浮现 | `skills/principles/emergent-vs-upfront-patterns.md`；`hf-design-review` `A11`；`hf-test-driven-dev` sut_form allowlist |
+| DDD Tactical Pattern 前置决策 | GoF Pattern 前置决策 | 两者**不互相替代**。战术模式（Aggregate / VO / Repository / Domain Service / Application Service / Domain Event）在 `hf-design` § 4.5 前置决策；GoF 模式刻意 emergent，在 `hf-test-driven-dev` REFACTOR 步按 Fowler vocabulary 浮现 | `docs/principles/emergent-vs-upfront-patterns.md`；`hf-design-review` `A11`；`hf-test-driven-dev` sut_form allowlist |
 | SUT Form 声明 `pattern:<tactical>` | SUT Form 声明 `pattern:<GoF>` | allowlist 仅含战术模式；GoF 名写入 sut_form 声明 = 前置 over-abstraction，不合法；GoF 只能作为 Refactor Note 的 `Pattern Actual` 浮现结果出现 | `hf-test-driven-dev/SKILL.md` Hard Gates；`refactoring-playbook.md` Pattern Emergence 节 |
 | Fowler refactoring 浮现 GoF | 省略 REFACTOR 步 | 浮现必须是 **Fowler vocabulary 驱动的结果**（Replace Conditional with Polymorphism / Extract Factory Method / ...）；没有 vocabulary 命名 = undocumented-refactor（CA7） | `refactoring-playbook.md`；`hf-code-review` `CA7` |
 | Event Storming | sequence diagram | Event Storming 要记**业务事件**，不是接口交互；不能把两者混写成一张图 | `hf-design/references/event-storming.md` Red Flags |
 | Canon TDD「test list」 | HF「测试设计 approval」 | HF 在 Canon 前加了"测试设计 approval"前置步；不允许以 Canon 为由跳过 approval | `hf-test-driven-dev/SKILL.md` |
 | Two Hats | Preparatory Refactoring | 都是 Beck / Fowler 纪律；preparatory 必须**独立成步**且在 RED 之前，不允许混进 RED | `hf-test-driven-dev/SKILL.md` workflow |
 | `hf-experiment` | `hf-test-driven-dev` | experiment 是在 spec 之前或之中的**假设**验证；TDD 是在已批准 spec / design 之后的**实现**验证；**互相不得替代** | `hf-experiment/SKILL.md` 区别表 |
-| `hf-bug-patterns`（mandatory gate） | `hf-bug-patterns`（可选经验沉淀） | `hf-bug-patterns` 只是**可选旁路**，不得写成 `hf-test-review` 前的 mandatory gate | `skills/principles/hf-sdd-tdd-skill-design.md` |
+| `hf-bug-patterns`（mandatory gate） | `hf-bug-patterns`（可选经验沉淀） | `hf-bug-patterns` 只是**可选旁路**，不得写成 `hf-test-review` 前的 mandatory gate | `docs/principles/hf-sdd-tdd-skill-design.md` |
 | Fagan inspection full protocol | HF review skills | HF 只取"独立 reviewer"纪律，不搬 Fagan 完整流程 | review skills 的 Methodology 表 |
 | ATAM full protocol | HF design-review | 同上：取"QA driven"精神，不跑 ATAM 完整会议流程 | `hf-design-review` |
 
@@ -237,4 +237,4 @@ Phase 0 之后仍存在的冲突风险，按优先级排列：
 
 Bottom line：HF 的方法论规模已经可以撑起"从 idea 到产品落地"的骨架，但**治理不能靠约定俗成**。本文件把分工、反替代、Phase 激活显式落盘，任何未来新增方法都应通过这份地图来检验，防止"方法堆砌"退化成"方法打架"。
 
-> 冲突仲裁：本文件与 `skills/principles/soul.md` 出现冲突时，以 soul 为准。
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。

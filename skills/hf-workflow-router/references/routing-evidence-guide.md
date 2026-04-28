@@ -10,7 +10,7 @@
 
 ## 推荐工件布局
 
-除非项目已有已批准的等价路径，否则默认使用以下布局（详见 `skills/principles/sdd-artifact-layout.md` 与 `skills/docs/hf-workflow-shared-conventions.md` 的 *Default 逻辑工件布局*）：
+除非项目已有已批准的等价路径，否则默认使用以下布局（与 `skills/docs/hf-workflow-shared-conventions.md` 的 *Default 逻辑工件布局* 对齐）：
 
 | 逻辑工件 | 推荐路径 | 说明 |
 |---|---|---|
@@ -31,7 +31,7 @@
 
 优先使用项目已有工件，不要额外依赖根目录 JSON 信号文件。
 
-推荐的路由证据包括（按 `skills/principles/sdd-artifact-layout.md` 的 *Minimal `docs/` Tiers*，**read-on-presence**：缺失视为未启用，不阻塞路由）：
+推荐的路由证据包括（**read-on-presence**：`docs/` 下的可选载体缺失视为该资产档位未启用，不阻塞路由）：
 
 - 顶层导航中标注的当前 active feature：档 0/1 读仓库根 `README.md`；档 2 读 `docs/index.md`。两者都缺失时，回退到扫 `features/` 下最新的、未含 `closeout.md` 的目录
 - 当前 active feature 目录下的 `README.md` 与 `progress.md`（若存在 `Workspace Isolation` / `Worktree Path` / `Worktree Branch`，也应一并读取）

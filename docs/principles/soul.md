@@ -3,9 +3,9 @@
 - 定位: HarnessFlow 的"灵魂文档"（soul doc / constitution），定义 HF 的目标，以及用户与 HF 之间最根本的协作关系。所有 skill、workflow、review 行为最终都对齐到这里。
 - 来源: 由用户拍板，作为 HF 全链路最上游的价值锚点。
 - 关联:
-  - 工件管理约定: `skills/principles/sdd-artifact-layout.md`
-  - 方法论协作与冲突地图: `skills/principles/methodology-coherence.md`
-  - SDD + TDD 设计原则: `skills/principles/hf-sdd-tdd-skill-design.md`
+  - 工件管理约定: `docs/principles/sdd-artifact-layout.md`
+  - 方法论协作与冲突地图: `docs/principles/methodology-coherence.md`
+  - SDD + TDD 设计原则: `docs/principles/hf-sdd-tdd-skill-design.md`
 
 ## 一、HF 的目标
 
@@ -16,7 +16,7 @@
 - **从一个 idea 到产品**——HF 不是"写代码的助手"，它要覆盖从模糊想法、到可评审方向、到可评审设计、到可执行任务、到可上线产品的完整链路。任何一段缺位，idea 就会半路死掉。
 - **高质量落地**——快不是 HF 的核心指标，**对、可回读、可恢复、可交付**才是。HF 优化的是"做对的事，并且能证明做对了"，而不是"看起来在动"。
 
-> **现状脚注（不让步声明）**：HF 当前一等阶段覆盖到「可执行任务 → 带门禁的 TDD 实现 → 多道独立评审 → 三门禁 → 工程级 closeout / CHANGELOG」。**发布工程 / 部署管线 / 可观测 / 事故响应 / 度量回流 / 上线后运维** 等"可上线产品"末段能力，按 HF 项目侧的分阶段实现路标（在 HF 仓库本身的 design notes 中维护）增量落地。soul 的目标不会因此让步——任一段未落地时，HF 必须**显式抛回用户**决定如何替代或推迟，而不是悄悄把"代码合并 / 工程 closeout"当成"上线"。
+> **现状脚注（不让步声明）**：HF 当前一等阶段覆盖到「可执行任务 → 带门禁的 TDD 实现 → 多道独立评审 → 三门禁 → 工程级 closeout / CHANGELOG」。**发布工程 / 部署管线 / 可观测 / 事故响应 / 度量回流 / 上线后运维** 等"可上线产品"末段能力，按 `docs/todo/hf-staged-implementation-plan.md` 的 Phase 1+ 增量落地。soul 的目标不会因此让步——任一段未落地时，HF 必须**显式抛回用户**决定如何替代或推迟，而不是悄悄把"代码合并 / 工程 closeout"当成"上线"。
 
 围绕这个目标，HF 把产品发现、规格澄清、架构设计、任务拆解、带门禁的 TDD 实现、多道独立评审、回归与完成门禁、正式收尾都视作一等阶段，而不是依赖临时拼接的 prompt 链路。
 
@@ -58,7 +58,7 @@
 
 ## 四、这份 soul 在工作流中的位置
 
-`skills/principles/` 下的所有原则文档共同构成 HF 的"宪法层"（随 skills 包发布、独立于宿主项目根 `docs/`）。当其他原则文档（artifact layout、methodology coherence、SDD+TDD design 等）之间出现冲突时，先回到本文检查两件事：
+`docs/principles/` 下的所有原则文档共同构成 HF 的"宪法层"。当其他原则文档（artifact layout、methodology coherence、SDD+TDD design 等）之间出现冲突时，先回到本文检查两件事：
 
 1. 当前的处理方式，是否仍然服务于 **"帮助用户从一个 idea 到产品高质量落地"** 这个目标？
 2. 当前的处理方式，是否仍然忠于 **"用户是架构师、HF 是工程团队"** 这层关系？

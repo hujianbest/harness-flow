@@ -10,7 +10,7 @@ HarnessFlow is a skill pack for AI agents that turns the full **idea → insight
 
 HarnessFlow's primary path covers the full **idea-to-product** arc:
 
-- **Cross-cutting coding principles** (constitution layer, not a workflow node): `skills/principles/coding-principles.md` — Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution; inherited by every `hf-*` skill via `AGENTS.md` § Soul docs, adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
+- **Cross-cutting coding principles** (constitution layer, not a workflow node): `docs/principles/coding-principles.md` — Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution; inherited by every `hf-*` skill via `AGENTS.md` § Soul docs, adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
 - **Upstream product discovery**: problem framing, JTBD, Opportunity Solution Tree, RICE / ICE, Desired Outcome / North Star
 - **Hypothesis validation**: `hf-experiment` — minimal probes when blocking or low-confidence hypotheses exist
 - **Specification**: EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
@@ -74,9 +74,9 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 
 | Document | Core principles |
 |----------|-----------------|
-| `skills/principles/coding-principles.md` | Think Before Coding, Simplicity First (YAGNI), Surgical Changes, Goal-Driven Execution — adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
+| `docs/principles/coding-principles.md` | Think Before Coding, Simplicity First (YAGNI), Surgical Changes, Goal-Driven Execution — adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
 
-These principles live in the constitution layer (`skills/principles/`, shipped with the skills pack), not as a separate `hf-*` skill. Every `hf-*` skill inherits them via `AGENTS.md` § Soul docs. They are **not** part of the canonical `Next Action Or Recommended Skill` vocabulary, do **not** add a step to any node's Workflow, and do **not** replace review / gate / approval / finalize judgments.
+These principles live in the constitution layer (`docs/principles/`) as HF's own design notes; each `hf-*` skill has already absorbed them into its `SKILL.md` so skills do not need to read these files at runtime. Every `hf-*` skill inherits them via `AGENTS.md` § Soul docs. They are **not** part of the canonical `Next Action Or Recommended Skill` vocabulary, do **not** add a step to any node's Workflow, and do **not** replace review / gate / approval / finalize judgments.
 
 ### Entry and routing
 
@@ -167,11 +167,10 @@ cd HarnessFlow
 Keep these directories together:
 
 - `skills/`
-- `skills/principles/`
 - `skills/docs/`
 - `skills/templates/`
 
-If you vendor HarnessFlow into another skill workspace, copy the full pack structure rather than only isolated `hf-*` folders, because the skills share pack-level docs and templates.
+`docs/principles/` belongs to **the HarnessFlow repository itself** (it is HF's design notes, not part of the skill pack runtime). When you vendor HarnessFlow into another workspace, copy `skills/` (with `skills/docs/` and `skills/templates/`) — you do **not** need to copy `docs/principles/`. Each `hf-*` skill has already absorbed the relevant principles into its own `SKILL.md`.
 
 > **Recommended starter**: copy `skills/templates/AGENTS.md.example` to your repository root as `AGENTS.md` and fill in project-specific sections. HF reads `AGENTS.md` from the repository root as the project-level "standards injection point" (per soul.md, "立标准" is the architect/user's responsibility, not HF's).
 
@@ -321,7 +320,7 @@ using-hf-workflow
   -> hf-finalize
 ```
 
-> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout). **Release & runtime concerns** (deployment pipelines, observability, incident response, metric feedback, post-launch operations) are **not** first-class stages of the main chain today. This is consistent with the "scope footnote" in `skills/principles/soul.md`—HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production".
+> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout). **Release & runtime concerns** (deployment pipelines, observability, incident response, metric feedback, post-launch operations) are **not** first-class stages of the main chain today. This is consistent with the "scope footnote" in `docs/principles/soul.md`—HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production".
 
 `hf-experiment` is a Phase 0 **conditional insertion inside the discovery / spec stage**: it only kicks in when the draft holds blocking or low-confidence assumptions. After the probe result lands, the flow either returns to the original insertion point (assumption cleared) or falls back to the upstream authoring node (assumption falsified). See `hf-workflow-router/references/profile-node-and-transition-map.md` for activation and flow-back rules.
 
@@ -348,24 +347,19 @@ skills/
   using-hf-workflow/
   hf-workflow-router/
   hf-*/
-  principles/
-    soul.md
-    coding-principles.md
-    sdd-artifact-layout.md
-    methodology-coherence.md
-    emergent-vs-upfront-patterns.md
-    architectural-health-during-tdd.md
-    hf-sdd-tdd-skill-design.md
-    skill-anatomy.md
-    skill-node-define.md
   docs/
   templates/
+
+docs/principles/      # HarnessFlow's own design notes (NOT part of the skill pack runtime)
+  hf-sdd-tdd-skill-design.md
+  skill-anatomy.md
+  ...
 ```
 
-- `skills/` contains the installable workflow skills.
-- `skills/principles/` contains the HF constitution-layer documents (the 9 soul / methodology / anatomy docs every skill inherits via `AGENTS.md`).
+- `skills/` contains the installable workflow skills (the redistributable artifact).
 - `skills/docs/` contains shared guidance used across the pack.
 - `skills/templates/` contains cross-skill reusable record and handoff templates.
+- `docs/principles/` contains the higher-level design rationale behind the pack — these are HF's own design notes. Skills **do not depend on these files at runtime**; they have absorbed the relevant constraints into their own `SKILL.md`.
 
 > **Templates live in two layers**: cross-skill reusable templates are in `skills/templates/`; per-stage long templates (spec / design / tasks / discovery / probe-plan / ADR) are co-located inside each skill's `references/` directory. When auditing or generating artifacts, look at the union of both locations.
 
@@ -375,10 +369,10 @@ If you want to understand the pack quickly, read these files first:
 
 1. `skills/using-hf-workflow/SKILL.md`
 2. `skills/hf-workflow-router/SKILL.md`
-3. `skills/principles/hf-sdd-tdd-skill-design.md`
-4. `skills/principles/skill-anatomy.md`
-5. `skills/principles/architectural-health-during-tdd.md`
-6. `skills/principles/methodology-coherence.md` (methodology collaboration rules, anti-substitution pairs, Phase × profile activation matrix)
+3. `docs/principles/hf-sdd-tdd-skill-design.md`
+4. `docs/principles/skill-anatomy.md`
+5. `docs/principles/architectural-health-during-tdd.md`
+6. `docs/principles/methodology-coherence.md` (methodology collaboration rules, anti-substitution pairs, Phase × profile activation matrix)
 
 ## Who It Is For
 
@@ -395,4 +389,4 @@ HarnessFlow is for teams and builders who want AI agents to carry **idea-to-prod
 
 HarnessFlow is currently centered on a coding workflow pack. Phase 0 has thickened the product-insight and architecture-design layers (JTBD / OST / RICE / Desired Outcome / QAS / DDD / Event Storming / STRIDE / `hf-experiment`). Continued evolution toward commercial-grade delivery (release, operations, metrics feedback, collaboration, long-term architecture health, and data / AI product tracks) is planned for later phases.
 
-The repository contains the current HF skill family, shared docs, templates, and supporting principles (including the methodology coherence / phase / profile activation map in `skills/principles/methodology-coherence.md`).
+The repository contains the current HF skill family, shared docs, templates, and supporting principles (including the methodology coherence / phase / profile activation map in `docs/principles/methodology-coherence.md`).

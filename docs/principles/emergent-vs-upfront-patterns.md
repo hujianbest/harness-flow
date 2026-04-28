@@ -1,9 +1,9 @@
 # Emergent vs Upfront Patterns（HF 对"何时前置决策 / 何时 emergent 浮现"的立场）
 
 - 关联:
-  - 灵魂文档（最高锚点）: `skills/principles/soul.md`
-  - 编码期架构健康: `skills/principles/architectural-health-during-tdd.md`
-  - 方法论协作与冲突地图: `skills/principles/methodology-coherence.md`
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - 编码期架构健康: `docs/principles/architectural-health-during-tdd.md`
+  - 方法论协作与冲突地图: `docs/principles/methodology-coherence.md`
 
 ## Purpose
 
@@ -69,7 +69,7 @@ HF 在讨论 "设计模式" 时区分四档：
 
 ### 论据 4：TDD 的 REFACTOR 是天然的模式浮现窗口
 
-`skills/principles/architectural-health-during-tdd.md` 判断 1 已经论证：REFACTOR 是"全绿可改结构"的天然窗口。GoF 模式浮现与 Boy Scout / Opportunistic refactoring 属于同一类活动，没必要为它单独新增节点。
+`docs/principles/architectural-health-during-tdd.md` 判断 1 已经论证：REFACTOR 是"全绿可改结构"的天然窗口。GoF 模式浮现与 Boy Scout / Opportunistic refactoring 属于同一类活动，没必要为它单独新增节点。
 
 ## HF 中的落地规则
 
@@ -166,4 +166,4 @@ HF 在讨论 "设计模式" 时区分四档：
 
 这是 HF 基于 Beck / Fowler / Martin / Kerievsky 的工程判断，不是疏忽。
 
-> 冲突仲裁：本文件与 `skills/principles/soul.md` 出现冲突时，以 soul 为准。
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。

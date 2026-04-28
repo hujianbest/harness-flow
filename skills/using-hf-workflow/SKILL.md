@@ -141,7 +141,13 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | `skills/docs/hf-workflow-entrypoints.md` | public entry 与 direct invoke 边界 |
 | `skills/docs/hf-command-entrypoints.md` | `/hf-*` 命令解释 |
 | `hf-workflow-router/SKILL.md` | authoritative runtime routing |
-| `skills/principles/coding-principles.md` | HF 横切的 4 条 LLM coding 行为基线（所有节点共同遵守） |
+
+**横切行为基线（所有 HF 节点共同遵守，无需外部引用）**：
+
+1. **Think Before Coding**：不假设、不藏混乱；进入 leaf skill 前先把已知 / 未知 / 待澄清显式化
+2. **Simplicity First (YAGNI)**：意图识别只解最小问题，不替下游展开 routing / approval / review
+3. **Surgical Changes**：本 skill 只输出"明确进入 leaf"或"交给 router"两类动作，不旁路修改工件 / 状态
+4. **Goal-Driven Execution**：始终对齐"帮助用户从 idea 到产品高质量落地"，未达成 direct invoke 标准就 route-first，不为速度让步
 
 当前 pack 已提供 `hf-product-discovery` 作为 discovery leaf；本 skill 继续作为唯一 public entry，不再引入第二个 product public shell。
 

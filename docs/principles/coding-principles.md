@@ -3,18 +3,18 @@
 - 定位: 项目级原则文档（HF "宪法层" 的一部分）。定义 HF 中所有 `hf-*` skill 与 agent 行为都必须遵守的 4 条 LLM coding 行为基线。
 - 来源: 改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) 中的 `CLAUDE.md`（基于 Andrej Karpathy 对 LLM coding 常见错误的观察），按 HF 命名与方法论习惯本地化，并与 `soul.md` / `skill-anatomy.md` / `methodology-coherence.md` 对齐。
 - 关联:
-  - 最高锚点: `skills/principles/soul.md`
-  - Skill 写作 anatomy: `skills/principles/skill-anatomy.md`
-  - Skill-node 设计契约: `skills/principles/skill-node-define.md`
-  - 方法论协作: `skills/principles/methodology-coherence.md`
-  - 工件管理: `skills/principles/sdd-artifact-layout.md`
+  - 最高锚点: `docs/principles/soul.md`
+  - Skill 写作 anatomy: `docs/principles/skill-anatomy.md`
+  - Skill-node 设计契约: `docs/principles/skill-node-define.md`
+  - 方法论协作: `docs/principles/methodology-coherence.md`
+  - 工件管理: `docs/principles/sdd-artifact-layout.md`
 
 ## 定位与适用范围
 
 HF 把 4 条 LLM coding 行为准则当作**横切的行为基线**，而不是一个独立 `hf-*` skill 节点：
 
 - 它们是**所有节点**（`using-hf-workflow` / `hf-workflow-router` / authoring / review / gate / branch / finalize / bug-patterns）共同遵守的行为约束。
-- 它们由 HF 宪法层（`skills/principles/`）承载，通过 `AGENTS.md` § 1 Soul docs 自动被每个 skill 继承。
+- 它们由 HF 宪法层（`docs/principles/`）承载，通过 HF 仓库 design notes 体现；skills 在自己的 `SKILL.md` 中已经吸收并执行这些行为约束，运行时不再外链原文。
 - 它们**不**进入 canonical workflow vocabulary（不写进 `Current Stage` / `Next Action Or Recommended Skill` / `Pending Reviews And Gates` / 迁移表 / reviewer return contract）。
 - 与 `soul.md` 或 `AGENTS.md` 显式声明冲突时，soul / `AGENTS.md` 优先；本文让位。
 

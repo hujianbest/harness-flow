@@ -3,8 +3,8 @@
 - 定位: 项目级原则文档，定义 HF skill 的目标态写法；对 workflow skill 来说，它是 `skill-node-define.md` 在 `SKILL.md` 层的落地 anatomy。
 - 来源: 由 D020 设计文档提炼，并基于 `soul.md` 与 `skill-node-define.md` 刷新。
 - 关联:
-  - 灵魂文档（最高锚点）: `skills/principles/soul.md`
-  - Skill-node 设计契约: `skills/principles/skill-node-define.md`
+  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
+  - Skill-node 设计契约: `docs/principles/skill-node-define.md`
   - HF family 共享文档: `skills/docs/`
 
 ## 定位
@@ -544,4 +544,4 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 
 HF 的目标态 skill anatomy，是把 `SKILL.md` 写成一个短而硬的运行时 contract：description 负责分类，正文说明对象、方法和执行 todo，边界必须显式，长材料下沉，产出可回读，退出条件可验证。
 
-> 冲突仲裁：本文件与 `skills/principles/soul.md` 出现冲突时，以 soul 为准；与 `skills/principles/skill-node-define.md` 出现 workflow-node 设计口径冲突时，先按 `01` 修正本文。
+> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准；与 `docs/principles/skill-node-define.md` 出现 workflow-node 设计口径冲突时，先按 `01` 修正本文。

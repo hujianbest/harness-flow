@@ -114,7 +114,7 @@ HF 更适合第二档，也就是 `spec-anchored`。
 
 HF 的 `SDD + TDD` 体系要站得住，关键不在 prompt 漂不漂亮，而在工件是否权威。
 
-最少应保证以下工件层（路径以 `skills/principles/sdd-artifact-layout.md` 为唯一权威，本节仅列工件类别；本文件不重复定义具体目录）：
+最少应保证以下工件层（路径以 `docs/principles/sdd-artifact-layout.md` 为唯一权威，本节仅列工件类别；本文件不重复定义具体目录）：
 
 - `spec`         → 默认落在 `features/<NNN-slug>/spec.md`
 - `design`       → 默认落在 `features/<NNN-slug>/design.md`（ADR 通过编号引用 `docs/adr/` 中的 ADR 本体）
@@ -275,7 +275,7 @@ hf-increment -> 先影响分析、同步工件，再重入正确主链节点
 
 ### `spec` 应至少包含什么
 
-在本仓库中，逻辑 `spec` 默认对应 `features/<NNN-slug>/spec.md`（以 `skills/principles/sdd-artifact-layout.md` 为权威）。
+在本仓库中，逻辑 `spec` 默认对应 `features/<NNN-slug>/spec.md`（以 `docs/principles/sdd-artifact-layout.md` 为权威）。
 
 建议最少包含：
 

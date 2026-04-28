@@ -4,9 +4,9 @@
 - Status: proposed
 - Date: 2026-04-27
 - Context:
-  - Strategic anchor: `skills/principles/soul.md`
-  - Node contract: `skills/principles/skill-node-define.md`
-  - Artifact layout: `skills/principles/sdd-artifact-layout.md`
+  - Strategic anchor: `docs/principles/soul.md`
+  - Node contract: `docs/principles/skill-node-define.md`
+  - Artifact layout: `docs/principles/sdd-artifact-layout.md`
 
 ## Goal
 
@@ -39,7 +39,7 @@ Actions:
 
 1. Establish `docs/features/` as the official process-artifact root.
 2. Decide whether `docs/fearures/` is a temporary typo directory or a legacy location that needs migration.
-3. Update principle cross-links that still reference stale paths such as `docs/principles/sdd-artifact-layout.md` if the canonical file is now `skills/principles/sdd-artifact-layout.md` (the principle pack has been relocated to `skills/principles/` to make the skills pack self-contained).
+3. Update principle cross-links that still reference stale paths such as `docs/principles/sdd-artifact-layout.md` if the canonical file is now `docs/principles/03 sdd-artifact-layout.md`.
 4. Add a top-level navigation pointer in `README.md` for the active feature once HF workflow execution begins.
 
 Deliverables:

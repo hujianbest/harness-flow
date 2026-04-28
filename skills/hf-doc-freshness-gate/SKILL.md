@@ -13,13 +13,13 @@ description: 适用于已通过 hf-regression-gate、即将进入 hf-completion-
 
 本 skill 融合以下已验证方法。每条方法在 Workflow 中有对应落地步骤。
 
-| 方法 | 核心原则 | 来源 | 落地步骤 |
-|---|---|---|---|
-| **Three-Section Skill Contract** (HF native) | 与 `hf-regression-gate` / `hf-completion-gate` 同形态：Hard Gates + Verification + fresh evidence | HF skill family convention | 整 SKILL 段落布局 |
-| **Sync-on-Presence** | 未启用文档载体不构成 blocked | `skills/principles/sdd-artifact-layout.md` | 步骤 3 §维度判定 + FR-003 / NFR-004 |
-| **Profile-Aware Rigor** | lightweight / standard / full 三档强制维度按 `references/profile-rubric.md` 激活 | `skills/principles/methodology-coherence.md` Profile-Aware Rigor | 步骤 2 §profile 激活 + FR-004 |
-| **Author/Reviewer/Gate Separation** | gate 由独立 readonly reviewer subagent 派发；不自审自交 | `skills/principles/methodology-coherence.md` §评审层 + §验证 / 门禁层 | 步骤 1 §dispatch + FR-008 |
-| **Evidence Bundle Pattern** | verdict 路径作为 `hf-completion-gate` evidence bundle 一项被 reference | `skills/principles/methodology-coherence.md` §验证 / 门禁层 | 步骤 4 §evidence 落盘 + FR-005 |
+| 方法 | 核心原则 | 落地步骤 |
+|---|---|---|
+| **Three-Section Skill Contract** (HF native) | 与 `hf-regression-gate` / `hf-completion-gate` 同形态：Hard Gates + Verification + fresh evidence | 整 SKILL 段落布局 |
+| **Sync-on-Presence** | 未启用文档载体不构成 blocked；档 0/1/2 任一档下，未启用的 `docs/` 子目录视为 N/A，不计入扣分维度 | 步骤 3 §维度判定 + FR-003 / NFR-004 |
+| **Profile-Aware Rigor** | lightweight / standard / full 三档强制维度按 `references/profile-rubric.md` 激活；profile 升档不会回填已通过的轻档维度，但要求新增维度全部覆盖 | 步骤 2 §profile 激活 + FR-004 |
+| **Author/Reviewer/Gate Separation** | gate 由独立 readonly reviewer subagent 派发；不自审自交；author / reviewer / gate 三层独立、verdict 由 reviewer 给出，gate 只汇总并落盘 | 步骤 1 §dispatch + FR-008 |
+| **Evidence Bundle Pattern** | verdict 路径作为 `hf-completion-gate` evidence bundle 一项被 reference；evidence 必须具备 fresh 性（绑定上游 record / artifact hash），不能引用历史结论 | 步骤 4 §evidence 落盘 + FR-005 |
 
 ## When to Use
 
