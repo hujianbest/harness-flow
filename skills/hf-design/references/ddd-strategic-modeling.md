@@ -120,4 +120,4 @@ DDD 战略建模的产物**不替代** C4，但是为 C4 提供边界输入：
 - Event-flow 视角的补充见 `event-storming.md`
 - NFR 向设计承接的 QAS 映射见 `nfr-checklist.md`（Phase 0 扩展版）
 - 风险与可逆性决策仍由 ADR 承载（见 `adr-template.md`）
-- 前置 / emergent 模式分工立场见 `docs/principles/emergent-vs-upfront-patterns.md`
+- 前置 / emergent 模式分工立场见 `skills/principles/emergent-vs-upfront-patterns.md`

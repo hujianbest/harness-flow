@@ -22,7 +22,7 @@
 | 聚合边界与事务边界（一致性规则） | 基础设施适配层的具体实现（见 `hf-test-driven-dev`） |
 | 领域事件的发布时机与不变量 | 消息队列 / 事件总线的技术选型（属于架构模式，见 `architecture-patterns.md`） |
 | 仓储接口签名的职责分层 | 仓储背后的 ORM / SQL / 存储实现 |
-| **tactical pattern 的命名选择**（Repository vs DAO / Domain Service vs Application Service） | **GoF 代码模式**（Strategy / Factory / Adapter / Observer / Decorator 等）——这些属于实现层 emergent 选择，见 `docs/principles/emergent-vs-upfront-patterns.md` |
+| **tactical pattern 的命名选择**（Repository vs DAO / Domain Service vs Application Service） | **GoF 代码模式**（Strategy / Factory / Adapter / Observer / Decorator 等）——这些属于实现层 emergent 选择，见 `skills/principles/emergent-vs-upfront-patterns.md` |
 
 ## 何时激活（触发条件）
 
@@ -234,7 +234,7 @@
 | `nfr-checklist.md` | 聚合的 Concurrency Strategy / Domain Event 的 Delivery Guarantee 必须承接 NFR 中的一致性 / 可用性 QAS |
 | `failure-modes.md` | 聚合不变量违反、事件投递失败是关键失败模式候选 |
 | `adr-template.md` | 关键战术决策（聚合边界切分、Domain Event vs 同步调用、乐观 vs 悲观锁）落到 ADR |
-| `docs/principles/emergent-vs-upfront-patterns.md` | **GoF 代码模式不在本参考范围**；HF 刻意让 GoF 在 `hf-test-driven-dev` REFACTOR 步 emergent 浮现，不前置决策 |
+| `skills/principles/emergent-vs-upfront-patterns.md` | **GoF 代码模式不在本参考范围**；HF 刻意让 GoF 在 `hf-test-driven-dev` REFACTOR 步 emergent 浮现，不前置决策 |
 
 ## 反模式（Red Flags）
 

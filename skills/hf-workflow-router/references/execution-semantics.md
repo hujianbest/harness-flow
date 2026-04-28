@@ -71,7 +71,7 @@
 
 ### auto 与"用户验收"的边界
 
-`auto` 模式与 `docs/principles/soul.md` 第 1 / 2 / 5 条纪律（方向 / 取舍 / 标准最终权在用户、HF 不替用户验收自己、HF 永远不假装架构师）共存，必须遵守以下边界，避免把"自动落盘"误读为"代理验收"：
+`auto` 模式与 `skills/principles/soul.md` 第 1 / 2 / 5 条纪律（方向 / 取舍 / 标准最终权在用户、HF 不替用户验收自己、HF 永远不假装架构师）共存，必须遵守以下边界，避免把"自动落盘"误读为"代理验收"：
 
 - **approval record 是组织策略下的可追溯代理**，记录"在已声明 policy 下，何节点放行、绑定的上游 record / artifact hash 是什么"。
 - **它不替代产品负责人对最终产物（spec / design / 上线候选物）的真人确认**。`auto` 只改变等待方式，不改变 approval 语义；任何节点都不得以"已 auto 通过"为由跳过 review、gate 或 approval 工件本身。

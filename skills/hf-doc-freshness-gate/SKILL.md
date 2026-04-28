@@ -16,10 +16,10 @@ description: 适用于已通过 hf-regression-gate、即将进入 hf-completion-
 | 方法 | 核心原则 | 来源 | 落地步骤 |
 |---|---|---|---|
 | **Three-Section Skill Contract** (HF native) | 与 `hf-regression-gate` / `hf-completion-gate` 同形态：Hard Gates + Verification + fresh evidence | HF skill family convention | 整 SKILL 段落布局 |
-| **Sync-on-Presence** | 未启用文档载体不构成 blocked | `docs/principles/sdd-artifact-layout.md` | 步骤 3 §维度判定 + FR-003 / NFR-004 |
-| **Profile-Aware Rigor** | lightweight / standard / full 三档强制维度按 `references/profile-rubric.md` 激活 | `docs/principles/methodology-coherence.md` Profile-Aware Rigor | 步骤 2 §profile 激活 + FR-004 |
-| **Author/Reviewer/Gate Separation** | gate 由独立 readonly reviewer subagent 派发；不自审自交 | `docs/principles/methodology-coherence.md` §评审层 + §验证 / 门禁层 | 步骤 1 §dispatch + FR-008 |
-| **Evidence Bundle Pattern** | verdict 路径作为 `hf-completion-gate` evidence bundle 一项被 reference | `docs/principles/methodology-coherence.md` §验证 / 门禁层 | 步骤 4 §evidence 落盘 + FR-005 |
+| **Sync-on-Presence** | 未启用文档载体不构成 blocked | `skills/principles/sdd-artifact-layout.md` | 步骤 3 §维度判定 + FR-003 / NFR-004 |
+| **Profile-Aware Rigor** | lightweight / standard / full 三档强制维度按 `references/profile-rubric.md` 激活 | `skills/principles/methodology-coherence.md` Profile-Aware Rigor | 步骤 2 §profile 激活 + FR-004 |
+| **Author/Reviewer/Gate Separation** | gate 由独立 readonly reviewer subagent 派发；不自审自交 | `skills/principles/methodology-coherence.md` §评审层 + §验证 / 门禁层 | 步骤 1 §dispatch + FR-008 |
+| **Evidence Bundle Pattern** | verdict 路径作为 `hf-completion-gate` evidence bundle 一项被 reference | `skills/principles/methodology-coherence.md` §验证 / 门禁层 | 步骤 4 §evidence 落盘 + FR-005 |
 
 ## When to Use
 

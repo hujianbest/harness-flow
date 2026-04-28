@@ -1,9 +1,9 @@
 # Architectural Health During TDD
 
 - 关联:
-  - 灵魂文档（最高锚点）: `docs/principles/soul.md`
-  - SDD + TDD 设计原则: `docs/principles/hf-sdd-tdd-skill-design.md`
-  - 模式前置 vs 浮现: `docs/principles/emergent-vs-upfront-patterns.md`
+  - 灵魂文档（最高锚点）: `skills/principles/soul.md`
+  - SDD + TDD 设计原则: `skills/principles/hf-sdd-tdd-skill-design.md`
+  - 模式前置 vs 浮现: `skills/principles/emergent-vs-upfront-patterns.md`
 
 ## Purpose
 
@@ -204,4 +204,4 @@ HF 在编码环节维护架构健康的关键不是"再加一个节点"，而是
 
 这就是本设计要在 `hf-test-driven-dev` 与 `hf-code-review` 中落地的全部内容。
 
-> 冲突仲裁：本文件与 `docs/principles/soul.md` 出现冲突时，以 soul 为准。
+> 冲突仲裁：本文件与 `skills/principles/soul.md` 出现冲突时，以 soul 为准。

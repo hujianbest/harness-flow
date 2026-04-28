@@ -141,7 +141,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | `skills/docs/hf-workflow-entrypoints.md` | public entry 与 direct invoke 边界 |
 | `skills/docs/hf-command-entrypoints.md` | `/hf-*` 命令解释 |
 | `hf-workflow-router/SKILL.md` | authoritative runtime routing |
-| `docs/principles/04 coding-principles.md` | HF 横切的 4 条 LLM coding 行为基线（所有节点共同遵守） |
+| `skills/principles/coding-principles.md` | HF 横切的 4 条 LLM coding 行为基线（所有节点共同遵守） |
 
 当前 pack 已提供 `hf-product-discovery` 作为 discovery leaf；本 skill 继续作为唯一 public entry，不再引入第二个 product public shell。
 

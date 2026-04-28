@@ -6,21 +6,23 @@
 
 ## 1. Soul docs / Constitution（最高锚点）
 
-这些文档构成本项目"宪法层"，HF 在所有判断中以这些文档为最高优先级：
+这些文档构成本项目"宪法层"，HF 在所有判断中以这些文档为最高优先级。**它们随 HF skills 包发布于 `skills/principles/`，宿主项目无需复制到 `docs/`，直接引用即可**：
 
-- **价值锚点（不可省）**：`docs/principles/soul.md`
-- **横切行为基线（4 条 LLM coding 行为准则）**：`docs/principles/coding-principles.md`
-- **方法论协作 / 反替代规则 / Phase × profile 激活**：`docs/principles/methodology-coherence.md`
-- **工件管理约定（路径单一信源）**：`docs/principles/sdd-artifact-layout.md`
-- **SDD + TDD 设计原则**：`docs/principles/hf-sdd-tdd-skill-design.md`
-- **编码期架构健康**：`docs/principles/architectural-health-during-tdd.md`
-- **模式前置 vs 浮现**：`docs/principles/emergent-vs-upfront-patterns.md`
+- **价值锚点（不可省）**：`skills/principles/soul.md`
+- **横切行为基线（4 条 LLM coding 行为准则）**：`skills/principles/coding-principles.md`
+- **方法论协作 / 反替代规则 / Phase × profile 激活**：`skills/principles/methodology-coherence.md`
+- **工件管理约定（路径单一信源）**：`skills/principles/sdd-artifact-layout.md`
+- **SDD + TDD 设计原则**：`skills/principles/hf-sdd-tdd-skill-design.md`
+- **编码期架构健康**：`skills/principles/architectural-health-during-tdd.md`
+- **模式前置 vs 浮现**：`skills/principles/emergent-vs-upfront-patterns.md`
+- **Skill 写作 anatomy**：`skills/principles/skill-anatomy.md`
+- **Skill-as-node 设计契约**：`skills/principles/skill-node-define.md`
 
 > 任何 skill 与 soul 冲突时以 soul 为准。
 
 ## 2. 工件路径（以 sdd-artifact-layout 为权威）
 
-- 路径权威：`docs/principles/sdd-artifact-layout.md`
+- 路径权威：`skills/principles/sdd-artifact-layout.md`
 - 当前 `docs/` 档位：☐ 档 0（最小） ☐ 档 1（推荐起步） ☐ 档 2（按需启用）
 - 已启用的档 2 子目录（按存在同步，未启用的不阻塞）：
   - ☐ `docs/architecture.md`（档 1）
@@ -50,7 +52,7 @@
 
 - 代码风格：<填写或链接到 lint 配置>
 - 语言版本与依赖管理：<填写>
-- 测试纪律：fresh evidence / RED-GREEN / Two Hats（见 `docs/principles/architectural-health-during-tdd.md`）
+- 测试纪律：fresh evidence / RED-GREEN / Two Hats（见 `skills/principles/architectural-health-during-tdd.md`）
 - 架构原则锚点：☐ `docs/principles/architecture-principles.md`（未启用时由 soul + sdd-artifact-layout 兜底）
 - 设计原则锚点路径（hf-design 读取）：`docs/principles/`
 

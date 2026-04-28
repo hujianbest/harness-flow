@@ -109,7 +109,7 @@ Profile-aware 证据矩阵：
 
 ### 4. 同步长期资产到 `docs/`，更新 release notes / CHANGELOG
 
-按 `docs/principles/sdd-artifact-layout.md` 的 *Minimal `docs/` Tiers* 与 promotion rules，遵循 **sync-on-presence** 原则：**同步范围按 `docs/` 实际存在的子目录 + 本 feature 触发了升级条件的子目录决定**，不要求项目同步未启用的资产。
+按 `skills/principles/sdd-artifact-layout.md` 的 *Minimal `docs/` Tiers* 与 promotion rules，遵循 **sync-on-presence** 原则：**同步范围按 `docs/` 实际存在的子目录 + 本 feature 触发了升级条件的子目录决定**，不要求项目同步未启用的资产。
 
 必须同步项（任何 tier）：
 
