@@ -54,62 +54,50 @@ description: Use when mwf-test-checker has passed and the C/C++ code change must
 
 ## Workflow
 
-1. 建立证据基线
-   - Object: 评审输入证据基线
-   - Method: Evidence-Based + Read-On-Presence
-   - Input: 代码 diff、测试代码、implementation-log.md（含实现交接块 + Refactor Note）、reviews/test-check.md（应 `通过`）、evidence/、ar-design-draft.md、`docs/component-design.md`、`docs/interfaces.md`、`AGENTS.md` 编码规范 / 静态分析配置
-   - Output: 输入清单 + Refactor Note 完整性
-   - Stop / continue: 缺实现交接块或 Refactor Note → blocked-content；test-check 未通过 → blocked-workflow，`reroute_via_router=true`
+### 1. 建立证据基线
 
-2. Precheck
-   - Object: precheck 结论
-   - Method: 三态判定
-   - Output: 通过 / blocked-content / blocked-workflow
-   - Stop / continue:
-     - 缺实现交接块 / 核心代码范围不可定位 / Refactor Note 缺失 → blocked-content，下一步 `mwf-tdd-implementation`
-     - test-check 未通过 / route / stage / profile 冲突 → blocked-workflow，`reroute_via_router=true`，下一步 `mwf-workflow-router`
-     - Refactor Note 中 Escalation Triggers 非 `none` 但实现节点仍指向 `mwf-test-checker` → blocked-workflow，`reroute_via_router=true`
+按 Evidence-Based + Read-On-Presence 读取代码 diff、测试代码、implementation-log.md（含实现交接块 + Refactor Note）、reviews/test-check.md（应 `通过`）、`features/<id>/evidence/`、ar-design-draft.md、`docs/component-design.md`、`docs/interfaces.md`、`AGENTS.md`（编码规范 / 静态分析配置）。Refactor Note 是 CR8 的核心输入。
 
-3. 多维评分
-   - Object: 8 维度评分
-   - Method: Fagan Code Inspection
-   - Output: 各维度 0-10 评分
-   - Stop / continue: 任一关键维度 < 6 不得 `通过`
+### 1.5 Precheck
 
-   维度（详见 `references/code-review-rubric.md`）：
+- 缺实现交接块 / 核心代码范围不可定位 / Refactor Note 缺失 → blocked-content，下一步 `mwf-tdd-implementation`
+- test-check 未通过 / route / stage / profile 冲突 → blocked-workflow，`reroute_via_router=true`，下一步 `mwf-workflow-router`
+- Refactor Note 中 Escalation Triggers 非 `none` 但实现节点仍指向 `mwf-test-checker` → blocked-workflow，`reroute_via_router=true`
+- 否则进入步骤 2
 
-   | 维度 | 关注 |
-   |---|---|
-   | CR1 Correctness | 实现是否真正完成 AR 行为；逻辑无 off-by-one / 边界遗漏 |
-   | CR2 Design Conformance | 与 AR 设计一致；偏离有理由且可追溯 |
-   | CR3 SOA Boundary Conformance | 不破坏 SOA 边界；不引入未解释跨组件依赖 |
-   | CR4 Memory & Resource Lifecycle | 内存模型符合组件设计；资源句柄 / 文件 / 缓冲区配对释放 |
-   | CR5 Concurrency & Real-time | 中断上下文限制、锁策略、临界区、实时性 |
-   | CR6 Error Handling & Defensive Design | 输入校验、错误码、降级路径、ABI / API 兼容 |
-   | CR7 Coding Standard & Static Analysis | MISRA / CERT / 团队规范、编译告警、静态分析 critical 项 |
-   | CR8 Refactor Note & Architectural Health | Refactor Note 完整、cleanup 守 Two Hats、未触发 escalation 边界 |
+### 2. 多维评分
 
-4. 正式 checklist 审查
-   - Object: findings
-   - Method: Checklist-Based Review
-   - Input: rubric
-   - Output: findings 含 severity / classification / rule_id（CR1-CR8 + 子项）/ anchor / 描述 / 建议修复
+按 Fagan Code Inspection 对 8 个维度（详见 `references/code-review-rubric.md`）做 0-10 评分。任一关键维度 < 6 不得 `通过`；CR3 / CR4 / CR5 / CR6 嵌入式核心维度 < 7 也不得 `通过`。
 
-5. 形成 verdict
-   - Object: 唯一 verdict + 唯一下一步
+| 维度 | 关注 |
+|---|---|
+| CR1 Correctness | 实现是否真正完成 AR 行为；逻辑无 off-by-one / 边界遗漏 |
+| CR2 Design Conformance | 与 AR 设计一致；偏离有理由且可追溯 |
+| CR3 SOA Boundary Conformance | 不破坏 SOA 边界；不引入未解释跨组件依赖 |
+| CR4 Memory & Resource Lifecycle | 内存模型符合组件设计；资源句柄 / 文件 / 缓冲区配对释放 |
+| CR5 Concurrency & Real-time | 中断上下文限制、锁策略、临界区、实时性 |
+| CR6 Error Handling & Defensive Design | 输入校验、错误码、降级路径、ABI / API 兼容 |
+| CR7 Coding Standard & Static Analysis | MISRA / CERT / 团队规范、编译告警、静态分析 critical 项 |
+| CR8 Refactor Note & Architectural Health | Refactor Note 完整、cleanup 守 Two Hats、未触发 escalation 边界 |
 
-   | 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router |
-   |---|---|---|---|
-   | 8 维度均 ≥ 6、CR3 / CR4 / CR5 / CR6 主维度 ≥ 7、无 critical USER-INPUT 或未解释 critical 静态分析项 | `通过` | `mwf-completion-gate` | `false` |
-   | findings 可 1-2 轮定向修订（含 Refactor Note 字段补全、Boy Scout 遗漏、in-task 范围内可识别但被遗漏的风险、可在 task 内回退的过度抽象） | `需修改` | `mwf-tdd-implementation` | `false` |
-   | 核心逻辑错误 / 内存或并发安全漏洞 / SOA 边界破坏可在 task 内回修 | `阻塞`（内容） | `mwf-tdd-implementation` | `false` |
-   | 代码实质修改组件边界 / SOA 接口 / 跨 ≥3 模块结构性变更 / Escalation-bypass / route / stage / profile / 上游证据冲突 | `阻塞`（workflow） | `mwf-workflow-router` | `true` |
+### 3. 正式 checklist 审查
 
-6. 写 review 记录
-   - Output: `features/<id>/reviews/code-review.md`，按 `templates/mwf-review-record-template.md`
+按 Checklist-Based Review 跑 Group CR1-CR8 子规则（详见 `references/code-review-rubric.md`），嵌入式风险维度参照 `references/embedded-cpp-risk-checklist.md` 速查清单。每条 finding 带 `severity` / `classification`（USER-INPUT / LLM-FIXABLE / TEAM-EXPERT） / `rule_id` / `anchor` / 描述 / 建议修复。
 
-7. 回传结构化摘要
-   - Output: 按 `mwf-workflow-router/references/reviewer-dispatch-protocol.md`
+### 4. 形成 verdict
+
+按下表收敛唯一 verdict + 唯一下一步：
+
+| 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router |
+|---|---|---|---|
+| 8 维度均 ≥ 6、CR3 / CR4 / CR5 / CR6 ≥ 7、无 critical USER-INPUT 或未解释 critical 静态分析项 | `通过` | `mwf-completion-gate` | `false` |
+| findings 可 1-2 轮定向修订（含 Refactor Note 字段补全、Boy Scout 遗漏、in-task 范围内可识别但被遗漏的风险、可在 task 内回退的过度抽象） | `需修改` | `mwf-tdd-implementation` | `false` |
+| 核心逻辑错误 / 内存或并发安全漏洞 / SOA 边界破坏可在 task 内回修 | `阻塞`（内容） | `mwf-tdd-implementation` | `false` |
+| 代码实质修改组件边界 / SOA 接口 / 跨 ≥3 模块结构性变更 / Escalation-bypass / route / stage / profile / 上游证据冲突 | `阻塞`（workflow） | `mwf-workflow-router` | `true` |
+
+### 5. 写 review 记录并回传
+
+按 `templates/mwf-review-record-template.md` 写 `features/<id>/reviews/code-review.md`，并按 `mwf-workflow-router/references/reviewer-dispatch-protocol.md` 回传结构化摘要。reviewer **不**改代码 / **不**重审组件级架构（那是 `mwf-component-design-review` 的职责）/ **不**返回多个候选下一步。
 
 ## Output Contract
 

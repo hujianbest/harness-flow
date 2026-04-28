@@ -55,86 +55,66 @@ mwf 默认以单个 AR / 单个 DTS 为最小开发单元，不维护 task queue
 
 ## Workflow
 
-1. 明确完成宣告范围
-   - Object: 完成宣告
-   - Method: Definition of Done
-   - Output: 准备宣告什么完成了（AR 行为完整 / DTS 修复完成 / 嵌入式风险无未解释项）
+### 1. 明确完成宣告范围
 
-2. 对齐上游结论与 profile 证据矩阵
-   - Object: 上游证据矩阵
-   - Method: Profile-Aware Rigor
-   - Input: profile（来自 progress.md）
-   - Output: 必需 review / gate 记录齐全
-   - Stop / continue: 缺记录 → `阻塞`
+按 Definition of Done（详见 `references/definition-of-done.md`）写出本轮准备宣告什么：AR 行为完整 / DTS 修复完成 / 嵌入式风险无未解释项。
 
-   Profile-Aware 上游证据矩阵：
+### 2. 对齐上游结论与 profile 证据矩阵
 
-   | Profile | 必需的上游记录 |
-   |---|---|
-   | `standard` | spec-review、ar-design-review、test-check、code-review、实现交接块 + Refactor Note、evidence/{unit,static-analysis,build}/ |
-   | `component-impact` | 上面全部 + component-design-review |
-   | `hotfix` | reproduction.md、root-cause.md、fix-design.md、test-check、code-review、实现交接块 + Refactor Note、evidence/{unit,static-analysis,build}/ |
-   | `lightweight` | spec-review、ar-design-review、test-check、code-review、实现交接块 + Refactor Note、evidence/{unit,static-analysis,build}/（同 standard，文档量可压缩，证据不可压缩） |
+按 Profile-Aware Rigor 检查 profile（来自 progress.md）所要求的上游记录是否齐全：
 
-3. Precheck
-   - Object: precheck 结论
-   - Method: 三态判定
-   - Output: 通过 / blocked-content / blocked-workflow
-   - Stop / continue:
-     - 缺上游证据 / 实现交接块 / Refactor Note → blocked-content，下一步 `mwf-tdd-implementation`
-     - profile / route / 上游 verdict 冲突 → blocked-workflow，`reroute_via_router=true`，下一步 `mwf-workflow-router`
+| Profile | 必需的上游记录 |
+|---|---|
+| `standard` | spec-review、ar-design-review、test-check、code-review、实现交接块 + Refactor Note、evidence/{unit,static-analysis,build}/ |
+| `component-impact` | 上面全部 + component-design-review |
+| `hotfix` | reproduction.md、root-cause.md、fix-design.md、test-check、code-review、实现交接块 + Refactor Note、evidence/{unit,static-analysis,build}/ |
+| `lightweight` | 同 `standard`（文档量可压缩，证据不可压缩） |
 
-4. 决定与执行验证命令
-   - Object: 验证命令
-   - Method: Fresh Evidence Verification
-   - Input: AR 实现设计的关键 case + 嵌入式风险维度
-   - Output: 本会话执行的命令、退出码、结果摘要、新鲜度锚点
-   - Stop / continue: 命令选取规则：
-     - 全套单元测试至少跑一次
-     - 集成 / 仿真测试（若 AR 涉及）至少跑一次
-     - 静态分析至少跑一次
-     - 编译命令至少跑一次（含目标平台）
-     - 不允许「应该跑过」「最近没改这块」
-     - 失败则 verdict ≥ `需修改`
+任一缺记录 → `阻塞`。
 
-5. 阅读完整结果
-   - Object: 命令结果
-   - Method: Fresh Evidence Verification
-   - Output: 是否支持完成宣告
-   - Stop / continue: 任一关键命令失败 → `需修改` 或 `阻塞`
+### 2.5 Precheck
 
-6. 嵌入式风险审计
-   - Object: 风险审计
-   - Method: Embedded Risk Audit
-   - Input: implementation-log.md Refactor Note + code-review record + 静态分析报告
-   - Output:
-     - 内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI / SOA 边界各维度状态
-     - 未解释的 critical 项清单（应为空）
-   - Stop / continue: 任一未解释 critical → `阻塞`
+- 缺上游证据 / 实现交接块 / Refactor Note → blocked-content，下一步 `mwf-tdd-implementation`
+- profile / route / 上游 verdict 冲突 → blocked-workflow，`reroute_via_router=true`，下一步 `mwf-workflow-router`
+- 否则进入步骤 3
 
-7. 形成 completion evidence bundle
-   - Object: completion.md
-   - Method: Evidence Bundle Pattern
-   - Output: 按 `templates/mwf-completion-record-template.md` 写入 `features/<id>/completion.md`
-   - Stop / continue: bundle 中任一字段缺 → 视为 `需修改`
+### 3. 决定与执行验证命令
 
-8. 完成判定
-   - Object: 唯一 verdict + 唯一下一步
+按 Fresh Evidence Verification 选取并执行能直接证明 completion claim 的命令，本会话内跑出新鲜证据：
 
-   | 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router |
-   |---|---|---|---|
-   | 上游证据齐全、本轮验证命令全绿、嵌入式风险审计 clean、AR 设计可由 finalize 同步到 docs/ | `通过` | `mwf-finalize` | `false` |
-   | 验证命令有失败 / 嵌入式风险有未解释 critical / Refactor Note 字段缺 → 可定向回修 | `需修改` | `mwf-tdd-implementation` | `false` |
-   | 强制验证步骤因环境 / 工具链问题未完成（且 `AGENTS.md` / DoD 无降级许可） | `阻塞` | `mwf-completion-gate` | `false` |
-   | profile / route / 上游 verdict 冲突 / 实质修改组件边界 | `阻塞`（workflow） | `mwf-workflow-router` | `true` |
+- 全套单元测试至少跑一次
+- 集成 / 仿真测试（若 AR 涉及）至少跑一次
+- 静态分析至少跑一次
+- 编译命令至少跑一次（含目标平台）
 
-9. 同步状态
-   - Object: progress.md
-   - Method: Canonical Field Sync
-   - Output:
-     - `Current Stage = mwf-completion-gate`
-     - `Pending Reviews And Gates`：清空已完成的 gate
-     - `Next Action Or Recommended Skill = mwf-finalize`（通过）/ `mwf-tdd-implementation` / `mwf-workflow-router`（其他）
+不接受「应该跑过」「最近没改这块」「上次本地跑过」。任一关键命令失败 → verdict ≥ `需修改`。
+
+### 4. 阅读完整结果
+
+逐项核对退出码、失败数、输出是否支持完成宣告、结果是否属于当前最新代码。任一关键命令失败 → `需修改` 或 `阻塞`。
+
+### 5. 嵌入式风险审计
+
+按 Embedded Risk Audit 综合 implementation-log.md 的 Refactor Note、code-review record、静态分析报告，对内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI / SOA 边界各维度给出 `clean` / `documented-debt` / `critical-open` 状态（详见 `references/definition-of-done.md`）。任一 `critical-open` → `阻塞`。
+
+### 6. 形成 completion evidence bundle
+
+按 Evidence Bundle Pattern + `templates/mwf-completion-record-template.md` 写入 `features/<id>/completion.md`。bundle 任一字段缺 → 视为 `需修改`。
+
+### 7. 完成判定
+
+按下表收敛唯一 verdict + 唯一下一步：
+
+| 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router |
+|---|---|---|---|
+| 上游证据齐全、本轮验证命令全绿、嵌入式风险审计 clean、AR 设计可由 finalize 同步到 docs/ | `通过` | `mwf-finalize` | `false` |
+| 验证命令有失败 / 嵌入式风险有未解释 critical / Refactor Note 字段缺 → 可定向回修 | `需修改` | `mwf-tdd-implementation` | `false` |
+| 强制验证步骤因环境 / 工具链问题未完成（且 `AGENTS.md` / DoD 无降级许可） | `阻塞` | `mwf-completion-gate` | `false` |
+| profile / route / 上游 verdict 冲突 / 实质修改组件边界 | `阻塞`（workflow） | `mwf-workflow-router` | `true` |
+
+### 8. 同步状态
+
+把 `features/<id>/progress.md` 写为 `Current Stage = mwf-completion-gate`、清空已完成的 gate、`Next Action Or Recommended Skill = mwf-finalize`（通过）/ `mwf-tdd-implementation`（需修改）/ `mwf-completion-gate`（环境阻塞）/ `mwf-workflow-router`（workflow 阻塞）。
 
 ## Output Contract
 

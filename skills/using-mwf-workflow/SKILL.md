@@ -53,107 +53,87 @@ description: Use when a new session needs to enter the mwf workflow for an AR / 
 
 ## Workflow
 
-1. 判断 entry vs runtime recovery
-   - Object: 意图分类
-   - Method: Front Controller Pattern
-   - Input: 用户原始请求、是否已有 `features/<id>/progress.md`、是否刚完成 review/gate
-   - Output: 决定走 entry（继续本 skill）还是 runtime recovery（→ `mwf-workflow-router`）
-   - Stop / continue: 是 runtime recovery → 立即转交 router；否则进入步骤 2
+### 1. 判断 entry vs runtime recovery
 
-2. 识别主意图
-   - Object: 意图归类
-   - Method: 关键词 + work item 类型推断（AR / DTS / CHANGE）
-   - Input: 用户语言、`/mwf-*` 命令、`features/` 中是否已有 work item 目录
-   - Output: 意图归到下表之一
-   - Stop / continue: 意图模糊到 2 个以上候选 → route-first
+入口（继续本 skill）适用：新会话、高层意图、命令偏好、direct vs route 决策。
+runtime recovery（交给 router）适用：review / gate 刚完成、evidence 冲突、需要切支线、需要消费 gate 结论 → 直接 `mwf-workflow-router`。本 skill 不做 runtime 编排。
 
-   | 用户意图 | 默认偏向 leaf | 不明确时回退 |
-   |---|---|---|
-   | 澄清需求 / 整理 AR 规格 | `mwf-specify` | `mwf-workflow-router` |
-   | 评审需求规格 | `mwf-spec-review` | `mwf-workflow-router` |
-   | 写 / 修组件实现设计 | `mwf-component-design` | `mwf-workflow-router` |
-   | 评审组件实现设计 | `mwf-component-design-review` | `mwf-workflow-router` |
-   | 写 / 修 AR 实现设计（含测试设计章节） | `mwf-ar-design` | `mwf-workflow-router` |
-   | 评审 AR 实现设计 | `mwf-ar-design-review` | `mwf-workflow-router` |
-   | TDD 实现 / 改代码 | `mwf-tdd-implementation` | `mwf-workflow-router` |
-   | TDD 后审查测试用例有效性 | `mwf-test-checker` | `mwf-workflow-router` |
-   | C / C++ 代码检视 | `mwf-code-review` | `mwf-workflow-router` |
-   | 判断能否完成 / completion gate | `mwf-completion-gate` | `mwf-workflow-router` |
-   | 收口 / closeout / handoff | `mwf-finalize` | `mwf-workflow-router` |
-   | 紧急缺陷 / hotfix 复现与根因 | `mwf-problem-fix` | `mwf-workflow-router` |
+### 2. 识别主意图
 
-3. 提取 Execution Mode 偏好
-   - Object: `interactive` / `auto` 偏好
-   - Method: 直读用户表达
-   - Input: 用户是否说 `auto mode` / `自动执行` / `不用等我确认`
-   - Output: 把偏好原样向下游传递；本 skill 不归一化为 canonical 字段
-   - Stop / continue: `auto` 不是跳过 review / gate / approval 的理由，也不是 direct invoke 的充分条件
+把请求归到下表之一；归不出来或同时落在 ≥2 个候选 → route-first。
 
-4. 判断是否允许 direct invoke
-   - Object: 路径决策
-   - Method: 逐项检查必要条件
-   - Input: 步骤 2 的 leaf 候选 + 当前工件证据
-   - Output: `direct invoke` 或 `route-first`
-   - Stop / continue: 全部条件满足才允许 `direct invoke`
+| 用户意图 | 默认偏向 leaf |
+|---|---|
+| 澄清需求 / 整理 AR 规格 | `mwf-specify` |
+| 评审需求规格 | `mwf-spec-review` |
+| 写 / 修组件实现设计 | `mwf-component-design` |
+| 评审组件实现设计 | `mwf-component-design-review` |
+| 写 / 修 AR 实现设计（含测试设计章节） | `mwf-ar-design` |
+| 评审 AR 实现设计 | `mwf-ar-design-review` |
+| TDD 实现 / 改代码 | `mwf-tdd-implementation` |
+| TDD 后审查测试用例有效性 | `mwf-test-checker` |
+| C / C++ 代码检视 | `mwf-code-review` |
+| 判断能否完成 / completion gate | `mwf-completion-gate` |
+| 收口 / closeout / handoff | `mwf-finalize` |
+| 紧急缺陷 / hotfix 复现与根因 | `mwf-problem-fix` |
 
-   `direct invoke` 必要条件：
+不明确时统一回退 `mwf-workflow-router`。
 
-   - 候选节点唯一
-   - 用户请求明确属于该节点的职责
-   - 必要工件可读（如：进入 `mwf-ar-design` 至少需要 `requirement.md` 已存在）
-   - 没有 profile / route / 证据冲突
-   - Execution Mode 偏好已记录，可向下游传递
+### 3. 提取 Execution Mode 偏好
 
-5. 单事实分流检查点
-   - Object: 1 个判别问题
-   - Method: 单事实快路径
-   - Input: 当前还差 1 个关键事实就可分流
-   - Output: 1 个最小判别问题
-   - Stop / continue: 用户回答后立刻继续；若需要 ≥2 个事实或证据冲突 → 直接 route-first
+用户说 `auto mode` / `自动执行` / `不用等我确认` → 视为 Execution Mode 偏好，原样向下游传递；本 skill 不归一化为 canonical 字段。`auto` 不是跳过 review / gate / approval 的理由，也不是 direct invoke 的充分条件。
 
-   适用信号：
+### 4. 判断是否允许 direct invoke
 
-   - 只差「这是 AR 还是 DTS」
-   - 只差「组件实现设计是否需要修订」
-   - 只差「AR 实现设计是否已通过 review」
+同时满足才可：
 
-   不适用信号：
+- 候选节点唯一
+- 请求明确属于该节点职责
+- 必要工件可读（如：进入 `mwf-ar-design` 至少需要 `requirement.md` 已存在）
+- 没有 profile / route / 证据冲突
+- Execution Mode 偏好已记录可传递
 
-   - 工件互相冲突
-   - 涉及 profile 升级（component-impact / hotfix / lightweight）
-   - 涉及跨组件协调
+任一不满足 → route-first 交给 `mwf-workflow-router`。
 
-6. 命令当作 bias，不当作 authority
-   - Object: `/mwf-*` 命令归一化
-   - Method: 偏向匹配 + 工件检查
-   - Input: 用户命令
-   - Output: 候选 leaf skill
-   - Stop / continue: 命令不替代证据；命令与工件冲突 → route-first
+### 4A. 单事实分流检查点
 
-   | 命令 | 默认偏向 |
-   |---|---|
-   | `/mwf-spec` | `mwf-specify` |
-   | `/mwf-design` | `mwf-ar-design` |
-   | `/mwf-component-design` | `mwf-component-design` |
-   | `/mwf-build` / `/mwf-tdd` | `mwf-tdd-implementation` |
-   | `/mwf-test-check` | `mwf-test-checker` |
-   | `/mwf-code-review` | `mwf-code-review` |
-   | `/mwf-completion` | `mwf-completion-gate` |
-   | `/mwf-finalize` / `/mwf-closeout` | `mwf-finalize` |
-   | `/mwf-hotfix` / `/mwf-problem-fix` | `mwf-problem-fix` |
-   | `/mwf-route` | `mwf-workflow-router` |
+如果只差 **1 个关键事实**就能稳定判断 direct invoke vs route-first，先问 1 个最小判别问题，再继续。典型适用：只差「这是 AR 还是 DTS」、只差「组件实现设计是否需要修订」、只差「AR 实现设计是否已通过 review」。
 
-7. 输出 clear-case fast path
-   - Object: 路由结论 + 最小 kickoff
-   - Method: 3 行编号格式
-   - Input: 步骤 4 / 5 / 6 的判定
-   - Output:
-     ```text
-     1. Entry Classification: direct invoke | route-first
-     2. Target Skill: <canonical mwf-* 节点名>
-     3. Why: <1-2 条决定性证据>
-     ```
-   - Stop / continue: `direct invoke` → 同一回复中追加目标 leaf skill 的最小 kickoff（第 1 步动作 / 最小 intake）；`route-first` → 立即转交 `mwf-workflow-router`，只解释为什么不能 direct invoke
+不适用：需要 ≥2 个事实、工件互相冲突、涉及 profile 升级（component-impact / hotfix / lightweight）、涉及跨组件协调。任一命中 → 直接 route-first。
+
+### 5. 命令当作 bias，不当作 authority
+
+| 命令 | 默认偏向 |
+|---|---|
+| `/mwf-spec` | `mwf-specify` |
+| `/mwf-design` | `mwf-ar-design` |
+| `/mwf-component-design` | `mwf-component-design` |
+| `/mwf-build` / `/mwf-tdd` | `mwf-tdd-implementation` |
+| `/mwf-test-check` | `mwf-test-checker` |
+| `/mwf-code-review` | `mwf-code-review` |
+| `/mwf-completion` | `mwf-completion-gate` |
+| `/mwf-finalize` / `/mwf-closeout` | `mwf-finalize` |
+| `/mwf-hotfix` / `/mwf-problem-fix` | `mwf-problem-fix` |
+| `/mwf-route` | `mwf-workflow-router` |
+
+命令不替代工件检查；命令偏好与工件证据冲突时一律 route-first。
+
+### 6. 正确结束
+
+输出只有两类：
+
+1. 进入合法 mwf-* leaf skill 的最小 kickoff
+2. 立即转交 `mwf-workflow-router`
+
+唯一确定下一步时用 3 行编号快路径：
+
+```text
+1. Entry Classification: direct invoke | route-first
+2. Target Skill: <canonical mwf-* 节点名>
+3. Why: <1-2 条决定性证据>
+```
+
+`direct invoke` 时，3 行之后**同一回复**继续追加目标 leaf skill 的最小 kickoff（第 1 步动作 / 最小 intake），不再等一轮「要不要继续」。`route-first` 时，只说明「为什么不能 direct invoke」，立即转交 `mwf-workflow-router`，不展开 transition map、不做 review recovery、不把 `using-mwf-workflow` 写进 handoff。
 
 ## Output Contract
 

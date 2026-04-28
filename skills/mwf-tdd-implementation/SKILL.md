@@ -62,103 +62,66 @@ description: Use when the AR implementation design (with embedded test design se
 
 ## Workflow
 
-1. 对齐输入与单 work item 锁定
-   - Object: 输入证据基线
-   - Method: Read-On-Presence
-   - Input: ar-design-draft.md、reviews/ar-design-review.md（应 `通过`）、`docs/component-design.md`、`docs/ar-designs/AR<id>-<slug>.md`（如已存在）、`AGENTS.md`、`features/<id>/progress.md`
-   - Output: 输入清单 + 当前活跃 work item 唯一锁定 + 测试设计章节内容
-   - Stop / continue: AR 设计未通过 review → 阻塞，回 router；测试设计章节缺失 → 阻塞，回 `mwf-ar-design`
+### 1. 对齐输入与单 work item 锁定
 
-2. 检查是否触及组件边界
-   - Object: 边界判定
-   - Input: 计划要做的代码改动 vs `docs/component-design.md`
-   - Output: 「不触及」/「触及」
-   - Stop / continue: 触及 → 立即停下，`reroute_via_router=true`，回 router 升级 component-impact
+按 Read-On-Presence 读取 ar-design-draft.md（含测试设计章节）、reviews/ar-design-review.md（应 `通过`）、`docs/component-design.md`、`docs/ar-designs/AR<id>-<slug>.md`（若已存在）、`AGENTS.md`、`features/<id>/progress.md`。AR 设计未通过 review → 阻塞，回 `mwf-workflow-router`；测试设计章节缺失 → 阻塞，回 `mwf-ar-design`。
 
-3. 把测试设计章节落成可运行测试用例
-   - Object: 测试代码
-   - Method: Test Design Before Implementation
-   - Input: AR 设计的测试设计章节（用例编号、覆盖、Mock、RED/GREEN 计划）
-   - Output: 单测 / 集成 / 仿真测试代码（按团队测试框架）
-   - Stop / continue: 在测试代码中保留与测试设计 case ID 的双向锚点（注释或命名约定）
+### 2. 检查是否触及组件边界
 
-4. RED — 戴 Changer 帽
-   - Object: RED 证据
-   - Method: Embedded TDD
-   - Input: 步骤 3 测试代码
-   - Output: 在 `features/<id>/evidence/unit/RED-<case-id>-YYYY-MM-DD.md`（或 integration 子目录）写入：
-     - 命令、退出码、失败摘要
-     - 为什么这个失败对应 AR 行为缺口
-     - 新鲜度锚点（commit / build ID）
-   - Stop / continue: 失败原因与预期不一致 → 检查测试代码是否对齐设计；不调整 AR 设计
+对照计划改动 vs `docs/component-design.md`，触及组件接口 / 依赖 / 状态机 → 立即停下，标 `reroute_via_router=true`，回 `mwf-workflow-router` 升级 component-impact。
 
-   有效 RED：实际跑过、失败原因匹配预期、能说清证明的是什么。
-   无效 RED：只写没跑、一跑就绿、无关旧失败。
+### 3. 把测试设计章节落成可运行测试用例
 
-5. GREEN — 戴 Changer 帽（不混戴 Refactor）
-   - Object: GREEN 证据 + 最小可行实现
-   - Method: Embedded TDD
-   - Input: 步骤 4 RED 状态
-   - Output:
-     - 最小实现使测试通过（按 AR 设计的 C / C++ 实现策略）
-     - `features/<id>/evidence/unit/GREEN-<case-id>-YYYY-MM-DD.md`：命令、退出码、通过摘要、关键结果、新鲜度锚点
-   - Stop / continue: GREEN 步内**不**做 cleanup；看见 cleanup 机会记到步骤 6
+按 Test Design Before Implementation，把 AR 设计测试设计章节中的用例（编号、覆盖、Mock、RED / GREEN 计划）落成单元 / 集成 / 仿真测试代码。在测试代码中保留与测试设计 Case ID 的双向锚点（注释或命名约定），方便 `mwf-test-checker` 反向核对。**不**自创测试用例；缺用例 → 回 `mwf-ar-design`。
 
-   有效 GREEN：本次会话执行、测试转绿、保留 fresh evidence。
+### 4. RED — 戴 Changer 帽
 
-6. REFACTOR — 戴 Refactor 帽（若必要）
-   - Object: REFACTOR 证据 + cleanup
-   - Method: Refactoring Discipline + Two Hats
-   - Input: 全套测试 + 静态分析全绿状态
-   - Output:
-     - In-task cleanups（Fowler vocabulary 命名：Extract Method / Rename / Replace Magic Number / Decompose Conditional / Remove Dead Code / ...）
-     - 每次 cleanup 后跑完整测试
-     - 静态分析 + 编译告警重新评估
-     - `features/<id>/evidence/unit/REFACTOR-<case-id>-YYYY-MM-DD.md`（如适用）：cleanup 列表 + 命令 + 通过摘要
-   - Stop / continue:
-     - cleanup 跨 ≥3 模块 / 改 ADR / 改组件边界 → 立即停下，回 router
-     - 引入设计未声明的新抽象层 → 立即停下，回 `mwf-ar-design` 或 router
-     - 全部 cleanup 完成 → 进入步骤 7
+按 Embedded TDD，先跑步骤 3 的测试代码并保留**有效 RED 证据**到 `features/<id>/evidence/unit/RED-<case-id>-YYYY-MM-DD.md`（或 integration 子目录）：命令、退出码、失败摘要、为什么这个失败对应 AR 行为缺口、新鲜度锚点（commit / build ID）。
 
-7. 跑静态 / 动态质量证据
-   - Object: 证据集合
-   - Method: Static / Dynamic Quality Inspection
-   - Input: 编译命令、静态分析命令、本 AR 相关回归测试
-   - Output:
-     - `features/<id>/evidence/build/`：编译命令、退出码、关键告警
-     - `features/<id>/evidence/static-analysis/`：静态分析命令、报告路径、违反项摘要
-     - `features/<id>/evidence/integration/`（如适用）：集成 / 仿真测试结果
-   - Stop / continue: critical 告警 / 违反项无解释 → 不得进入交接；先按团队规则修或显式标注
+有效 RED：实际跑过、失败原因匹配预期、能说清证明的是什么。无效 RED（只写没跑、一跑就绿、无关旧失败）→ 不得继续。失败原因与预期不一致 → 检查测试代码是否对齐设计；**不**调整 AR 设计。
 
-8. 写实现日志与 traceability
-   - Object: implementation-log.md + traceability.md
-   - Output:
-     - `features/<id>/implementation-log.md`：本轮修改摘要、关键决策、RED/GREEN/REFACTOR 锚点、测试结果摘要、未解决风险
-     - `features/<id>/traceability.md` 补充 Code File / Test Code File / Verification Evidence 列
+### 5. GREEN — 戴 Changer 帽（不混戴 Refactor）
 
-9. 同步 progress 与 handoff
-   - Object: progress.md + handoff
-   - Method: Reviewer Dispatch
-   - Output:
-     - `features/<id>/progress.md`：`Current Stage = mwf-tdd-implementation`、`Next Action Or Recommended Skill = mwf-test-checker`、`Pending Reviews And Gates` 含 `test-check`、`code-review`
-     - 父会话准备派发独立 reviewer subagent 执行 `mwf-test-checker`
+按 Embedded TDD，写最小实现使 RED 用例通过，并保留 GREEN 证据到 `features/<id>/evidence/unit/GREEN-<case-id>-YYYY-MM-DD.md`：命令、退出码、通过摘要、关键结果、新鲜度锚点。GREEN 步内**不**做 cleanup / 重构；看见 cleanup 机会记下来留给步骤 6（详见 `references/red-green-refactor-discipline.md` 的 Two Hats 规则）。
 
-   实现交接块（写到 implementation-log.md 末尾或单独 handoff 块）：
+有效 GREEN：本次会话执行、测试转绿、保留 fresh evidence。
 
-   ```md
-   ## 实现交接块
-   - Work Item Type / ID:
-   - Owning Component:
-   - 触碰文件:
-   - RED 证据路径:
-   - GREEN 证据路径:
-   - REFACTOR 证据路径（如适用）:
-   - 静态分析 / 编译告警证据路径:
-   - 与测试设计章节的差异:
-   - 剩余风险 / 未覆盖项:
-   - Pending Reviews And Gates:
-   - Next Action Or Recommended Skill: mwf-test-checker
-   ```
+### 6. REFACTOR — 戴 Refactor 帽（若必要）
+
+仅在所有任务测试 + 相关回归 + 静态分析 / 编译告警均为绿后进入。按 Refactoring Discipline + Two Hats（详见 `references/red-green-refactor-discipline.md`）做 in-task cleanups（用 Fowler vocabulary 命名：Extract Method / Rename / Replace Magic Number / Decompose Conditional / Remove Dead Code / ...）。每次 cleanup 后跑完整测试，重新评估静态分析 / 编译告警。如有 cleanup，REFACTOR 证据落 `features/<id>/evidence/unit/REFACTOR-<case-id>-YYYY-MM-DD.md`。
+
+**Escalation 边界**（任一命中即停 task，回 `mwf-workflow-router`）：cleanup 跨 ≥3 模块 / 改 ADR / 改组件边界 / 引入 AR 设计未声明的新抽象层。
+
+### 7. 跑静态 / 动态质量证据
+
+按 Static / Dynamic Quality Inspection 跑编译命令、静态分析命令、本 AR 相关回归测试，按 `references/embedded-evidence-checklist.md` 的最小字段保留到 `features/<id>/evidence/build/` / `static-analysis/` / `integration/`（如适用）。critical 告警 / 违反项无解释 → 不得进入交接；先按团队规则修或显式标注。
+
+### 8. 写实现日志与 traceability
+
+把本轮修改摘要、关键决策、RED / GREEN / REFACTOR 锚点、测试结果摘要、未解决风险写入 `features/<id>/implementation-log.md`；按 Requirements Traceability 在 `features/<id>/traceability.md` 补 Code File / Test Code File / Verification Evidence 列。
+
+### 9. 同步 progress 与 handoff
+
+把 `features/<id>/progress.md` 写为 `Current Stage = mwf-tdd-implementation`、`Pending Reviews And Gates` 含 `test-check` / `code-review`、`Next Action Or Recommended Skill = mwf-test-checker`。父会话准备派发独立 reviewer subagent 执行 `mwf-test-checker`，不内联。
+
+实现交接块（写到 implementation-log.md 末尾或单独 handoff 块）：
+
+```md
+## 实现交接块
+- Work Item Type / ID:
+- Owning Component:
+- 触碰文件:
+- RED 证据路径:
+- GREEN 证据路径:
+- REFACTOR 证据路径（如适用）:
+- 静态分析 / 编译告警证据路径:
+- 与测试设计章节的差异:
+- 剩余风险 / 未覆盖项:
+- Pending Reviews And Gates:
+- Next Action Or Recommended Skill: mwf-test-checker
+```
+
+Refactor Note 必填字段见 `references/red-green-refactor-discipline.md`。
 
 ## Output Contract
 

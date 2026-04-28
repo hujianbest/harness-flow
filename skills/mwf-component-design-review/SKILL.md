@@ -51,63 +51,49 @@ description: Use when mwf-component-design has produced a component-design-draft
 
 ## Workflow
 
-1. 建立证据基线
-   - Object: 评审输入证据基线
-   - Method: Evidence-Based + Read-On-Presence
-   - Input: component-design-draft.md、requirement.md、traceability.md、当前 docs/component-design.md、docs/interfaces.md / dependencies.md / runtime-behavior.md（如存在）、`AGENTS.md`
-   - Output: 输入清单 + 模板状态（团队模板是否已补齐）+ 模块架构师 owner
-   - Stop / continue: spec-review 未通过 → blocked-workflow，`reroute_via_router=true`
+### 1. 建立证据基线
 
-2. Precheck
-   - Object: precheck 结论
-   - Method: 三态判定
-   - Input: 步骤 1 输入清单
-   - Output: 通过 / blocked-content / blocked-workflow
-   - Stop / continue:
-     - 缺设计草稿 → blocked-content，下一步 `mwf-component-design`
-     - route / stage / profile 冲突（如未升级 component-impact 却进入本节点） → blocked-workflow，`reroute_via_router=true`，下一步 `mwf-workflow-router`
+按 Evidence-Based + Read-On-Presence 读取 component-design-draft.md、requirement.md、traceability.md、当前 `docs/component-design.md` / `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、`AGENTS.md`。
 
-3. 多维评分
-   - Object: 7 维度评分
-   - Method: Structured Walkthrough
-   - Output: 各维度 0-10 评分
-   - Stop / continue: 任一关键维度 < 6 不得 `通过`
+### 1.5 Precheck
 
-   维度（详见 `references/component-design-review-rubric.md`）：
+- 缺设计草稿 → blocked-content，下一步 `mwf-component-design`
+- route / stage / profile 冲突（如未升级 component-impact 却进入本节点） → blocked-workflow，`reroute_via_router=true`，下一步 `mwf-workflow-router`
+- spec-review 未通过 → blocked-workflow，`reroute_via_router=true`
+- 否则进入步骤 2
 
-   | 维度 | 关注 |
-   |---|---|
-   | CD1 Identity & Template Conformance | Owner、组件名、子系统、模板章节齐全（或显式标注占位） |
-   | CD2 Responsibility & Non-Responsibility | 职责 / 非职责清晰，未承接其他组件职责 |
-   | CD3 SOA Interface Quality | 接口名 / 参数 / 错误码 / 时序约束 / 兼容性完整 |
-   | CD4 Dependency & Direction | 依赖方向无环、初始化 / shutdown 顺序明确、版本约束清晰 |
-   | CD5 Data Model & State Machine | 数据 / 状态机覆盖核心生命周期、转换条件清晰 |
-   | CD6 Concurrency / Real-time / Resource / Error Handling | 中断上下文限制、锁策略、资源回收、错误处理清晰 |
-   | CD7 AR Design Constraints & Cross-Component Impact | 「对 AR 实现设计的约束」章节存在；跨组件影响显式列出 |
+### 2. 多维评分
 
-4. 正式 checklist 审查
-   - Object: findings 集合
-   - Method: Checklist-Based Review
-   - Input: rubric
-   - Output: findings 含 severity / classification / rule_id（CD1-CD7 + 子项）/ anchor / 描述 / 建议修复
+按 Structured Walkthrough 对 7 个维度（详见 `references/component-design-review-rubric.md`）做 0-10 评分；任一关键维度 < 6 不得 `通过`。
 
-5. 形成 verdict
-   - Object: 唯一 verdict + 唯一下一步
-   - Method: Verdict 决策
+| 维度 | 关注 |
+|---|---|
+| CD1 Identity & Template Conformance | Owner、组件名、子系统、模板章节齐全（或显式标注占位） |
+| CD2 Responsibility & Non-Responsibility | 职责 / 非职责清晰，未承接其他组件职责 |
+| CD3 SOA Interface Quality | 接口名 / 参数 / 错误码 / 时序约束 / 兼容性完整 |
+| CD4 Dependency & Direction | 依赖方向无环、初始化 / shutdown 顺序明确、版本约束清晰 |
+| CD5 Data Model & State Machine | 数据 / 状态机覆盖核心生命周期、转换条件清晰 |
+| CD6 Concurrency / Real-time / Resource / Error Handling | 中断上下文限制、锁策略、资源回收、错误处理清晰 |
+| CD7 AR Design Constraints & Cross-Component Impact | 「对 AR 实现设计的约束」章节存在；跨组件影响显式列出 |
 
-   | 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router | needs_human_confirmation |
-   |---|---|---|---|---|
-   | 7 维度均 ≥ 6，无 critical USER-INPUT，模块架构师可被请求 sign-off | `通过` | `mwf-ar-design` | `false` | `true`（等模块架构师 sign-off） |
-   | findings 可 1-2 轮定向修订 | `需修改` | `mwf-component-design` | `false` | `false` |
-   | 组件边界 / SOA 接口严重不清 / 跨组件协调缺失 | `阻塞`（内容） | `mwf-component-design` | `false` | `false` |
-   | route / stage / profile / 上游证据冲突 | `阻塞`（workflow） | `mwf-workflow-router` | `true` | `false` |
+### 3. 正式 checklist 审查
 
-6. 写 review 记录
-   - Object: review record
-   - Output: `features/<id>/reviews/component-design-review.md`，按 `templates/mwf-review-record-template.md`
+按 Checklist-Based Review（详见 `references/component-design-review-rubric.md` Group CD1-CD7 子规则）逐项审查；每条 finding 带 `severity` / `classification`（USER-INPUT / LLM-FIXABLE / TEAM-EXPERT） / `rule_id` / `anchor` / 描述 / 建议修复。
 
-7. 回传结构化摘要
-   - Output: 按 `mwf-workflow-router/references/reviewer-dispatch-protocol.md`
+### 4. 形成 verdict
+
+按下表收敛唯一 verdict + 唯一下一步：
+
+| 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router | needs_human_confirmation |
+|---|---|---|---|---|
+| 7 维度均 ≥ 6、无 critical USER-INPUT、模块架构师可被请求 sign-off | `通过` | `mwf-ar-design` | `false` | `true`（等模块架构师 sign-off） |
+| findings 可 1-2 轮定向修订 | `需修改` | `mwf-component-design` | `false` | `false` |
+| 组件边界 / SOA 接口严重不清 / 跨组件协调缺失 | `阻塞`（内容） | `mwf-component-design` | `false` | `false` |
+| route / stage / profile / 上游证据冲突 | `阻塞`（workflow） | `mwf-workflow-router` | `true` | `false` |
+
+### 5. 写 review 记录并回传
+
+按 `templates/mwf-review-record-template.md` 写 `features/<id>/reviews/component-design-review.md`，并按 `mwf-workflow-router/references/reviewer-dispatch-protocol.md` 回传结构化摘要。`通过` 时 `needs_human_confirmation=true`，等模块架构师 sign-off 后由父会话进入 `mwf-ar-design`。
 
 ## Output Contract
 

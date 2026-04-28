@@ -54,77 +54,37 @@ description: Use when the workflow profile is component-impact and the owning co
 
 ## Workflow
 
-1. 对齐输入与角色
-   - Object: 输入证据基线 + 角色责任
-   - Method: SOA Component Boundary Analysis（输入摸底）
-   - Input: `features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`（verdict 应为 `通过`）、当前 `docs/component-design.md`（若存在）、`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、组件代码现状的最少必要摘要
-   - Output: 输入清单 + 模块架构师 owner + 模板状态（团队是否已补齐）
-   - Stop / continue: spec-review 未通过 → 阻塞，回 `mwf-workflow-router`；模块架构师 owner 未指定 → 阻塞，回需求负责人
+### 1. 对齐输入与角色
 
-2. 判定本次是新增 / 修订 / 单纯消费
-   - Object: 组件设计变更类型
-   - Method: 影响面分析
-   - Input: requirement.md 中的 Component Impact Assessment + 当前 docs 状态
-   - Output: 三选一：`new`（新增）/ `revise`（修订）/ `consume-only`（仅消费现有设计；这种情况应回 router 退回 standard profile）
-   - Stop / continue: `consume-only` → 标 `reroute_via_router=true`，下一步 `mwf-workflow-router`
+按 Read-On-Presence 读取 `features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`（verdict 应 `通过`）、当前 `docs/component-design.md` / `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、组件代码现状的最少必要摘要。spec-review 未通过 → 阻塞，回 `mwf-workflow-router`；模块架构师 owner 未指定 → 阻塞，回需求负责人。
 
-3. 加载团队模板
-   - Object: 组件设计模板
-   - Method: Template-Constrained Design
-   - Input: `templates/mwf-component-design-template.md`（若团队 `AGENTS.md` 声明了项目模板路径，优先使用项目模板）
-   - Output: 当前 work item 的 `features/<id>/component-design-draft.md` 初始化（`new`）或加载现有 `docs/component-design.md`（`revise`）
-   - Stop / continue: 模板章节留空（团队未补齐）→ **不阻塞写作**，但在 review 前必须由模块架构师手动把模板章节补齐到团队规定结构；草稿中显式标注「使用 mwf 占位模板，待团队模板补齐」
+### 2. 判定本次是新增 / 修订 / 单纯消费
 
-4. 起草 / 修订设计
-   - Object: 组件设计草稿
-   - Method: SOA + Clean Architecture + Interface Segregation + C/C++ Defensive Design
-   - Input: 步骤 1 的输入清单
-   - Output: `features/<id>/component-design-draft.md` 至少覆盖以下章节（具体结构遵循团队模板；模板未补齐时，按团队预期结构占位）：
-     - **组件职责与非职责**
-     - **SOA 服务与接口**（服务名、参数、错误码、时序约束、兼容性）
-     - **依赖组件**（内部组件依赖、版本约束、初始化 / shutdown 顺序）
-     - **数据模型与状态机**
-     - **并发 / 实时性 / 资源生命周期**（中断上下文限制、内存模型、锁策略、资源回收）
-     - **错误处理与降级策略**
-     - **配置项与编译条件**
-     - **对 AR 实现设计的约束**（哪些自由度开放给 AR 实现设计，哪些必须遵守组件级约束）
-   - Stop / continue: 章节缺失 / 与团队模板不符 → 必须显式标注，提交 review 时由 reviewer 判定
+对照 requirement.md 的 Component Impact Assessment 与当前 docs 状态，三选一：
 
-5. 校验跨组件影响
-   - Object: 跨组件影响清单
-   - Method: SOA Component Boundary Analysis
-   - Input: 修订的接口 / 依赖 / 状态机变更
-   - Output:
-     - 受影响下游组件清单（如有）
-     - 是否需要在其他组件仓库分别开 work item / 升级 component-impact
-   - Stop / continue: 跨组件协调点未确认 → 标为 Open Question，回需求负责人 / 模块架构师；不要在本设计中替其他组件做决策
+- `new`：新增组件 / 新增章节
+- `revise`：修订现有 `docs/component-design.md` 的某些章节
+- `consume-only`：本次只消费现有组件设计 → 标 `reroute_via_router=true`，下一步 `mwf-workflow-router`（router 应把 profile 退回 standard，不应进入本节点）
 
-6. 同步 traceability 与 progress
-   - Object: traceability.md、progress.md
-   - Method: Requirements Traceability
-   - Input: 步骤 4 草稿
-   - Output:
-     - `features/<id>/traceability.md`：补充「Component Design Section」列
-     - `features/<id>/progress.md`：`Current Stage = mwf-component-design`、`Next Action Or Recommended Skill = mwf-component-design-review`、`Pending Reviews And Gates` 含 `component-design-review`
-   - Stop / continue: progress 字段必须 canonical
+### 3. 加载团队模板
 
-7. 自检与 handoff
-   - Object: 自检清单 + reviewer 派发请求
-   - Method: 静态自检
-   - Input: 草稿 + traceability + 模板覆盖度
-   - Output: 自检通过 → 父会话派发独立 reviewer subagent 执行 `mwf-component-design-review`
-   - Stop / continue: 自检失败 → 回步骤 4
+按 Template-Constrained Design，加载 `templates/mwf-component-design-template.md`（项目 `AGENTS.md` 模板覆盖优先）。模板章节留空（团队未补齐）时**不阻塞写作**，但草稿中显式标注「使用 mwf 占位模板，待团队模板补齐」；review 前由模块架构师把模板章节补齐到团队规定结构。
 
-   自检项：
+### 4. 起草 / 修订设计
 
-   - 组件职责 / 非职责清晰
-   - SOA 接口含错误码、时序约束、兼容性
-   - 依赖方向无环
-   - 状态机覆盖核心生命周期
-   - 并发 / 实时性 / 资源 / 错误处理已落到具体章节
-   - 「对 AR 实现设计的约束」章节存在且可被 AR 设计消费
-   - 团队模板章节齐全（或显式标注待补齐项）
-   - 跨组件影响已显式列出
+按 SOA Component Boundary Analysis + Clean Architecture + Interface Segregation + C/C++ Defensive Design 写 `features/<id>/component-design-draft.md`。具体结构遵循团队模板；模板未补齐时按团队预期结构占位，至少覆盖：组件职责与非职责、SOA 服务与接口（服务名 / 参数 / 错误码 / 时序约束 / 兼容性）、依赖组件（内部依赖 / 版本约束 / 初始化与 shutdown 顺序）、数据模型与状态机、并发 / 实时性 / 资源生命周期、错误处理与降级、配置项与编译条件、对 AR 实现设计的约束。章节缺失或与团队模板不符 → 显式标注，由 reviewer 判定。
+
+### 5. 校验跨组件影响
+
+按 SOA Component Boundary Analysis 列出修订接口 / 依赖 / 状态机带来的下游组件影响，以及是否需要在其他组件仓库分别开 work item / 升级 component-impact。跨组件协调点未确认 → 标为 Open Question 回需求负责人 / 模块架构师，不在本设计中替其他组件做决策。
+
+### 6. 同步 traceability 与 progress
+
+按 Requirements Traceability 在 `features/<id>/traceability.md` 补「Component Design Section」列，并把 `features/<id>/progress.md` 写为 `Current Stage = mwf-component-design`、`Pending Reviews And Gates` 含 `component-design-review`、`Next Action Or Recommended Skill = mwf-component-design-review`。canonical 字段不允许自由文本。
+
+### 7. 自检与 handoff
+
+进入 handoff 前自检：组件职责 / 非职责清晰；SOA 接口含错误码 / 时序约束 / 兼容性；依赖方向无环；状态机覆盖核心生命周期；并发 / 实时性 / 资源 / 错误处理已落到具体章节；「对 AR 实现设计的约束」章节存在；团队模板章节齐全或显式占位；跨组件影响已显式列出。任一失败 → 回步骤 4。自检通过 → 父会话派发独立 reviewer subagent 执行 `mwf-component-design-review`。
 
 ## Output Contract
 

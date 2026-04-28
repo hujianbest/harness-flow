@@ -54,77 +54,44 @@ description: Use when the spec is approved and the AR (or DTS that needs an AR-l
 
 ## Workflow
 
-1. 对齐输入与角色
-   - Object: 输入证据基线 + 角色责任
-   - Method: Requirements Traceability + Component Design Conformance
-   - Input: requirement.md、reviews/spec-review.md（应 `通过`）、`docs/component-design.md`、`docs/interfaces.md` 等长期资产、相关代码现状摘要、组件设计 review 记录（如适用）
-   - Output: 输入清单 + 模板状态 + Owner（开发负责人或开发人员）
-   - Stop / continue:
-     - spec-review 未通过 → 阻塞，回 `mwf-workflow-router`
-     - 当前 profile 是 component-impact 但 component-design-review 未通过 → 阻塞，回 `mwf-workflow-router`
-     - 团队模板未补齐 → 不阻塞写作，但显式标注「使用 mwf 占位模板」
+### 1. 对齐输入与角色
 
-2. 检查是否触及组件边界
-   - Object: 边界判定
-   - Method: SOA Boundary 检查
-   - Input: requirement.md 的 Component Impact + 当前 AR 的初步思路
-   - Output: 「不触及」/ 「触及」
-   - Stop / continue: 触及 → 立即停下，标 `reroute_via_router=true`，回 `mwf-workflow-router` 升级 component-impact
+按 Requirements Traceability + Component Design Conformance 读取 requirement.md、reviews/spec-review.md（应 `通过`）、`docs/component-design.md`、`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、相关代码现状摘要、component-design-review.md（component-impact 时）。
 
-3. 加载团队模板
-   - Object: AR 设计模板
-   - Method: Template-Constrained Design
-   - Input: `templates/mwf-ar-design-template.md`（项目 `AGENTS.md` 覆盖优先）
-   - Output: `features/<id>/ar-design-draft.md` 初始化
-   - Stop / continue: 模板章节留空 → 显式标注「使用 mwf 占位模板，待团队模板补齐」
+- spec-review 未通过 → 阻塞，回 `mwf-workflow-router`
+- profile 是 component-impact 但 component-design-review 未通过 → 阻塞，回 `mwf-workflow-router`
+- 团队模板未补齐 → 不阻塞写作，但显式标注「使用 mwf 占位模板，待团队模板补齐」
 
-4. 起草代码层设计
-   - Object: AR 设计正文
-   - Method: Code-Level Design + SOLID / GRASP + C / C++ Defensive Design
-   - Input: 步骤 1 输入清单
-   - Output: ar-design-draft.md 至少覆盖（具体结构遵循团队模板，未补齐时按团队预期结构占位）：
-     - **AR 标识**：AR ID / 所属组件 / SR / IR / Owner
-     - **设计目标与范围**：当前 AR 做什么 / 不做什么
-     - **受影响文件 / 模块 / 接口**：精确到文件路径 + 函数名 / 类名（不用展开整段代码）
-     - **数据结构与控制流**：必要时给小段伪代码或 Mermaid 序列图
-     - **C / C++ 实现策略**：错误处理、内存、并发、实时性、资源生命周期、ABI / API 兼容
-     - **与组件实现设计的一致性说明**：本 AR 是否引发组件设计修订？哪些约束被消费？
-     - **测试设计**（必含章节）
-     - **风险与未决问题**
-   - Stop / continue: 任一必含章节缺失 → 不能进入步骤 5
+### 2. 检查是否触及组件边界
 
-5. 起草测试设计章节（必含）
-   - Object: 测试设计章节
-   - Method: Test Design Before Implementation
-   - Input: requirement.md 中的 FR / NFR / IFR 行 + 步骤 4 控制流摘要
-   - Output: 测试设计章节至少含：
-     - **测试用例列表**：编号、覆盖的 AR 行为（回指 requirement row ID）、测试层级（unit / integration / simulation）、预期 I/O、覆盖类型（happy / boundary / exception / embedded-risk）
-     - **Mock / Stub / 仿真说明**：边界点 + 哪些依赖必须 mock、哪些必须真实运行
-     - **RED / GREEN / REFACTOR 证据要求**：哪些命令、哪些日志、哪些静态分析结果必须保留
-     - **嵌入式风险覆盖矩阵**：内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI 各维度覆盖了哪些用例
-   - Stop / continue: 测试用例未回指 requirement row → 回步骤 4-5 修订；嵌入式 NFR 未被任何用例覆盖 → 回步骤 5
+按 SOA Boundary 检查对照 requirement.md 的 Component Impact 与当前 AR 的初步思路。**触及组件接口 / 依赖 / 状态机** → 立即停下，标 `reroute_via_router=true`，回 `mwf-workflow-router` 升级 component-impact。AR 实现设计**不**修改组件架构。
 
-6. 同步 traceability 与 progress
-   - Object: traceability.md、progress.md
-   - Method: Requirements Traceability
-   - Output:
-     - `features/<id>/traceability.md`：补充「AR Design Section」与「Test Design Case」列
-     - `features/<id>/progress.md`：`Current Stage = mwf-ar-design`、`Next Action Or Recommended Skill = mwf-ar-design-review`、`Pending Reviews And Gates` 含 `ar-design-review`
+### 3. 加载团队模板
 
-7. 自检与 handoff
-   - Object: 自检 + reviewer 派发
-   - Method: 静态自检
-   - Input: ar-design-draft.md、traceability.md、模板状态
-   - Output: 自检通过 → 父会话派发 `mwf-ar-design-review` reviewer subagent
+按 Template-Constrained Design 加载 `templates/mwf-ar-design-template.md`（项目 `AGENTS.md` 覆盖优先）；模板章节留空时显式标注「使用 mwf 占位模板，待团队模板补齐」。
 
-   自检项：
+### 4. 起草代码层设计
 
-   - 模板章节齐全（或显式占位）
-   - 设计目标 / 范围 / 受影响文件 / 控制流清晰
-   - 与组件设计一致；不修改组件接口
-   - 测试设计章节存在且每个用例回指 requirement row
-   - 嵌入式风险覆盖矩阵完整
-   - 风险与未决问题分类（阻塞 / 非阻塞）
+按 Code-Level Design + SOLID / GRASP + C / C++ Defensive Design 写 `features/<id>/ar-design-draft.md`。具体结构遵循团队模板；未补齐时按团队预期结构占位，至少覆盖：AR 标识（AR ID / 所属组件 / SR / IR / Owner）、设计目标与范围（做什么 / 不做什么）、受影响文件 / 模块 / 接口（精确到文件路径 + 函数 / 类名，不展开整段代码）、数据结构与控制流（必要时小段伪代码 / Mermaid）、C / C++ 实现策略（错误处理 / 内存 / 并发 / 实时性 / 资源生命周期 / ABI 兼容）、与组件实现设计的一致性说明、**测试设计**（必含，见步骤 5）、风险与未决问题。任一必含章节缺失 → 不能进入步骤 5。
+
+### 5. 起草测试设计章节（必含）
+
+按 Test Design Before Implementation 把 requirement.md 中的 FR / NFR / IFR 行落成测试设计章节。测试设计是 AR 实现设计的**章节**，**不**作为独立 `test-design.md` 文件。最小字段契约见 `references/test-design-section-contract.md`。至少含：
+
+- 测试用例列表：编号、覆盖的 AR 行为（回指 requirement row ID）、测试层级（unit / integration / simulation）、预期 I/O、覆盖类型（happy / boundary / exception / embedded-risk）
+- Mock / Stub / 仿真说明：边界点 + 哪些依赖必须 mock、哪些必须真实运行
+- RED / GREEN / REFACTOR 证据要求：哪些命令 / 日志 / 静态分析结果必须保留
+- 嵌入式风险覆盖矩阵：内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI 各维度覆盖了哪些用例
+
+测试用例未回指 requirement row、或嵌入式 NFR 未被任何用例覆盖 → 回步骤 4 / 5 修订。
+
+### 6. 同步 traceability 与 progress
+
+按 Requirements Traceability 在 `features/<id>/traceability.md` 补「AR Design Section」与「Test Design Case」列；把 `features/<id>/progress.md` 写为 `Current Stage = mwf-ar-design`、`Pending Reviews And Gates` 含 `ar-design-review`、`Next Action Or Recommended Skill = mwf-ar-design-review`。
+
+### 7. 自检与 handoff
+
+进入 handoff 前自检：模板章节齐全（或显式占位）；设计目标 / 范围 / 受影响文件 / 控制流清晰；与组件设计一致且未修改组件接口；测试设计章节存在且每个用例回指 requirement row；嵌入式风险覆盖矩阵完整；风险与未决问题已分类。任一失败 → 回步骤 4 / 5。自检通过 → 父会话派发独立 reviewer subagent 执行 `mwf-ar-design-review`。
 
 ## Output Contract
 

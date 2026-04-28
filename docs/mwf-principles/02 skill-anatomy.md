@@ -173,39 +173,35 @@ This skill turns an approved AR and its component design context into an AR impl
 
 ### `Workflow`
 
+每一步用一个标题概括动作，正文写清「按什么方法、做什么、何时停下」。参考既有 `hf-*` skill 的 Workflow 写法，散文式而不是字段表。
+
 推荐写法：
 
 ```markdown
-1. Precheck activation.
-   - Object:
-   - Method:
-   - Input:
-   - Output:
-   - Stop / continue:
+### 1. 建立证据基线
 
-2. Build or inspect the primary object.
-   - Object:
-   - Method:
-   - Input:
-   - Output:
-   - Stop / continue:
+读最少必要工件（spec / 设计 / 上一节点 record / progress.md / AGENTS.md 路径映射）。把方法落到动作上：例如 Requirements Traceability 要求显式 IR/SR/AR 锚点。证据冲突 → 回 `mwf-workflow-router`。
 
-3. Write artifact / record / evidence.
-   - Object:
-   - Method:
-   - Input:
-   - Output:
-   - Stop / continue:
+### 2. 执行本节点核心工作
 
-4. Handoff.
-   - Object:
-   - Method:
-   - Input:
-   - Output:
-   - Stop / continue:
+按本节点的方法（如 SOA Component Boundary Analysis、Test Design Before Implementation、Embedded TDD、Post-TDD Test Effectiveness Review）做对象转换。说明会写什么、不会写什么、何时必须停下回上游。
+
+### 3. 写工件 / record / evidence
+
+落盘到约定路径（mwf-shared-conventions / AGENTS.md 覆盖优先），保留 traceability 锚点与新鲜度证据。
+
+### 4. Handoff
+
+同步 `progress.md` canonical 字段，给出唯一 canonical `mwf-*` 下一步；不能映射唯一节点时回 `mwf-workflow-router`。
 ```
 
-每一步必须能解释它如何推动当前对象从输入到输出。不要把流程写成“读取、分析、输出”这种不可执行标题。
+约束：
+
+- 每一步必须能解释它如何推动当前对象从输入到输出。
+- 方法必须真的出现在步骤正文里，不能只在 `## Methodology` 章节挂个名。
+- 复杂分支（precheck blocked、verdict 决策表）可以用表格辅助；不要把每一步都展开为 Object / Input / Output / Stop 四字段表。
+- 不要写成「读取、分析、输出」这种不可执行标题。
+- 步骤数量服从节点职责，不追求统一为 4 步。
 
 ### `Output Contract`
 
@@ -298,12 +294,13 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 
 ## Workflow
 
-1. <todo>
-   - Object:
-   - Method:
-   - Input:
-   - Output:
-   - Stop / continue:
+### 1. <todo title>
+
+<散文式说明：本步遵循什么方法、读什么、写什么、何时停下；不强制 Object / Input / Output / Stop 字段表>
+
+### 2. <todo title>
+
+...
 
 ## Output Contract
 

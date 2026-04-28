@@ -56,123 +56,90 @@ mwf 默认以单 AR / 单 DTS 为最小开发单元，不维护 task queue。本
 
 ## Workflow
 
-1. 确认是否属于 runtime routing
-   - Object: routing 触发分类
-   - Method: Front Controller / Router 边界判断
-   - Input: 用户请求、是否已有 `features/<id>/progress.md`
-   - Output: 是 routing 还是 family discovery
-   - Stop / continue: 是 family discovery → 回 `using-mwf-workflow`；否则继续
+### 1. 确认是否属于 runtime routing
 
-2. 读取最少必要证据
-   - Object: 工件证据基线
-   - Method: Evidence-Based Decision Making + Read-On-Presence
-   - Input: 项目 `AGENTS.md` 路径映射、`features/<id>/progress.md`、`reviews/`、`evidence/`、`completion.md`、`docs/component-design.md`、`docs/ar-designs/AR<id>-<slug>.md`
-   - Output: 当前节点、待完成 review / gate、Profile 信号、Execution Mode 当前值
-   - Stop / continue: 证据冲突 → 选更上游节点 / 升级 profile，不擅自调和
+如果是 public entry / family discovery → 回 `using-mwf-workflow`。否则（恢复编排、profile 判断、消费 review/gate 结论、evidence conflict、切支线）继续。
 
-3. 检查支线信号
-   - Object: 支线判定
-   - Method: 触发条件匹配
-   - Input: 用户请求 + 工件证据
-   - Output: 是否进入 `hotfix` 或 `component-impact`
-   - Stop / continue: 命中支线 → 走对应路径，不再走主链
+### 2. 读取最少必要证据
 
-   支线触发：
+按 Read-On-Presence 原则只读路由所需的最少内容：项目 `AGENTS.md` 路径映射、用户请求、`features/<id>/progress.md`、`features/<id>/reviews/` 与 `features/<id>/completion.md`、`docs/component-design.md` / `docs/ar-designs/`（必要时）。不在路由阶段做大范围代码探索。证据冲突 → 选更上游节点 / 升级 profile，不擅自调和。
 
-   | 信号 | 路由 |
-   |---|---|
-   | DTS / 紧急缺陷 / 已上线问题修复 | `mwf-problem-fix`，profile = `hotfix` |
-   | 新增组件 / 修改 SOA 接口 / 修改组件职责 / 修改组件依赖 / 组件设计缺失或过期 | profile 升级到 `component-impact`，下一步 `mwf-component-design` |
-   | AR 实现需要跨组件协调 | profile = `component-impact` |
+### 3. 检查支线信号
 
-4. 决定 Workflow Profile
-   - Object: profile 字段
-   - Method: Escalation Pattern
-   - Input: 步骤 3 信号 + work item 类型
-   - Output: `standard` / `component-impact` / `hotfix` / `lightweight`
-   - Stop / continue: 只允许升级，不允许降级
+支线优先于普通主链：
 
-   | Profile | 适用场景 |
-   |---|---|
-   | `standard` | 既有组件 AR 增量、组件设计稳定、纯组件内修改 |
-   | `component-impact` | 命中步骤 3 component-impact 信号 |
-   | `hotfix` | 命中步骤 3 hotfix 信号 |
-   | `lightweight` | 极小、低风险、纯局部修改（如修一个错别字、调一个 magic number、补一行注释），仍保留 specify/spec-review/ar-design/ar-design-review/tdd/test-check/code-review/completion 全链，但允许压缩文档量 |
+| 信号 | 路由 |
+|---|---|
+| DTS / 紧急缺陷 / 已上线问题修复 | `mwf-problem-fix`，profile = `hotfix` |
+| 新增组件 / 修改 SOA 接口 / 修改组件职责 / 修改组件依赖 / 组件设计缺失或过期 | profile 升级到 `component-impact`，下一步 `mwf-component-design` |
+| AR 实现需要跨组件协调 | profile = `component-impact` |
 
-5. 决定 Execution Mode
-   - Object: execution mode 字段
-   - Method: 归一化优先级
-   - Input: 用户最新偏好 → `AGENTS.md` 默认 → 已有值 → 默认 `interactive`
-   - Output: `interactive` / `auto`
-   - Stop / continue: `auto` 不删除 review / gate / approval；不让 leaf 节点静默降级
+命中支线 → 走对应路径，不再回主链。
 
-6. 归一化显式 handoff
-   - Object: 上一步 leaf 返回的 `next_action_or_recommended_skill`
-   - Method: 合法性校验
-   - Input: leaf handoff
-   - Output: 接受 / 忽略
-   - Stop / continue: 显式 handoff 与最新证据一致且在当前 profile 合法集合内 → 采用；否则忽略，回退到迁移表
+### 4. 决定 Workflow Profile
 
-7. 决定 canonical 节点
-   - Object: 唯一 canonical 下一步
-   - Method: FSM Routing + Evidence-Based Decision
-   - Input: profile 合法节点表 + 工件证据
-   - Output: 唯一 `mwf-*` 节点名
-   - Stop / continue: 若结论无法映射唯一节点，标 `reroute_via_router=true` 停下
+按 Escalation Pattern：先执行 `AGENTS.md` 强制规则 → 沿用已有 profile → 按证据选择 → 冲突选更重。**只允许升级，不允许降级**。
 
-   迁移意图（与 `docs/mwf-principles/04 workflow-architecture.md` 一致）：
+| Profile | 适用场景 |
+|---|---|
+| `standard` | 既有组件 AR 增量、组件设计稳定、纯组件内修改 |
+| `component-impact` | 命中步骤 3 component-impact 信号 |
+| `hotfix` | 命中步骤 3 hotfix 信号 |
+| `lightweight` | 极小、低风险、纯局部修改（错别字 / magic number / 注释）；保留 specify → completion 全链，仅允许压缩文档量 |
 
-   | 当前节点 | 成功后 | 需修改 / 阻塞 |
-   |---|---|---|
-   | `mwf-specify` | `mwf-spec-review` | 回需求负责人 / `mwf-workflow-router` |
-   | `mwf-spec-review` | `mwf-component-design`（component-impact）/ `mwf-ar-design`（standard / lightweight） | `mwf-specify` |
-   | `mwf-component-design` | `mwf-component-design-review` | 继续修订 |
-   | `mwf-component-design-review` | `mwf-ar-design` | `mwf-component-design` |
-   | `mwf-ar-design` | `mwf-ar-design-review` | 继续修订 |
-   | `mwf-ar-design-review` | `mwf-tdd-implementation` | `mwf-ar-design` |
-   | `mwf-tdd-implementation` | `mwf-test-checker` | 继续实现 |
-   | `mwf-test-checker` | `mwf-code-review` | `mwf-tdd-implementation` |
-   | `mwf-code-review` | `mwf-completion-gate` | `mwf-tdd-implementation` |
-   | `mwf-completion-gate` | `mwf-finalize` | 缺什么回什么 |
-   | `mwf-finalize` | workflow closed | 回 router |
-   | `mwf-problem-fix` | `mwf-ar-design` 或 `mwf-tdd-implementation` | 继续 hotfix 分析 |
+详细规则见 `references/profile-and-route-map.md`。
 
-8. 处理 review / gate 恢复
-   - Object: 上游 review / gate 结论
-   - Method: Verdict 消费 + 角色边界
-   - Input: 最新 review record / completion record
-   - Output: 下一步 + 是否需要真人确认
-   - Stop / continue:
-     - `通过` → 进入迁移表的成功后节点
-     - `需修改` → 回授权节点（如 `mwf-tdd-implementation` / `mwf-ar-design`）
-     - `阻塞`（内容） → 回授权节点
-     - `阻塞`（workflow） → `reroute_via_router=true`，停下并写明阻塞原因
+### 5. 决定 Execution Mode
 
-9. 派发 reviewer subagent
-   - Object: review 任务
-   - Method: Role-Separated Review Dispatch
-   - Input: review 节点 + 必要工件
-   - Output: 独立 reviewer subagent 的最小 review request
-   - Stop / continue: review 不内联在父会话；reviewer 返回结构化摘要 + record path
+与 Profile 正交。归一化顺序：用户显式要求 → `AGENTS.md` 默认 → 已有值 → 默认 `interactive`。`auto` 不删除 review / gate / approval，也不让 leaf 节点静默降级。
 
-   review 派发的最小 request 字段：
+### 6. 归一化显式 handoff
 
-   - `target_skill`：`mwf-spec-review` / `mwf-component-design-review` / `mwf-ar-design-review` / `mwf-test-checker` / `mwf-code-review`
-   - `work_item_id`、`owning_component`
-   - `primary_artifact`：被评审对象路径
-   - `supporting_context`：上游工件路径
-   - `agents_md_anchor`：项目 `AGENTS.md` 中相关约定
-   - `expected_return_contract`：见 mwf-shared-conventions
+leaf skill 返回的 `next_action_or_recommended_skill` 是受控字段。检查它是否归一化、是否与最新 evidence 一致、是否在当前 profile 合法集合内（见 `references/profile-and-route-map.md`）。全部满足才采用；否则忽略，回退到迁移表。
 
-10. 连续执行与暂停点
-    - Object: 是否需等待真人
-    - Method: hard stop 检测
-    - Input: 步骤 7-8 的结论
-    - Output: 同一轮继续 / 等待真人
-    - Stop / continue:
-      - `interactive` + `通过` 且需要真人确认（如 AR 实现设计 review 通过 → 等待开发负责人确认）→ 等
-      - `auto` + 无 hard stop → 同一轮进入下一节点
-      - hard stop（缺组件设计、缺测试设计章节、TDD 后未经 test-checker 等）→ 必须停
+### 7. 决定 canonical 节点
+
+路由原则：支线优先于主链 → review / gate 恢复优先于实现 → 缺失上游优先于下游 → 冲突选更保守。
+
+迁移意图（与 `docs/mwf-principles/04 workflow-architecture.md` 一致）：
+
+| 当前节点 | 成功后 | 需修改 / 阻塞 |
+|---|---|---|
+| `mwf-specify` | `mwf-spec-review` | 回需求负责人 / `mwf-workflow-router` |
+| `mwf-spec-review` | `mwf-component-design`（component-impact）/ `mwf-ar-design`（standard / lightweight） | `mwf-specify` |
+| `mwf-component-design` | `mwf-component-design-review` | 继续修订 |
+| `mwf-component-design-review` | `mwf-ar-design` | `mwf-component-design` |
+| `mwf-ar-design` | `mwf-ar-design-review` | 继续修订 |
+| `mwf-ar-design-review` | `mwf-tdd-implementation` | `mwf-ar-design` |
+| `mwf-tdd-implementation` | `mwf-test-checker` | 继续实现 |
+| `mwf-test-checker` | `mwf-code-review` | `mwf-tdd-implementation` |
+| `mwf-code-review` | `mwf-completion-gate` | `mwf-tdd-implementation` |
+| `mwf-completion-gate` | `mwf-finalize` | 缺什么回什么 |
+| `mwf-finalize` | workflow closed | 回 router |
+| `mwf-problem-fix` | `mwf-ar-design` 或 `mwf-tdd-implementation` | 继续 hotfix 分析 |
+
+若结论无法映射唯一节点 → 标 `reroute_via_router=true` 停下。
+
+### 8. 处理 review / gate 恢复
+
+读取最新 review record / completion record，按 verdict 与角色边界判定：
+
+- `通过` → 进入迁移表的成功后节点；`needs_human_confirmation=true` 时按 Mode 处理（interactive 等真人，auto 写 approval record）
+- `需修改` / `阻塞`（内容） → 回授权节点（如 `mwf-tdd-implementation` / `mwf-ar-design`）
+- `阻塞`（workflow） → `reroute_via_router=true`，停下并写明阻塞原因
+
+### 9. 派发 reviewer subagent
+
+review 节点不在父会话内联执行。构造最小 review request（`target_skill`、`work_item_id`、`owning_component`、`primary_artifact`、`supporting_context`、`agents_md_anchor`、`expected_return_contract`），派发独立 subagent，消费结构化 reviewer 返回。详见 `references/reviewer-dispatch-protocol.md`。
+
+### 10. 连续执行与暂停点
+
+路由结论不是独立用户交互：
+
+- 非 hard stop → 同一轮进入目标 skill
+- review 节点 → 立刻派发 subagent
+- approval step → 按 Execution Mode 处理
+- hard stop（缺组件设计、缺测试设计章节、TDD 后未经 test-checker 等）→ 必须停下等待
 
 ## Output Contract
 

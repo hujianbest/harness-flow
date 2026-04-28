@@ -53,66 +53,53 @@ description: Use when mwf-ar-design has produced an ar-design-draft.md ready for
 
 ## Workflow
 
-1. 建立证据基线
-   - Object: 评审输入证据基线
-   - Method: Evidence-Based + Read-On-Presence
-   - Input: ar-design-draft.md、requirement.md、reviews/spec-review.md（应 `通过`）、`docs/component-design.md`、reviews/component-design-review.md（component-impact 时应 `通过`）、traceability.md、`AGENTS.md`
-   - Output: 输入清单 + 模板状态
-   - Stop / continue: 缺设计草稿 → blocked-content，下一步 `mwf-ar-design`；缺组件设计且本 AR 触及组件边界 → blocked-workflow，`reroute_via_router=true`
+### 1. 建立证据基线
 
-2. Precheck
-   - Object: precheck 结论
-   - Method: 三态判定
-   - Output: 通过 / blocked-content / blocked-workflow
-   - Stop / continue: 同上
+按 Evidence-Based + Read-On-Presence 读取 ar-design-draft.md、requirement.md、reviews/spec-review.md（应 `通过`）、`docs/component-design.md`、reviews/component-design-review.md（component-impact 时应 `通过`）、traceability.md、`AGENTS.md`。
 
-3. 检查是否触及组件边界
-   - Object: 边界判定
-   - Method: SOA Boundary 检查
-   - Input: AR 设计 + 当前组件设计
-   - Output: 「不触及」/「触及」
-   - Stop / continue: 触及 → `阻塞`(workflow)，下一步 `mwf-workflow-router` 升级 component-impact
+### 1.5 Precheck
 
-4. 多维评分
-   - Object: 8 维度评分
-   - Method: Structured Walkthrough
-   - Output: 各维度 0-10 评分
-   - Stop / continue: 任一关键维度 < 6 不得 `通过`
+- 缺 ar-design-draft.md → blocked-content，下一步 `mwf-ar-design`
+- 缺组件设计且本 AR 触及组件边界 → blocked-workflow，`reroute_via_router=true`，下一步 `mwf-workflow-router`
+- 否则进入步骤 2
 
-   维度（详见 `references/ar-design-review-rubric.md`）：
+### 2. 检查是否触及组件边界
 
-   | 维度 | 关注 |
-   |---|---|
-   | AD1 Identity & Template Conformance | AR ID / Owner / 模板章节齐全 |
-   | AD2 Goal & Scope Clarity | 设计目标 / 范围 / 非范围清晰 |
-   | AD3 Affected Files & Control Flow | 受影响文件 / 模块 / 控制流冷读得懂 |
-   | AD4 Component Design Conformance | 与组件设计一致；不修改组件接口 / 依赖 / 状态机 |
-   | AD5 C / C++ Defensive Design | 错误处理、内存、并发、实时性、资源、ABI |
-   | AD6 Test Design Adequacy | 测试用例完整、回指 requirement row、嵌入式风险覆盖矩阵 |
-   | AD7 Mock / RED-GREEN Plan | mock 边界合理；RED / GREEN 证据要求清晰 |
-   | AD8 Open Questions Closure | 阻塞 / 非阻塞分类；阻塞项已闭合或上抛 |
+按 SOA Boundary 检查对照 AR 设计与当前 `docs/component-design.md`。**触及组件接口 / 依赖 / 状态机** → 强制 `阻塞`(workflow)，`reroute_via_router=true`，下一步 `mwf-workflow-router`（升级 component-impact）。
 
-5. 正式 checklist 审查
-   - Object: findings
-   - Method: Checklist-Based Review
-   - Input: rubric
-   - Output: findings 含 severity / classification / rule_id / anchor / 描述 / 建议修复
+### 3. 多维评分
 
-6. 形成 verdict
-   - Object: 唯一 verdict + 唯一下一步
+按 Structured Walkthrough 对 8 个维度（详见 `references/ar-design-review-rubric.md`）做 0-10 评分；任一关键维度 < 6 不得 `通过`。
 
-   | 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router | needs_human_confirmation |
-   |---|---|---|---|---|
-   | 8 维度均 ≥ 6、组件边界未被改写、测试设计章节充分、无 critical USER-INPUT | `通过` | `mwf-tdd-implementation` | `false` | `true`（开发负责人确认进入 TDD） |
-   | findings 可 1-2 轮定向修订 | `需修改` | `mwf-ar-design` | `false` | `false` |
-   | 测试设计章节缺失 / 测试设计被拆独立文件 / 嵌入式风险覆盖矩阵缺失 / 设计严重不清 | `阻塞`（内容） | `mwf-ar-design` | `false` | `false` |
-   | AR 设计修改组件接口 / 依赖 / 状态机 / 上游证据冲突 | `阻塞`（workflow） | `mwf-workflow-router` | `true` | `false` |
+| 维度 | 关注 |
+|---|---|
+| AD1 Identity & Template Conformance | AR ID / Owner / 模板章节齐全 |
+| AD2 Goal & Scope Clarity | 设计目标 / 范围 / 非范围清晰 |
+| AD3 Affected Files & Control Flow | 受影响文件 / 模块 / 控制流冷读得懂 |
+| AD4 Component Design Conformance | 与组件设计一致；不修改组件接口 / 依赖 / 状态机 |
+| AD5 C / C++ Defensive Design | 错误处理、内存、并发、实时性、资源、ABI |
+| AD6 Test Design Adequacy | 测试用例完整、回指 requirement row、嵌入式风险覆盖矩阵 |
+| AD7 Mock / RED-GREEN Plan | mock 边界合理；RED / GREEN 证据要求清晰 |
+| AD8 Open Questions Closure | 阻塞 / 非阻塞分类；阻塞项已闭合或上抛 |
 
-7. 写 review 记录
-   - Output: `features/<id>/reviews/ar-design-review.md`，按 `templates/mwf-review-record-template.md`
+### 4. 正式 checklist 审查
 
-8. 回传结构化摘要
-   - Output: 按 `mwf-workflow-router/references/reviewer-dispatch-protocol.md`
+按 Checklist-Based Review（详见 `references/ar-design-review-rubric.md` Group AD1-AD8 子规则）逐项审查；每条 finding 带 `severity` / `classification` / `rule_id` / `anchor` / 描述 / 建议修复。Test Design Adequacy 维度按 `mwf-ar-design/references/test-design-section-contract.md` 校验最小字段。
+
+### 5. 形成 verdict
+
+按下表收敛唯一 verdict + 唯一下一步：
+
+| 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router | needs_human_confirmation |
+|---|---|---|---|---|
+| 8 维度均 ≥ 6、组件边界未被改写、测试设计章节充分、无 critical USER-INPUT | `通过` | `mwf-tdd-implementation` | `false` | `true`（开发负责人确认进入 TDD） |
+| findings 可 1-2 轮定向修订 | `需修改` | `mwf-ar-design` | `false` | `false` |
+| 测试设计章节缺失 / 测试设计被拆独立文件 / 嵌入式风险覆盖矩阵缺失 / 设计严重不清 | `阻塞`（内容） | `mwf-ar-design` | `false` | `false` |
+| AR 设计修改组件接口 / 依赖 / 状态机 / 上游证据冲突 | `阻塞`（workflow） | `mwf-workflow-router` | `true` | `false` |
+
+### 6. 写 review 记录并回传
+
+按 `templates/mwf-review-record-template.md` 写 `features/<id>/reviews/ar-design-review.md`，并按 `mwf-workflow-router/references/reviewer-dispatch-protocol.md` 回传结构化摘要。`通过` 时 `needs_human_confirmation=true`，等开发负责人确认后由父会话进入 `mwf-tdd-implementation`。
 
 ## Output Contract
 

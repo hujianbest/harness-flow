@@ -60,91 +60,59 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 
 ## Workflow
 
-1. 建立证据基线
-   - Object: 缺陷输入证据基线
-   - Method: Read-On-Presence + Contract Sanity Check
-   - Input: 缺陷报告原文、用户描述、相关代码 / 日志、`docs/component-design.md`、`docs/ar-designs/`、相关 review / verification 记录、`features/<id>/progress.md`（若存在）
-   - Output: 输入清单 + 当前已知事实 + 待确认项
-   - Stop / continue: 缺陷描述指向「需求变更」/「新增能力」（既有 spec / 设计未要求当前行为）→ 阻塞，回 `mwf-specify` 或 router
+### 1. 建立证据基线
 
-2. 初始化或对齐 work item 目录
-   - Object: `features/DTS<id>-<slug>/` 骨架
-   - Method: Artifact Layout
-   - Input: DTS ID、所属组件、Owner
-   - Output:
-     - 新 DTS：按 `templates/mwf-work-item-readme-template.md` 创建 `README.md`、`templates/mwf-progress-template.md` 创建 `progress.md`
-     - 已存在：核对 progress.md canonical 字段
-   - Stop / continue: 缺 DTS ID / 所属组件 → 阻塞
+按 Read-On-Presence + Contract Sanity Check 读取缺陷报告原文、用户描述、相关代码 / 日志、`docs/component-design.md`、`docs/ar-designs/`、相关 review / verification 记录、`features/<id>/progress.md`（若存在）。
 
-3. 构建复现路径
-   - Object: 复现路径
-   - Method: Reproduce First
-   - Input: 缺陷描述 + 环境信息
-   - Output: `features/DTS<id>-<slug>/reproduction.md`，至少含：
-     - 期望行为（指向既有 spec / 设计 / API 契约的具体锚点）
-     - 实际行为
-     - 复现步骤（环境、版本、配置、命令）
-     - 失败证据（日志、退出码、stack trace）
-     - 复现是否稳定（每次必现 / 偶现 / 仅特定环境）
-   - Stop / continue: 无法复现 → 显式标 `unable-to-reproduce`，写明已尝试的环境与下一步建议；不得隐瞒
+如果缺陷描述指向「需求变更」/「新增能力」（既有 spec / 设计未要求当前行为）→ 不走 hotfix，阻塞回 `mwf-specify` 或 `mwf-workflow-router`。
 
-4. 根因分析
-   - Object: 根因
-   - Method: Root Cause Analysis (5 Whys) + Embedded Risk Awareness
-   - Input: 步骤 3 复现 + 代码现状
-   - Output: `features/DTS<id>-<slug>/root-cause.md`，至少含：
-     - 根因层级（5 Whys 链）
-     - 根因维度（编码错误 / 设计缺陷 / 接口契约不一致 / 内存 / 并发 / 实时性 / 配置）
-     - 信心程度：`demonstrated`（有直接证据）/ `probable`（间接证据）
-     - 是否可能在其他相似路径上也存在（横向影响）
-   - Stop / continue: 信心仅 `probable` 且修复边界扩散 → 不能 handoff，回步骤 3 补复现或上抛模块架构师
+### 2. 初始化或对齐 work item 目录
 
-5. 最小安全修复边界
-   - Object: 修复边界
-   - Method: Minimum Safe Fix Boundary
-   - Input: 步骤 3-4 + 当前 docs/component-design.md / docs/ar-designs/
-   - Output: `features/DTS<id>-<slug>/fix-design.md`，至少含：
-     - 改什么：文件 / 函数 / 配置
-     - 不改什么：显式列出避免顺手扩散
-     - 影响什么：用户可见行为 / 公共接口 / 数据契约 / 跨组件
-     - 是否需要补 AR 实现设计 / 修订组件实现设计
-     - 测试设计要点：复现脚本将作为 RED 用例；额外的边界 / 异常用例
-     - 嵌入式风险审计：内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI 各维度
-   - Stop / continue:
-     - 修复触及组件边界 → 标 `reroute_via_router=true`，下一步 `mwf-component-design`
-     - 修复需要正式 AR 实现设计（DTS 涉及功能 / 状态变更）→ 下一步 `mwf-ar-design`
-     - 否则可直接进入 `mwf-tdd-implementation`，但本节点不写代码
+按 Artifact Layout（mwf-principles 03），新 DTS 用 `templates/mwf-work-item-readme-template.md` / `templates/mwf-progress-template.md` 创建 `features/DTS<id>-<slug>/README.md` 与 `progress.md`；已存在则核对 canonical 字段。缺 DTS ID / 所属组件 → 阻塞。
 
-6. 修复边界确认点
-   - Object: 边界确认
-   - Method: Minimum Safe Fix Boundary
-   - Input: 步骤 5 边界 + 扩散信号
-   - Output: 通过 / 等待真人确认 / 回 router
-   - Stop / continue:
-     - 修复扩散到多模块 / 多行为
-     - 修复改用户可见行为 / 公共接口 / 数据契约
-     - 根因仅 `probable`
-     - `interactive`：先展示「建议修什么 / 明确不修什么 / 为什么这是最小边界」，等真人确认
-     - `auto`：边界仍清晰且证据充分时继续，否则 `reroute_via_router=true` 回 router
+### 3. 构建复现路径
 
-7. 决定回流节点
-   - Object: 回流节点
-   - Method: Route Decision
+按 Reproduce First 写 `features/DTS<id>-<slug>/reproduction.md`，至少含期望行为（指向既有 spec / 设计 / API 契约的具体锚点）、实际行为、复现步骤（环境、版本、配置、命令）、失败证据（日志 / 退出码 / stack trace）、复现稳定性（每次必现 / 偶现 / 仅特定环境）。无法复现 → 显式标 `unable-to-reproduce`，写明已尝试的环境与下一步建议；不得隐瞒。
 
-   | 条件 | 回流节点 |
-   |---|---|
-   | 复现 + 根因 + 修复边界清晰、不触组件 / 不需要正式 AR 设计 | `mwf-tdd-implementation` |
-   | 修复需要正式 AR 实现设计 | `mwf-ar-design` |
-   | 修复触及组件边界 | `mwf-component-design`（先升 component-impact） |
-   | 实际是需求变更 | `mwf-specify` |
-   | 证据不足以确认根因 | `mwf-workflow-router`（`reroute_via_router=true`） |
+### 4. 根因分析
 
-8. 同步 progress 与 traceability
-   - Object: progress.md、traceability.md
-   - Method: Canonical Field Sync
-   - Output:
-     - `features/DTS<id>-<slug>/traceability.md`：补 IR / SR / AR（若涉及功能需求）/ 设计 / 代码 / 测试占位
-     - `features/DTS<id>-<slug>/progress.md`：`Current Stage = mwf-problem-fix`、`Next Action Or Recommended Skill = <步骤 7 回流节点>`、`Pending Reviews And Gates = test-check, code-review, completion-gate`
+按 Root Cause Analysis (5 Whys) + Embedded Risk Awareness 写 `features/DTS<id>-<slug>/root-cause.md`，至少含 5 Whys 链、根因维度（编码错误 / 设计缺陷 / 接口契约不一致 / 内存 / 并发 / 实时性 / 配置 / ABI / ...）、信心程度（`demonstrated` / `probable`）、横向影响（是否在其他相似路径上也存在）。信心仅 `probable` 且修复边界扩散 → 不能 handoff，回步骤 3 补复现或上抛模块架构师。
+
+### 5. 最小安全修复边界
+
+按 Minimum Safe Fix Boundary 写 `features/DTS<id>-<slug>/fix-design.md`，至少含改什么（文件 / 函数 / 配置）、不改什么（显式列出避免顺手扩散）、影响什么（用户可见行为 / 公共接口 / 数据契约 / 跨组件）、是否需要补 AR 实现设计或修订组件实现设计、测试设计要点（复现脚本作为 RED 用例 + 额外边界 / 异常用例）、嵌入式风险审计（内存 / 并发 / 实时性 / 资源 / 错误处理 / ABI 各维度）。
+
+### 5A. 修复边界确认点
+
+出现以下任一信号时，**不要直接 handoff 实现**：
+
+- 修复扩散到多模块 / 多行为
+- 修复改用户可见行为 / 公共接口 / 数据契约
+- 根因仅 `probable`
+
+处理：
+
+- `interactive`：先展示「建议修什么 / 明确不修什么 / 为什么这是最小边界」，等真人确认
+- `auto`：边界仍清晰且证据充分时继续；否则 `reroute_via_router=true` 回 `mwf-workflow-router`
+
+### 6. 决定回流节点
+
+按 Route Decision：
+
+| 条件 | 回流节点 |
+|---|---|
+| 复现 + 根因 + 修复边界清晰、不触组件 / 不需要正式 AR 设计 | `mwf-tdd-implementation` |
+| 修复需要正式 AR 实现设计 | `mwf-ar-design` |
+| 修复触及组件边界 | `mwf-component-design`（先升 component-impact） |
+| 实际是需求变更 | `mwf-specify` |
+| 证据不足以确认根因 | `mwf-workflow-router`（`reroute_via_router=true`） |
+
+### 7. 同步 progress 与 traceability
+
+按 Canonical Field Sync：
+
+- `features/DTS<id>-<slug>/traceability.md`：补 IR / SR / AR（若涉及功能需求）/ 设计 / 代码 / 测试占位
+- `features/DTS<id>-<slug>/progress.md`：`Current Stage = mwf-problem-fix`、`Pending Reviews And Gates = test-check, code-review, completion-gate`、`Next Action Or Recommended Skill = <步骤 6 回流节点>`
 
 ## Output Contract
 
