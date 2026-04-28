@@ -1,8 +1,16 @@
 # dev-flow (df) Soul — 把明确输入的需求或问题修改高质量落到软件版本
 
+> **角色定位 / 与 `df-skills` 包的关系**
+>
+> 本目录 `docs/df-principles/` 是**指导 `df-skills` 包设计与演进的内部原则文档**，**不**随 `df-skills` 包发布、**不**被 `df-skills` 包内任何 skill 引用。
+>
+> - 受众：`df-skills` 包的作者 / reviewer / 维护者
+> - 用法：在新增、修订、评审 `df-skills/` 下的 skill 时，先来这里对齐 soul / skill-node 契约 / skill anatomy / artifact layout / workflow architecture
+> - 包内权威共享文档是 `df-skills/docs/df-workflow-shared-conventions.md`；任何运行时约定（路径、字段、profile、handoff、Promotion Rules、必含章节集）必须先沉淀到该文档，skill 才能消费
+
 - 定位: `dev-flow`（简称 `df`）skills 的最高原则文档，定义这套面向**软件开发阶段**的 skill family 的目标、协作关系与硬性纪律。
 - 背景: `dev-flow` 是 `*-flow` skill family 体系中**专注开发（development）阶段**的一员；同体系下还会陆续出现 `test-flow`、`design-flow` 等姊妹 family，分别覆盖独立测试、产品 / 架构设计等阶段。`df` 不替代它们，也不被它们替代——本 family 的范围严格限定在「拿到明确输入需求 / 问题修改后，把它落到代码与可追溯证据」这一段。
-- 关联:
+- 关联（**仅**指导文档之间互引；不供 `df-skills` 包消费）:
   - Skill-node 设计契约: `docs/df-principles/01 skill-node-define.md`
   - Skill 写作原则: `docs/df-principles/02 skill-anatomy.md`
   - 工件管理约定: `docs/df-principles/03 artifact-layout.md`
