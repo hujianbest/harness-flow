@@ -74,7 +74,7 @@ Actions:
 
 Deliverables:
 
-- `skills/docs/hf-workflow-shared-conventions.md` update or equivalent reference.
+- `skills/hf-workflow-router/references/workflow-shared-conventions.md` update or equivalent reference.
 - `docs/features/001-skills-workflow-control-plane/progress.md` fixture.
 - Example records under `docs/features/001-skills-workflow-control-plane/reviews/` and `verification/`.
 

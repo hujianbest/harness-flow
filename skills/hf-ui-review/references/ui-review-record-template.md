@@ -5,7 +5,7 @@
 评审完成后，将结论写入：
 
 - `features/<active>/reviews/ui-review-YYYY-MM-DD.md`
-- 如 `AGENTS.md` 声明了等价路径，按映射路径保存
+- 如 项目声明了等价路径，按映射路径保存
 
 若项目尚未形成固定 review 记录格式，默认使用当前模板。
 

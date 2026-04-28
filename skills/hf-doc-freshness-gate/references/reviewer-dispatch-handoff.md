@@ -21,11 +21,10 @@ documentation files; you only produce a structured verdict.
 3. /workspace/skills/hf-doc-freshness-gate/references/profile-rubric.md
 4. /workspace/skills/hf-doc-freshness-gate/templates/verdict-record-template.md
 5. (lightweight only) /workspace/skills/hf-doc-freshness-gate/templates/lightweight-checklist-template.md
-6. /workspace/features/<active>/spec.md (or AGENTS.md path override)
-7. /workspace/features/<active>/tasks.md (or AGENTS.md path override)
+6. /workspace/features/<active>/spec.md (or project-level path override)
+7. /workspace/features/<active>/tasks.md (or project-level path override)
 8. /workspace/features/<active>/progress.md (read Workflow Profile)
-9. /workspace/AGENTS.md (read project-level overrides if exists)
-10. Project-level user-visible documentation载体 (按 §responsibility-matrix.md 本 gate ✅ 行清单逐项扫描)
+9. Project-level user-visible documentation载体 (按 §responsibility-matrix.md 本 gate ✅ 行清单逐项扫描)
 
 ## Your task
 
@@ -83,7 +82,7 @@ documentation files; you only produce a structured verdict.
 
 ## Path Overrides
 
-若 `AGENTS.md` 声明了路径覆盖，按 HF 既有 path-override 语义优先采用：
+若 项目声明了路径覆盖，按 HF 既有 path-override 语义优先采用：
 
 - `requirement spec path`
 - `task plan path`

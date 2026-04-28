@@ -43,14 +43,14 @@
 - 当前实现会改动代码、脚本、生成物、依赖或多文件资产，而不是纯文档修订
 - 当前仓库已有用户未提交改动、并行中的其它任务，或工作区明显不是干净基线
 - 当前 workflow 需要同时派发 reviewer subagent，且 reviewer 必须检视“候选实现状态”而不是仓库根目录的其它状态
-- `AGENTS.md` 或项目约定已经声明必须隔离工作目录
+- 项目约定已经声明必须隔离工作目录
 - 当前是 hotfix 实现，或验证步骤可能触碰风险较高的运行命令 / 环境准备动作
 
 通常可以保留 `in-place` 的场景：
 
 - `lightweight` profile 下的低风险文档修订
 - 单文件、低风险、纯文本或配置描述性修改，且当前工作区干净
-- `AGENTS.md` 已明确允许在主工作区中完成这类修改
+- 项目约定已明确允许在主工作区中完成这类修改
 
 如果你已经有 `worktree-active` 的状态，并且 `Worktree Path` 与 `Current Active Task` 仍然匹配，优先复用，不要再新建第二个 worktree。
 
@@ -60,13 +60,13 @@
 
 1. 已存在的 `.worktrees/`
 2. 已存在的 `worktrees/`
-3. `AGENTS.md` 中已声明的项目级首选 worktree 目录
+3. 项目级首选 worktree 目录（若项目已声明）
 4. 若以上都没有，再询问用户
 
 补充规则：
 
 - 若 `.worktrees/` 和 `worktrees/` 同时存在，优先 `.worktrees/`
-- 若项目使用仓库外统一目录，也应优先遵守 `AGENTS.md`
+- 若项目使用仓库外统一目录，也应优先遵守项目约定
 - 不要在没有约定时私自发明新的目录层级
 
 ## Safety Verification
@@ -81,7 +81,7 @@ git check-ignore -q worktrees
 若目标目录未被 ignore：
 
 - 不要继续创建 worktree
-- 优先查看 `AGENTS.md` 是否允许改用仓库外目录
+- 优先查看 项目约定是否允许改用仓库外目录
 - 若必须继续使用 project-local 目录，则先补齐 ignore 规则，再继续
 - 若补 ignore 会引入与当前任务无关的仓库更改，先向用户确认或把它报告为当前 hard stop
 
@@ -105,7 +105,7 @@ git check-ignore -q worktrees
 
 分支命名优先级：
 
-1. `AGENTS.md` 中的项目分支命名规则
+1. 项目分支命名规则（若项目已声明）
 2. 当前已有 worktree / branch 命名
 3. 若都没有，则使用能回指 `Current Active Task` 的稳定短名
 

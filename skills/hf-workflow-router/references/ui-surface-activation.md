@@ -23,7 +23,7 @@
 | 规格文件 | 显式声明 `UI surface`、`前端`、`界面`、`页面`、`组件`、`交互设计`、`UX`、`可访问性 / WCAG`、`响应式`、`视觉 / 品牌` 等 surface 条目 |
 | 规格文件 | 关键验收标准涉及用户可见行为（如"用户在首页看到 X"、"表单校验反馈"、"空状态引导"） |
 | 规格文件 | 非功能需求含可用性 / a11y / i18n / 响应式 / 前端性能预算（LCP/INP/CLS） |
-| `AGENTS.md` | 声明项目含前端代码库、Design System 路径、frontend principles / brand 锚点 |
+| 项目级约定 | 声明项目含前端代码库、Design System 路径、frontend principles / brand 锚点 |
 | 任务请求 | 用户请求包含 "页面 / 组件 / UI / UX / 前端 / 界面 / 视觉 / 交互 / 可访问性 / 响应式 / 国际化" 等关键词 |
 | 任务请求 | 用户明确要求"先画 UI"、"做个原型"、"把界面想清楚" |
 
@@ -35,7 +35,7 @@
 |---|---|
 | 规格明确为 API-only / 脚本 / CLI / 数据管道 / 后端服务 | 无 UI surface |
 | 规格无用户可见界面的验收标准 | 无 UI surface |
-| `AGENTS.md` 声明项目无前端 | 无 UI surface |
+| 项目约定声明项目无前端 | 无 UI surface |
 | 任务为纯基础设施 / DevOps / 配置 | 无 UI surface |
 
 全部命中（或明确无 UI surface 证据）→ design stage 只走 `hf-design` 单节点，不激活本 peer。
@@ -52,9 +52,9 @@
 - **处置**：若当前 iteration 明确不触碰 UI（如仅修改 API 返回值不改前端展示），激活判定范围收敛到当前 iteration；`hf-ui-design` 可不激活
 - **边界**：若 API 返回值变化会影响前端 error / empty / partial 等状态矩阵，则应激活 `hf-ui-design` 并更新状态矩阵
 
-### AGENTS.md 与规格不一致
+### 项目级声明与规格不一致
 
-- 优先 `AGENTS.md`（作为项目级真相来源），在路由输出中说明冲突，并建议回 `hf-specify` 修正规格
+- 优先项目级声明（作为项目级真相来源），在路由输出中说明冲突，并建议回 `hf-specify` 修正规格
 
 ## 执行模式选择（parallel / architecture-first / ui-first）
 

@@ -4,7 +4,7 @@
 
 默认：`features/<active>/reviews/tasks-review-YYYY-MM-DD.md`
 
-若 `AGENTS.md` 声明了等价路径，按映射保存。
+若 项目声明了等价路径，按映射保存。
 
 ## 记录结构
 

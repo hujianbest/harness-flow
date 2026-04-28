@@ -61,7 +61,7 @@
 - 建议的首个活跃任务先写在任务计划正文中
 - 只有 review 通过且 approval step 完成后，才把权威版 Current Active Task 写入 feature `progress.md`（默认 `features/<active>/progress.md`）
 - 后续任务切换由 hf-workflow-router 在每次 completion gate 通过后根据 queue projection 重选
-- 若需要新建 board，优先使用当前 skill pack 的 `templates/task-board-template.md`
+- 若需要新建 board，优先使用本 skill 内 `references/task-board-template.md`
 
 ## queue projection 最小要求
 

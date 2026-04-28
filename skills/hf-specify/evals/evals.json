@@ -51,12 +51,12 @@
     },
     {
       "id": 4,
-      "prompt": "这个项目的 AGENTS.md 已经规定：需求规格必须写到 `docs/prd/release-approval-prd.md`，并使用 `背景 / 目标 / 范围 / 非目标 / 验收标准 / 开放问题` 这套章节。你先按正确方式起草规格，不要自己退回默认模板。",
-      "expected_output": "应优先遵循 AGENTS.md 中声明的规格路径与章节骨架，而不是强行回落到 skill 默认模板。",
+      "prompt": "这个项目的项目级约定已经规定：需求规格必须写到 `docs/prd/release-approval-prd.md`，并使用 `背景 / 目标 / 范围 / 非目标 / 验收标准 / 开放问题` 这套章节。你先按正确方式起草规格，不要自己退回默认模板。",
+      "expected_output": "应优先遵循项目级约定中声明的规格路径与章节骨架，而不是强行回落到 skill 默认模板。",
       "files": [],
       "expectations": [
-        "优先读取 AGENTS.md 中的规格路径映射",
-        "优先采用 AGENTS.md 中声明的章节骨架",
+        "优先读取项目级约定中的规格路径映射",
+        "优先采用项目级约定中声明的章节骨架",
         "不强行写入默认 `features/<active>/spec.md` 路径",
         "完成后仍交给 hf-spec-review"
       ]
@@ -135,11 +135,11 @@
     },
     {
       "id": 11,
-      "prompt": "这个项目的 AGENTS.md 规定：需求优先级必须使用 P0/P1/P2，而不是 Must/Should/Could/Won't。你起草规格时要怎么处理？",
-      "expected_output": "应优先遵循项目在 AGENTS.md 中声明的优先级体系，而不是强行回落到 skill 默认值。",
+      "prompt": "这个项目的项目级约定规定：需求优先级必须使用 P0/P1/P2，而不是 Must/Should/Could/Won't。你起草规格时要怎么处理？",
+      "expected_output": "应优先遵循项目在项目级约定中声明的优先级体系，而不是强行回落到 skill 默认值。",
       "files": [],
       "expectations": [
-        "优先读取并遵循 AGENTS.md 中声明的优先级体系",
+        "优先读取并遵循项目级约定中声明的优先级体系",
         "不强行把项目约定改写成默认 MoSCoW",
         "仍然保证每条核心需求具备明确优先级",
         "将优先级视为逐条需求属性，而不是整份规格的总体说明"

@@ -88,7 +88,21 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 ### 6. 命令当作 bias，不当作 authority
 
-`/hf-spec` → 偏向 `hf-specify`；`/hf-build` → 偏向 `hf-test-driven-dev`；`/hf-review` → 偏向 review skill；`/hf-closeout` → 偏向 completion/finalize。命令不替代工件检查和 profile 判断。
+`/hf-*` 命令是高频意图的薄包装，不拥有独立路由权——一律先经过本 skill 解析，再决定 direct invoke 还是交给 router：
+
+| 命令 | 主意图 | 偏向 direct invoke 的节点 | 不确定时回退 |
+|---|---|---|---|
+| `/hf-spec [topic]` | 规格澄清 / 修订 / 入口 | `hf-specify` | `hf-workflow-router` |
+| `/hf-build [task-id]` | 当前活跃任务实现 | `hf-test-driven-dev` | `hf-workflow-router` |
+| `/hf-review [spec\|design\|tasks\|test\|code\|trace\|regression\|completion]` | review / gate 请求 | 具体 review / gate 节点 | `hf-workflow-router` |
+| `/hf-closeout [task-id]` | 完成判断 + 收尾 | `hf-completion-gate`（gate 未跑）/ `hf-finalize`（gate 已通过） | `hf-workflow-router` |
+
+命令规则：
+
+- **Command is bias, not authority**：命令不替代工件检查、profile 判断或 leaf skill 自身的 hard gates
+- **No duplicate machine contract**：命令不重新定义 verdict / handoff / progress schema / review return contract，全部沿用 router 与 leaf skill 既有契约
+- **One command, one dominant intent**：命令优先服务一个高频意图，不当万能别名；用户混入 hotfix / increment / review-only / 阶段不清信号时，应回 router
+- **Leaf skill gates still apply**：即使 direct invoke，目标 leaf skill 的 standalone contract 与 hard gates 仍然生效
 
 ### 7. 正确结束
 
@@ -124,6 +138,39 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | 已在 leaf skill 内部 | | → 继续当前 skill |
 | 产品 thesis 层面 | | → `hf-product-discovery` |
 
+### Public entry vs Router vs Direct invoke
+
+| 维度 | Public entry（本 skill） | Router 编排 | Direct invoke |
+|---|---|---|---|
+| 目标 | 判断该 direct invoke 哪个 leaf 还是交给 router | 决定当前应进入哪个节点 | 完成某个已经明确的节点职责 |
+| 最小输入 | 用户请求 + 最少 family entry context + Execution Mode 信号 | 用户请求 + 项目级约定 + 上游工件状态 + 当前 active feature 的 `progress.md` + review/gate/verification/approval 证据 | 当前节点所需最小工件 + 当前请求 + Execution Mode 信号 |
+| 是否判断 profile | 否；profile 不清就回 router | 是 | 否；profile 不清就回 router |
+| 是否处理 Execution Mode | 只识别并下传 | 是；归一化并约束 `interactive` / `auto` | 只消费已明确的 mode；冲突就回 router |
+| 是否决定下一节点 | 只决定"leaf 还是 router" | 是 | 否；只写 canonical handoff，后续编排回到父会话 / router |
+| review 如何执行 | 只判断是否进入某 review 节点；进入后由 router/父会话按 review-dispatch 派发 | 由父会话按 review-dispatch protocol 派发 reviewer subagent | 同 router 模式 |
+| 输出 | 进入 leaf skill 或交给 `hf-workflow-router` | 当前阶段判断 + profile + 推荐节点，并立即继续或命中暂停点 | 节点本地工件 + 状态更新 + canonical handoff + 必要 review/verification record |
+
+### 典型 direct invoke 示例
+
+- "先把产品方向、问题和 wedge 收敛清楚，不要直接写 spec" → `hf-product-discovery`
+- "这条假设没把握，先做个最小 probe 再决定 spec" → `hf-experiment`
+- "先把需求梳理清楚，不要做设计" → `hf-specify`
+- "帮我 review 这份 spec 草稿"（spec 草稿已存在且这是 review-only 请求）→ `hf-spec-review`
+- "按 TDD 实现当前 active task"（任务计划已批准且活跃任务唯一）→ `hf-test-driven-dev`
+- "这是线上 bug，先收敛 root cause 和最小修复边界" → `hf-hotfix`
+- "这是需求变更，不要改代码，先做影响分析和 re-entry"（变更请求明确且关键工件可读）→ `hf-increment`
+- "completion gate 过了，帮我做收尾和 release notes"（gate 记录已落盘）→ `hf-finalize`
+
+### 不算合法 direct invoke 的反模式
+
+- 用户点名 skill 就直接执行，不核对当前阶段
+- direct invoke implementation / gate skill，却没读取最小上游工件
+- 让 authoring skill 顺手决定完整下游链路
+- 让 review skill 顺手开始修文档或做实现
+- 让 finalize 在 gate 未通过时提前收尾
+- 把 `using-hf-workflow` 写进 `Next Action Or Recommended Skill`
+- 在 route / stage / profile 冲突下继续硬做当前 skill
+
 ## Red Flags
 
 - 把 `using-hf-workflow` 写成完整状态机
@@ -138,9 +185,8 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 | 文件 | 用途 |
 |------|------|
-| `skills/docs/hf-workflow-entrypoints.md` | public entry 与 direct invoke 边界 |
-| `skills/docs/hf-command-entrypoints.md` | `/hf-*` 命令解释 |
 | `hf-workflow-router/SKILL.md` | authoritative runtime routing |
+| `hf-workflow-router/references/workflow-shared-conventions.md` | progress schema / verdict 词表 / record_path 语义 / `<kind>` allowlist 等运行时约定 |
 
 **横切行为基线（所有 HF 节点共同遵守，无需外部引用）**：
 

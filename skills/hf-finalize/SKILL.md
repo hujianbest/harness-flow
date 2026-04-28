@@ -61,7 +61,7 @@ description: Use when completion gate already allows closeout and the remaining 
 - 已批准任务计划 / task board（默认 `features/<active>/tasks.md`、`features/<active>/task-board.md`）
 - feature `progress.md`（默认 `features/<active>/progress.md`，含 worktree 字段）
 - feature `README.md`（默认 `features/<active>/README.md`）
-- 项目 release notes / changelog（优先遵循 `AGENTS.md`；默认 `docs/release-notes/vX.Y.Z.md` + 仓库根 `CHANGELOG.md`）
+- 项目 release notes / changelog（优先遵循项目级约定；默认 `docs/release-notes/vX.Y.Z.md` + 仓库根 `CHANGELOG.md`）
 - 受影响的长期资产入口（默认 `docs/arc42/`、`docs/runbooks/`、`docs/slo/`、`docs/adr/`、`docs/index.md`）
 
 Profile-aware 证据矩阵：
@@ -145,7 +145,7 @@ Profile-aware 证据矩阵：
 
 ### 6. 产出 closeout pack
 
-写入 `features/<active>/closeout.md`（基于 `templates/finalize-closeout-pack-template.md`）。至少写出：
+写入 `features/<active>/closeout.md`（基于 `references/finalize-closeout-pack-template.md`）。至少写出：
 - closeout type
 - 关闭的 scope（当前任务 / 整个 workflow）
 - 已消费的 evidence matrix
@@ -230,8 +230,8 @@ Closeout type-specific 约束：
 
 | 文件 | 用途 |
 |------|------|
-| `templates/finalize-closeout-pack-template.md` | closeout pack 模板 |
-| `skills/docs/hf-worktree-isolation.md` | worktree disposition 的收尾语义 |
+| `references/finalize-closeout-pack-template.md` | closeout pack 模板 |
+| `hf-test-driven-dev/references/worktree-isolation.md` | worktree disposition 的收尾语义（不擅自删除；只记录 `kept-for-pr` / `cleaned-per-project-rule` / `in-place`） |
 
 ## Red Flags
 
