@@ -24,10 +24,53 @@ DTS 规格不必填写所有类别；至少应有 FR（或 IFR / CON）描述被
 | `Acceptance` | FR / NFR / IFR 必填 | 可验证的判定条件 |
 | `Priority` | 推荐 | 团队若使用 MoSCoW 或等价分级，按团队约定 |
 | `Source / Trace Anchor` | 必填 | 指向 IR / SR / AR / DTS 编号或具体输入文档锚点 |
-| `Component Impact` | 必填（FR / IFR / NFR） | `none` / `interface` / `dependency` / `state-machine` / `runtime-behavior` |
+| `Component Impact` | AR / DTS / CHANGE 必填（FR / IFR / NFR） | `none` / `interface` / `dependency` / `state-machine` / `runtime-behavior` |
+| `Affected Components` | SR 必填（FR / IFR / NFR） | SR 视角下受影响的组件清单（一个 row 可能影响多个组件） |
 | `Notes` | 可选 | 例如风险点、与其他 row 的关系 |
 
-`Component Impact` 不为 `none` 时，规格必须在 `Component Impact Assessment` 章节显式说明，并由 `df-workflow-router` 决定是否升级 component-impact profile。
+按 work item 类型：
+
+- AR / DTS / CHANGE：使用 `Component Impact`；不为 `none` 时，规格必须在 `Component Impact Assessment` 章节显式说明，并由 `df-workflow-router` 决定是否升级 `component-impact` profile。
+- SR：使用 `Affected Components`；列出本 row 影响的所有组件（一条 SR row 通常跨多个组件）；规格必须在 `Affected Components` / `AR Breakdown Candidates` / `Component Design Impact` 三个章节中分别消费这些字段。
+
+## SR-only 章节字段
+
+SR 规格在 row 表之外，必须维护以下章节级字段。它们不是 row 的一部分，但 reviewer 会把它们跟 row 表反向核对。
+
+### Affected Components
+
+| 字段 | 说明 |
+|---|---|
+| `Component` | 受影响组件名 |
+| `Modification Surface` | `interface` / `dependency` / `state-machine` / `runtime-behavior` / `implementation` 中的一个或多个 |
+| `Covers Rows` | 引用本 SR row 表中的若干 row ID |
+| `Owning Module Architect` | 该组件的模块架构师 |
+| `Component Design Impact` | `unchanged` / `revise-section` / `new-component`；为 `revise-section` / `new-component` 时本 SR 应在 `Component Design Impact` 章节展开 |
+
+### AR Breakdown Candidates
+
+候选 AR 拆分清单，每条至少含：
+
+| 字段 | 说明 |
+|---|---|
+| `Candidate ID` | 例 `CAR-001`（SR-flow 内部编号；新建 AR work item 时由需求负责人分配真正的 AR ID） |
+| `Scope` | 1-2 句话总结候选 AR 的范围 |
+| `Owning Component` | 候选 AR 的所属组件（必须唯一） |
+| `Covers SR Rows` | 引用本 SR row 表中的若干 row ID |
+| `Priority Hint` | 团队约定的优先级提示（不替需求负责人定优先级） |
+| `Estimated Complexity` | `S` / `M` / `L`（不替开发负责人估算） |
+| `Hand-off Owner` | 候选 AR 应交给哪位开发负责人 / 团队 |
+| `Notes` | 例如依赖关系、与其他候选的拆分边界 |
+
+`AR Breakdown Candidates` 草稿期可为空；`df-spec-review` 通过后到 `df-finalize` analysis closeout 之前应定稿。如果 SR 显式声明「无可拆分 AR」（仅做组件设计修订或文档级修订），需在 `Notes` 中写明并由需求负责人确认。
+
+### Component Design Impact
+
+仅当本 SR 触发 `df-component-design`（修订组件实现设计）时填写，含：
+
+- 受影响 `docs/component-design.md` 章节清单
+- 修订方向概述
+- 是否同步触发可选子资产（`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）变化
 
 ## 嵌入式 NFR 写法
 

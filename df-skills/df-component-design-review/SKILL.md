@@ -1,11 +1,11 @@
 ---
 name: df-component-design-review
-description: Use when df-component-design has produced a component-design-draft.md ready for an independent verdict, when a reviewer subagent is dispatched to evaluate component boundaries / SOA interfaces / dependencies / state machines / runtime mechanisms, or when component design needs re-review after revision. Not for writing or revising component design (→ df-component-design), not for AR-level design review (→ df-ar-design-review), not for stage / route confusion (→ df-workflow-router).
+description: Use when df-component-design has produced a component-design-draft.md ready for an independent verdict (covering both SR-triggered analysis sub-stream and AR-triggered component-impact sub-stream), when a reviewer subagent is dispatched to evaluate component boundaries / SOA interfaces / dependencies / state machines / runtime mechanisms, or when component design needs re-review after revision. Not for writing or revising component design (→ df-component-design), not for AR-level design review (→ df-ar-design-review), not for stage / route confusion (→ df-workflow-router).
 ---
 
-# df 组件实现设计评审
+# df 组件实现设计评审（覆盖 SR-分析 与 AR-实现 两条子街区）
 
-独立评审 `features/<id>/component-design-draft.md`，判断它是否可作为下游 `df-ar-design` 的稳定输入，以及是否可由 `df-finalize` 同步到 `docs/component-design.md`。
+独立评审 `features/<id>/component-design-draft.md`，判断它是否可由 `df-finalize` 同步到 `docs/component-design.md`，以及（仅 AR 实现子街区）是否可作为下游 `df-ar-design` 的稳定输入。
 
 本 skill 不写设计 / 不替模块架构师拍板组件边界 / 不修改设计草稿。它只产出 verdict + findings + 唯一下一步。
 
@@ -25,7 +25,8 @@ description: Use when df-component-design has produced a component-design-draft.
 
 ## Hard Gates
 
-- 组件设计通过本 review 之前，不得进入 `df-ar-design`
+- AR 子街区中，组件设计通过本 review 之前不得进入 `df-ar-design`
+- SR 子街区中，组件设计通过本 review 之前不得进入 `df-finalize`（analysis closeout）；通过后 SR 子街区**仍不得**进入 `df-ar-design`
 - reviewer 不修改设计草稿
 - reviewer 不替模块架构师拍板组件边界 / SOA 接口 / 跨组件协调
 - reviewer 不返回多个候选下一步
@@ -82,7 +83,18 @@ description: Use when df-component-design has produced a component-design-draft.
 
 ### 4. 形成 verdict
 
-按下表收敛唯一 verdict + 唯一下一步：
+按下表收敛唯一 verdict + 唯一下一步；`通过` 时下一步取决于本 work item 的 profile：
+
+**SR work item（profile = `requirement-analysis`）**：
+
+| 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router | needs_human_confirmation |
+|---|---|---|---|---|
+| 7 维度均 ≥ 6、无 critical USER-INPUT、模块架构师可被请求 sign-off | `通过` | `df-finalize`（analysis closeout） | `false` | `true`（等模块架构师 sign-off） |
+| findings 可 1-2 轮定向修订 | `需修改` | `df-component-design` | `false` | `false` |
+| 组件边界 / SOA 接口严重不清 / 跨组件协调缺失 | `阻塞`（内容） | `df-component-design` | `false` | `false` |
+| route / stage / profile / 上游证据冲突；或 SR 工件试图映射到 `df-ar-design` | `阻塞`（workflow） | `df-workflow-router` | `true` | `false` |
+
+**AR work item（profile = `component-impact`）**：
 
 | 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router | needs_human_confirmation |
 |---|---|---|---|---|
@@ -136,4 +148,4 @@ description: Use when df-component-design has produced a component-design-draft.
 | `references/component-design-review-rubric.md` | 7 维度 rubric + rule IDs |
 | `templates/df-review-record-template.md` | review record 模板 |
 | `df-workflow-router/references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |
-| `docs/df-workflow-shared-conventions.md` | handoff 字段、路径约定 |
+| `docs/df-shared-conventions.md` | handoff 字段、路径约定 |

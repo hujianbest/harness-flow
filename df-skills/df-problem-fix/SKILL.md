@@ -68,7 +68,7 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 
 ### 2. 初始化或对齐 work item 目录
 
-按 Artifact Layout（详见 `docs/df-workflow-shared-conventions.md`），新 DTS 用 `templates/df-work-item-readme-template.md` / `templates/df-progress-template.md` 创建 `features/DTS<id>-<slug>/README.md` 与 `progress.md`；已存在则核对 canonical 字段。缺 DTS ID / 所属组件 → 阻塞。
+按 Artifact Layout（详见 `docs/df-shared-conventions.md`），新 DTS 用 `templates/df-work-item-readme-template.md` / `templates/df-progress-template.md` 创建 `features/DTS<id>-<slug>/README.md` 与 `progress.md`；已存在则核对 canonical 字段。缺 DTS ID / 所属组件 → 阻塞。
 
 ### 3. 构建复现路径
 
@@ -174,5 +174,5 @@ description: Use when a DTS / 紧急缺陷 / 已上线问题 needs reproduction,
 | `references/repro-and-rca-templates.md` | reproduction.md / root-cause.md / fix-design.md 模板 |
 | `templates/df-work-item-readme-template.md` | DTS work item README 模板 |
 | `templates/df-progress-template.md` | progress.md 模板 |
-| `docs/df-workflow-shared-conventions.md` | hotfix profile 路径与 canonical 字段 |
+| `docs/df-shared-conventions.md` | hotfix profile 路径与 canonical 字段 |
 | `df-workflow-router/references/profile-and-route-map.md` | hotfix route 触发条件 |

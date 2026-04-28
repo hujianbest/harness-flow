@@ -143,4 +143,4 @@ description: Use when df-ar-design has produced an ar-design-draft.md ready for 
 | `df-ar-design/references/test-design-section-contract.md` | 测试设计章节最小契约 |
 | `templates/df-review-record-template.md` | review record 模板 |
 | `df-workflow-router/references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |
-| `docs/df-workflow-shared-conventions.md` | handoff 字段、路径约定 |
+| `docs/df-shared-conventions.md` | handoff 字段、路径约定 |

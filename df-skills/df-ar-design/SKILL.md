@@ -140,4 +140,4 @@ description: Use when the spec is approved and the AR (or DTS that needs an AR-l
 |---|---|
 | `references/test-design-section-contract.md` | 测试设计章节最小契约 |
 | `templates/df-ar-design-template.md` | 团队 AR 设计模板（待团队补齐） |
-| `docs/df-workflow-shared-conventions.md` | 工件路径、canonical 字段、handoff、AR 设计必含项、Test Design Before Implementation 约束 |
+| `docs/df-shared-conventions.md` | 工件路径、canonical 字段、handoff、AR 设计必含项、Test Design Before Implementation 约束 |

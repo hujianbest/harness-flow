@@ -171,4 +171,4 @@ Refactor Note 必填字段见 `references/red-green-refactor-discipline.md`。
 | `references/red-green-refactor-discipline.md` | RED / GREEN / REFACTOR 步骤纪律、Two Hats、Fowler vocabulary |
 | `references/embedded-evidence-checklist.md` | 嵌入式静态 / 动态证据采集清单 |
 | `df-ar-design/references/test-design-section-contract.md` | 测试设计章节契约 |
-| `docs/df-workflow-shared-conventions.md` | 工件路径、canonical 字段、handoff |
+| `docs/df-shared-conventions.md` | 工件路径、canonical 字段、handoff |

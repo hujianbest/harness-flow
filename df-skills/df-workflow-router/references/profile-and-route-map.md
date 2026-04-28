@@ -2,7 +2,48 @@
 
 > 配套 `df-workflow-router/SKILL.md`。展开 df 各 Workflow Profile 的合法节点集合、主链与支线，以及 hard stops 的具体表现。
 
-## Standard Route
+df 当前覆盖两个子街区：
+
+- **需求分析子街区**：profile = `requirement-analysis`；服务 SR 工作项；不进入实现节点
+- **实现子街区**：profile = `standard` / `component-impact` / `hotfix` / `lightweight`；服务 AR / DTS / CHANGE 工作项
+
+跨子街区切换 profile **一律禁止**——SR 拆出的候选 AR 必须新建 AR work item。
+
+## Requirement-Analysis Route（需求分析子街区）
+
+```text
+using-df-workflow
+  -> df-workflow-router
+  -> df-specify                       (SR 子系统级需求澄清)
+  -> df-spec-review
+  -> (可选) df-component-design       (仅当 SR 触发组件实现设计修订)
+  -> (可选) df-component-design-review
+  -> df-finalize                      (analysis closeout)
+```
+
+合法节点集合：
+
+```text
+{ df-specify, df-spec-review,
+  df-component-design, df-component-design-review,
+  df-finalize }
+```
+
+非法节点（出现 → router hard stop，标 `reroute_via_router=true`）：
+
+- `df-ar-design` / `df-ar-design-review` / `df-tdd-implementation` / `df-test-checker` / `df-code-review` / `df-completion-gate` / `df-problem-fix`
+- 任何「升级」到 `standard` / `component-impact` / `hotfix` / `lightweight` 的尝试
+
+触发条件：Work Item Type = `SR`。如果用户描述更像 AR / DTS（已分配给唯一组件、待实现），由 router 提示新建对应 work item，不在本 SR work item 内切换。
+
+完成方式：`df-finalize` 写 **analysis closeout**，含：
+
+- 子系统级需求规格（`requirement.md` 在分析子街区是终态文档，不是草稿）
+- 可选的组件实现设计修订（promote 到 `docs/component-design.md`）
+- AR Breakdown Candidates（候选 AR 列表 + 每条候选的范围 / 所属组件 / 优先级 / 上抛对象）
+- 不要求实现 / 测试 / code-review evidence；不 promote 到 `docs/ar-designs/`
+
+## Standard Route（实现子街区）
 
 ```text
 using-df-workflow
@@ -30,6 +71,7 @@ using-df-workflow
 
 - 修改影响组件边界 / SOA 接口 / 组件依赖 → 升级 component-impact
 - DTS / 紧急缺陷 → 改 hotfix
+- Work Item Type = `SR` → 强制走 `requirement-analysis` profile，回 router
 
 ## Component-Impact Route
 
@@ -105,7 +147,17 @@ using-df-workflow
 
 `lightweight` **不允许**跳过 test-checker / code-review / completion-gate。允许压缩的是文档量（requirement.md 可数行、ar-design-draft.md 章节可合并），不是质量证据。
 
-## Profile 升级规则（仅升级，不允许降级）
+## Profile 升级规则（仅同子街区内升级，不允许降级，不允许跨子街区切换）
+
+跨子街区切换 **一律禁止**：`requirement-analysis` ↔ 任意实现 profile 都不允许在同一 work item 内发生。SR 拆出的候选 AR 必须**新建** AR work item 走实现子街区。
+
+需求分析子街区内：
+
+| 当前 profile | 升级触发 | 升级后 |
+|---|---|---|
+| `requirement-analysis` | 仅本子街区使用 | 不存在升级路径 |
+
+实现子街区内：
 
 | 当前 profile | 升级触发 | 升级后 |
 |---|---|---|
@@ -123,13 +175,16 @@ using-df-workflow
 
 1. 需求输入不清且涉及方向 / 范围 / 验收 → 停在 `df-specify`，回需求负责人
 2. IR / SR / AR 追溯关系冲突 → 阻塞，回需求负责人
-3. AR 不属于唯一组件 → 阻塞
-4. 缺组件实现设计但当前修改影响组件边界 → 进 `df-component-design`
-5. AR 实现设计未含测试设计章节 → 回 `df-ar-design`
-6. TDD 完成后测试用例未经 `df-test-checker` → 不得进 `df-code-review`
-7. 代码修改破坏 SOA 边界或引入未解释跨组件依赖 → review 阻塞
-8. 存在未解释的 critical 静态分析 / 编译告警 / 编码规范违反 → completion 阻塞
-9. review / gate 结论无法唯一映射下一步 → router hard stop
+3. AR 不属于唯一组件（实现子街区） → 阻塞
+4. SR 缺所属子系统（需求分析子街区） → 阻塞
+5. SR-flow 试图进入 `df-ar-design` / `df-tdd-implementation` / 任何实现节点 → router hard stop，提示新建 AR work item
+6. SR analysis closeout 缺 AR Breakdown Candidates 且未声明「无可拆分 AR」 → 阻塞
+7. 缺组件实现设计但当前修改影响组件边界（实现子街区） → 进 `df-component-design` 并升级 component-impact
+8. AR 实现设计未含测试设计章节 → 回 `df-ar-design`
+9. TDD 完成后测试用例未经 `df-test-checker` → 不得进 `df-code-review`
+10. 代码修改破坏 SOA 边界或引入未解释跨组件依赖 → review 阻塞
+11. 存在未解释的 critical 静态分析 / 编译告警 / 编码规范违反 → completion 阻塞
+12. review / gate 结论无法唯一映射下一步 → router hard stop
 
 ## Reviewer Dispatch Anchor
 

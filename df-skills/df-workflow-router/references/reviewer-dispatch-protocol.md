@@ -27,7 +27,7 @@ df 的 review 节点（spec-review / component-design-review / ar-design-review 
   - test-checker：`features/<id>/ar-design-draft.md`（含测试设计章节）+ `features/<id>/evidence/unit/`、`features/<id>/evidence/integration/` + `features/<id>/implementation-log.md`
   - code-review：上述全部 + 代码 diff + `features/<id>/reviews/test-check.md`
 - `agents_md_anchor`：项目 `AGENTS.md` 中相关约定路径（编码规范、静态分析配置、模板覆盖路径）
-- `expected_record_path`：默认见 `docs/df-workflow-shared-conventions.md`，项目覆写优先
+- `expected_record_path`：默认见 `docs/df-shared-conventions.md`，项目覆写优先
 
 reviewer subagent 不得读取 dispatch request 之外的全量代码库；只读最少必要内容。
 

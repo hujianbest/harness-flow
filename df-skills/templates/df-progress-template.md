@@ -9,17 +9,19 @@
 
 ## Identity
 
-- Work Item Type:                          # AR / DTS / CHANGE
+- Work Item Type:                          # SR / AR / DTS / CHANGE
 - Work Item ID:
-- Owning Component:
+- Owning Component:                        # AR / DTS / CHANGE 必填；SR 可空
+- Owning Subsystem:                        # SR 必填；AR / DTS / CHANGE 可空
 - Related IR:
-- Related SR:
+- Related SR:                              # AR 必填
 - Related AR:                              # DTS 影响功能需求时填写
+- AR Breakdown Candidates:                 # 仅 SR 适用；spec-review 后定稿，analysis closeout 时写入 closeout.md
 
 ## Workflow State
 
 - Current Stage:                           # canonical df-* 节点
-- Workflow Profile:                        # standard / component-impact / hotfix / lightweight
+- Workflow Profile:                        # requirement-analysis（SR）/ standard / component-impact / hotfix / lightweight
 - Execution Mode:                          # interactive / auto
 - Last Updated:
 

@@ -6,7 +6,7 @@
 >
 > - 受众：`df-skills` 包的作者 / reviewer / 维护者
 > - 用法：在新增、修订、评审 `df-skills/` 下的 skill 时，先来这里对齐 soul / skill-node 契约 / skill anatomy / artifact layout / workflow architecture
-> - 包内权威共享文档是 `df-skills/docs/df-workflow-shared-conventions.md`；任何运行时约定（路径、字段、profile、handoff、Promotion Rules、必含章节集）必须先沉淀到该文档，skill 才能消费
+> - 包内权威共享文档是 `df-skills/docs/df-shared-conventions.md`；任何运行时约定（路径、字段、profile、handoff、Promotion Rules、必含章节集）必须先沉淀到该文档，skill 才能消费
 
 - 定位: `dev-flow`（简称 `df`）skills 的最高原则文档，定义这套面向**软件开发阶段**的 skill family 的目标、协作关系与硬性纪律。
 - 背景: `dev-flow` 是 `*-flow` skill family 体系中**专注开发（development）阶段**的一员；同体系下还会陆续出现 `test-flow`、`design-flow` 等姊妹 family，分别覆盖独立测试、产品 / 架构设计等阶段。`df` 不替代它们，也不被它们替代——本 family 的范围严格限定在「拿到明确输入需求 / 问题修改后，把它落到代码与可追溯证据」这一段。
@@ -35,17 +35,34 @@
 
 ## 一、df 的目标
 
-> **df 的目标是帮助开发团队把明确输入的需求或问题修改，稳定、高质量、可追溯地落到软件版本中。**
+> **df 的目标是帮助开发团队把明确输入的需求或问题修改，稳定、高质量、可追溯地落到软件版本中——同时也覆盖把上游需求拆解到 AR 一级的"需求分析 + 可选组件实现设计"阶段。**
 
 这里有三个不能让步的关键词：
 
 - **明确输入**: df 不承担产品发现和需求洞察。输入通常已经是 IR / SR / AR、缺陷单、变更请求或团队认可的需求描述；如果输入仍不明确，df 只负责澄清规格，不替业务或系统负责人创造需求方向。
-- **软件版本**: df 的交付不止是代码 diff。一次完成必须覆盖代码、组件 / AR 实现设计、测试证据、TDD 后测试有效性审查和代码检视记录。
+- **软件版本**: 实现子街区的一次完成必须覆盖代码、组件 / AR 实现设计、测试证据、TDD 后测试有效性审查和代码检视记录；需求分析子街区的一次完成必须覆盖子系统级需求、可选组件实现设计修订和候选 AR 拆分清单。
 - **高质量、可追溯**: df 优先保证需求到设计、代码、测试、测试有效性审查、检视的链路可回读、可恢复、可审计，而不是追求"快速改完"。
 
-df 的主场景是既有组件上的增量开发和问题修改；新增组件较少，但必须被明确识别为更高风险路径，触发组件实现设计、架构师确认和更严格的验证要求。
+### 1.1 两个子街区
 
-df 默认使用 `AR<id>-<slug>` 管理需求开发过程目录，使用 `DTS<id>-<slug>` 管理问题修改过程目录。测试设计不作为独立过程文件，而是 AR 实现设计的一部分。
+df 在内部划分为两个子街区，各自独立、不可在同一 work item 内跨越：
+
+- **需求分析子街区（SR）**：
+  - 输入：SR / 子系统级需求 / 修订
+  - 出口：analysis closeout，含子系统级 `requirement.md`、（可选）修订后的 `docs/component-design.md`、定稿的 `AR Breakdown Candidates` 候选 AR 拆分清单
+  - 不进入：AR 实现设计 / TDD / 测试有效性审查 / 代码检视 / completion-gate
+  - 候选 AR 由需求负责人**新建** AR work item，由实现子街区接力
+
+- **实现子街区（AR / DTS / CHANGE）**：
+  - 输入：单个 AR（或需要 AR-级规格的 DTS / CHANGE）
+  - 出口：implementation closeout，含 AR 实现设计、（如适用）修订后的 `docs/component-design.md`、TDD 证据、test-check / code-review verdict、completion verdict
+  - 这是 df 之前已经覆盖的传统 dev-flow
+
+df 默认使用 `SR<id>-<slug>` 管理需求分析过程目录、`AR<id>-<slug>` 管理需求开发过程目录、`DTS<id>-<slug>` 管理问题修改过程目录。测试设计不作为独立过程文件，而是 AR 实现设计的一部分；SR work item 不含 AR 设计、不含测试设计、不含实现证据。
+
+### 1.2 主场景
+
+df 的主场景是既有组件上的增量开发和问题修改；新增组件较少，但必须被明确识别为更高风险路径，触发组件实现设计、架构师确认和更严格的验证要求。SR 子街区是 df 自己**内部**承担的需求分析；当上游 design-flow 给出更高层架构判断后，SR 仍可作为 df 与下游 AR 实现之间的桥接节点。
 
 ### 跨技术栈与跨团队适用性
 

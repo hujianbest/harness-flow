@@ -1,19 +1,22 @@
 ---
 name: df-spec-review
-description: Use when a requirement.md draft from df-specify is ready for an independent verdict, when a reviewer subagent is dispatched to evaluate the spec for clarity / traceability / designability, or when spec-review needs to be re-run after the author revised in response to earlier findings. Not for writing or revising the spec itself (→ df-specify), not for component or AR design review (→ df-component-design-review / df-ar-design-review), not for stage / route confusion (→ df-workflow-router).
+description: Use when a requirement.md draft from df-specify is ready for an independent verdict (covering both the requirement-analysis sub-stream for SR work items and the implementation sub-stream for AR / DTS / CHANGE work items), when a reviewer subagent is dispatched to evaluate the spec for clarity / traceability / designability, or when spec-review needs to be re-run after the author revised in response to earlier findings. Not for writing or revising the spec itself (→ df-specify), not for component or AR design review (→ df-component-design-review / df-ar-design-review), not for stage / route confusion (→ df-workflow-router).
 ---
 
-# df 需求规格评审
+# df 需求规格评审（覆盖 SR-分析 与 AR-实现 两条子街区）
 
-独立评审 `features/<id>/requirement.md`，判断它是否可作为 `df-component-design`（component-impact）或 `df-ar-design`（standard / lightweight）的稳定输入。
+独立评审 `features/<id>/requirement.md`：
 
-本 skill 不写规格、不替需求负责人补业务事实、不替模块架构师决定组件归属。它只对规格对象给出 verdict + findings，并把唯一下一步交回父会话。
+- **SR work item**（profile = `requirement-analysis`）→ 判断它是否可作为 `df-component-design`（仅当 SR 触发组件设计修订）或直接 `df-finalize`（analysis closeout）的稳定输入；同时把 AR Breakdown Candidates 推到可被需求负责人决策的程度
+- **AR / DTS / CHANGE work item**（实现 profile）→ 判断它是否可作为 `df-component-design`（component-impact）或 `df-ar-design`（standard / lightweight）的稳定输入
+
+本 skill 不写规格、不替需求负责人补业务事实、不替模块架构师决定组件归属、不替开发负责人决定候选 AR 的优先级。它只对规格对象给出 verdict + findings，并把唯一下一步交回父会话。
 
 ## When to Use
 
 适用：
 
-- `df-specify` 已产出 requirement.md 草稿，需正式 verdict
+- `df-specify` 已产出 requirement.md 草稿（SR 或 AR / DTS / CHANGE），需正式 verdict
 - reviewer subagent 被派发执行 spec 评审
 - 用户明确要求「review 这份规格 / 评审需求」
 
@@ -64,16 +67,26 @@ description: Use when a requirement.md draft from df-specify is ready for an ind
 
 ### 2. 多维评分与挑战式审查
 
-按 Structured Walkthrough 对 6 个维度（详见 `references/spec-review-rubric.md`）做 0-10 评分；任一关键维度 < 6 不得 `通过`。
+按 Structured Walkthrough 对维度做 0-10 评分；任一关键维度 < 6 不得 `通过`。维度按 work item 类型有所不同（详见 `references/spec-review-rubric.md`）。
+
+通用维度（所有 work item）：
 
 | 维度 | 关注 |
 |---|---|
-| S1 Identity & Traceability | Work Item Type / ID、所属组件唯一、IR / SR / AR 锚点齐全 |
+| S1 Identity & Traceability | Work Item Type / ID、所属组件 / 子系统唯一、上游单据锚点齐全 |
 | S2 Scope & Non-Scope Clarity | 范围与非范围显式且不冲突 |
-| S3 Requirement Row Quality | 核心 row 含 ID / Statement / Acceptance / Source / Component Impact |
+| S3 Requirement Row Quality | 核心 row 含 ID / Statement / Acceptance / Source；Component Impact / Affected Components 按类型必填 |
 | S4 Embedded NFR Quality | 实时性 / 内存 / 并发 / 资源 / 错误处理 NFR 含可判定阈值 |
-| S5 Component Impact Assessment | 是否影响组件接口 / 依赖 / 状态机已显式判断 |
 | S6 Open Questions Closure | 阻塞 / 非阻塞分类、阻塞项已闭合或显式 USER-INPUT |
+
+按 work item 类型的额外维度：
+
+| Work Item Type | 额外维度 | 关注 |
+|---|---|---|
+| AR / DTS / CHANGE | S5 Component Impact Assessment | 是否影响组件接口 / 依赖 / 状态机已显式判断 |
+| SR | S5-SR Subsystem Scope & Affected Components | 子系统范围与受影响组件清单完整且与 row 表交叉一致 |
+| SR | S7-SR AR Breakdown Candidates | 候选 AR 拆分清单存在；每条候选含 Scope / Owning Component（唯一）/ Covers SR Rows / Hand-off Owner；如 SR 显式声明「无可拆分 AR」也明确说明并由需求负责人确认 |
+| SR | S8-SR Component Design Impact | 若本 SR 触发 `df-component-design`，已显式列出受影响组件设计章节与修订方向 |
 
 ### 3. 正式 checklist 审查
 
@@ -82,6 +95,20 @@ description: Use when a requirement.md draft from df-specify is ready for an ind
 ### 4. 形成 verdict
 
 按下表收敛唯一 verdict + 唯一下一步；不能映射下表任一行 → verdict 未收敛，回步骤 2 / 3。
+
+按 work item 类型：
+
+**SR work item（profile = `requirement-analysis`）**：
+
+| 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router |
+|---|---|---|---|
+| 范围清晰、Affected Components / AR Breakdown Candidates 章节充分、Component Design Impact 显式判断为「需修订组件设计」、无阻塞 USER-INPUT | `通过` | `df-component-design` | `false` |
+| 范围清晰、Affected Components / AR Breakdown Candidates 章节充分、Component Design Impact 显式判断为「无需修订」、无阻塞 USER-INPUT | `通过` | `df-finalize`（analysis closeout） | `false` |
+| 有用但不完整，findings 可 1-2 轮定向修订 | `需修改` | `df-specify` | `false` |
+| 子系统范围 / 候选 AR 拆分严重不清，findings 无法定向回修 | `阻塞`（内容） | `df-specify` | `false` |
+| route / stage / profile / 上游证据冲突；或 SR 工件试图映射到实现节点 | `阻塞`（workflow） | `df-workflow-router` | `true` |
+
+**AR / DTS / CHANGE work item（实现 profile）**：
 
 | 条件 | conclusion | next_action_or_recommended_skill | reroute_via_router |
 |---|---|---|---|
@@ -140,4 +167,4 @@ description: Use when a requirement.md draft from df-specify is ready for an ind
 | `references/spec-review-rubric.md` | 6 维度 rubric + Group Q/A/C/G rule IDs |
 | `templates/df-review-record-template.md` | review record 模板 |
 | `df-workflow-router/references/reviewer-dispatch-protocol.md` | reviewer 返回契约 |
-| `docs/df-workflow-shared-conventions.md` | handoff 字段、路径约定 |
+| `docs/df-shared-conventions.md` | handoff 字段、路径约定 |

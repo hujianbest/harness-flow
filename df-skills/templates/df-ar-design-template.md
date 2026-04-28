@@ -8,7 +8,7 @@
 >
 > 在团队补齐前，`df-ar-design` 仍可执行，但写出的 AR 设计文件需由开发负责人 / 模块架构师手工把模板章节补全后再交评审。
 >
-> 推荐补齐方向（最小章节集，详见 `docs/df-workflow-shared-conventions.md`）：
+> 推荐补齐方向（最小章节集，详见 `docs/df-shared-conventions.md`）：
 >
 > - AR ID、SR link、所属组件
 > - 设计目标与范围

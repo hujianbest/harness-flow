@@ -8,7 +8,7 @@
 >
 > 在团队补齐前，`df-component-design` 仍可执行，但写出的设计文件需由模块架构师手工把模板章节补全后再交评审。
 >
-> 推荐补齐方向（最小章节集，详见 `docs/df-workflow-shared-conventions.md`）：
+> 推荐补齐方向（最小章节集，详见 `docs/df-shared-conventions.md`）：
 >
 > - 组件职责与非职责
 > - SOA 服务 / 接口

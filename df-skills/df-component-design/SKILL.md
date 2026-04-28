@@ -1,11 +1,16 @@
 ---
 name: df-component-design
-description: Use when the workflow profile is component-impact and the owning component lacks a current implementation design, when the existing docs/component-design.md is stale or inconsistent with code, when an AR or DTS adds/changes SOA interfaces / component dependencies / state machines / runtime mechanisms, or when df-component-design-review returns 需修改/阻塞. Not for AR-level code design (→ df-ar-design), not for general spec clarification (→ df-specify), not for routine within-component changes (→ df-ar-design directly).
+description: Use when component implementation design needs to be created or revised. Triggered in two ways: (a) inside an SR work item under requirement-analysis profile when df-spec-review verdict says the SR triggers component design revision; (b) inside an AR work item under component-impact profile when AR scope touches SOA interfaces / dependencies / state machine / runtime mechanism. Also triggered when df-component-design-review returns 需修改/阻塞. Not for AR-level code design (→ df-ar-design), not for general spec clarification (→ df-specify), not for routine within-component changes (→ df-ar-design directly).
 ---
 
-# df 组件实现设计
+# df 组件实现设计（覆盖 SR-分析 与 AR-实现 两条子街区）
 
 为唯一所属组件产出或修订**组件实现设计**，描述该组件的职责、SOA 接口、依赖、数据 / 状态、运行机制和对 AR 实现设计的约束。
+
+本 skill 同时服务两个子街区：
+
+1. **需求分析子街区（SR triggered）**：SR 在 `df-spec-review` 中被判定「需修订组件设计」时进入；通过 review 后由 `df-finalize` 写 **analysis closeout** 并 promote 到 `docs/component-design.md`；**不**进入 `df-ar-design`。
+2. **实现子街区（AR component-impact triggered）**：AR work item profile 升级为 component-impact 时进入；通过 review 后下一步是 `df-ar-design`。
 
 本 skill 不写单个 AR 的代码层设计（那是 `df-ar-design` 的职责），不写代码，不修改其他组件。它的输出是组件长期资产，受团队组件设计模板约束。
 
@@ -13,8 +18,8 @@ description: Use when the workflow profile is component-impact and the owning co
 
 适用：
 
-- `df-workflow-router` 已升级到 `component-impact` profile 且组件设计需要新增 / 修订
-- 当前 AR / DTS 新增组件、修改 SOA 接口、修改组件职责或依赖方向、修改状态机或运行时机制
+- **SR triggered**：profile = `requirement-analysis`，SR `df-spec-review` 通过且 verdict 表明 SR 需修订组件设计
+- **AR triggered**：`df-workflow-router` 已升级到 `component-impact` profile 且组件设计需要新增 / 修订（新增组件、修改 SOA 接口、修改组件职责或依赖方向、修改状态机或运行时机制）
 - 现有 `docs/component-design.md` 缺失、过期或与代码明显不一致
 - `df-component-design-review` 返回 `需修改` / `阻塞` 需修订
 
@@ -32,7 +37,8 @@ description: Use when the workflow profile is component-impact and the owning co
 - 组件实现设计 review 通过前，AR 实现设计**不得**消费本设计的草稿版本
 - 组件实现设计中**不得**写单个 AR 的代码层设计
 - 不修改其他组件
-- 未经 router 升级到 component-impact profile，不得直接进入本节点
+- AR triggered 时未经 router 升级到 component-impact profile，不得直接进入本节点
+- SR triggered 时本节点完成后下一步是 `df-component-design-review` → `df-finalize`（analysis closeout），**不得**指向 `df-ar-design`
 
 ## Object Contract
 
@@ -56,7 +62,12 @@ description: Use when the workflow profile is component-impact and the owning co
 
 ### 1. 对齐输入与角色
 
-按 Read-On-Presence 读取 `features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`（verdict 应 `通过`）、当前 `docs/component-design.md`（若存在）、组件代码现状的最少必要摘要；项目若启用了可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 也一并读取，未启用直接跳过、不阻塞。spec-review 未通过 → 阻塞，回 `df-workflow-router`；模块架构师 owner 未指定 → 阻塞，回需求负责人。
+按 Read-On-Presence 读取 `features/<id>/requirement.md`（SR 含 Affected Components / Component Design Impact 章节；AR 含 Component Impact Assessment 章节）、`features/<id>/reviews/spec-review.md`（verdict 应 `通过`）、当前 `docs/component-design.md`（若存在）、组件代码现状的最少必要摘要；项目若启用了可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 也一并读取，未启用直接跳过、不阻塞。spec-review 未通过 → 阻塞，回 `df-workflow-router`；模块架构师 owner 未指定 → 阻塞，回需求负责人。
+
+确认本次进入子街区：
+
+- profile = `requirement-analysis` → SR triggered，本节点完成后下一步是 `df-component-design-review` → `df-finalize`（analysis closeout）
+- profile = `component-impact` → AR triggered，本节点完成后下一步是 `df-component-design-review` → `df-ar-design`
 
 ### 2. 判定本次是新增 / 修订 / 单纯消费
 
@@ -81,6 +92,8 @@ description: Use when the workflow profile is component-impact and the owning co
 ### 6. 同步 traceability 与 progress
 
 按 Requirements Traceability 在 `features/<id>/traceability.md` 补「Component Design Section」列，并把 `features/<id>/progress.md` 写为 `Current Stage = df-component-design`、`Pending Reviews And Gates` 含 `component-design-review`、`Next Action Or Recommended Skill = df-component-design-review`。canonical 字段不允许自由文本。
+
+`Workflow Profile` 字段保持 router 分配的值（`requirement-analysis` 或 `component-impact`），本节点不切换 profile。
 
 ### 7. 自检与 handoff
 
@@ -130,5 +143,5 @@ description: Use when the workflow profile is component-impact and the owning co
 | 文件 | 用途 |
 |---|---|
 | `templates/df-component-design-template.md` | 团队组件设计模板（待团队补齐） |
-| `docs/df-workflow-shared-conventions.md` | 工件路径、canonical 字段、handoff、`docs/component-design.md` 必含项 |
+| `docs/df-shared-conventions.md` | 工件路径、canonical 字段、handoff、`docs/component-design.md` 必含项 |
 | `df-workflow-router/references/profile-and-route-map.md` | component-impact route 触发条件 |
