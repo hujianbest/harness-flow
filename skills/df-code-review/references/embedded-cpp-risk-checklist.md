@@ -38,7 +38,7 @@
 
 - [ ] 输入校验覆盖外部接口、协议、配置加载
 - [ ] 错误码不被静默吞掉
-- [ ] 错误码符合 component-design / interfaces.md
+- [ ] 错误码符合 `docs/component-design.md`（项目已启用 `docs/interfaces.md` 时同步以该文件为准）
 - [ ] 降级路径在 component-design 中有定义且实现一致
 - [ ] 失败时副作用（部分写入 / 部分初始化）已回滚
 
@@ -47,7 +47,7 @@
 - [ ] 公共接口签名变更已纳入 component-design 修订
 - [ ] 新增错误码不破坏既有消费方
 - [ ] 数据结构布局变化符合跨版本 / 跨平台兼容策略
-- [ ] 编译条件 / 配置项变更与 docs/dependencies.md 一致
+- [ ] 编译条件 / 配置项变更与组件级依赖约定一致（项目已启用 `docs/dependencies.md` 时以该文件为准；未启用时以 `docs/component-design.md` 的依赖章节为准）
 
 ## 编码规范 / 静态分析
 
@@ -71,5 +71,5 @@
    defer_or_explicit_release(h);   // 在错误路径中显式释放或使用 RAII
 ✅ enter_critical(); update_shared_counter(); exit_critical();
    schedule_io_outside_critical();
-✅ // suppress(MISRA-10.3) — 此处对外部协议的整数转换已在协议层文档化（见 docs/interfaces.md § 4.2），范围限定本函数
+✅ // suppress(MISRA-10.3) — 此处对外部协议的整数转换已在协议层文档化（见 docs/component-design.md § SOA 接口 § 4.2，或项目已启用时见 docs/interfaces.md § 4.2），范围限定本函数
 ```

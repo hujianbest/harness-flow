@@ -58,9 +58,9 @@
 
 - Component Implementation Design:        # docs/component-design.md，本次是否新增/修订
 - AR Implementation Design:               # docs/ar-designs/AR<id>-<slug>.md
-- Interfaces:                             # docs/interfaces.md，本次是否变化
-- Dependencies:                           # docs/dependencies.md
-- Runtime Behavior:                       # docs/runtime-behavior.md
+- Interfaces:                             # 可选：docs/interfaces.md，仅当项目已启用；未启用写 N/A
+- Dependencies:                           # 可选：docs/dependencies.md，仅当项目已启用；未启用写 N/A
+- Runtime Behavior:                       # 可选：docs/runtime-behavior.md，仅当项目已启用；未启用写 N/A
 
 ## Backlinks
 

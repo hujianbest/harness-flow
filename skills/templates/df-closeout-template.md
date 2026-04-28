@@ -34,11 +34,16 @@
 |---|---|---|---|
 | Component Implementation Design | `docs/component-design.md` | yes / no / N/A | |
 | AR Implementation Design | `docs/ar-designs/AR<id>-<slug>.md` | yes / N/A | DTS 不修改 AR 设计时写 N/A |
-| Interfaces | `docs/interfaces.md` | yes / no / N/A | |
-| Dependencies | `docs/dependencies.md` | yes / no / N/A | |
-| Runtime Behavior | `docs/runtime-behavior.md` | yes / no / N/A | |
+| Interfaces（可选） | `docs/interfaces.md` | yes / no / N/A（项目未启用） | |
+| Dependencies（可选） | `docs/dependencies.md` | yes / no / N/A（项目未启用） | |
+| Runtime Behavior（可选） | `docs/runtime-behavior.md` | yes / no / N/A（项目未启用） | |
 
-未触发任何长期资产变化时整列写 `N/A`，但 AR 工作项**必须**在 `docs/ar-designs/` 留下本 AR 的正式设计文档。
+填写规则：
+
+- 已启用资产 + 本次触发变化 → `yes`
+- 已启用资产 + 本次未触发变化 → `no`
+- 项目尚未启用此可选资产 → `N/A（项目未启用）`，**不**算 blocked；相关变化应已合并进 `docs/component-design.md` 对应章节
+- AR 工作项**必须**在 `docs/ar-designs/` 留下本 AR 的正式设计文档；DTS 不修改 AR 设计时该行写 `N/A`
 
 ## State Sync
 

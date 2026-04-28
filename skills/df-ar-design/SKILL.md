@@ -36,7 +36,7 @@ description: Use when the spec is approved and the AR (or DTS that needs an AR-l
 ## Object Contract
 
 - Primary Object: AR implementation design model（含测试设计章节）
-- Frontend Input Object: 已通过 spec-review 的 `features/<id>/requirement.md`、`docs/component-design.md`（已存在或已通过 component-design-review）、`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（如存在）、当前组件代码现状摘要
+- Frontend Input Object: 已通过 spec-review 的 `features/<id>/requirement.md`、`docs/component-design.md`（已存在或已通过 component-design-review）；项目已启用可选子资产时一并读取 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（未启用直接跳过、不阻塞）；当前组件代码现状摘要
 - Backend Output Object: `features/<id>/ar-design-draft.md`（过程版） + 同步到 `docs/ar-designs/AR<id>-<slug>.md`（review 通过后由 `df-finalize` 同步）
 - Object Transformation: 把单个 AR 转成代码层设计 + 可执行的测试意图
 - Object Boundaries: 不写组件级设计；不写完整代码；不发明组件接口
@@ -56,7 +56,7 @@ description: Use when the spec is approved and the AR (or DTS that needs an AR-l
 
 ### 1. 对齐输入与角色
 
-按 Requirements Traceability + Component Design Conformance 读取 requirement.md、reviews/spec-review.md（应 `通过`）、`docs/component-design.md`、`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、相关代码现状摘要、component-design-review.md（component-impact 时）。
+按 Requirements Traceability + Component Design Conformance 读取 requirement.md、reviews/spec-review.md（应 `通过`）、`docs/component-design.md`；项目已启用的可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 也一并读取，未启用直接跳过、不阻塞；相关代码现状摘要、component-design-review.md（component-impact 时）。
 
 - spec-review 未通过 → 阻塞，回 `df-workflow-router`
 - profile 是 component-impact 但 component-design-review 未通过 → 阻塞，回 `df-workflow-router`

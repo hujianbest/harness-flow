@@ -4,13 +4,17 @@
 
 ## 同步对象（按 work item 类型）
 
-| Work Item Type | 必须同步 | 视情况同步 | 不同步 |
+`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 是**可选 / 按需启用**资产：项目已启用的、本次触发了变化才需要同步；未启用的，把变化合并进 `docs/component-design.md` 对应章节，**不**为单次变化强行新建可选子资产。
+
+| Work Item Type | 必须同步 | 视情况同步（仅当对应资产已启用且本次触发变化） | 不同步 |
 |---|---|---|---|
-| `AR`（standard / lightweight） | `docs/ar-designs/AR<id>-<slug>.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若本 AR 触发变化） | `docs/component-design.md`（standard / lightweight 不修改组件设计） |
+| `AR`（standard / lightweight） | `docs/ar-designs/AR<id>-<slug>.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | `docs/component-design.md`（standard / lightweight 不修改组件设计） |
 | `AR`（component-impact） | `docs/component-design.md` + `docs/ar-designs/AR<id>-<slug>.md` | `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | — |
 | `DTS`（不修改组件设计、不需要正式 AR 设计） | 至少在 `docs/component-design.md` 的变更记录章节追加修复记录（团队约定优先） | `docs/ar-designs/AR<id>-<slug>.md`（若 DTS 走了完整 AR 流程） | — |
-| `DTS`（修改组件级行为） | `docs/component-design.md`（必要时其他长期资产） | 同上 | — |
+| `DTS`（修改组件级行为） | `docs/component-design.md`（含可选子资产对应章节） | 仅在已启用时同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` | — |
 | `CHANGE` | 视情况；至少更新 `docs/component-design.md` 变更记录章节 | 其余按团队约定 | — |
+
+> 「视情况同步」列中的可选子资产，未启用时统一在 `docs/component-design.md` 中维护对应章节；**不**因为 closeout 触发就自动创建可选子资产文件。是否要在本轮 closeout 中**首次启用**某个可选子资产（例如本次 AR 引入了团队此前未单独维护的运行时行为约定），由模块架构师 / 开发负责人决定，df 不自动创建。
 
 ## Promote 改写要求
 
@@ -52,13 +56,15 @@
 
 修订时只更新本次受影响的章节，并在变更记录中记录触发 AR / DTS。
 
-## docs/interfaces.md / dependencies.md / runtime-behavior.md
+## docs/interfaces.md / dependencies.md / runtime-behavior.md（可选子资产）
 
-仅在本次触发变化时同步，按 `docs/df-principles/03 artifact-layout.md` 的最小字段：
+可选子资产，**只在项目已启用并且本次触发变化时**同步，按 `docs/df-principles/03 artifact-layout.md` 的最小字段：
 
-- `interfaces.md`：服务名、接口、输入输出、错误码、时序约束、兼容性要求
-- `dependencies.md`：内部组件依赖、版本约束、初始化 / shutdown 顺序、风险与限制
-- `runtime-behavior.md`：运行时行为关键约定（启动 / 关停 / 故障 / 调度 / 时序）
+- `interfaces.md`（若已启用）：服务名、接口、输入输出、错误码、时序约束、兼容性要求
+- `dependencies.md`（若已启用）：内部组件依赖、版本约束、初始化 / shutdown 顺序、风险与限制
+- `runtime-behavior.md`（若已启用）：运行时行为关键约定（启动 / 关停 / 故障 / 调度 / 时序）
+
+未启用时，相关变化合并进 `docs/component-design.md` 对应章节即可。closeout pack 中对应行写 `N/A（项目未启用）`，**不**算 blocked。
 
 ## closeout pack 字段对应关系
 
@@ -67,12 +73,17 @@
 | 长期资产 | 路径 | 本次是否同步 | 备注 |
 |---|---|---|---|
 | Component Implementation Design | `docs/component-design.md` | yes / no / N/A | |
-| AR Implementation Design | `docs/ar-designs/AR<id>-<slug>.md` | yes / N/A | |
-| Interfaces | `docs/interfaces.md` | yes / no / N/A | |
-| Dependencies | `docs/dependencies.md` | yes / no / N/A | |
-| Runtime Behavior | `docs/runtime-behavior.md` | yes / no / N/A | |
+| AR Implementation Design | `docs/ar-designs/AR<id>-<slug>.md` | yes / N/A | AR 工作项必填 |
+| Interfaces（可选） | `docs/interfaces.md` | yes / no / N/A（项目未启用） | |
+| Dependencies（可选） | `docs/dependencies.md` | yes / no / N/A（项目未启用） | |
+| Runtime Behavior（可选） | `docs/runtime-behavior.md` | yes / no / N/A（项目未启用） | |
 
-未触发变化的资产填 `N/A`，不算 blocked；项目当前未启用的资产（如团队尚未维护 `docs/runtime-behavior.md`）填 `N/A（项目未启用）`，不算 blocked。
+填写规则：
+
+- 已启用资产 + 本次触发变化 → `yes` + 实际同步路径
+- 已启用资产 + 本次未触发变化 → `no`
+- 项目尚未启用此可选资产 → `N/A（项目未启用）`，**不**算 blocked
+- AR 工作项 finalize 时 `docs/ar-designs/AR<id>-<slug>.md` 缺失 → 必须 promote；写 `N/A` 仅适用于 DTS 不修改 AR 设计的情况
 
 ## 反例
 

@@ -36,7 +36,7 @@ description: Use when df-test-checker has passed and the C/C++ code change must 
 ## Object Contract
 
 - Primary Object: code quality finding set + verdict
-- Frontend Input Object: 代码 diff、测试代码、`features/<id>/implementation-log.md`（含实现交接块 + Refactor Note）、`features/<id>/reviews/test-check.md`（应 `通过`）、`features/<id>/evidence/`、`features/<id>/ar-design-draft.md`、`docs/component-design.md`、`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`、`AGENTS.md`（编码规范、静态分析配置）
+- Frontend Input Object: 代码 diff、测试代码、`features/<id>/implementation-log.md`（含实现交接块 + Refactor Note）、`features/<id>/reviews/test-check.md`（应 `通过`）、`features/<id>/evidence/`、`features/<id>/ar-design-draft.md`、`docs/component-design.md`；项目已启用可选子资产时一并读取 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（未启用直接跳过、不阻塞）；`AGENTS.md`（编码规范、静态分析配置）
 - Backend Output Object: `features/<id>/reviews/code-review.md` + 结构化 reviewer 返回摘要
 - Object Transformation: 把代码变化审查成发现项 + 唯一 verdict + 唯一下一步
 - Object Boundaries: 不修改代码 / 不替团队角色拍板 / 不重审组件级决策
@@ -56,7 +56,7 @@ description: Use when df-test-checker has passed and the C/C++ code change must 
 
 ### 1. 建立证据基线
 
-按 Evidence-Based + Read-On-Presence 读取代码 diff、测试代码、implementation-log.md（含实现交接块 + Refactor Note）、reviews/test-check.md（应 `通过`）、`features/<id>/evidence/`、ar-design-draft.md、`docs/component-design.md`、`docs/interfaces.md`、`AGENTS.md`（编码规范 / 静态分析配置）。Refactor Note 是 CR8 的核心输入。
+按 Evidence-Based + Read-On-Presence 读取代码 diff、测试代码、implementation-log.md（含实现交接块 + Refactor Note）、reviews/test-check.md（应 `通过`）、`features/<id>/evidence/`、ar-design-draft.md、`docs/component-design.md`；项目已启用的可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 也一并读取，未启用直接跳过、不阻塞；`AGENTS.md`（编码规范 / 静态分析配置）。Refactor Note 是 CR8 的核心输入。
 
 ### 1.5 Precheck
 

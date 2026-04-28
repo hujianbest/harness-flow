@@ -36,7 +36,7 @@ description: Use when df-ar-design has produced an ar-design-draft.md ready for 
 ## Object Contract
 
 - Primary Object: AR design finding set + verdict
-- Frontend Input Object: `features/<id>/ar-design-draft.md`、`features/<id>/requirement.md`、`features/<id>/traceability.md`、`docs/component-design.md`、`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（如存在）、`AGENTS.md` 模板覆盖
+- Frontend Input Object: `features/<id>/ar-design-draft.md`、`features/<id>/requirement.md`、`features/<id>/traceability.md`、`docs/component-design.md`；项目已启用可选子资产时一并读取 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（未启用直接跳过、不阻塞）；`AGENTS.md` 模板覆盖
 - Backend Output Object: `features/<id>/reviews/ar-design-review.md` + 结构化 reviewer 返回摘要
 - Object Transformation: 把 AR 设计 + 测试设计章节审查成发现项 + 唯一 verdict + 唯一下一步
 - Object Boundaries: 不修改设计 / 不补测试用例 / 不替团队角色拍板

@@ -28,7 +28,7 @@
 
 - component-design-review verdict = `通过`
 - 模块架构师 sign-off 已记录
-- `docs/component-design.md`（以及必要的 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）的同步已规划，由 `df-finalize` 完成同步
+- `docs/component-design.md` 的同步已规划，由 `df-finalize` 完成同步；可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 仅在项目已启用且本次触发变化时纳入同步规划，未启用的把变化合并进 `docs/component-design.md` 对应章节
 - 跨组件影响（若有）：受影响组件的 work item 状态已显式说明（已开 / 未开 / 同步关闭）
 
 ### `hotfix`

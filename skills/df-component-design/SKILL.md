@@ -56,7 +56,7 @@ description: Use when the workflow profile is component-impact and the owning co
 
 ### 1. 对齐输入与角色
 
-按 Read-On-Presence 读取 `features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`（verdict 应 `通过`）、当前 `docs/component-design.md` / `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、组件代码现状的最少必要摘要。spec-review 未通过 → 阻塞，回 `df-workflow-router`；模块架构师 owner 未指定 → 阻塞，回需求负责人。
+按 Read-On-Presence 读取 `features/<id>/requirement.md`、`features/<id>/reviews/spec-review.md`（verdict 应 `通过`）、当前 `docs/component-design.md`（若存在）、组件代码现状的最少必要摘要；项目若启用了可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 也一并读取，未启用直接跳过、不阻塞。spec-review 未通过 → 阻塞，回 `df-workflow-router`；模块架构师 owner 未指定 → 阻塞，回需求负责人。
 
 ### 2. 判定本次是新增 / 修订 / 单纯消费
 
@@ -89,7 +89,7 @@ description: Use when the workflow profile is component-impact and the owning co
 ## Output Contract
 
 - `features/<id>/component-design-draft.md`（过程版本）
-- review 通过且模块架构师 sign-off 后，**由 `df-finalize` 同步**到 `docs/component-design.md`（必要时同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）
+- review 通过且模块架构师 sign-off 后，**由 `df-finalize` 同步**到 `docs/component-design.md`（仅当项目已启用并触发变化时，再同步可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`；未启用的，相关变化合并进 `docs/component-design.md` 对应章节）
 - `features/<id>/traceability.md` 补充组件设计章节锚点
 - `features/<id>/progress.md` 同步：
   - `Current Stage = df-component-design`

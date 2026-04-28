@@ -95,7 +95,7 @@
 
 ## 是否触发组件级修订
 
-- 是否需要修订 docs/component-design.md / interfaces.md / dependencies.md / runtime-behavior.md:
+- 是否需要修订 docs/component-design.md（以及项目已启用的可选子资产 docs/interfaces.md / docs/dependencies.md / docs/runtime-behavior.md；未启用的写 N/A）:
 - 如是，说明触发的修订点:
 ```
 

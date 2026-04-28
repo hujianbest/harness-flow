@@ -17,7 +17,7 @@ df 默认每个 work item 一次 finalize，对应一个完整 AR 或 DTS 的关
 
 - `df-completion-gate` verdict = `通过`
 - 用户明确要求「做收尾 / closeout / 把这个 AR 收掉」
-- 当前剩余工作主要是：状态收口、长期资产同步（`docs/component-design.md`、`docs/ar-designs/`、`docs/interfaces.md`、`docs/dependencies.md`、`docs/runtime-behavior.md`）、handoff 给团队 / 提交 / 合并
+- 当前剩余工作主要是：状态收口、长期资产同步（`docs/component-design.md`、`docs/ar-designs/`，以及项目已启用的可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）、handoff 给团队 / 提交 / 合并
 
 不适用 → 改用：
 
@@ -37,12 +37,12 @@ df 默认每个 work item 一次 finalize，对应一个完整 AR 或 DTS 的关
 ## Object Contract
 
 - Primary Object: closeout pack（含 evidence matrix、长期资产同步清单、状态字段）
-- Frontend Input Object: `features/<id>/completion.md`（应 `通过`）、`features/<id>/ar-design-draft.md`、`features/<id>/component-design-draft.md`（component-impact 时）、所有 review 记录、`docs/component-design.md` / `docs/ar-designs/` / `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 现状、`features/<id>/progress.md`
+- Frontend Input Object: `features/<id>/completion.md`（应 `通过`）、`features/<id>/ar-design-draft.md`、`features/<id>/component-design-draft.md`（component-impact 时）、所有 review 记录、`docs/component-design.md` / `docs/ar-designs/` 现状，以及项目已启用的可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（按 read-on-presence；未启用直接跳过）、`features/<id>/progress.md`
 - Backend Output Object:
   - `features/<id>/closeout.md`
   - 同步到 `docs/component-design.md`（component-impact 时）
   - 同步到 `docs/ar-designs/AR<id>-<slug>.md`（AR 工作项必填）
-  - 同步到 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（如本次触发变化）
+  - 同步到 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（仅当项目已启用对应可选子资产，且本次触发变化；未启用的，把变化合并进 `docs/component-design.md` 对应章节，不为单次变化新建可选子资产）
   - `features/<id>/progress.md` 收口为 `Current Stage = closed`
   - `features/<id>/README.md` 状态收口
 - Object Transformation: 把过程产物 promote 为长期资产 + 状态收口
@@ -61,7 +61,7 @@ df 默认每个 work item 一次 finalize，对应一个完整 AR 或 DTS 的关
 
 ### 1. 读取 gate 结论与当前状态
 
-按 Read-On-Presence 读取 `features/<id>/completion.md`、所有 review 记录、ar-design-draft.md、component-design-draft.md（若有）、`docs/component-design.md` / `docs/ar-designs/` / `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 现状、`features/<id>/progress.md`、`features/<id>/README.md`、`AGENTS.md`。completion verdict ≠ `通过` → 阻塞，回 `df-completion-gate`。
+按 Read-On-Presence 读取 `features/<id>/completion.md`、所有 review 记录、ar-design-draft.md、component-design-draft.md（若有）、`docs/component-design.md` / `docs/ar-designs/` 现状，以及项目已启用的可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（未启用直接跳过、不阻塞）、`features/<id>/progress.md`、`features/<id>/README.md`、`AGENTS.md`。completion verdict ≠ `通过` → 阻塞，回 `df-completion-gate`。
 
 ### 1.5 Precheck
 
@@ -76,7 +76,7 @@ df 默认每个 work item 一次 finalize，对应一个完整 AR 或 DTS 的关
 
 - **AR 工作项必须同步**：把 `features/<id>/ar-design-draft.md` promote 到 `docs/ar-designs/AR<id>-<slug>.md`（保留 AR ID / SR / IR / Owner / 测试设计章节锚点；去掉 Open Questions / 过程笔记）
 - **component-impact 必须同步**：把 `features/<id>/component-design-draft.md` 合并到 `docs/component-design.md`（必要时新增章节 / 修订条目，并补变更记录）
-- **接口 / 依赖 / 运行时行为如有变更**：同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`
+- **接口 / 依赖 / 运行时行为如有变更**：sync-on-presence——项目已启用 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 的更新对应文件；未启用的把变化合并进 `docs/component-design.md` 对应章节，**不**自动新建可选子资产
 - **DTS 不修改 AR 设计**：在 closeout pack `Long-Term Assets Sync` 写 `N/A`；若 DTS 修改了组件级行为仍需同步 `docs/component-design.md`
 - **项目当前未启用的可选资产**：写 `N/A（项目未启用）`，不阻塞
 
@@ -104,7 +104,7 @@ df 默认每个 work item 一次 finalize，对应一个完整 AR 或 DTS 的关
 - `features/<id>/closeout.md`，按 `templates/df-closeout-template.md`
 - 长期资产同步：
   - AR 工作项：`docs/ar-designs/AR<id>-<slug>.md` 必填
-  - component-impact：`docs/component-design.md`（+ 视情况 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）
+  - component-impact：`docs/component-design.md`（+ 仅当项目已启用并触发变化时同步 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`）
   - 未触发资产变化：closeout pack 中显式写 `N/A`
 - `features/<id>/progress.md` 收口为 `Current Stage = closed`、`Next Action Or Recommended Skill = null`
 - `features/<id>/README.md` 状态收口

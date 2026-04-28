@@ -34,7 +34,7 @@ description: Use when df-component-design has produced a component-design-draft.
 ## Object Contract
 
 - Primary Object: component design finding set + verdict
-- Frontend Input Object: `features/<id>/component-design-draft.md`、`features/<id>/requirement.md`、`features/<id>/traceability.md`、当前 `docs/component-design.md`（如存在；用于对比修订前后）、`docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、`AGENTS.md` 团队模板覆盖
+- Frontend Input Object: `features/<id>/component-design-draft.md`、`features/<id>/requirement.md`、`features/<id>/traceability.md`、当前 `docs/component-design.md`（如存在；用于对比修订前后）；项目已启用可选子资产时一并读取 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（未启用直接跳过、不阻塞）；`AGENTS.md` 团队模板覆盖
 - Backend Output Object: `features/<id>/reviews/component-design-review.md` + 结构化 reviewer 返回摘要
 - Object Transformation: 把组件设计草稿审查成发现项集合 + 唯一 verdict + 唯一下一步
 - Object Boundaries: 不修改被评审工件 / 不顺手优化设计 / 不替团队角色拍板
@@ -53,7 +53,7 @@ description: Use when df-component-design has produced a component-design-draft.
 
 ### 1. 建立证据基线
 
-按 Evidence-Based + Read-On-Presence 读取 component-design-draft.md、requirement.md、traceability.md、当前 `docs/component-design.md` / `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md`（若存在）、`AGENTS.md`。
+按 Evidence-Based + Read-On-Presence 读取 component-design-draft.md、requirement.md、traceability.md、当前 `docs/component-design.md`（若存在）；项目已启用的可选子资产 `docs/interfaces.md` / `docs/dependencies.md` / `docs/runtime-behavior.md` 也一并读取，未启用直接跳过、不阻塞；`AGENTS.md` 模板覆盖。
 
 ### 1.5 Precheck
 
