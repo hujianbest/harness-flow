@@ -57,6 +57,12 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 - **Requirements Traceability**: 显式建立 IR -> SR -> AR 链路；DTS 修改若涉及功能需求时建立 DTS -> AR -> SR 反向锚点
 - **Scope / Non-Scope / Acceptance Criteria**: 规格按"做什么 / 不做什么 / 怎样算完成"组织
 - **Socratic Elicitation**: Capture → Challenge → Clarify 三段式提问，先收敛范围 / 角色 / 成功标准，再收敛边界细节
+- **EARS（Easy Approach to Requirements Syntax — Mavin 等, 2009）**: 需求 Statement 使用结构化句式（常驻 / 事件触发 / 状态约束 / 异常 / 可选），让 reviewer 可冷读判断；详见 `references/requirement-rows-contract.md` 的 Statement Patterns 节
+- **BDD Acceptance（Dan North, 2006）**: Acceptance 用 Given / When / Then 表达；AR row 要可测试（直接落 RED 用例），SR row 要可观察（端到端判定）；详见 `references/requirement-rows-contract.md` 的 Acceptance Criteria Rules 节
+- **MoSCoW Priority（DSDM, 1994）或团队等价**: row 级 Priority；多条 Must 冲突时回需求负责人；df 不维护跨工作项 backlog
+- **INVEST Granularity（Bill Wake, 2003）**: 单条 row 的 `Small` + `Independent` 检查（G1-G6 + 嵌入式 GE1-GE2）；以及 SR 候选 AR 的拆分启发式；详见 `references/granularity-and-split.md`
+- **NFR Quality Attribute Scenarios（ISO/IEC 25010 + Bass / Clements / Kazman）**: 每条核心 NFR 用五要素（Stimulus Source / Stimulus / Environment / Response / Response Measure）表达，给出可判定阈值；详见 `references/nfr-quality-attribute-scenarios.md`
+- **Brainstorming Notes Normalization**: 头脑风暴 / 会议散点输入先做事实 vs 假设、业务意图 vs 实现细节、当前 vs 后续三轮归一化，再写 row；详见 `references/requirement-rows-contract.md` 同名节
 - **Embedded Domain Awareness**: 嵌入式语境中识别可能影响 AR 设计的内存 / 实时性 / 资源约束（写为 NFR 不写实现），并指向 `docs/component-design.md` 的相关章节
 - **Team Role Discipline**: 业务方向 / 优先级 / 验收阈值留给需求负责人 / 模块架构师；本节点只澄清，不拍板
 
@@ -100,7 +106,11 @@ description: Use when the team has accepted an SR / AR / DTS / change request as
 
 ### 4. 整理 requirement rows
 
-按 Scope / Non-Scope / Acceptance Criteria 把澄清结果结构化。每条核心 row 至少含 `ID`（FR / NFR / CON / IFR / ASM / EXC）、`Statement`（可观察可判断）、`Acceptance`、`Source / Trace Anchor`、`Component Impact`（是否触及组件接口 / 依赖 / 状态机）。SR row 还可含 `Affected Components`（受影响组件清单）。最小字段契约见 `references/requirement-rows-contract.md`。任一核心 row 缺 Acceptance → 回步骤 3。
+按 Scope / Non-Scope / Acceptance Criteria + EARS Statement Patterns + BDD Acceptance Rules + MoSCoW Priority 把澄清结果结构化。每条核心 row 至少含 `ID`（FR / NFR / CON / IFR / ASM / EXC）、`Statement`（EARS 句式）、`Acceptance`（BDD Given/When/Then）、`Priority`、`Source / Trace Anchor`、`Component Impact`（AR / DTS / CHANGE）或 `Affected Components`（SR）。最小字段契约 + 句式表 + Brainstorming Notes Normalization 详见 `references/requirement-rows-contract.md`。
+
+核心 NFR 必须能写成 QAS 五要素：Stimulus Source / Stimulus / Environment / Response / Response Measure（含阈值或可判定准则）。详见 `references/nfr-quality-attribute-scenarios.md`。如果某条 NFR 写不出 QAS → 该 NFR 描述还不够具体，回步骤 3 找需求负责人 / 模块架构师补阈值。
+
+按 INVEST 检查每条 row 的 `Small` + `Independent`：命中 G1-G6 / GE1-GE2 任一信号 → 按 Split Rules 拆分；详见 `references/granularity-and-split.md`。任一核心 row 缺 Acceptance / 缺 Priority / NFR 缺 QAS 阈值 → 回步骤 3。
 
 ### 5. 草拟规格文档
 
@@ -131,12 +141,26 @@ SR 还需在 progress 中写入 `Owning Subsystem`；可空字段 `AR Breakdown 
 
 ### 7. 评审前自检
 
-通用自检：业务背景 / 目标 / 用户清晰；范围 / 非范围显式；核心 FR / NFR 含 ID / Statement / Acceptance / Source；Embedded NFR 含阈值或可判定条件；Open Questions 已闭合或显式回需求负责人；traceability.md 至少含上游追溯行。
+通用自检：
+
+- 业务背景 / 目标 / 用户清晰
+- 范围 / 非范围显式
+- 核心 FR / NFR 含 ID / Statement（EARS）/ Acceptance（BDD）/ Priority（MoSCoW 或团队等价）/ Source
+- 核心 NFR 已归类到 ISO/IEC 25010 维度并含 QAS 五要素；Response Measure 有阈值；Acceptance 与 QAS 一致（详见 `references/nfr-quality-attribute-scenarios.md` 最小签入条件）
+- 单条 row 已通过 INVEST `Small` + `Independent` 检查（无未处理的 G1-G6 / GE1-GE2 oversized 信号；详见 `references/granularity-and-split.md`）
+- Brainstorming Notes 已按归一化表落到正确 row 类别，未把猜测当事实
+- Open Questions 已分类（阻塞 / 非阻塞），阻塞项已闭合或显式回需求负责人
+- traceability.md 至少含上游追溯行
 
 按 work item 类型的额外自检：
 
-- SR：Subsystem Scope Assessment / Affected Components / AR Breakdown Candidates（草稿可待定）/ Component Design Impact 章节存在
-- AR / DTS / CHANGE：Component Impact Assessment 章节存在并已显式判断
+- SR：
+  - Subsystem Scope Assessment / Affected Components / AR Breakdown Candidates（草稿可待定）/ Component Design Impact 章节存在
+  - AR Breakdown Candidates 中的候选已通过 SR Breakdown Heuristics 检查（Owning Component 唯一、不太粗 / 不太细、无循环依赖；详见 `references/granularity-and-split.md`）
+  - 若声明「无可拆分 AR」，已写明理由
+- AR / DTS / CHANGE：
+  - Component Impact Assessment 章节存在并已显式判断
+  - AR row 的 Acceptance 可直接落成 RED 用例
 
 任一失败 → 回步骤 4 / 5。
 
@@ -186,8 +210,10 @@ handoff 摘要（按 df-shared-conventions 字段）：`work_item_id`、`owning_
 
 - [ ] `features/<id>/requirement.md` 已落盘
 - [ ] 业务背景、目标、范围、非范围、Acceptance Criteria 已写清
-- [ ] 核心 FR / NFR 具备 ID / Statement / Acceptance / Source
-- [ ] Embedded NFR（若适用）含阈值或可判定条件
+- [ ] 核心 FR / NFR 具备 ID / Statement（EARS 句式）/ Acceptance（BDD Given/When/Then）/ Priority（MoSCoW 或团队等价）/ Source
+- [ ] 核心 NFR 已归类到 ISO/IEC 25010 维度并含 QAS 五要素；Response Measure 有阈值；Acceptance 与 QAS 一致
+- [ ] 单条 row 通过 INVEST `Small` + `Independent` 检查；命中 G1-G6 / GE1-GE2 已按 Split Rules 处理或显式标注
+- [ ] Brainstorming Notes 已按归一化表落到正确 row 类别
 - [ ] Open Questions 已分类为阻塞 / 非阻塞，阻塞项已闭合或回需求负责人
 - [ ] progress.md 已按 canonical schema 同步，含 `Workflow Profile`，下一步为 `df-spec-review`
 - [ ] feature README 中 Requirement 行已更新
@@ -195,6 +221,7 @@ handoff 摘要（按 df-shared-conventions 字段）：`work_item_id`、`owning_
 SR work item 额外项：
 
 - [ ] Subsystem Scope Assessment / Affected Components / AR Breakdown Candidates（草稿可待定）/ Component Design Impact 章节存在
+- [ ] AR Breakdown Candidates 通过 SR Breakdown Heuristics 检查（Owning Component 唯一、不太粗 / 不太细、无循环依赖），或显式声明「无可拆分 AR」+ 理由
 - [ ] traceability.md 含 IR / SR、Affected Components、Candidate AR Breakdown 列
 - [ ] `Owning Subsystem` 已记录
 
@@ -208,8 +235,11 @@ AR / DTS / CHANGE work item 额外项：
 
 | 文件 | 用途 |
 |---|---|
-| `references/requirement-rows-contract.md` | requirement rows 最小字段约定 + 嵌入式 NFR 写法示例 |
+| `references/requirement-rows-contract.md` | requirement rows 最小字段、EARS Statement Patterns、BDD Acceptance Rules、MoSCoW Priority、Source / Trace Anchor、Brainstorming Notes Normalization、Common Failure Modes |
+| `references/granularity-and-split.md` | INVEST `Small` + `Independent` 检查（G1-G6 + 嵌入式 GE1-GE2）、Split Rules、Mechanical vs Scope-Shaping Split、Cross-Work-Item Split、SR Breakdown Heuristics |
+| `references/nfr-quality-attribute-scenarios.md` | ISO/IEC 25010 质量维度、QAS 五要素、嵌入式 NFR 改写示例（实时性 / 内存 / 并发 / 资源 / 错误处理 / 安全）、SR 视角 NFR、最小签入条件 |
 | `templates/df-work-item-readme-template.md` | work item README 模板 |
 | `templates/df-progress-template.md` | progress.md 模板 |
 | `templates/df-traceability-template.md` | traceability.md 模板 |
 | `docs/df-shared-conventions.md` | 工件路径、canonical 字段、handoff 字段、requirement.md 必含项 |
+| `df-workflow-router/references/reviewer-dispatch-protocol.md` | reviewer 派发协议 + 定向回修协议（USER-INPUT / LLM-FIXABLE / TEAM-EXPERT 处理顺序、interactive vs auto、单次回合最小问询、反复循环阻断） |
