@@ -43,7 +43,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 ### 1. 阅读已批准输入并提取拆解信号
 
-阅读：已批准规格、已批准设计（默认 `features/<active>/spec.md` / `design.md`）、项目上下文、`AGENTS.md` 路径映射、feature `progress.md`（默认 `features/<active>/progress.md`）。
+阅读：已批准规格、已批准设计（默认 `features/<active>/spec.md` / `design.md`）、项目上下文、项目级路径约定（若项目已声明）、feature `progress.md`（默认 `features/<active>/progress.md`）。
 
 **若 UI surface 被激活**（存在 `hf-ui-design` 的已批准文档）：除技术设计外，也需读取 UI 设计文档，提取组件粒度、关键页面 wireframe、交互状态矩阵、Design Token 映射；前端任务拆解必须承接 Atomic 分层与状态矩阵，避免把"实现某页面"当作单任务。
 
@@ -79,7 +79,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 不是把设计拆成几个“大任务标题”就结束。对每个会触碰代码、配置、数据或状态工件的关键任务，必须把任务级合同写实：
 
 - `Acceptance` 写任务完成后什么行为/接口/状态必须为真；不要写“实现某模块”“完成某功能”
-- `Verify` 优先继承 `AGENTS.md` / 项目约定中的真实命令、顺序与强制验证步骤；不要用泛化默认值覆盖项目规则
+- `Verify` 优先继承项目级约定中的真实命令、顺序与强制验证步骤；不要用泛化默认值覆盖项目规则
 - `测试设计种子` 至少覆盖：主行为、1 个关键边界、1 个适合 fail-first 的点
 - 代码型任务优先拆成可直接支撑 `hf-test-driven-dev` 的最小闭环：`fail-first test -> 确认失败 -> 最小实现 -> verify green`
 - 数据库 / 迁移 / 状态切换类任务，除 `Verify` 外还要写明回滚 / 恢复说明，或显式引用项目中的等价字段
@@ -104,7 +104,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 ### 6. 编写任务计划
 
-按 `references/task-plan-template.md` 的默认结构起草。若 `AGENTS.md` 声明了模板覆盖，优先遵循。
+按 `references/task-plan-template.md` 的默认结构起草。若 项目声明了模板覆盖，优先遵循。
 
 任务队列投影和 board 操作详见 `references/task-board-guide.md`。
 
@@ -124,7 +124,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 ## Output Contract
 
 完成时产出：
-- 可评审任务计划（默认 `features/<active>/tasks.md`；若 `AGENTS.md` 声明覆盖路径，优先遵循）
+- 可评审任务计划（默认 `features/<active>/tasks.md`；若 项目声明的覆盖路径，优先遵循）
 - 里程碑、追溯、工件影响图、测试设计种子、任务队列投影
 - 可选 task board（默认 `features/<active>/task-board.md`），并在 progress 中通过 `Task Board Path` 引用
 - feature `README.md` 中 Artifacts 表的 Tasks 行已更新

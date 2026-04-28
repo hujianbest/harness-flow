@@ -5,7 +5,7 @@
   - Skill 通用写法: `docs/principles/skill-anatomy.md`
   - 方法论治理: `docs/principles/methodology-coherence.md`
   - 路由与迁移: `skills/hf-workflow-router/references/profile-node-and-transition-map.md`
-  - 共享状态与交接约定: `skills/docs/hf-workflow-shared-conventions.md`
+  - 共享状态与交接约定: `skills/hf-workflow-router/references/workflow-shared-conventions.md`
 
 ## Purpose
 

@@ -25,7 +25,7 @@ description: 适用于规格草稿已完成需正式 review verdict、reviewer s
 
 不适用：缺规格草稿或只需继续写 → `hf-specify`；阶段不清/证据冲突 → `hf-workflow-router`；已有已批准规格、当前需要设计评审 → `hf-design-review`。
 
-前提确认：存在稳定规格草稿（默认 `features/<active>/spec.md`）、能读取 `AGENTS.md` 约定和 feature `progress.md`（默认 `features/<active>/progress.md`）、请求确实是评审。若 route/stage/profile/证据冲突 → 优先回 router。
+前提确认：存在稳定规格草稿（默认 `features/<active>/spec.md`）、能读取 项目约定和 feature `progress.md`（默认 `features/<active>/progress.md`）、请求确实是评审。若 route/stage/profile/证据冲突 → 优先回 router。
 
 ## Hard Gates
 
@@ -37,7 +37,7 @@ description: 适用于规格草稿已完成需正式 review verdict、reviewer s
 
 ### 1. 建立证据基线
 
-读取并固定：当前规格（默认 `features/<active>/spec.md`）、deferred backlog（若存在，默认 `features/<active>/spec-deferred.md`）、`AGENTS.md` 约定、feature `progress.md`（默认 `features/<active>/progress.md`）、少量上下文用于确认状态和锚点。不只根据聊天记忆判断。
+读取并固定：当前规格（默认 `features/<active>/spec.md`）、deferred backlog（若存在，默认 `features/<active>/spec-deferred.md`）、项目约定、feature `progress.md`（默认 `features/<active>/progress.md`）、少量上下文用于确认状态和锚点。不只根据聊天记忆判断。
 
 ### 1.5 Precheck：能否合法进入 review
 
@@ -49,7 +49,7 @@ description: 适用于规格草稿已完成需正式 review verdict、reviewer s
 
 ### 2. 确定当前规格的结构契约
 
-先判断项目是否通过 `AGENTS.md` 声明了骨架/字段/优先级体系，当前规格是否遵循。只要语义可回读，不强迫文档长得和默认模板一模一样。
+先判断项目是否通过 项目声明了骨架/字段/优先级体系，当前规格是否遵循。只要语义可回读，不强迫文档长得和默认模板一模一样。
 
 ### 3. 用 rubric 做正式审查
 

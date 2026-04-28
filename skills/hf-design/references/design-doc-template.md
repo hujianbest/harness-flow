@@ -1,6 +1,6 @@
 # 设计文档模板
 
-若 `AGENTS.md` 为当前项目声明了设计模板，优先使用项目约定。以下为默认结构。
+若项目级约定为当前项目声明了设计模板，优先使用项目约定。以下为默认结构。
 
 ## 默认结构
 
@@ -37,7 +37,7 @@
 Phase 0 新增章节（4 / 4.5 / 5 / 14 / 15）是**结构化锚点**：
 
 - 章节 4（Domain Strategic Model）在 spec 存在多概念 / 多角色 / 跨系统交互时必填；纯脚本 / 单模块可显式跳过并说明理由。
-- 章节 4.5（Tactical Model per Bounded Context）在战术触发条件满足时必填（Bounded Context ≥ 2 / 单 Context 多实体 + 一致性约束 / 并发或事务边界 / 领域事件 / 跨聚合不变量）；不触发时显式跳过并说明理由。**GoF 代码模式不写入本章节**（见 `docs/principles/emergent-vs-upfront-patterns.md`）。
+- 章节 4.5（Tactical Model per Bounded Context）在战术触发条件满足时必填（Bounded Context ≥ 2 / 单 Context 多实体 + 一致性约束 / 并发或事务边界 / 领域事件 / 跨聚合不变量）；不触发时显式跳过并说明理由。**GoF 代码模式不写入本章节**：它们是实现层 emergent 浮现的产物，应留给 `hf-test-driven-dev` 的 REFACTOR 步按 Fowler 重构词汇处理。
 - 章节 5（Event Storming Snapshot）按 profile 分档：`lightweight` 自然语言、`standard` Event Timeline、`full` Event Timeline + Process Modeling。
 - 章节 14（NFR QAS 承接）必填；承接 spec 中的 QAS，按 `nfr-checklist.md` 结构化表格。
 - 章节 15（STRIDE Threat Model）在触发条件满足时必填（见 `threat-model-stride.md`）。
@@ -86,7 +86,7 @@ Phase 0 新增章节（4 / 4.5 / 5 / 14 / 15）是**结构化锚点**：
 
 **禁止**：
 
-- 把 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）作为前置决策列入本章节——这类模式属于实现层 emergent 浮现，见 `docs/principles/emergent-vs-upfront-patterns.md`
+- 把 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）作为前置决策列入本章节——这类模式属于实现层 emergent 浮现，应在 `hf-test-driven-dev` REFACTOR 步按 Fowler 重构词汇浮现处理
 - 用 "XxxAggregate" / "XxxEntity" / "XxxVO" 这类技术后缀命名，应直接使用 Ubiquitous Language 名词
 - 未显式回答事务边界 / 并发策略的聚合
 - 服务多个 Aggregate Root 的 Repository
@@ -135,7 +135,7 @@ Hotspot（红色标记）与 ADR、STRIDE 的关系必须显式交叉引用。
 
 默认：`features/<active>/design.md`
 
-若 `AGENTS.md` 声明了设计路径映射，优先使用映射路径。
+若 项目声明了设计路径映射，优先使用映射路径。
 
 ## 状态同步
 

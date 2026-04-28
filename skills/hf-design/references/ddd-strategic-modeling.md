@@ -120,4 +120,4 @@ DDD 战略建模的产物**不替代** C4，但是为 C4 提供边界输入：
 - Event-flow 视角的补充见 `event-storming.md`
 - NFR 向设计承接的 QAS 映射见 `nfr-checklist.md`（Phase 0 扩展版）
 - 风险与可逆性决策仍由 ADR 承载（见 `adr-template.md`）
-- 前置 / emergent 模式分工立场见 `docs/principles/emergent-vs-upfront-patterns.md`
+- 前置 / emergent 模式分工立场已直接内联进 `hf-design/SKILL.md` Methodology 段 *Emergent vs Upfront Patterns*：DDD 战术模式（领域语义驱动）前置决策；GoF 代码模式（实现细节）刻意保持 emergent，由 `hf-test-driven-dev` 的 REFACTOR 步按 Fowler 重构词汇浮现处理

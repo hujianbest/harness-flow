@@ -8,7 +8,7 @@
 
 对于 non-trivial 的规格，核心 `FR` / `NFR` 不应只写成松散段落。每条需求至少应具备一组稳定字段，方便 `hf-spec-review` 做冷读、判定和回修。
 
-若 `AGENTS.md` 或项目模板声明了等价字段名、编号规则或优先级体系，优先遵循映射；否则使用本文默认约定。
+若项目级约定或项目模板声明了等价字段名、编号规则或优先级体系，优先遵循映射；否则使用本文默认约定。
 
 ## Per-Requirement Minimum Fields
 
@@ -46,7 +46,7 @@
 
 优先级默认使用 MoSCoW 方法（Must/Should/Could/Won't）驱动范围收敛。
 
-- 若 `AGENTS.md` 或项目模板声明了固定优先级体系，优先使用该体系。
+- 若项目级约定或项目模板声明了固定优先级体系，优先使用该体系。
 - 若没有显式体系，默认使用 `Must` / `Should` / `Could` / `Won't`。
 - 优先级是逐条需求的属性，不是整份规格的总体评价。
 - 需要延后到后续增量的真实需求，不允许既无优先级也无延后理由。
@@ -58,7 +58,7 @@
 
 - `用户请求: "审批通过后通知申请人"`
 - `spec-bridge: docs/insights/xxx-spec-bridge.md#关键假设 2`
-- `现有约束: AGENTS.md 中的浏览器兼容规则`
+- `现有约束:项目级约定中的浏览器兼容规则`
 - `review finding: features/<active>/reviews/spec-review-YYYY-MM-DD.md#finding-3`
 - `外部约束: 法规 / 合同 / 兼容要求`
 
