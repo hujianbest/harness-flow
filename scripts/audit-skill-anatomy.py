@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit HF SKILL.md files against docs/principles/02 skill-anatomy.md.
+"""Audit HF SKILL.md files against docs/principles/skill-anatomy.md.
 
 Checks the anatomy contract for every SKILL.md under skills/, scoring each
 against the canonical checklist. Read-only; produces a Markdown report.
@@ -22,7 +22,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional
 
-# Anatomy budget per docs/principles/02 skill-anatomy.md.
+# Anatomy budget per docs/principles/skill-anatomy.md.
 TOKEN_BUDGET = 5000
 LINE_BUDGET = 500
 # Rough token approximation: ~4 chars / token for mixed CJK + Latin.
@@ -111,7 +111,7 @@ def parse_frontmatter(text: str) -> dict:
 
 
 def is_workflow_skill(skill_name: str) -> bool:
-    # Per docs/principles/02 skill-anatomy.md, all hf-* + using-hf-workflow
+    # Per docs/principles/skill-anatomy.md, all hf-* + using-hf-workflow
     # are workflow skills, not technique/reference skills.
     return skill_name.startswith("hf-") or skill_name == "using-hf-workflow"
 
@@ -257,7 +257,7 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
     lines.append("# HF SKILL.md Anatomy 审计报告")
     lines.append("")
     lines.append(
-        "- 来源标准：`docs/principles/02 skill-anatomy.md` § 检查清单"
+        "- 来源标准：`docs/principles/skill-anatomy.md` § 检查清单"
     )
     lines.append("- 关联决策：`docs/decisions/ADR-001-release-scope-v0.1.0.md`")
     lines.append("- 生成器：`scripts/audit-skill-anatomy.py`（只读）")
@@ -353,13 +353,13 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
     lines.append("")
     lines.append(
         "下列发现**改变 skill 行为契约**而不仅是文档润色，按 "
-        "`docs/principles/00 soul.md` 「方向 / 取舍 / 标准的最终权在用户」，"
+        "`docs/principles/soul.md` 「方向 / 取舍 / 标准的最终权在用户」，"
         "需要你拍板后才能进入实现：")
     lines.append("")
     if missing_obj > 0:
         lines.append(
             f"- **Q1 — Object Contract 全量缺位（{missing_obj}/{total} workflow skills）**："
-            "`docs/principles/02 skill-anatomy.md` 把 `## Object Contract` 列为 "
+            "`docs/principles/skill-anatomy.md` 把 `## Object Contract` 列为 "
             "workflow skill **必备段**（写明 Primary / Frontend Input / Backend Output "
             "Object 与 Object Transformation）。当前**没有任何一个** SKILL.md 写了。"
             "v0.1.0 是否把它作为发版门禁？候选："
@@ -370,9 +370,9 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
         )
         lines.append(
             "  - **B. 暂时降级**：把"
-            "`02 skill-anatomy.md` 中 Object Contract 改为 v0.1.0 「推荐」、"
+            "`skill-anatomy.md` 中 Object Contract 改为 v0.1.0 「推荐」、"
             "v0.2.0 升级为「必备」。anatomy 标准放宽，发版速度快；"
-            "但与 anatomy 文档现有口径冲突，需同时改 `02 skill-anatomy.md`。"
+            "但与 anatomy 文档现有口径冲突，需同时改 `skill-anatomy.md`。"
         )
         lines.append(
             "  - **C. 折中**：v0.1.0 仅给 router / TDD / 三个 gate / finalize 等 "
@@ -382,14 +382,19 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
     if missing_cr > 0:
         lines.append(
             f"- **Q2 — Common Rationalizations 全量缺位（{missing_cr}/{total}）**："
-            "ADR-001 D8 已锁定「v0.1.0 全量补」，**此项已决，无需再问**。"
-            "本审计仅作为整改基线。"
+            "ADR-001 D8 已锁定「v0.1.0 全量补」，**整改方向已决**。"
+            "但合并 PR #21 后发现衍生冲突：`docs/principles/skill-anatomy.md` "
+            "目前把 `Common Rationalizations` 列在「默认不建议扩散」清单中（"
+            "见该文件 §「主文件骨架」之后）。R1 step 2 实施前需要同时更新 "
+            "`skill-anatomy.md`，把 `Common Rationalizations` 从「不建议扩散」"
+            "移到主骨架表的「推荐」/「workflow skill 推荐」位置。否则 anatomy "
+            "标准与 ADR-001 D8 自相矛盾。**此项是文档同步，无新方向题**。"
         )
     lines.append("")
     lines.append("## 方法学说明")
     lines.append("")
     lines.append(
-        "- Hard checks 等价于 `02 skill-anatomy.md` 检查清单的"
+        "- Hard checks 等价于 `skill-anatomy.md` 检查清单的"
         "「不可协商」部分（identity / sections / workflow shape / budget）。"
     )
     lines.append(

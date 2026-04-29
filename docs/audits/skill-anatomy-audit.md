@@ -1,6 +1,6 @@
 # HF SKILL.md Anatomy 审计报告
 
-- 来源标准：`docs/principles/02 skill-anatomy.md` § 检查清单
+- 来源标准：`docs/principles/skill-anatomy.md` § 检查清单
 - 关联决策：`docs/decisions/ADR-001-release-scope-v0.1.0.md`
 - 生成器：`scripts/audit-skill-anatomy.py`（只读）
 - 审计 SKILL.md 数：24
@@ -22,30 +22,30 @@
 
 | Skill | hard | lines | ~tokens | Obj | Meth | RF | CR | 备注 |
 |---|:-:|---:|---:|:-:|:-:|:-:|:-:|---|
-| `hf-bug-patterns` | ❌ | 191 | 987 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-code-review` | ❌ | 156 | 2150 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-completion-gate` | ❌ | 165 | 1690 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-design` | ❌ | 326 | 3838 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-design-review` | ❌ | 151 | 1165 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-discovery-review` | ❌ | 121 | 929 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-doc-freshness-gate` | ❌ | 177 | 2512 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-bug-patterns` | ❌ | 191 | 986 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-code-review` | ❌ | 156 | 2146 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-completion-gate` | ❌ | 165 | 1693 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-design` | ❌ | 327 | 3947 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-design-review` | ❌ | 151 | 1162 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-discovery-review` | ❌ | 121 | 924 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-doc-freshness-gate` | ❌ | 177 | 2492 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
 | `hf-experiment` | ❌ | 203 | 1714 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-finalize` | ❌ | 266 | 2264 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-hotfix` | ❌ | 185 | 1097 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-increment` | ❌ | 262 | 1616 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-product-discovery` | ❌ | 208 | 2175 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-regression-gate` | ❌ | 140 | 1097 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-spec-review` | ❌ | 133 | 1073 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-specify` | ❌ | 273 | 2910 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-tasks` | ❌ | 173 | 1246 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-tasks-review` | ❌ | 134 | 1174 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-test-driven-dev` | ❌ | 239 | 3129 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-test-review` | ❌ | 134 | 1164 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-traceability-review` | ❌ | 143 | 1157 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-ui-design` | ❌ | 360 | 3777 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-ui-review` | ❌ | 180 | 1758 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `hf-workflow-router` | ❌ | 181 | 1565 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
-| `using-hf-workflow` | ❌ | 158 | 1442 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-finalize` | ❌ | 266 | 2334 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-hotfix` | ❌ | 185 | 1094 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-increment` | ❌ | 262 | 1610 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-product-discovery` | ❌ | 208 | 2168 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-regression-gate` | ❌ | 140 | 1093 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-spec-review` | ❌ | 133 | 1065 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-specify` | ❌ | 273 | 2909 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-tasks` | ❌ | 173 | 1237 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-tasks-review` | ❌ | 134 | 1167 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-test-driven-dev` | ❌ | 239 | 3155 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-test-review` | ❌ | 134 | 1158 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-traceability-review` | ❌ | 143 | 1151 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-ui-design` | ❌ | 360 | 3765 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-ui-review` | ❌ | 180 | 1754 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `hf-workflow-router` | ❌ | 181 | 1623 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
+| `using-hf-workflow` | ❌ | 210 | 2162 | ❌ | ✅ | ✅ | ❌ | workflow skill 缺 `Object Contract`；缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐） |
 
 ## 整改优先级建议
 
@@ -103,17 +103,17 @@ P1（ADR-001 D8 要求 v0.1.0 全量补 anti-rationalization）：
 
 ## 抛回架构师的方向题（HF 不替你定）
 
-下列发现**改变 skill 行为契约**而不仅是文档润色，按 `docs/principles/00 soul.md` 「方向 / 取舍 / 标准的最终权在用户」，需要你拍板后才能进入实现：
+下列发现**改变 skill 行为契约**而不仅是文档润色，按 `docs/principles/soul.md` 「方向 / 取舍 / 标准的最终权在用户」，需要你拍板后才能进入实现：
 
-- **Q1 — Object Contract 全量缺位（24/24 workflow skills）**：`docs/principles/02 skill-anatomy.md` 把 `## Object Contract` 列为 workflow skill **必备段**（写明 Primary / Frontend Input / Backend Output Object 与 Object Transformation）。当前**没有任何一个** SKILL.md 写了。v0.1.0 是否把它作为发版门禁？候选：
+- **Q1 — Object Contract 全量缺位（24/24 workflow skills）**：`docs/principles/skill-anatomy.md` 把 `## Object Contract` 列为 workflow skill **必备段**（写明 Primary / Frontend Input / Backend Output Object 与 Object Transformation）。当前**没有任何一个** SKILL.md 写了。v0.1.0 是否把它作为发版门禁？候选：
   - **A. 严格执行**：v0.1.0 前给 24 个 SKILL.md 全部补 Object Contract。工作量大、改动 contract、需逐个评审；但符合现行 anatomy 标准。
-  - **B. 暂时降级**：把`02 skill-anatomy.md` 中 Object Contract 改为 v0.1.0 「推荐」、v0.2.0 升级为「必备」。anatomy 标准放宽，发版速度快；但与 anatomy 文档现有口径冲突，需同时改 `02 skill-anatomy.md`。
+  - **B. 暂时降级**：把`skill-anatomy.md` 中 Object Contract 改为 v0.1.0 「推荐」、v0.2.0 升级为「必备」。anatomy 标准放宽，发版速度快；但与 anatomy 文档现有口径冲突，需同时改 `skill-anatomy.md`。
   - **C. 折中**：v0.1.0 仅给 router / TDD / 三个 gate / finalize 等 **核心 7 节点** 补；其余下沉到 v0.2.0。需要在 ADR 中显式列出「核心 7 节点」清单。
-- **Q2 — Common Rationalizations 全量缺位（24/24）**：ADR-001 D8 已锁定「v0.1.0 全量补」，**此项已决，无需再问**。本审计仅作为整改基线。
+- **Q2 — Common Rationalizations 全量缺位（24/24）**：ADR-001 D8 已锁定「v0.1.0 全量补」，**整改方向已决**。但合并 PR #21 后发现衍生冲突：`docs/principles/skill-anatomy.md` 目前把 `Common Rationalizations` 列在「默认不建议扩散」清单中（见该文件 §「主文件骨架」之后）。R1 step 2 实施前需要同时更新 `skill-anatomy.md`，把 `Common Rationalizations` 从「不建议扩散」移到主骨架表的「推荐」/「workflow skill 推荐」位置。否则 anatomy 标准与 ADR-001 D8 自相矛盾。**此项是文档同步，无新方向题**。
 
 ## 方法学说明
 
-- Hard checks 等价于 `02 skill-anatomy.md` 检查清单的「不可协商」部分（identity / sections / workflow shape / budget）。
+- Hard checks 等价于 `skill-anatomy.md` 检查清单的「不可协商」部分（identity / sections / workflow shape / budget）。
 - Common Rationalizations 在 v0.1.0 之前不是 hard check，但因 ADR-001 D8 决议而成为发版门禁。
 - token 估算用 `len(text)/4` 的粗略比例，仅用于发现违反预算的离群值；精确 token 数请按所用 tokenizer 复算。
 - 本脚本只读，不修改任何 SKILL.md；整改由后续 PR 显式完成。
