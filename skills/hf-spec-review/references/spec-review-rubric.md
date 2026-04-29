@@ -9,7 +9,7 @@
 - 先找问题，再给结论。
 - 结论由 evidence 驱动，而不是“整体感觉差不多”。
 - review 关注 WHAT 的清晰度、可验收性和可追溯性，不顺手开始 HOW 层设计。
-- 不硬编码固定章节数量。结构要求以 `AGENTS.md`、当前项目模板或当前规格骨架为准。
+- 不硬编码固定章节数量。结构要求以项目级约定、当前项目模板或当前规格骨架为准。
 
 ## Group Q: Quality Attributes
 
@@ -42,7 +42,7 @@
 | `C1` | Requirement contract | 核心 `FR` / 关键 `NFR` 已具备 `ID`、`Statement`、`Acceptance`、`Priority`、`Source / Trace Anchor` |
 | `C2` | Scope closure | 范围内 / 范围外内容明确，不依赖聊天记忆补脑 |
 | `C3` | Open-question closure | 阻塞性开放问题已关闭；剩余开放问题不会改变设计主干 |
-| `C4` | Template alignment | 文档遵循当前项目模板或 `AGENTS.md` 约定；若没有模板，至少符合 HF 默认骨架 |
+| `C4` | Template alignment | 文档遵循当前项目模板或 项目约定；若没有模板，至少符合 HF 默认骨架 |
 | `C5` | Deferral handling | 真实 deferred requirements 已进入 backlog，或已明确不存在；不会只埋在 prose 里 |
 | `C6` | Goal and success criteria | 当前轮目标与 success criteria 明确、具体、可判断，不只是抽象愿景或口号 |
 | `C7` | Assumption visibility | 关键 assumptions 已显式写出，且其失效影响可回读；不会把关键假设藏在 prose 里 |

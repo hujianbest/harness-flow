@@ -5,7 +5,7 @@
 评审完成后，将结论写入：
 
 - `docs/reviews/discovery-review-<topic>.md`（discovery 阶段 feature 尚未创建，仍按长期资产存放在 `docs/reviews/`；进入 feature 后续 review 落到 `features/<active>/reviews/`）
-- 如 `AGENTS.md` 声明了等价路径，按映射路径保存
+- 如 项目声明了等价路径，按映射路径保存
 
 ## 评审记录结构
 

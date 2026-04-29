@@ -88,7 +88,7 @@ description: Use when AI notices repeated mistakes, recurring review findings, o
 ### 5. 写入或更新 catalog（仅在确认后）
 
 保存位置优先级：
-- `AGENTS.md` 若声明了 engineering insights / bug pattern catalog 路径，优先遵循
+- 若项目级约定中声明了 engineering insights / bug pattern catalog 路径，优先遵循
 - 否则默认：`docs/insights/bug-pattern-catalog.md`
 
 若文件不存在，按 `references/bug-pattern-catalog-template.md` 初始化；若已存在，则追加新模式或合并更新现有模式。

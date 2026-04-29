@@ -31,7 +31,7 @@
 
 ## 与 HF skill 既有 evals 形态的对齐
 
-本目录采用 `test-prompts.json`（裸 array，无 wrapper）+ `README.md` 形式，与既有 30+ HF skill 的 evals 目录形态一致（参见 `skills/hf-tasks-review/evals/` 等）。`docs/principles/skill-anatomy.md` §evals/ 推荐结构（`evals.json` 含 wrapper + fixtures/）属更重型适配，本 prose-only skill 不需要该完整形态。
+本目录采用 `test-prompts.json`（裸 array，无 wrapper）+ `README.md` 形式，与既有 30+ HF skill 的 evals 目录形态一致（参见 `skills/hf-tasks-review/evals/` 等）。更重型 evals 适配（`evals.json` 含 wrapper + fixtures/）适合 fixture-driven skill，本 prose-only skill 不需要该完整形态。
 
 ## 如何添加新 scenario
 

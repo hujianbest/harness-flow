@@ -5,7 +5,7 @@
 - 这是 `features/<NNN>-<slug>/README.md` 模板。
 - 它是 feature 周期内的入口与状态总览页。在没有 schema 校验/CI lint 的前提下，本 README 同时承担"索引"与"缺件检查表"的双重职责，新接手的人/agent 只读这一页就能定位本 feature 的所有过程交付件。
 - 必须由 `hf-specify` 在 feature 启动时创建，并由后续每个 hf-* skill 在产出新工件时同步更新对应行的状态与路径。
-- 若项目在 `AGENTS.md` 中声明了等价模板，优先遵循项目约定。
+- 若项目在 项目声明了等价模板，优先遵循项目约定。
 
 ## Metadata
 

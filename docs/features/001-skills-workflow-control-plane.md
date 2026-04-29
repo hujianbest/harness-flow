@@ -4,9 +4,9 @@
 - Status: proposed
 - Date: 2026-04-27
 - Context:
-  - Strategic anchor: `docs/principles/00 soul.md`
-  - Node contract: `docs/principles/01 skill-node-define.md`
-  - Artifact layout: `docs/principles/03 sdd-artifact-layout.md`
+  - Strategic anchor: `docs/principles/soul.md`
+  - Node contract: `docs/principles/skill-node-define.md`
+  - Artifact layout: `docs/principles/sdd-artifact-layout.md`
 
 ## Goal
 
@@ -74,7 +74,7 @@ Actions:
 
 Deliverables:
 
-- `skills/docs/hf-workflow-shared-conventions.md` update or equivalent reference.
+- `skills/hf-workflow-router/references/workflow-shared-conventions.md` update or equivalent reference.
 - `docs/features/001-skills-workflow-control-plane/progress.md` fixture.
 - Example records under `docs/features/001-skills-workflow-control-plane/reviews/` and `verification/`.
 

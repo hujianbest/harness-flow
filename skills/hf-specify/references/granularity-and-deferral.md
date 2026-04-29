@@ -100,7 +100,7 @@
 
 - `features/<active>/spec-deferred.md`
 
-若 `AGENTS.md` 已声明等价路径，优先使用映射路径。
+若 项目已声明等价路径，优先使用映射路径。
 
 建议最小结构：
 

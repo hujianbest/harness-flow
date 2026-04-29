@@ -68,7 +68,7 @@ full/standard 记录缺失/过旧 → `阻塞`。
 
 记录：完成范围、命令、退出码、结果摘要、新鲜度锚点、未覆盖什么。
 
-若项目未覆写格式，默认把 evidence bundle 映射到共享模板 `templates/verification-record-template.md` 的这些字段：
+若项目未覆写格式，默认把 evidence bundle 映射到本 skill 模板 `references/verification-record-template.md` 的这些字段：
 - `Metadata`：`Verification Type=completion-gate`、Scope、Record Path、Worktree Path / Branch（若适用）
 - `Upstream Evidence Consumed`：implementation handoff、review / gate records、task / progress anchors
 - `Claim Being Verified`：当前准备宣告的 completion claim
@@ -98,7 +98,7 @@ full/standard 记录缺失/过旧 → `阻塞`。
 | 声称“刚跑过且全绿”，但只有口头陈述，或终端 / 输出记录已不可核实 | `阻塞` | `hf-completion-gate` | `record_path`、不可核实原因、需要重新生成的验证输出 |
 | review 都过了，但本轮没运行能直接证明 completion claim 的命令 | `需修改` | `hf-test-driven-dev` | `record_path`、缺失的验证命令、为什么 review 不能替代 verification |
 | 验证命令有失败项，或结果不能直接支持 completion claim | `需修改` | `hf-test-driven-dev` | `record_path`、失败摘要、未满足的完成条件 |
-| 强制验证步骤因环境 / 工具链问题未完成，且 `AGENTS.md` / DoD 无降级许可 | `阻塞` | `hf-completion-gate` | `record_path`、阻塞原因、未覆盖区域、恢复后需重跑什么 |
+| 强制验证步骤因环境 / 工具链问题未完成，且 项目约定 / DoD 无降级许可 | `阻塞` | `hf-completion-gate` | `record_path`、阻塞原因、未覆盖区域、恢复后需重跑什么 |
 | 当前任务证据充分，但 next-ready task 候选不唯一，或 ready 判定冲突 | `阻塞` | `hf-workflow-router` | `record_path`、候选任务清单、冲突证据、为什么本 skill 不能替 router 选任务 |
 | 当前任务证据充分，且仍有唯一 next-ready task | `通过` | `hf-workflow-router` | `record_path`、completion claim、evidence bundle、`Remaining Task Decision=唯一 next-ready task` |
 | 当前任务证据充分，且已无剩余 approved tasks | `通过` | `hf-finalize` | `record_path`、completion claim、evidence bundle、`Remaining Task Decision=无剩余任务` |
@@ -119,7 +119,7 @@ full/standard 记录缺失/过旧 → `阻塞`。
 
 ## Output Contract
 
-记录保存到 `AGENTS.md` 声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/completion-task-NNN.md`。若项目无专用格式，默认使用共享模板 `templates/verification-record-template.md`。
+记录保存到 项目声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/completion-task-NNN.md`。若项目无专用格式，默认使用本 skill 模板 `references/verification-record-template.md`。
 
 最少应包含：
 - 已消费的上游结论与证据矩阵
@@ -136,7 +136,7 @@ full/standard 记录缺失/过旧 → `阻塞`。
 
 | 文件 | 用途 |
 |------|------|
-| `templates/verification-record-template.md` | regression/completion 共用 verification record 模板 |
+| `references/verification-record-template.md` | completion verification record 模板（与 `hf-regression-gate` 同形态） |
 
 ## 和其他 Skill 的区别
 

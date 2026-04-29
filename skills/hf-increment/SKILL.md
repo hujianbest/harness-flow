@@ -61,7 +61,7 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 - feature `progress.md`（默认 `features/<active>/progress.md`）中的 `Workflow Profile`、`Current Stage`、`Current Active Task` 与 `Pending Reviews And Gates`
 - 当前已批准规格、设计、任务工件
 - 当前已存在的 review / gate / 验证证据（如受影响）
-- `AGENTS.md` 中与工件路径、批准规则、状态字段和 re-entry 约定有关的内容
+- 项目级工件路径、批准规则、状态字段和 re-entry 约定（若项目已声明）
 
 先回答：
 
@@ -155,13 +155,13 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 
 ### 5. 写回状态与回流说明
 
-变更影响分析完成后，默认应把本次记录同步到项目变更记录；若 `AGENTS.md` 无项目覆写，可至少落到：
+变更影响分析完成后，默认应把本次记录同步到项目变更记录；若项目级约定无项目覆写，可至少落到：
 
 - `features/<active>/reviews/increment-<topic>.md`
 - feature `progress.md`（默认 `features/<active>/progress.md`）
 - 相关规格 / 设计 / 任务工件（默认 `features/<active>/spec.md` / `design.md` / `tasks.md`）
 
-模板优先使用 `references/change-impact-sync-record-template.md`；若 `AGENTS.md` 为当前项目声明了等价模板路径，优先遵循。
+模板优先使用 `references/change-impact-sync-record-template.md`；若项目级约定为当前项目声明了等价模板路径，优先遵循。
 
 至少同步：
 

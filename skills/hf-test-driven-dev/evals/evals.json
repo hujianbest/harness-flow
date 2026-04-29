@@ -16,7 +16,7 @@
     },
     {
       "id": 2,
-      "prompt": "User request:\nauto mode，继续实现 TASK-003，不用等我确认。\n\nProject snapshot:\n- `Workflow Profile`: standard.\n- `Execution Mode`: auto.\n- `Current Active Task`: TASK-003.\n- Approved task plan exists and includes test-design seeds.\n- `AGENTS.md` explicitly allows auto-resolving the test-design approval step for this repository.\n- Approval records should be written under `features/<active>/approvals/`.\n- No branch signal or evidence conflict exists.\n\nAs `hf-test-driven-dev`, decide what to do next.",
+      "prompt": "User request:\nauto mode，继续实现 TASK-003，不用等我确认。\n\nProject snapshot:\n- `Workflow Profile`: standard.\n- `Execution Mode`: auto.\n- `Current Active Task`: TASK-003.\n- Approved task plan exists and includes test-design seeds.\n- The project-level convention explicitly allows auto-resolving the test-design approval step for this repository.\n- Approval records should be written under `features/<active>/approvals/`.\n- No branch signal or evidence conflict exists.\n\nAs `hf-test-driven-dev`, decide what to do next.",
       "expected_output": "Produce the test design, complete the test-design approval step by writing an approval record, and only then proceed into fail-first TDD; `auto` removes the wait, not the approval semantics.",
       "files": [],
       "expectations": [
@@ -29,7 +29,7 @@
     },
     {
       "id": 3,
-      "prompt": "User request:\nauto mode，继续实现 TASK-003，不用等我确认。\n\nProject snapshot:\n- `Workflow Profile`: standard.\n- `Execution Mode`: auto.\n- `Current Active Task`: TASK-003.\n- Approved task plan exists and includes test-design seeds.\n- The task touches a high-risk module, and `AGENTS.md` forbids auto-resolving the test-design approval step in this area.\n- No approval-record path is configured for this approval kind.\n- No other branch signal exists.\n\nAs `hf-test-driven-dev`, decide what to do next.",
+      "prompt": "User request:\nauto mode，继续实现 TASK-003，不用等我确认。\n\nProject snapshot:\n- `Workflow Profile`: standard.\n- `Execution Mode`: auto.\n- `Current Active Task`: TASK-003.\n- Approved task plan exists and includes test-design seeds.\n- The task touches a high-risk module, and the project-level convention forbids auto-resolving the test-design approval step in this area.\n- No approval-record path is configured for this approval kind.\n- No other branch signal exists.\n\nAs `hf-test-driven-dev`, decide what to do next.",
       "expected_output": "Do not start TDD automatically; produce the test design, report that the approval step cannot be auto-resolved under current policy, and stop before RED/GREEN instead of silently skipping the approval gate.",
       "files": [],
       "expectations": [
