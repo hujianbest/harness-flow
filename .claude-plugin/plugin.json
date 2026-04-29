@@ -1,0 +1,22 @@
+{
+  "name": "harness-flow",
+  "version": "0.1.0",
+  "description": "HF skill family + 6 short-alias slash commands. Spec-driven, gated TDD, multi-step independent reviews, evidence-based recovery.",
+  "author": {
+    "name": "hujianbest",
+    "url": "https://github.com/hujianbest"
+  },
+  "homepage": "https://github.com/hujianbest/harness-flow",
+  "repository": "https://github.com/hujianbest/harness-flow",
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "spec-driven-development",
+    "tdd",
+    "ddd",
+    "code-review",
+    "agent-skills"
+  ],
+  "commands": "./.claude/commands/",
+  "skills": "./skills/"
+}
