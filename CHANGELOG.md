@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- `SECURITY.md` — security policy with scope, supported versions, private reporting via GitHub Security Advisory.
+- `CODE_OF_CONDUCT.md` — Contributor Covenant 2.1.
+- `CONTRIBUTING.md` — narrow, single-maintainer-aware contribution guide aligned with ADR-001 D1 / D11 scope.
+- `.github/ISSUE_TEMPLATE/bug_report.md` and `feature_request.md` — issue templates that prompt readers to check the Scope Note + ADR-001 before filing.
+- `.github/ISSUE_TEMPLATE/config.yml` — disables blank issues; adds contact links to security advisory + Code of Conduct + Scope Note.
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR template with Scope Note check + per-area testing prompts (no CI yet, see `CONTRIBUTING.md` "Known Limitations").
+
+### Notes
+
+- These additions are governance / hygiene only; no `skills/`, `docs/principles/`, or `examples/writeonce/` content changes.
+- Real-environment install verification of the Claude Code marketplace path and the OpenCode setup path is the remaining `v0.1.x` stabilization item that **cannot** be completed inside this repository — see `CONTRIBUTING.md` "Known Limitations".
+
 ## [0.1.0] - pre-release
 
 > **First public release.** Marked as a **pre-release** on GitHub Releases.
