@@ -4,7 +4,41 @@
 
 **From idea to shipped product: high-quality engineering workflows for AI agents.**
 
+> ## Scope Note (v0.1.0 pre-release)
+>
+> - **Version**: `v0.1.0`, marked as a **pre-release** on GitHub Releases. The public surface is intentionally small.
+> - **Officially supported clients**: **Claude Code** and **OpenCode** only. Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro are deferred to v0.2+ (HarnessFlow may run there because it is plain Markdown, but those paths are not part of the v0.1.0 commitment).
+> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). Release pipelines, deployment, observability, incident response, security hardening, performance gating, and post-launch ops are **not** first-class stages in v0.1.0; they are roadmap items for v0.2 / v0.3.
+> - This narrow surface is a deliberate choice (ADR-001 D1 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
+>
+> See `docs/decisions/ADR-001-release-scope-v0.1.0.md` for the full release scope decisions.
+
 HarnessFlow is a skill pack for AI agents that turns the full **idea → insight → architecture → implementation → delivery** arc into structured artifacts, quality discipline, and clear handoffs. Product discovery, specification, architecture design, task breakdown, gated TDD implementation, independent reviews, regression and completion gates, and formal closeout are all first-class stages, so agents move along an explicit "one idea → reviewable direction → reviewable design → executable tasks → shipped product" path instead of relying on ad hoc prompt chains.
+
+## Acknowledgements
+
+HarnessFlow stands on a small set of clearly-attributed engineering and product methods. Each entry below names the source and the `hf-*` skill (or constitution-layer document) where it lands.
+
+| Source | Where it lands in HarnessFlow |
+|---|---|
+| [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) | `docs/principles/coding-principles.md` (Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution); inlined into every `hf-*` `SKILL.md` |
+| Software Engineering at Google + [Google engineering-practices guide](https://google.github.io/eng-practices/) | review cadence, change sizing, reviewer norms across `hf-*-review` skills |
+| Eric Evans — *Domain-Driven Design* | `hf-design` (DDD strategic modeling: bounded context, ubiquitous language, context map) |
+| Vaughn Vernon — *Implementing Domain-Driven Design* | `hf-design` (DDD tactical patterns: aggregate, value object, repository, domain service, application service, domain event) |
+| Alberto Brandolini — Event Storming | `hf-design` (spec → design bridge) |
+| Kent Beck — *Test-Driven Development* + Two Hats | `hf-test-driven-dev` (Canon TDD; Two Hats discipline) |
+| Martin Fowler — *Refactoring*, *Patterns of Enterprise Application Architecture*, Front Controller | `hf-test-driven-dev` (refactoring playbook); `using-hf-workflow` (Front Controller); `hf-workflow-router` (FSM dispatch) |
+| Robert C. Martin — *Clean Architecture*, SOLID | `hf-test-driven-dev` (architecture conformance check); `hf-code-review` (clean architecture review) |
+| Michael Fagan — Fagan Inspection | `hf-discovery-review`, `hf-spec-review`, `hf-design-review`, `hf-ui-review`, `hf-tasks-review`, `hf-test-review`, `hf-code-review`, `hf-traceability-review` |
+| Simon Brown — C4 Model | `hf-design` |
+| Gernot Starke — ARC42 | `hf-design` |
+| ISO/IEC 25010 — Quality Attribute model + Quality Attribute Scenarios | `hf-specify` (NFR framing); `hf-design` (NFR uptake via QAS) |
+| Microsoft — STRIDE Threat Modeling | `hf-design` (lightweight threat modeling) |
+| Jakob Nielsen — Heuristic Evaluation | `hf-ui-design`, `hf-ui-review` |
+| W3C WAI — WCAG 2.2 AA | `hf-ui-design`, `hf-ui-review` |
+| PMI — PMBOK (project closeout / handoff) | `hf-finalize` |
+| Tony Ulwick / Clayton Christensen — Jobs-to-be-Done | `hf-product-discovery` |
+| Teresa Torres — Opportunity Solution Tree | `hf-product-discovery` |
 
 ## Overview
 
@@ -157,24 +191,78 @@ HF does not assign methods arbitrarily. Each skill gets the methods that best ma
 
 ## Installation
 
-HarnessFlow is currently distributed as source. Clone the repository and keep the pack layout intact.
+HarnessFlow v0.1.0 officially supports **Claude Code** and **OpenCode**. Both paths read the same `skills/` directory; the difference is only in how each client discovers commands.
 
-```bash
-git clone <repo-url> HarnessFlow
-cd HarnessFlow
+### Claude Code (recommended)
+
+Marketplace install:
+
+```text
+/plugin marketplace add hujianbest/harness-flow
+/plugin install harness-flow@harness-flow
 ```
 
-Keep these directories together:
+This installs 6 short slash commands (see [Slash Commands](#slash-commands-claude-code) below).
 
-- `skills/`
+Local / development install (when iterating on HarnessFlow itself):
 
-That's it. Each `hf-*` skill is **self-contained**: its `SKILL.md`, `references/` (templates, rubrics, dispatch protocols, worktree guides) and `evals/` ship together inside the skill folder. There is no top-level `skills/docs/`, `skills/templates/` or `skills/principles/` you also need to keep around.
+```bash
+git clone https://github.com/hujianbest/harness-flow.git
+cd harness-flow
+claude --plugin-dir "$PWD"
+```
 
-`docs/principles/` belongs to **the HarnessFlow repository itself** (it is HF's design notes, not part of the skill pack runtime). When you vendor HarnessFlow into another workspace, copy `skills/` only — you do **not** need to copy `docs/principles/`. Each `hf-*` skill has already absorbed the relevant principles into its own `SKILL.md`.
+Full setup notes, troubleshooting, and the SSH/HTTPS fallback for marketplace fetches: `docs/claude-code-setup.md`.
 
-> **Project conventions**: HF skills work with sensible defaults out of the box. If your project needs to override paths, templates, profile rules, execution mode, coverage thresholds or other policies, declare them wherever your repository already keeps such conventions (e.g. a project-level guidelines file, a `CONTRIBUTING.md`, or a host-tool config like `AGENTS.md` if your stack uses one). Each `hf-*` skill points to "project-level convention (if declared)" — it does not require any particular sidecar file.
+### OpenCode
 
-There is not yet a one-command registry install for this pack.
+OpenCode integration is intentionally **agent-driven** with **no `AGENTS.md` sidecar** and no slash command files (PR #21 made every `hf-*` skill self-contained; ADR-001 D3 confirmed no sidecar is needed). The agent uses natural language and the on-disk artifacts under `skills/` to route every request.
+
+```bash
+git clone https://github.com/hujianbest/harness-flow.git
+cd harness-flow
+```
+
+Open the repository in OpenCode and start with:
+
+```text
+Use HarnessFlow from this repo. Start with `using-hf-workflow` and route me
+through the correct HF workflow.
+```
+
+Full intent → node mapping and troubleshooting: `docs/opencode-setup.md`.
+
+### Other clients (deferred to v0.2+)
+
+HarnessFlow skills are plain Markdown, so they **may** work with Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.1.0 supported surface** and have no setup doc in this version.
+
+### Repository layout to vendor
+
+When you vendor HarnessFlow into another workspace, copy `skills/` only. Each `hf-*` skill is **self-contained**: its `SKILL.md`, `references/` (templates, rubrics, dispatch protocols, worktree guides) and `evals/` ship together inside the skill folder. There is no top-level `skills/docs/`, `skills/templates/` or `skills/principles/` you also need to keep around.
+
+`docs/principles/` belongs to **the HarnessFlow repository itself** (HF's own design reference per ADR-001 D11; not a runtime dependency, not a release gate, not a SKILL.md compliance baseline). You do **not** need to copy `docs/principles/` when vendoring.
+
+> **Project conventions**: HF skills work with sensible defaults out of the box. If your project needs to override paths, templates, profile rules, execution mode, coverage thresholds or other policies, declare them wherever your repository already keeps such conventions (e.g. a project-level guidelines file, a `CONTRIBUTING.md`, or a host-tool config). Each `hf-*` skill points to "project-level convention (if declared)" — it does not require any particular sidecar file.
+
+## Slash Commands (Claude Code)
+
+The Claude Code plugin ships 6 short aliases (locked by ADR-001 D4). Every command is a **bias**, not a bypass — the router still validates upstream preconditions from on-disk artifacts.
+
+| Command | Bias toward | Notes |
+|---|---|---|
+| `/hf` | `using-hf-workflow` → `hf-workflow-router` | Default. Use this when you are not sure which node should run next. |
+| `/spec` | `hf-specify` | Spec authoring / revision. |
+| `/plan` | `hf-design` (and `hf-ui-design` when the spec declares a UI surface) or `hf-tasks` | Combined planning command — design + task breakdown are intentionally one command (ADR-001 D4 rationale). |
+| `/build` | `hf-test-driven-dev` | Only valid when exactly one `Current Active Task` is locked. |
+| `/review` | router dispatches to the matching `hf-*-review` | Reviews are independent nodes with author/reviewer separation. |
+| `/ship` | `hf-completion-gate` → `hf-finalize` | The gate decides whether finalize can actually run. Engineering-level closeout only — **not** production deployment. |
+
+Intentionally **not** included in v0.1.0:
+
+- No `/hotfix` — natural language + `/hf` lets the router branch into `hf-hotfix` / `hf-increment` for production defects or scope changes.
+- No `/gate` — gates are pulled by the canonical next action of the upstream node, not pushed by the user. A `/gate` command would encourage skipping implementation or review.
+
+OpenCode does not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow`.
 
 ## Quick Start
 
