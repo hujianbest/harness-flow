@@ -6,6 +6,25 @@
 
 HarnessFlow is a skill pack for AI agents that turns the full **idea → insight → architecture → implementation → delivery** arc into structured artifacts, quality discipline, and clear handoffs. Product discovery, specification, architecture design, task breakdown, gated TDD implementation, independent reviews, regression and completion gates, and formal closeout are all first-class stages, so agents move along an explicit "one idea → reviewable direction → reviewable design → executable tasks → shipped product" path instead of relying on ad hoc prompt chains.
 
+> ## v0.1.0 Scope Note (pre-release)
+>
+> This is the **first public pre-release**. Scope is locked by [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md) and is intentionally narrow per the **P-Honest** principle (narrow, hard, less promised surface).
+>
+> **What ships in v0.1.0**
+> - 23 `hf-*` workflow skills + `using-hf-workflow` public entry — full main chain from `hf-product-discovery` through `hf-finalize`, plus branch nodes (`hf-hotfix` / `hf-increment`) and the side node `hf-bug-patterns`.
+> - 6 short-alias slash commands: `/hf` `/spec` `/plan` `/build` `/review` `/ship` (`/plan` merges design + tasks; the router resolves design vs tasks by artifact evidence).
+> - Integration paths for **Claude Code** and **OpenCode** only.
+> - `examples/writeonce/` quickstart with the full main chain run end-to-end.
+>
+> **What does NOT ship in v0.1.0**
+> - **No release / ops skills** — no `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-debugging-and-error-recovery`, or `hf-browser-runtime-evidence`. The main chain terminates at `hf-finalize` (engineering closeout); deployment pipelines, observability, incident response, metrics feedback, and post-launch ops are out of v0.1.0 scope.
+> - **No support for Cursor / Gemini CLI / Windsurf / Copilot / Kiro** — the repository remains usable from those clients, but they are not on the v0.1.0 supported-platform promise list. Deferred to v0.2+.
+> - **No automated SKILL.md anatomy / quality baseline** — files under `docs/principles/` are design reference, not a compliance baseline. No audit script ships in v0.1.0.
+> - **No anti-rationalization tables across SKILL.md** — deferred to a post-release iteration based on actual feedback.
+> - **No package-name pre-claim** on npm / PyPI / any marketplace.
+>
+> See [`CHANGELOG.md`](CHANGELOG.md) for the full v0.1.0 release notes.
+
 ## Overview
 
 HarnessFlow's primary path covers the full **idea-to-product** arc:
@@ -420,3 +439,34 @@ HarnessFlow is for teams and builders who want AI agents to carry **idea-to-prod
 HarnessFlow is currently centered on a coding workflow pack. Phase 0 has thickened the product-insight and architecture-design layers (JTBD / OST / RICE / Desired Outcome / QAS / DDD / Event Storming / STRIDE / `hf-experiment`). Continued evolution toward commercial-grade delivery (release, operations, metrics feedback, collaboration, long-term architecture health, and data / AI product tracks) is planned for later phases.
 
 The repository contains the current HF skill family, shared docs, templates, and supporting principles (including the methodology coherence / phase / profile activation map in `docs/principles/methodology-coherence.md`).
+
+## License
+
+Released under the [MIT License](LICENSE) — use these skills in your projects, teams, and tools.
+
+## Acknowledgements
+
+HarnessFlow stands on a long lineage of engineering and product-discovery practice. Each entry below is a primary source whose ideas are encoded into one or more HF nodes; HF adapts and combines them into a single agent-driven workflow rather than reinventing them.
+
+| Source | What HF takes from it | Where it lands |
+|---|---|---|
+| [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) | Cross-cutting LLM coding behavior baseline (Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven Execution) | `docs/principles/coding-principles.md`, absorbed into every `hf-*` SKILL.md |
+| [Software Engineering at Google](https://abseil.io/resources/swe-book) + [Google engineering practices](https://google.github.io/eng-practices/) | Code-review norms, change sizing, test-pyramid sensibilities | `hf-code-review`, `hf-test-driven-dev`, `hf-test-review` |
+| Eric Evans — *Domain-Driven Design* | Strategic modeling: Bounded Context, Ubiquitous Language, Context Map | `hf-design` (strategic layer) |
+| Vaughn Vernon — *Implementing Domain-Driven Design* | Tactical patterns: Aggregate, VO, Repository, Domain Service, Application Service, Domain Event | `hf-design` (tactical layer) |
+| Alberto Brandolini — *Event Storming* | Spec → design bridge through domain events | `hf-design` |
+| Kent Beck — *Test-Driven Development* + Two Hats | Canon TDD, Two Hats discipline, opportunistic + preparatory refactoring | `hf-test-driven-dev`, `hf-code-review` (refactor hygiene) |
+| Martin Fowler — *Refactoring*, *Patterns of Enterprise Application Architecture* | Front Controller pattern, opportunistic / preparatory refactoring framing | `using-hf-workflow`, `hf-test-driven-dev` |
+| Robert C. Martin — *Clean Architecture*, SOLID | Clean Architecture conformance + SOLID checks at implementation node | `hf-test-driven-dev`, `hf-code-review` |
+| Michael Fagan — Fagan Inspection | Author/reviewer role separation, structured walkthrough | All `hf-*-review` nodes |
+| Simon Brown — C4 Model | Architecture diagram conventions | `hf-design` |
+| Gernot Starke — ARC42 | Architecture documentation skeleton | `hf-design` |
+| ISO/IEC 25010 + Quality Attribute Scenarios | Quality attribute model + scenario language for NFRs | `hf-specify` (NFR), `hf-design` (NFR uptake) |
+| Microsoft — STRIDE | Lightweight threat modeling | `hf-design` |
+| Jakob Nielsen — Heuristic Evaluation | UX heuristic checklist | `hf-ui-design`, `hf-ui-review` |
+| W3C WAI — WCAG 2.2 AA | Accessibility baseline | `hf-ui-design`, `hf-ui-review` |
+| PMI — PMBOK | Project closeout / handoff pack mindset | `hf-finalize` |
+| Tony Ulwick / Clayton Christensen — Jobs-to-be-Done | Outcome-driven discovery | `hf-product-discovery` |
+| Teresa Torres — Opportunity Solution Tree | Discovery structure | `hf-product-discovery` |
+
+If you spot a methodology HF uses but failed to credit, please open an issue.
