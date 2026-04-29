@@ -64,7 +64,65 @@ def _write_skill(tmp: Path, body: str) -> mod.SkillAudit:
     return mod.audit_skill(skill_dir)
 
 
-def test_audit_flags_missing_object_contract_for_workflow_skill() -> None:
+def test_object_contract_missing_no_longer_blocks_hard_pass() -> None:
+    """Q1=B: Object Contract is recommended in v0.1.0, not a hard fail.
+
+    A workflow skill that has every mandatory section but lacks Object
+    Contract should still pass anatomy hard checks. It will, however, be
+    listed under P2 (recommended) and Object Contract should appear in
+    missing_workflow_recommended, not missing_workflow_required.
+    """
+    body = (
+        "---\n"
+        "name: hf-sample\n"
+        "description: 适用于演示用例。不适用于生产。\n"
+        "---\n"
+        "\n"
+        "# Sample\n"
+        "\n"
+        "## When to Use\n"
+        "## Methodology\n"
+        "## Workflow\n"
+        "1. step\n"
+        "## Red Flags\n"
+        "## Common Rationalizations\n"
+        "## Verification\n"
+    )
+    with tempfile.TemporaryDirectory() as td:
+        a = _write_skill(Path(td), body)
+        assert a.is_workflow_skill
+        assert not a.has_object_contract
+        assert "Object Contract" not in a.missing_workflow_required
+        assert "Object Contract" in a.missing_workflow_recommended
+        assert a.hard_pass
+        assert a.release_gate_pass
+
+
+def test_methodology_missing_still_blocks_hard_pass() -> None:
+    """Methodology stays mandatory for workflow skills."""
+    body = (
+        "---\n"
+        "name: hf-sample\n"
+        "description: 适用于演示用例。不适用于生产。\n"
+        "---\n"
+        "\n"
+        "# Sample\n"
+        "\n"
+        "## When to Use\n"
+        "## Workflow\n"
+        "1. step\n"
+        "## Red Flags\n"
+        "## Common Rationalizations\n"
+        "## Verification\n"
+    )
+    with tempfile.TemporaryDirectory() as td:
+        a = _write_skill(Path(td), body)
+        assert "Methodology" in a.missing_workflow_required
+        assert not a.hard_pass
+
+
+def test_common_rationalizations_missing_passes_hard_but_fails_release_gate() -> None:
+    """ADR-001 D8: CR is the v0.1.0 release gate, layered above hard checks."""
     body = (
         "---\n"
         "name: hf-sample\n"
@@ -82,13 +140,13 @@ def test_audit_flags_missing_object_contract_for_workflow_skill() -> None:
     )
     with tempfile.TemporaryDirectory() as td:
         a = _write_skill(Path(td), body)
-        assert a.is_workflow_skill
-        assert not a.has_object_contract
-        assert "Object Contract" in a.missing_workflow_required
-        assert not a.hard_pass
+        assert a.hard_pass
+        assert not a.has_common_rationalizations
+        assert "Common Rationalizations" in a.missing_release_gate
+        assert not a.release_gate_pass
 
 
-def test_audit_passes_minimal_workflow_skill() -> None:
+def test_audit_passes_minimal_v01_workflow_skill() -> None:
     body = (
         "---\n"
         "name: hf-sample\n"
@@ -103,6 +161,7 @@ def test_audit_passes_minimal_workflow_skill() -> None:
         "## Workflow\n"
         "1. step\n"
         "## Red Flags\n"
+        "## Common Rationalizations\n"
         "## Verification\n"
     )
     with tempfile.TemporaryDirectory() as td:
@@ -110,10 +169,13 @@ def test_audit_passes_minimal_workflow_skill() -> None:
         assert a.has_object_contract
         assert a.has_methodology
         assert a.has_red_flags
+        assert a.has_common_rationalizations
         assert a.has_numbered_workflow
         assert not a.missing_required
         assert not a.missing_workflow_required
+        assert not a.missing_release_gate
         assert a.hard_pass
+        assert a.release_gate_pass
 
 
 def main() -> int:

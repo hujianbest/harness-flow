@@ -33,13 +33,22 @@ REQUIRED_SECTIONS = [
     "Workflow",
     "Verification",
 ]
+# Per skill-anatomy.md (post-Q1=B): Object Contract is recommended in
+# v0.1.0 and only becomes mandatory in v0.2.0; Methodology stays mandatory
+# for workflow skills.
 WORKFLOW_REQUIRED_EXTRA = [
-    "Object Contract",
     "Methodology",
 ]
+WORKFLOW_RECOMMENDED_EXTRA = [
+    "Object Contract",
+]
+# Per ADR-001 D8: Common Rationalizations is a v0.1.0 release gate for
+# all workflow skills.
 RECOMMENDED_SECTIONS = [
     "Red Flags",
     "Output Contract",
+]
+WORKFLOW_RELEASE_GATE_SECTIONS = [
     "Common Rationalizations",
 ]
 
@@ -64,6 +73,8 @@ class SkillAudit:
     sections_found: list[str] = field(default_factory=list)
     missing_required: list[str] = field(default_factory=list)
     missing_workflow_required: list[str] = field(default_factory=list)
+    missing_workflow_recommended: list[str] = field(default_factory=list)
+    missing_release_gate: list[str] = field(default_factory=list)
     missing_recommended: list[str] = field(default_factory=list)
     has_numbered_workflow: bool = False
     over_line_budget: bool = False
@@ -74,6 +85,7 @@ class SkillAudit:
     has_red_flags: bool = False
     is_workflow_skill: bool = True
     hard_pass: bool = False
+    release_gate_pass: bool = False
     notes: list[str] = field(default_factory=list)
 
 
@@ -187,6 +199,12 @@ def audit_skill(skill_dir: Path) -> SkillAudit:
         a.missing_workflow_required = [
             s for s in WORKFLOW_REQUIRED_EXTRA if not has_section(s)
         ]
+        a.missing_workflow_recommended = [
+            s for s in WORKFLOW_RECOMMENDED_EXTRA if not has_section(s)
+        ]
+        a.missing_release_gate = [
+            s for s in WORKFLOW_RELEASE_GATE_SECTIONS if not has_section(s)
+        ]
     a.missing_recommended = [s for s in RECOMMENDED_SECTIONS if not has_section(s)]
 
     a.has_numbered_workflow = bool(NUMBERED_STEP_RE.search(text))
@@ -212,14 +230,16 @@ def audit_skill(skill_dir: Path) -> SkillAudit:
             f"超 token 预算：~{a.estimated_tokens} tokens > {TOKEN_BUDGET}"
         )
     if a.is_workflow_skill and not a.has_object_contract:
-        a.notes.append("workflow skill 缺 `Object Contract`")
+        a.notes.append(
+            "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）"
+        )
     if a.is_workflow_skill and not a.has_methodology:
-        a.notes.append("workflow skill 缺 `Methodology`")
+        a.notes.append("workflow skill 缺 `Methodology`（必需）")
     if not a.has_red_flags:
         a.notes.append("缺 `Red Flags`")
-    if not a.has_common_rationalizations:
+    if a.is_workflow_skill and not a.has_common_rationalizations:
         a.notes.append(
-            "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+            "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
         )
     if not a.has_numbered_workflow:
         a.notes.append("Workflow 区段未发现编号步骤")
@@ -236,12 +256,17 @@ def audit_skill(skill_dir: Path) -> SkillAudit:
         and not a.over_line_budget
         and not a.over_token_budget
     )
+    a.release_gate_pass = (
+        a.hard_pass
+        and (not a.is_workflow_skill or not a.missing_release_gate)
+    )
     return a
 
 
 def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
     total = len(audits)
     passing = sum(1 for a in audits if a.hard_pass)
+    release_passing = sum(1 for a in audits if a.release_gate_pass)
     over_token = sum(1 for a in audits if a.over_token_budget)
     over_line = sum(1 for a in audits if a.over_line_budget)
     missing_obj = sum(
@@ -251,7 +276,9 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
         1 for a in audits if a.is_workflow_skill and not a.has_methodology
     )
     missing_rf = sum(1 for a in audits if not a.has_red_flags)
-    missing_cr = sum(1 for a in audits if not a.has_common_rationalizations)
+    missing_cr = sum(
+        1 for a in audits if a.is_workflow_skill and not a.has_common_rationalizations
+    )
 
     lines: list[str] = []
     lines.append("# HF SKILL.md Anatomy 审计报告")
@@ -262,7 +289,11 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
     lines.append("- 关联决策：`docs/decisions/ADR-001-release-scope-v0.1.0.md`")
     lines.append("- 生成器：`scripts/audit-skill-anatomy.py`（只读）")
     lines.append(f"- 审计 SKILL.md 数：{total}")
-    lines.append(f"- 通过 hard checks：{passing} / {total}")
+    lines.append(f"- 通过 hard checks（anatomy 必需段）：{passing} / {total}")
+    lines.append(
+        f"- 通过 v0.1.0 release gate（hard + Common Rationalizations）："
+        f"{release_passing} / {total}"
+    )
     lines.append("")
     lines.append("## 摘要")
     lines.append("")
@@ -273,21 +304,34 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
         pct = (n / total * 100) if total else 0
         return f"| {label} | {n} | {pct:.0f}% |"
 
-    lines.append(row("通过全部 hard checks", passing))
+    lines.append(row("通过 anatomy hard checks", passing))
+    lines.append(row("通过 v0.1.0 release gate（hard + CR）", release_passing))
     lines.append(row("超 token 预算", over_token))
     lines.append(row("超行预算", over_line))
-    lines.append(row("workflow skill 缺 Object Contract", missing_obj))
-    lines.append(row("workflow skill 缺 Methodology", missing_meth))
-    lines.append(row("缺 Red Flags", missing_rf))
-    lines.append(row("缺 Common Rationalizations（ADR-001 D8 要求）", missing_cr))
+    lines.append(row("workflow skill 缺 Methodology（必需）", missing_meth))
+    lines.append(row("缺 Red Flags（必需）", missing_rf))
+    lines.append(
+        row("workflow skill 缺 Common Rationalizations（v0.1.0 release gate）",
+            missing_cr)
+    )
+    lines.append(
+        row("workflow skill 缺 Object Contract（v0.1.0 推荐 / v0.2.0 必需）",
+            missing_obj)
+    )
     lines.append("")
     lines.append("## 每个 Skill 的明细")
     lines.append("")
     lines.append(
-        "| Skill | hard | lines | ~tokens | Obj | Meth | RF | CR | 备注 |"
+        "列定义：`hard` = anatomy 必需段全部满足；`gate` = hard + Common "
+        "Rationalizations（v0.1.0 发版门禁）；`Obj` = Object Contract "
+        "（v0.1.0 推荐，缺位不计入 hard fail）。"
+    )
+    lines.append("")
+    lines.append(
+        "| Skill | hard | gate | lines | ~tokens | Meth | RF | CR | Obj | 备注 |"
     )
     lines.append(
-        "|---|:-:|---:|---:|:-:|:-:|:-:|:-:|---|"
+        "|---|:-:|:-:|---:|---:|:-:|:-:|:-:|:-:|---|"
     )
 
     def y(b: bool) -> str:
@@ -299,13 +343,13 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
     for a in audits:
         obj_cell = y(a.has_object_contract) if a.is_workflow_skill else na()
         meth_cell = y(a.has_methodology) if a.is_workflow_skill else na()
+        cr_cell = y(a.has_common_rationalizations) if a.is_workflow_skill else na()
         notes = "；".join(a.notes) if a.notes else ""
-        # Markdown-table-safe: collapse pipes and newlines.
         notes = notes.replace("|", "\\|").replace("\n", " ")
         lines.append(
-            f"| `{a.skill}` | {y(a.hard_pass)} | {a.line_count} | "
-            f"{a.estimated_tokens} | {obj_cell} | {meth_cell} | "
-            f"{y(a.has_red_flags)} | {y(a.has_common_rationalizations)} | "
+            f"| `{a.skill}` | {y(a.hard_pass)} | {y(a.release_gate_pass)} | "
+            f"{a.line_count} | {a.estimated_tokens} | {meth_cell} | "
+            f"{y(a.has_red_flags)} | {cr_cell} | {obj_cell} | "
             f"{notes} |"
         )
 
@@ -313,7 +357,7 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
     lines.append("## 整改优先级建议")
     lines.append("")
     lines.append(
-        "P0（v0.1.0 阻塞，发版前必须修复）："
+        "P0（anatomy 必需段缺失，违反 `skill-anatomy.md` hard rule）："
     )
     p0 = [a for a in audits if not a.hard_pass]
     if p0:
@@ -323,10 +367,8 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
                 issues.append(f"超 token 预算 (~{a.estimated_tokens})")
             if a.over_line_budget:
                 issues.append(f"超行预算 ({a.line_count})")
-            if a.is_workflow_skill and not a.has_object_contract:
-                issues.append("缺 Object Contract")
             if a.is_workflow_skill and not a.has_methodology:
-                issues.append("缺 Methodology")
+                issues.append("缺 Methodology（必需）")
             if a.missing_required:
                 issues.append("缺必备段：" + ", ".join(a.missing_required))
             if a.description_looks_like_summary:
@@ -340,8 +382,13 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
         lines.append("- 无")
 
     lines.append("")
-    lines.append("P1（ADR-001 D8 要求 v0.1.0 全量补 anti-rationalization）：")
-    p1 = [a for a in audits if not a.has_common_rationalizations]
+    lines.append(
+        "P1（v0.1.0 release gate，ADR-001 D8 全量补 anti-rationalization）："
+    )
+    p1 = [
+        a for a in audits
+        if a.is_workflow_skill and not a.has_common_rationalizations
+    ]
     if p1:
         for a in p1:
             lines.append(f"- `{a.skill}` — 增加 `## Common Rationalizations` 表")
@@ -349,57 +396,47 @@ def render_markdown(audits: list[SkillAudit], repo_root: Path) -> str:
         lines.append("- 无")
 
     lines.append("")
-    lines.append("## 抛回架构师的方向题（HF 不替你定）")
+    lines.append("P2（v0.1.0 推荐 / v0.2.0 必需，建议本次顺手补）：")
+    p2 = [
+        a for a in audits
+        if a.is_workflow_skill and not a.has_object_contract
+    ]
+    if p2:
+        for a in p2:
+            lines.append(f"- `{a.skill}` — 增加 `## Object Contract` 段")
+    else:
+        lines.append("- 无")
+
+    lines.append("")
+    lines.append("## 已关闭的方向题")
     lines.append("")
     lines.append(
-        "下列发现**改变 skill 行为契约**而不仅是文档润色，按 "
-        "`docs/principles/soul.md` 「方向 / 取舍 / 标准的最终权在用户」，"
-        "需要你拍板后才能进入实现：")
-    lines.append("")
-    if missing_obj > 0:
-        lines.append(
-            f"- **Q1 — Object Contract 全量缺位（{missing_obj}/{total} workflow skills）**："
-            "`docs/principles/skill-anatomy.md` 把 `## Object Contract` 列为 "
-            "workflow skill **必备段**（写明 Primary / Frontend Input / Backend Output "
-            "Object 与 Object Transformation）。当前**没有任何一个** SKILL.md 写了。"
-            "v0.1.0 是否把它作为发版门禁？候选："
-        )
-        lines.append(
-            "  - **A. 严格执行**：v0.1.0 前给 24 个 SKILL.md 全部补 Object Contract。"
-            "工作量大、改动 contract、需逐个评审；但符合现行 anatomy 标准。"
-        )
-        lines.append(
-            "  - **B. 暂时降级**：把"
-            "`skill-anatomy.md` 中 Object Contract 改为 v0.1.0 「推荐」、"
-            "v0.2.0 升级为「必备」。anatomy 标准放宽，发版速度快；"
-            "但与 anatomy 文档现有口径冲突，需同时改 `skill-anatomy.md`。"
-        )
-        lines.append(
-            "  - **C. 折中**：v0.1.0 仅给 router / TDD / 三个 gate / finalize 等 "
-            "**核心 7 节点** 补；其余下沉到 v0.2.0。需要在 ADR 中显式列出"
-            "「核心 7 节点」清单。"
-        )
-    if missing_cr > 0:
-        lines.append(
-            f"- **Q2 — Common Rationalizations 全量缺位（{missing_cr}/{total}）**："
-            "ADR-001 D8 已锁定「v0.1.0 全量补」，**整改方向已决**。"
-            "但合并 PR #21 后发现衍生冲突：`docs/principles/skill-anatomy.md` "
-            "目前把 `Common Rationalizations` 列在「默认不建议扩散」清单中（"
-            "见该文件 §「主文件骨架」之后）。R1 step 2 实施前需要同时更新 "
-            "`skill-anatomy.md`，把 `Common Rationalizations` 从「不建议扩散」"
-            "移到主骨架表的「推荐」/「workflow skill 推荐」位置。否则 anatomy "
-            "标准与 ADR-001 D8 自相矛盾。**此项是文档同步，无新方向题**。"
-        )
+        "- **Q1 — Object Contract 是否作为 v0.1.0 发版门禁？**"
+        "架构师 2026-04-29 选 **B**：放宽 `skill-anatomy.md`，"
+        "Object Contract 在 v0.1.0 为「推荐」、v0.2.0 升为「必需」。"
+        "审计随即把它从 hard fail 降为 P2 推荐项；缺位不再阻塞 v0.1.0 发版。"
+    )
+    lines.append(
+        "- **Q2 — Common Rationalizations 衍生冲突**："
+        "`skill-anatomy.md` 已同步把 `Common Rationalizations` 从"
+        "「默认不建议扩散」移到「workflow skill 推荐」，并写明 v0.1.0 "
+        "全量补。审计把它升为 P1（v0.1.0 release gate）。"
+    )
     lines.append("")
     lines.append("## 方法学说明")
     lines.append("")
     lines.append(
-        "- Hard checks 等价于 `skill-anatomy.md` 检查清单的"
-        "「不可协商」部分（identity / sections / workflow shape / budget）。"
+        "- **anatomy hard checks**：等价于 `skill-anatomy.md` 检查清单的"
+        "「不可协商」部分（identity / Methodology / Workflow shape / "
+        "Red Flags / Verification / token-line budget）。"
     )
     lines.append(
-        "- Common Rationalizations 在 v0.1.0 之前不是 hard check，"
-        "但因 ADR-001 D8 决议而成为发版门禁。"
+        "- **v0.1.0 release gate**：在 hard checks 基础上额外要求 workflow "
+        "skill 写 `Common Rationalizations`（ADR-001 D8）。"
+    )
+    lines.append(
+        "- **Object Contract**：v0.1.0 推荐、v0.2.0 必需（架构师 Q1=B 决议）。"
+        "v0.1.0 缺位仅作 P2 提示，不阻塞发版。"
     )
     lines.append(
         "- token 估算用 `len(text)/4` 的粗略比例，仅用于发现违反预算的离群值；"
@@ -465,15 +502,27 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.quiet:
         passing = sum(1 for a in audits if a.hard_pass)
+        gate = sum(1 for a in audits if a.release_gate_pass)
         print(
-            f"audited {len(audits)} skills; hard-pass {passing}/{len(audits)}; "
+            f"audited {len(audits)} skills; "
+            f"anatomy hard-pass {passing}/{len(audits)}; "
+            f"v0.1.0 release-gate {gate}/{len(audits)}; "
             f"report: {out_path}"
         )
         for a in audits:
-            mark = "OK" if a.hard_pass else "FAIL"
-            print(f"  [{mark}] {a.skill}  ({a.line_count} lines, ~{a.estimated_tokens} tokens)")
+            if not a.hard_pass:
+                mark = "FAIL"
+            elif not a.release_gate_pass:
+                mark = "GATE"
+            else:
+                mark = " OK "
+            print(
+                f"  [{mark}] {a.skill}  "
+                f"({a.line_count} lines, ~{a.estimated_tokens} tokens)"
+            )
 
-    failing = [a for a in audits if not a.hard_pass]
+    # Exit code reflects v0.1.0 release gate (the actually-shipping bar).
+    failing = [a for a in audits if not a.release_gate_pass]
     return 0 if not failing else 1
 
 

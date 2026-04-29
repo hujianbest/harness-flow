@@ -27,12 +27,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -41,10 +43,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -69,12 +72,15 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
-      "Output Contract",
+    "missing_release_gate": [
       "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
     ],
     "has_numbered_workflow": true,
     "over_line_budget": false,
@@ -84,10 +90,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -113,12 +120,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -127,10 +136,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -158,12 +168,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -172,10 +184,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -202,12 +215,15 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
-      "Output Contract",
+    "missing_release_gate": [
       "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
     ],
     "has_numbered_workflow": true,
     "over_line_budget": false,
@@ -217,10 +233,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -245,12 +262,15 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
-      "Output Contract",
+    "missing_release_gate": [
       "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
     ],
     "has_numbered_workflow": true,
     "over_line_budget": false,
@@ -260,10 +280,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -289,12 +310,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -303,10 +326,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -332,12 +356,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -346,10 +372,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -382,12 +409,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -396,10 +425,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -431,12 +461,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -445,10 +477,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -481,12 +514,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -495,10 +530,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -524,12 +560,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -538,10 +576,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -567,12 +606,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -581,10 +622,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -609,12 +651,15 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
-      "Output Contract",
+    "missing_release_gate": [
       "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
     ],
     "has_numbered_workflow": true,
     "over_line_budget": false,
@@ -624,10 +669,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -653,12 +699,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -667,10 +715,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -696,12 +745,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -710,10 +761,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -739,12 +791,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -753,10 +807,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -782,12 +837,15 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
-      "Output Contract",
+    "missing_release_gate": [
       "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
     ],
     "has_numbered_workflow": true,
     "over_line_budget": false,
@@ -797,10 +855,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -826,12 +885,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -840,10 +901,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -869,12 +931,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -883,10 +947,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -914,12 +979,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -928,10 +995,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -958,12 +1026,15 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
-      "Output Contract",
+    "missing_release_gate": [
       "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
     ],
     "has_numbered_workflow": true,
     "over_line_budget": false,
@@ -973,10 +1044,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -1001,12 +1073,14 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
+    "missing_release_gate": [
       "Common Rationalizations"
     ],
+    "missing_recommended": [],
     "has_numbered_workflow": true,
     "over_line_budget": false,
     "over_token_budget": false,
@@ -1015,10 +1089,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   },
   {
@@ -1043,12 +1118,15 @@
       "Verification"
     ],
     "missing_required": [],
-    "missing_workflow_required": [
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
       "Object Contract"
     ],
-    "missing_recommended": [
-      "Output Contract",
+    "missing_release_gate": [
       "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
     ],
     "has_numbered_workflow": true,
     "over_line_budget": false,
@@ -1058,10 +1136,11 @@
     "has_common_rationalizations": false,
     "has_red_flags": true,
     "is_workflow_skill": true,
-    "hard_pass": false,
+    "hard_pass": true,
+    "release_gate_pass": false,
     "notes": [
-      "workflow skill 缺 `Object Contract`",
-      "缺 `Common Rationalizations`（ADR-001 D8 要求 v0.1.0 全量补齐）"
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
     ]
   }
 ]
