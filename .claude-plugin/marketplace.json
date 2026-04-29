@@ -1,0 +1,19 @@
+{
+  "name": "harness-flow",
+  "owner": {
+    "name": "hujianbest"
+  },
+  "metadata": {
+    "description": "HarnessFlow — From idea to shipped product: high-quality engineering workflows for AI agents. Spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, and formal closeout."
+  },
+  "plugins": [
+    {
+      "name": "harness-flow",
+      "source": {
+        "source": "github",
+        "repo": "hujianbest/harness-flow"
+      },
+      "description": "HarnessFlow skill pack: 24 hf-* skills covering discovery -> spec -> design -> tasks -> TDD -> reviews -> gates -> finalize, with evidence-based routing."
+    }
+  ]
+}
