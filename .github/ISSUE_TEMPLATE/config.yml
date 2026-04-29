@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability report
+    url: https://github.com/hujianbest/harness-flow/security/advisories/new
+    about: Please report security issues privately via a GitHub Security Advisory. See SECURITY.md for the full policy.
+  - name: Code of Conduct concern
+    url: https://github.com/hujianbest/harness-flow/blob/main/CODE_OF_CONDUCT.md
+    about: Read the Code of Conduct. To report a violation, open an issue with a "CODE OF CONDUCT:" prefix or use the GitHub repository report feature.
+  - name: Read the Scope Note before filing
+    url: https://github.com/hujianbest/harness-flow/blob/main/README.md
+    about: v0.1.0 deliberately keeps the surface narrow (Claude Code + OpenCode only; main chain ends at hf-finalize; release/ops out of scope). Many "missing features" are documented scope choices.
