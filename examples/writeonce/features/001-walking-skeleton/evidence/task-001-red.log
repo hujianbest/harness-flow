@@ -1,0 +1,46 @@
+
+> @harnessflow-demo/writeonce@0.1.0 test
+> vitest run --reporter=verbose
+
+
+ RUN  v2.1.9 /workspace/examples/writeonce
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/markdown-parser.test.ts [ test/markdown-parser.test.ts ]
+Error: Failed to load url ../src/parser/markdown-parser.js (resolved id: ../src/parser/markdown-parser.js) in /workspace/examples/writeonce/test/walking-skeleton.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  test/medium-adapter.test.ts [ test/medium-adapter.test.ts ]
+Error: Failed to load url ../src/platform/medium-adapter.js (resolved id: ../src/platform/medium-adapter.js) in /workspace/examples/writeonce/test/medium-adapter.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  test/publish-service.test.ts [ test/publish-service.test.ts ]
+ FAIL  test/walking-skeleton.test.ts [ test/walking-skeleton.test.ts ]
+Error: Failed to load url ../src/publish/publish-service.js (resolved id: ../src/publish/publish-service.js) in /workspace/examples/writeonce/test/walking-skeleton.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  test/wechat-mp-adapter.test.ts [ test/wechat-mp-adapter.test.ts ]
+Error: Failed to load url ../src/platform/wechat-mp-adapter.js (resolved id: ../src/platform/wechat-mp-adapter.js) in /workspace/examples/writeonce/test/walking-skeleton.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  test/zhihu-adapter.test.ts [ test/zhihu-adapter.test.ts ]
+Error: Failed to load url ../src/platform/zhihu-adapter.js (resolved id: ../src/platform/zhihu-adapter.js) in /workspace/examples/writeonce/test/walking-skeleton.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ Test Files  6 failed (6)
+      Tests  no tests
+   Start at  11:45:05
+   Duration  342ms (transform 95ms, setup 0ms, collect 0ms, tests 0ms, environment 1ms, prepare 250ms)
+

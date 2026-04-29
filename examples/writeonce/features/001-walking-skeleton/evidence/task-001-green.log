@@ -1,0 +1,36 @@
+
+> @harnessflow-demo/writeonce@0.1.0 test
+> vitest run --reporter=verbose
+
+
+ RUN  v2.1.9 /workspace/examples/writeonce
+
+ ✓ test/medium-adapter.test.ts > MediumAdapter > has stable name "medium"
+ ✓ test/medium-adapter.test.ts > MediumAdapter > makes one HTTP POST request when not dryRun
+ ✓ test/medium-adapter.test.ts > MediumAdapter > payload contains markdown contentFormat and the post body
+ ✓ test/medium-adapter.test.ts > MediumAdapter > does not call HttpClient.request when dryRun is true
+ ✓ test/medium-adapter.test.ts > MediumAdapter > wraps unexpected throws into INTERNAL error code
+ ✓ test/publish-service.test.ts > PublishService > returns FILE_NOT_FOUND structurally for missing files
+ ✓ test/publish-service.test.ts > PublishService > returns PARSE_FAILED structurally when the file is not a valid Markdown post
+ ✓ test/publish-service.test.ts > PublishService > never throws — internal exceptions are wrapped to INTERNAL
+ ✓ test/publish-service.test.ts > PublishService > NFR-Maintainability-1: adding a new adapter requires no edit to publish-service.ts
+ ✓ test/walking-skeleton.test.ts > walking-skeleton e2e > publishes a Markdown file to Medium via PublishService and records exactly one HTTP request
+ ✓ test/walking-skeleton.test.ts > walking-skeleton e2e > returns UNKNOWN_PLATFORM when --to references an unregistered name
+ ✓ test/walking-skeleton.test.ts > walking-skeleton e2e > returns NOT_IMPLEMENTED when --to references a stubbed platform (zhihu)
+ ✓ test/walking-skeleton.test.ts > walking-skeleton e2e > returns FILE_NOT_FOUND when the input markdown file does not exist
+ ✓ test/walking-skeleton.test.ts > walking-skeleton e2e > does not call HttpClient.request when dryRun is true
+ ✓ test/markdown-parser.test.ts > MarkdownParser > extracts the first H1 as the post title
+ ✓ test/markdown-parser.test.ts > MarkdownParser > strips the title line out of the body
+ ✓ test/markdown-parser.test.ts > MarkdownParser > captures fenced code blocks with language identifier
+ ✓ test/markdown-parser.test.ts > MarkdownParser > captures images with alt text and src
+ ✓ test/markdown-parser.test.ts > MarkdownParser > throws a recognizable error when no H1 title is present
+ ✓ test/zhihu-adapter.test.ts > ZhihuAdapter > has stable name "zhihu" and notImplemented = true
+ ✓ test/zhihu-adapter.test.ts > ZhihuAdapter > returns NOT_IMPLEMENTED on publish, regardless of options
+ ✓ test/wechat-mp-adapter.test.ts > WeChatMpAdapter > has stable name "wechat-mp" and notImplemented = true
+ ✓ test/wechat-mp-adapter.test.ts > WeChatMpAdapter > returns NOT_IMPLEMENTED on publish
+
+ Test Files  6 passed (6)
+      Tests  23 passed (23)
+   Start at  11:47:06
+   Duration  364ms (transform 131ms, setup 0ms, collect 218ms, tests 21ms, environment 1ms, prepare 246ms)
+
