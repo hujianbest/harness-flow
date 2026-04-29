@@ -55,9 +55,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - **ADR-001 D8** (force every SKILL.md to add `Common Rationalizations`) — **superseded by D11**. v0.1.0 does not require this; future versions may re-evaluate based on actual feedback.
 - **ADR-001 D10** (Object Contract enforcement level: recommended in v0.1.0, mandatory in v0.2.0) — **voided by D11**. Object Contract is back to "author writes it when needed", neither mandatory nor recommended in v0.1.0.
 
-### Quickstart demo (planned, separate work)
+### Quickstart demo (delivered)
 
-`examples/writeonce/` quickstart demo (ADR-001 D9) is **not** part of this changelog entry's deliverables. The demo's product scope (target platforms, MVP boundary, tech stack) is intentionally **not** locked by ADR-001 — it must be produced by running the HarnessFlow main chain itself (`hf-product-discovery` → ... → `hf-finalize`), with user approval at the discovery-review and spec-review gates. Tracked separately.
+- **`examples/writeonce/` — WriteOnce demo, full HarnessFlow main-chain trace** (ADR-001 D9):
+  - 16 HF nodes (`hf-product-discovery` → `hf-finalize`) each produced a reviewable artifact under `examples/writeonce/features/001-walking-skeleton/` and `examples/writeonce/docs/insights/`.
+  - Walking-skeleton implementation: Node.js 20 + TypeScript + minimal CLI; Markdown → Medium with Zhihu / WeChat MP declared as extension points but not implemented; 23 vitest cases passing offline in ~370 ms.
+  - 3 demo-internal ADRs (`examples/writeonce/docs/adr/0001..0003`).
+  - Demo-internal `examples/writeonce/CHANGELOG.md`.
+- Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
+- Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
 [Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.1.0

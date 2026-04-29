@@ -235,6 +235,17 @@ cd harness-flow
 
 HarnessFlow 的 skill 是纯 Markdown，**理论上**可以通过把 `skills/` 当作指令文件喂给 Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex 等使用。但这些路径**不在 v0.1.0 的承诺范围内**，本版本也不提供对应的 setup 文档。
 
+### Quickstart Demo：WriteOnce
+
+`examples/writeonce/` 是 v0.1.0 的 quickstart demo：一个把 Markdown 文件发布到 Medium 的 CLI（Zhihu / WeChat MP 声明为扩展点但不实现）。demo 的真正交付是 **HarnessFlow 主链 16 个节点留下的可回读工件**——`hf-product-discovery` → `hf-finalize` 的每一节点都在 `examples/writeonce/` 下产出了对应工件。Walking-skeleton 实现位于 `examples/writeonce/src/`，配套 23 条测试（离线运行，< 400 ms）。
+
+阅读顺序：
+
+1. `examples/writeonce/README.md` — demo 定位、范围、目录布局。
+2. `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` — `hf-product-discovery` 产出。
+3. `examples/writeonce/features/001-walking-skeleton/README.md` — feature 入口与状态总览。
+4. 自上而下读 `spec.md` → `design.md` → `tasks.md` → `reviews/` → `verification/` → `closeout.md`。
+
 ### Vendor 时的目录结构
 
 把 HarnessFlow 引入其他工作区时，只需复制 `skills/`。每个 `hf-*` skill 是**自包含**的：`SKILL.md`、`references/`（模板 / rubric / 子协议 / worktree 指南）和 `evals/` 都在 skill 文件夹内。仓库**不再有**跨 skill 的 `skills/docs/` / `skills/templates/` / `skills/principles/`。
