@@ -67,15 +67,15 @@ Profile-aware 回归范围：
 | 信号 | 最少需要的 fresh evidence | conclusion | next_action_or_recommended_skill |
 |---|---|---|---|
 | build / typecheck / lint 失败 | 失败命令、退出码、关键报错摘录 | `需修改` | `hf-test-driven-dev` |
-| 测试通过但覆盖率低于 `AGENTS.md` / 当前任务门槛 | 覆盖率命令、实际结果、门槛来源 | `需修改` | `hf-test-driven-dev` |
+| 测试通过但覆盖率低于 项目级覆盖率门槛或当前任务门槛 | 覆盖率命令、实际结果、门槛来源 | `需修改` | `hf-test-driven-dev` |
 | `lightweight` 且仅文档 / 配置类变更 | 最小相关验证（如 docs build、lint、config parse）+ 明确未覆盖区域 | 结果驱动 | 通过时 `hf-completion-gate`，否则 `hf-test-driven-dev` |
-| 强制集成 / e2e 验证因环境不可用而未跑 | `AGENTS.md` / DoD 是否允许降级；若允许，给出替代验证结果；若不允许，写明阻塞原因 | 无降级许可 → `阻塞`；有许可则按结果判断 | 无降级许可 → `hf-regression-gate` |
+| 强制集成 / e2e 验证因环境不可用而未跑 | 项目约定 / DoD 是否允许降级；若允许，给出替代验证结果；若不允许，写明阻塞原因 | 无降级许可 → `阻塞`；有许可则按结果判断 | 无降级许可 → `hf-regression-gate` |
 | `worktree-active` 但证据来自其他目录或旧代码状态 | 当前 `Worktree Path`、证据来源路径 / 时间锚点 | `阻塞` | `hf-regression-gate` |
 | 上游 review/gate 缺失，或 route / stage / profile 冲突 | 缺失项或冲突项清单 | `阻塞` | `hf-workflow-router` |
 
 补充规则：
 - 构建、类型检查、静态检查失败都属于 regression signal，不因测试通过而忽略
-- 若准备因为 `lightweight`、文档-only 或环境问题而缩小回归范围，先检查 `AGENTS.md` / DoD 是否明文允许
+- 若准备因为 `lightweight`、文档-only 或环境问题而缩小回归范围，先检查 项目约定 / DoD 是否明文允许
 - `interactive`：无明文允许时，先展示“建议缩减到什么 / 为什么 / 未覆盖什么”，等真人确认
 - `auto`：无明文允许时不得自行降级，直接 `阻塞`
 
@@ -83,7 +83,7 @@ Profile-aware 回归范围：
 
 记录：回归面定义、命令、退出码、结果摘要、新鲜度锚点、覆盖边界、未覆盖区域。
 
-若项目未覆写格式，默认把 evidence bundle 映射到共享模板 `templates/verification-record-template.md` 的这些字段：
+若项目未覆写格式，默认把 evidence bundle 映射到本 skill 模板 `references/verification-record-template.md` 的这些字段：
 - `Metadata`：`Verification Type=regression-gate`、Scope、Record Path、Worktree Path / Branch（若适用）
 - `Upstream Evidence Consumed`：已消费的 traceability / review / handoff / task-progress 记录
 - `Verification Scope`：Included Coverage、Uncovered Areas
@@ -100,21 +100,21 @@ Profile-aware 回归范围：
 
 ## Output Contract
 
-记录保存到 `AGENTS.md` 声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/regression-YYYY-MM-DD.md`（如需对应到具体任务，可写 `regression-task-NNN.md`）。若项目无专用格式，默认使用共享模板 `templates/verification-record-template.md`。
+记录保存到 项目声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/regression-YYYY-MM-DD.md`（如需对应到具体任务，可写 `regression-task-NNN.md`）。若项目无专用格式，默认使用本 skill 模板 `references/verification-record-template.md`。
 
 最少应包含：
 - 已消费的上游证据（至少写清 implementation handoff、traceability review、相关 review/gate records）
 - 回归面定义、Included Coverage 与 Uncovered Areas
 - 命令、退出码、结果摘要、关键失败/警告摘录
 - 新鲜度锚点与 worktree 锚点（若适用）
-- 若使用 coverage / docs build / config parse / integration fallback，必须写出依据来源（`AGENTS.md` / DoD / 项目约定）
+- 若使用 coverage / docs build / config parse / integration fallback，必须写出依据来源（项目约定 / DoD）
 - 唯一门禁结论与唯一下一步
 
 ## Reference Guide
 
 | 文件 | 用途 |
 |------|------|
-| `templates/verification-record-template.md` | regression/completion 共用 verification record 模板 |
+| `references/verification-record-template.md` | regression verification record 模板（与 `hf-completion-gate` 同形态） |
 
 ## 和其他 Skill 的区别
 

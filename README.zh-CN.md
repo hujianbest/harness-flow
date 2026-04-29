@@ -10,7 +10,7 @@ HarnessFlow 是一个面向 AI Agent 的 skill pack，用来把**从产品洞察
 
 HarnessFlow 当前的主路径覆盖「**从一个 idea 到产品落地**」全程：
 
-- **横切行为基线**（宪法层文档，非 workflow 节点）：`docs/principles/coding-principles.md` — Think Before Coding / Simplicity First（YAGNI）/ Surgical Changes / Goal-Driven Execution；通过 `AGENTS.md` § Soul docs 被每个 `hf-*` skill 自动继承，改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
+- **横切行为基线**（宪法层文档，非 workflow 节点）：`docs/principles/coding-principles.md` — Think Before Coding / Simplicity First（YAGNI）/ Surgical Changes / Goal-Driven Execution；每个 `hf-*` skill 已经把它们内联到自己的 `SKILL.md`，改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
 - 上游 **产品洞察**：problem framing、JTBD、Opportunity Solution Tree、RICE / ICE、Desired Outcome / North Star
 - **假设验证**：`hf-experiment` 在 Blocking 或低 confidence 关键假设下插入的最小 probe
 - **规格澄清**：EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
@@ -76,7 +76,7 @@ HF 的每个 skill 都会在自己的 `SKILL.md` 里显式声明方法论。在 
 |---|---|
 | `docs/principles/coding-principles.md` | Think Before Coding、Simplicity First (YAGNI)、Surgical Changes、Goal-Driven Execution — 改写自 [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
 
-这 4 条原则落在宪法层 `docs/principles/`，**不是**独立 `hf-*` skill。每个 `hf-*` skill 通过 `AGENTS.md` § Soul docs 自动继承。它们**不**进入 canonical `Next Action Or Recommended Skill` 受控词表，**不**给任何节点的 Workflow 加额外步骤，**不**替代 review / gate / approval / finalize 判断。
+这 4 条原则落在宪法层 `docs/principles/`（HF 自己的 design notes），**不是**独立 `hf-*` skill；每个 `hf-*` skill 已经把它们消化进自己的 `SKILL.md`，运行时不再外链原文。它们**不**进入 canonical `Next Action Or Recommended Skill` 受控词表，**不**给任何节点的 Workflow 加额外步骤，**不**替代 review / gate / approval / finalize 判断。
 
 ### 入口与路由
 
@@ -167,13 +167,14 @@ cd HarnessFlow
 请把这些目录一起保留：
 
 - `skills/`
-- `skills/docs/`
-- `skills/templates/`
-- `docs/principles/`
+
+就这一个。每个 `hf-*` skill 都是**自包含**的：它的 `SKILL.md`、`references/`（模板 / rubric / 子协议 / worktree 指南）与 `evals/` 一起放在 skill 文件夹内。仓库不再有跨 skill 的 `skills/docs/` / `skills/templates/` / `skills/principles/`。
+
+`docs/principles/` 属于 **HarnessFlow 仓库自身**（HF 的 design notes），不是 skill 包运行时的一部分。把 HarnessFlow 引入到其他项目时，只需复制 `skills/`，**不**需要复制 `docs/principles/`。每个 `hf-*` skill 已经把相关原则内联到自己的 `SKILL.md`，运行时不依赖这些设计文档。
 
 如果你要把 HarnessFlow vendor 到另一个 skill workspace，不要只拷贝零散的 `hf-*` 文件夹；请保留整套 pack 结构，因为这些 skills 共享 pack 级文档和模板。
 
-> **推荐起步**：把 `skills/templates/AGENTS.md.example` 复制到你项目仓库根作为 `AGENTS.md`，并按本项目实际情况填空。HF 从仓库根的 `AGENTS.md` 读取"项目级标准注入点"（按 soul.md，"立标准"是架构师/用户的职责，不是 HF 的）。
+> **项目级约定**：HF skill 默认值开箱可用。若你的项目需要覆盖路径、模板、profile 规则、Execution Mode、覆盖率门槛或其他策略，在你仓库已有的项目约定文档里声明即可（例如项目自身的 guidelines、`CONTRIBUTING.md`，或宿主工具链使用的 `AGENTS.md`）。每个 `hf-*` skill 引用的都是"项目级约定（若已声明）"，**不**强绑定任何特定 sidecar 文件。
 
 目前这套 pack 还没有提供一条命令完成安装的 registry 入口。
 
@@ -337,24 +338,55 @@ HarnessFlow 围绕以下几个默认前提构建：
 ## 仓库结构
 
 ```text
-skills/
+skills/                                # 可对外发布的 skill 包（vendor 时复制这个）
   using-hf-workflow/
+    SKILL.md
+    evals/
   hf-workflow-router/
-  hf-*/
-  docs/
-  templates/
+    SKILL.md
+    references/
+      workflow-shared-conventions.md   # progress schema / verdict 词表 / record_path 语义
+      review-dispatch-protocol.md
+      reviewer-return-contract.md
+      ...
+    evals/
+  hf-specify/
+    SKILL.md
+    references/
+      spec-template.md
+      feature-readme-template.md
+      task-progress-template.md
+      ...
+    evals/
+  hf-test-driven-dev/
+    SKILL.md
+    references/
+      worktree-isolation.md            # worktree provisioning / safety / cleanup
+      refactoring-playbook.md
+      ...
+    evals/
+  hf-finalize/
+    references/
+      finalize-closeout-pack-template.md
+  hf-regression-gate/
+    references/
+      verification-record-template.md
+  hf-completion-gate/
+    references/
+      verification-record-template.md
+  ...（每个 hf-* skill 一个自包含文件夹）
 
-docs/principles/
-  hf-sdd-tdd-skill-design.md
+docs/principles/                       # HarnessFlow 自身的 design notes（不属于 skill 包运行时）
+  soul.md
   skill-anatomy.md
+  sdd-artifact-layout.md
+  ...
 ```
 
-- `skills/` 存放可安装的 workflow skills。
-- `skills/docs/` 存放 pack 级共享文档。
-- `skills/templates/` 存放跨 skill 复用的记录与交接模板。
-- `docs/principles/` 存放这套 pack 的更高层设计原则与方法论背景。
+- `skills/<skill-name>/` 是自包含的 skill：它的 `SKILL.md`、`references/`（模板、rubric、子协议）和 `evals/` 一起发布。仓库不再有跨 skill 的 `skills/docs/` 或 `skills/templates/`。
+- `docs/principles/` 存放这套 pack 的更高层设计原则与方法论背景——这是 HF 自己的 design notes。skill 在 `SKILL.md` 中已经吸收相关约束，运行时**不**依赖这些文档。
 
-> **模板分两层**：跨 skill 复用的模板在 `skills/templates/`；各阶段专用长模板（spec / design / tasks / discovery / probe-plan / ADR）就近放在对应 skill 的 `references/` 目录下。审计或生成工件时按二者并集查找。
+> **模板就近随 skill 发布**：每份模板都放在使用它的 skill 自身 `references/` 内（例如 spec 模板在 `hf-specify/references/`、closeout pack 在 `hf-finalize/references/`、verification record 在各 gate 的 `references/`）。审计或生成工件时直接看对应 skill 的 `references/`。
 
 ## 从哪里开始看
 

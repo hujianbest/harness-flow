@@ -50,7 +50,7 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 
 ### 1. 建立证据基线
 
-读已批准规格、设计、任务计划（默认 `features/<active>/spec.md` / `design.md` / `tasks.md`）、实现交接块、test-review/code-review 记录（默认 `features/<active>/reviews/`）、AGENTS.md、feature `progress.md`（默认 `features/<active>/progress.md`）。
+读已批准规格、设计、任务计划（默认 `features/<active>/spec.md` / `design.md` / `tasks.md`）、实现交接块、test-review/code-review 记录（默认 `features/<active>/reviews/`）、项目级约定、feature `progress.md`（默认 `features/<active>/progress.md`）。
 
 ### 1.5 Precheck：能否合法进入 review
 
@@ -109,12 +109,12 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 
 ### 5. 写 review 记录
 
-保存到 `AGENTS.md` 声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`（全 feature 一次性 review，scope 省略；若同一 feature 内多次复审，追加日期或序号后缀）。参考 `references/traceability-review-record-template.md`。
+保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`（全 feature 一次性 review，scope 省略；若同一 feature 内多次复审，追加日期或序号后缀）。参考 `references/traceability-review-record-template.md`。
 
 ## Output Contract
 
 完成时产出：
-- Review 记录（保存到 `AGENTS.md` 声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`）
+- Review 记录（保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`）
 - 链接矩阵（spec→design→tasks→impl→test 映射）
 - 明确 verdict 和唯一下一步
 - workflow blocker 时显式写明 `reroute_via_router=true`

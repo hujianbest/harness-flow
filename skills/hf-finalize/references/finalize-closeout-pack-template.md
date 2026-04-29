@@ -6,7 +6,7 @@
 - 用于两种分支：`task-closeout` 与 `workflow-closeout`。
 - **默认保存路径：`features/<NNN>-<slug>/closeout.md`**（不再叫 `finalize-closeout-pack.md`）。
 - `Release / Docs Sync` 必须显式列出本次 closeout 同步到 `docs/` 的所有路径（arc42、glossary、runbooks、SLO、release notes、CHANGELOG、ADR 状态翻转等），缺失项目应视为 `blocked`。
-- 若项目在 `AGENTS.md` 中声明了等价模板或 closeout 路径，优先遵循项目约定。
+- 若项目在 项目声明了等价模板或 closeout 路径，优先遵循项目约定。
 
 ## Closeout Summary
 

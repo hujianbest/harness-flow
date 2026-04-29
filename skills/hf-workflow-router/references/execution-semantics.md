@@ -20,14 +20,14 @@
 归一化优先级：
 
 1. 用户当前请求中的显式模式要求
-2. `AGENTS.md` 中的默认模式与 auto 禁止条件
+2. 项目默认 Execution Mode 与 auto 禁止条件（若项目已声明）
 3. feature `progress.md`（默认 `features/<active>/progress.md`）中已有且仍有效的 `Execution Mode`
 4. 默认 `interactive`
 
 约束：
 
 - `auto` 不是新的 profile，也不允许借此删除 approval 节点
-- 若 `AGENTS.md` policy 禁止当前范围继续 `auto`，应停止自动推进并显式报告
+- 若 项目级 policy 禁止当前范围继续 `auto`，应停止自动推进并显式报告
 - `auto` 只改变等待方式，不改变 review / gate / approval step 的存在性
 
 ## Workspace Isolation
@@ -71,12 +71,12 @@
 
 ### auto 与"用户验收"的边界
 
-`auto` 模式与 `docs/principles/soul.md` 第 1 / 2 / 5 条纪律（方向 / 取舍 / 标准最终权在用户、HF 不替用户验收自己、HF 永远不假装架构师）共存，必须遵守以下边界，避免把"自动落盘"误读为"代理验收"：
+`auto` 模式与 HF 三条不可让步的协作纪律（**方向 / 取舍 / 标准最终权在用户**；**HF 不替用户验收自己**；**HF 永远不假装架构师**）共存，必须遵守以下边界，避免把"自动落盘"误读为"代理验收"：
 
 - **approval record 是组织策略下的可追溯代理**，记录"在已声明 policy 下，何节点放行、绑定的上游 record / artifact hash 是什么"。
 - **它不替代产品负责人对最终产物（spec / design / 上线候选物）的真人确认**。`auto` 只改变等待方式，不改变 approval 语义；任何节点都不得以"已 auto 通过"为由跳过 review、gate 或 approval 工件本身。
 - **soul 兜底优先级高于 policy**：当 policy 未覆盖、与 soul 第 1 条冲突、或当前请求触及方向 / 取舍 / 标准空白时，必须升级为 hard stop 并回到父会话，**不得**以 auto policy 兜底。
-- **严格合规场景**可在 `AGENTS.md` 中声明禁用 `auto`（例如 `Execution Mode: auto disallowed`）；router 必须遵守，不允许任何节点在该范围内自动放行。
+- **严格合规场景**可在 项目约定声明禁用 `auto`；router 必须遵守，不允许任何节点在该范围内自动放行。
 - **超范围信号**：当 reviewer / gate 反馈触及方向 / 取舍 / 标准本身（而非工件正确性），即使 policy 允许 auto，也必须按 hard stop 回到用户，由用户重新拍板。
 
 ## Hard Stop
@@ -88,7 +88,7 @@
 3. **规格评审 / 设计评审需重编排**：若 `hf-spec-review` 或 `hf-design-review` 返回 `阻塞`，且 `reroute_via_router=true` 或 `next_action_or_recommended_skill=hf-workflow-router`，先展示阻塞原因，再回到 `hf-workflow-router` 重编排
 4. **证据冲突需澄清**：工件状态互相矛盾，且无法用保守原则自动解决时
 5. **其他 review / gate 结论为 `需修改` 或 `阻塞` 且修订方向不明确**：需要与用户讨论修订方案或显式报告当前阻塞
-6. **Auto policy / 环境阻塞**：`AGENTS.md` 明确禁止当前场景 auto resolve，或缺少最小可路由工件、approval record 落点、验证环境或外部依赖
+6. **Auto policy / 环境阻塞**：项目约定明确禁止当前场景 auto resolve，或缺少最小可路由工件、approval record 落点、验证环境或外部依赖
 7. **下一个任务不唯一或 ready 判定冲突**：`hf-completion-gate` 已通过，但剩余任务候选不唯一、依赖状态冲突，或 task board / 任务计划无法稳定判断唯一 `next-ready task`
 8. **Worktree 阻塞**：当前 `Workspace Isolation=worktree-required`，但目录选择、ignore 校验、基线验证或路径落盘失败，导致无法安全进入实现
 

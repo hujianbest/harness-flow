@@ -4,9 +4,9 @@
 
 默认：`features/<active>/reviews/spec-review-YYYY-MM-DD.md`
 
-若 `AGENTS.md` 声明了等价路径，按映射保存。
+若 项目声明了等价路径，按映射保存。
 
-若项目无固定格式，默认使用当前 skill pack 的共享模板 `templates/review-record-template.md`。
+若项目无固定格式，按本文件下方"记录结构"段使用即可。
 
 ## 结论字段映射
 

@@ -39,7 +39,7 @@
 - 是否说明为什么选定当前方案？
 - 是否记录了主要收益、代价、风险与缓解思路？
 - reviewer 能否冷读出 trade-off，而不需要从 prose 猜测？
-- **Emergent vs Upfront 模式边界（Phase 0 新增）**：设计是否把**领域语义驱动的模式**（Entity / VO / Aggregate / Repository / Domain Service / Application Service / Domain Event）前置决策，同时**不**把 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）作为前置决策列入？若设计列出 GoF 候选模式作为"为了扩展 / 通用 / 未来可能"，应视为 over-abstraction 征兆。立场参见 `docs/principles/emergent-vs-upfront-patterns.md`。
+- **Emergent vs Upfront 模式边界（Phase 0 新增）**：设计是否把**领域语义驱动的模式**（Entity / VO / Aggregate / Repository / Domain Service / Application Service / Domain Event）前置决策，同时**不**把 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）作为前置决策列入？若设计列出 GoF 候选模式作为"为了扩展 / 通用 / 未来可能"，应视为 over-abstraction 征兆。HF 立场：GoF 代码模式属于实现层 emergent 浮现，由 `hf-test-driven-dev` 在 REFACTOR 步按 Fowler 重构词汇浮现处理，不前置决策。
 
 ### `D4` 约束与非功能需求适配
 
@@ -78,4 +78,4 @@
 | `A8` | 分布式单体 | 表面是微服务，实际共享数据库耦合 | 按领域边界独立数据 |
 | `A9` | task planning gap | 接口边界或 readiness 缺口被留给 `hf-tasks` 猜 | 在设计层显式关闭或标出阻塞 |
 | `A10` | tactical-model-absent | Tactical 触发条件满足但设计文档 § 4.5 空白或只写 "此处略过" | 按 `ddd-tactical-modeling.md` 补全每个触发 Context 的 Aggregates / VOs / Repositories / Application Services / Domain Events；或显式写明跳过理由 |
-| `A11` | upfront-gof-pattern | 设计文档列出 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton）作为前置决策，理由是 "为了扩展 / 通用 / 未来可能多一种实现" | 从设计文档移除；GoF 模式应 emergent 浮现，由 `hf-test-driven-dev` REFACTOR 步按 Fowler vocabulary 处理；立场见 `docs/principles/emergent-vs-upfront-patterns.md` |
+| `A11` | upfront-gof-pattern | 设计文档列出 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton）作为前置决策，理由是 "为了扩展 / 通用 / 未来可能多一种实现" | 从设计文档移除；GoF 模式应 emergent 浮现，由 `hf-test-driven-dev` REFACTOR 步按 Fowler 重构词汇（Replace Conditional with Polymorphism / Extract Factory Method / ...）处理 |

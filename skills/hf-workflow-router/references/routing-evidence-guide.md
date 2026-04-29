@@ -10,7 +10,7 @@
 
 ## 推荐工件布局
 
-除非项目已有已批准的等价路径，否则默认使用以下布局（详见 `docs/principles/sdd-artifact-layout.md` 与 `skills/docs/hf-workflow-shared-conventions.md` 的 *Default 逻辑工件布局*）：
+除非项目已有已批准的等价路径，否则默认使用以下布局（与 `workflow-shared-conventions.md` 的 *Default 逻辑工件布局* 对齐）：
 
 | 逻辑工件 | 推荐路径 | 说明 |
 |---|---|---|
@@ -31,7 +31,7 @@
 
 优先使用项目已有工件，不要额外依赖根目录 JSON 信号文件。
 
-推荐的路由证据包括（按 `docs/principles/sdd-artifact-layout.md` 的 *Minimal `docs/` Tiers*，**read-on-presence**：缺失视为未启用，不阻塞路由）：
+推荐的路由证据包括（**read-on-presence**：`docs/` 下的可选载体缺失视为该资产档位未启用，不阻塞路由）：
 
 - 顶层导航中标注的当前 active feature：档 0/1 读仓库根 `README.md`；档 2 读 `docs/index.md`。两者都缺失时，回退到扫 `features/` 下最新的、未含 `closeout.md` 的目录
 - 当前 active feature 目录下的 `README.md` 与 `progress.md`（若存在 `Workspace Isolation` / `Worktree Path` / `Worktree Branch`，也应一并读取）
@@ -46,7 +46,7 @@
 
 在会话开始时，`hf-workflow-router` 应按以下顺序判断：
 
-1. `AGENTS.md` 中与 `hf-workflow` 相关的映射与审批约定
+1. 项目级 `hf-workflow` 映射与审批约定（若项目已声明）
 2. 顶层导航：`docs/index.md`（档 2，若存在）→ 仓库根 `README.md`（档 0/1）→ 扫 `features/` 兜底
 3. `features/<active>/README.md` 与 `progress.md`
 4. `features/<active>/spec.md` / `design.md` / `tasks.md` 的存在情况与批准状态
@@ -63,7 +63,7 @@
 
 在会话开始时，`hf-workflow-router` 应优先只检查：
 
-1. `AGENTS.md` 中的 `hf-workflow` 配置段
+1. 项目级 `hf-workflow` 配置（若项目已声明）
 2. 规格 / 设计 / 任务工件的存在情况和批准状态
 3. 进度、评审和验证记录
    - 若当前 workflow 已使用 worktree，还要读取 `Workspace Isolation` / `Worktree Path` / `Worktree Branch`
@@ -87,7 +87,7 @@
 
 优先寻找显式批准标记，例如：
 
-- 若 `AGENTS.md` 已声明项目别名，优先采用其中的 approved / pass / revise / blocked 映射
+- 若 项目已声明 verdict 别名，优先采用其中的 approved / pass / revise / blocked 映射
 - `状态: 已批准`
 - 兼容旧写法：`Status: Approved`
 - 带有 `通过` 结论的评审章节

@@ -180,7 +180,7 @@ HF 不强制项目集成 fitness functions；但鼓励：
 
 ## Pattern Emergence（GoF 模式只能在 REFACTOR 步以 Fowler vocabulary 浮现）
 
-源：Joshua Kerievsky, *Refactoring to Patterns*；Kent Beck, *TDD by Example* 后记；Martin Fowler, *Refactoring*。治理立场：`docs/principles/emergent-vs-upfront-patterns.md`。
+源：Joshua Kerievsky, *Refactoring to Patterns*；Kent Beck, *TDD by Example* 后记；Martin Fowler, *Refactoring*。HF 立场已直接内联进 `hf-design/SKILL.md` Methodology 段 *Emergent vs Upfront Patterns*，本 skill 在此就 RGR 节点 enforce。
 
 HF 的立场：
 
@@ -290,7 +290,7 @@ REFACTOR 步骤的最后做一次 conformance pass（针对 task 触碰范围）
 | "顺手把模块边界也调了" | escalation 触发条件，不能在 task 内做 |
 | "Refactor Note 写'做了些清理'就够了" | 不够。必须 vocabulary + 范围 + escalation 决定 |
 | "fitness function 红了但和我无关" | 在 task 触碰范围内的红灯就是有效 RED；要么修，要么 escalate，不能跳过 |
-| "sut_form 写 pattern:Strategy 比较清楚" | 不合法。sut_form 的 pattern:<name> allowlist 只含 design § 4.5 战术模式；GoF 模式只能作为 Pattern Actual 浮现结果出现，立场见 `docs/principles/emergent-vs-upfront-patterns.md` |
+| "sut_form 写 pattern:Strategy 比较清楚" | 不合法。sut_form 的 pattern:<name> allowlist 只含 design § 4.5 战术模式；GoF 模式只能作为 Pattern Actual 浮现结果出现（HF 立场：GoF 不前置决策） |
 | "既然要浮现出 Strategy，RED 直接用 Strategy 接口写测试不是更高效吗" | 帽子混戴 + 绕过 sut_form 声明锁。改 sut_form 为 emergent，RED/GREEN 走最小实现，REFACTOR 步让 Fowler refactoring 浮现 Strategy |
 | "未来可能要支持更多类型，先把抽象层留出来" | YAGNI 违规 + over-abstraction (CA9)。浮现必须由当前 task 内已出现的重复 / 分支 / 嫁接点驱动 |
 | "Pattern Actual 写 'refactored for extensibility'" | 未绑定 Fowler vocabulary；和"做了些清理"一样模糊，不合格 |

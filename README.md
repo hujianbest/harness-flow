@@ -10,7 +10,7 @@ HarnessFlow is a skill pack for AI agents that turns the full **idea → insight
 
 HarnessFlow's primary path covers the full **idea-to-product** arc:
 
-- **Cross-cutting coding principles** (constitution layer, not a workflow node): `docs/principles/coding-principles.md` — Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution; inherited by every `hf-*` skill via `AGENTS.md` § Soul docs, adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
+- **Cross-cutting coding principles** (constitution layer, not a workflow node): `docs/principles/coding-principles.md` — Think Before Coding / Simplicity First (YAGNI) / Surgical Changes / Goal-Driven Execution; each `hf-*` skill has absorbed these into its own `SKILL.md`, adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
 - **Upstream product discovery**: problem framing, JTBD, Opportunity Solution Tree, RICE / ICE, Desired Outcome / North Star
 - **Hypothesis validation**: `hf-experiment` — minimal probes when blocking or low-confidence hypotheses exist
 - **Specification**: EARS + BDD + MoSCoW + INVEST + ISO 25010 + Quality Attribute Scenarios + Success Metrics / Key Hypotheses
@@ -76,7 +76,7 @@ Every HF skill makes its methodology explicit in its own `SKILL.md`. At the pack
 |----------|-----------------|
 | `docs/principles/coding-principles.md` | Think Before Coding, Simplicity First (YAGNI), Surgical Changes, Goal-Driven Execution — adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) |
 
-These principles live in the constitution layer (`docs/principles/`), not as a separate `hf-*` skill. Every `hf-*` skill inherits them via `AGENTS.md` § Soul docs. They are **not** part of the canonical `Next Action Or Recommended Skill` vocabulary, do **not** add a step to any node's Workflow, and do **not** replace review / gate / approval / finalize judgments.
+These principles live in the constitution layer (`docs/principles/`) as HF's own design notes; each `hf-*` skill has already absorbed them into its `SKILL.md` so skills do not need to read these files at runtime. They are **not** part of the canonical `Next Action Or Recommended Skill` vocabulary, do **not** add a step to any node's Workflow, and do **not** replace review / gate / approval / finalize judgments.
 
 ### Entry and routing
 
@@ -167,13 +167,12 @@ cd HarnessFlow
 Keep these directories together:
 
 - `skills/`
-- `skills/docs/`
-- `skills/templates/`
-- `docs/principles/`
 
-If you vendor HarnessFlow into another skill workspace, copy the full pack structure rather than only isolated `hf-*` folders, because the skills share pack-level docs and templates.
+That's it. Each `hf-*` skill is **self-contained**: its `SKILL.md`, `references/` (templates, rubrics, dispatch protocols, worktree guides) and `evals/` ship together inside the skill folder. There is no top-level `skills/docs/`, `skills/templates/` or `skills/principles/` you also need to keep around.
 
-> **Recommended starter**: copy `skills/templates/AGENTS.md.example` to your repository root as `AGENTS.md` and fill in project-specific sections. HF reads `AGENTS.md` from the repository root as the project-level "standards injection point" (per soul.md, "立标准" is the architect/user's responsibility, not HF's).
+`docs/principles/` belongs to **the HarnessFlow repository itself** (it is HF's design notes, not part of the skill pack runtime). When you vendor HarnessFlow into another workspace, copy `skills/` only — you do **not** need to copy `docs/principles/`. Each `hf-*` skill has already absorbed the relevant principles into its own `SKILL.md`.
+
+> **Project conventions**: HF skills work with sensible defaults out of the box. If your project needs to override paths, templates, profile rules, execution mode, coverage thresholds or other policies, declare them wherever your repository already keeps such conventions (e.g. a project-level guidelines file, a `CONTRIBUTING.md`, or a host-tool config like `AGENTS.md` if your stack uses one). Each `hf-*` skill points to "project-level convention (if declared)" — it does not require any particular sidecar file.
 
 There is not yet a one-command registry install for this pack.
 
@@ -344,24 +343,55 @@ HarnessFlow is built around a few strong defaults:
 ## Repository Layout
 
 ```text
-skills/
+skills/                                # Redistributable skill pack (what you vendor)
   using-hf-workflow/
+    SKILL.md
+    evals/
   hf-workflow-router/
-  hf-*/
-  docs/
-  templates/
+    SKILL.md
+    references/
+      workflow-shared-conventions.md   # progress schema / verdict vocab / record_path semantics
+      review-dispatch-protocol.md
+      reviewer-return-contract.md
+      ...
+    evals/
+  hf-specify/
+    SKILL.md
+    references/
+      spec-template.md
+      feature-readme-template.md
+      task-progress-template.md
+      ...
+    evals/
+  hf-test-driven-dev/
+    SKILL.md
+    references/
+      worktree-isolation.md            # worktree provisioning / safety / cleanup
+      refactoring-playbook.md
+      ...
+    evals/
+  hf-finalize/
+    references/
+      finalize-closeout-pack-template.md
+  hf-regression-gate/
+    references/
+      verification-record-template.md
+  hf-completion-gate/
+    references/
+      verification-record-template.md
+  ... (one self-contained folder per hf-* skill)
 
-docs/principles/
-  hf-sdd-tdd-skill-design.md
+docs/principles/                       # HarnessFlow's own design notes (NOT part of the skill pack)
+  soul.md
   skill-anatomy.md
+  sdd-artifact-layout.md
+  ...
 ```
 
-- `skills/` contains the installable workflow skills.
-- `skills/docs/` contains shared guidance used across the pack.
-- `skills/templates/` contains cross-skill reusable record and handoff templates.
-- `docs/principles/` contains the higher-level design rationale behind the pack.
+- `skills/<skill-name>/` is a self-contained skill: its `SKILL.md`, `references/` (templates, rubrics, sub-protocols), and `evals/` ship together. No cross-skill `skills/docs/` or `skills/templates/` directory.
+- `docs/principles/` contains the higher-level design rationale behind the pack — these are HF's own design notes. Skills **do not depend on these files at runtime**; they have absorbed the relevant constraints into their own `SKILL.md`.
 
-> **Templates live in two layers**: cross-skill reusable templates are in `skills/templates/`; per-stage long templates (spec / design / tasks / discovery / probe-plan / ADR) are co-located inside each skill's `references/` directory. When auditing or generating artifacts, look at the union of both locations.
+> **Templates are co-located with their owning skill** under `skills/<skill-name>/references/` (e.g. spec template under `hf-specify/references/`, closeout pack under `hf-finalize/references/`, verification record under each gate's `references/`). When auditing or generating artifacts, look inside the relevant skill's `references/`.
 
 ## Start Here
 

@@ -48,7 +48,7 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 
 ### 1. 读取最少必要上游输入
 
-只读完成 discovery 所需的最少材料：用户请求、已有会议纪要 / notes / insight docs、`AGENTS.md` 中的项目上下文约定（若存在）、以及少量仓库背景用于理解当前主题。
+只读完成 discovery 所需的最少材料：用户请求、已有会议纪要 / notes / insight docs、项目级上下文约定（若项目已声明）、以及少量仓库背景用于理解当前主题。
 
 先归纳：
 - 当前想解决的核心问题
@@ -100,7 +100,7 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 
 ### 5. 形成 discovery 草稿
 
-按 `references/discovery-template.md`（或 `AGENTS.md` 覆盖模板）起草 discovery 文档。
+按 `references/discovery-template.md`（或 项目级覆盖模板）起草 discovery 文档。
 
 默认应显式写出：
 - 问题陈述与目标用户（含 JTBD situation / struggling moment）
@@ -144,7 +144,7 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 ## Output Contract
 
 完成时产出：
-- discovery 草稿（默认路径：`docs/insights/YYYY-MM-DD-<topic>-discovery.md`；若 `AGENTS.md` 覆盖，优先遵循）
+- discovery 草稿（默认路径：`docs/insights/YYYY-MM-DD-<topic>-discovery.md`；若 项目级覆盖，优先遵循）
   - discovery 阶段 feature 尚未创建，因此 discovery 草稿落到 `docs/insights/` 长期资产目录；只有当 discovery 通过评审并决定推进为 feature 时，才由 `hf-specify` 创建 `features/<NNN>-<slug>/`
 - 文档中明确的 spec bridge 小节，作为后续 `hf-specify` 起草 `features/<NNN>-<slug>/spec.md` 的输入
 - discovery 阶段的进度可临时记录在 discovery 草稿中或与 discovery 同目录的 progress 文件；进入 feature 后，进度统一迁到 `features/<NNN>-<slug>/progress.md`
