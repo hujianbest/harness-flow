@@ -169,21 +169,15 @@ description: Use when route/stage/profile is unclear, review or gate just finish
 | H1 标题 + 1-2 句开场 | 必需 | 定义职责和非目标 |
 | `## When to Use` | 必需 | 定义触发条件、反向边界、邻接 skill 边界 |
 | `## Hard Gates` | 建议 | 写不可协商的停止条件 |
-| `## Object Contract` | HF workflow skill 推荐（v0.1.0），v0.2.0 升为必需 | 写 primary object、frontend input object、backend output object 与边界 |
+| `## Object Contract` | HF workflow skill 必需 | 写 primary object、frontend input object、backend output object 与边界 |
 | `## Methodology` | HF workflow skill 必需 | 写本节点用什么方法完成职责，以及方法如何落地 |
 | `## Workflow` | 必需 | 写带 object / method / input / output / stop rule 的 todo list |
 | `## Output Contract` | 按需 | 写落盘工件、状态同步、canonical next action |
 | `## Red Flags` | 必需 | 写运行时 stop sign |
-| `## Common Rationalizations` | HF workflow skill 推荐（v0.1.0 全量补，配合 ADR-001 D8 双层防御） | 写"借口 → 反驳/Hard rule"表，作为节点内防御，与节点间评审分离形成双层保险 |
 | `## Common Mistakes` | 按需 | 写 mistake -> consequence/fix |
 | `## 和其他 Skill 的区别` | 按需但强烈建议 | 防止误触发、误分流 |
 | `## Reference Guide` / `## Supporting References` | 按需 | 指向深度材料 |
 | `## Verification` | 必需 | 退出条件 |
-
-> **v0.1.0 → v0.2.0 标准演进说明**（ADR-001 D8 + Q1=B）：
->
-> - `Object Contract`：v0.1.0 以「推荐」执行，audit 不把缺位计入 hard fail；v0.2.0 升为「必需」，与 Methodology 并列成为 workflow skill 的硬约束。
-> - `Common Rationalizations`：本次发版从「不建议扩散」升级为「推荐」，并由 ADR-001 D8 锁定 v0.1.0 全量补齐。理由：HF 的「评审节点分离」是节点间防御，但无法覆盖 leaf skill 内部跳步；anti-rationalization 表是节点内防御，两者互补、不冲突。
 
 默认不建议扩散的章节：
 
@@ -193,6 +187,7 @@ description: Use when route/stage/profile is unclear, review or gate just finish
 - `Inputs / Required Artifacts`（应并入 `Object Contract`、`Workflow` 或 `Output Contract`）
 - `Core Authority`（应并入开场、`Hard Gates` 或 `Verification`）
 - `Quality Bar`（应并入 `Hard Gates`、`Red Flags` 或 `Verification`）
+- `Common Rationalizations`
 
 这些内容应尽量吸收到已有骨架里，而不是再长一层。
 
@@ -502,8 +497,6 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 
 ## Red Flags
 
-## Common Rationalizations
-
 ## Common Mistakes
 
 ## Reference Guide
@@ -513,8 +506,7 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 
 说明：
 
-- `Methodology` 对 HF workflow skill 是必需项；`Object Contract` 在 v0.1.0 是推荐项、v0.2.0 升为必需项；对非 workflow 的 technique / reference skill，可以按需合并进开场或 `Workflow`。
-- `Common Rationalizations` 在 v0.1.0 是推荐项（ADR-001 D8 全量补），与 `Methodology` 共同构成节点内防御。
+- `Object Contract` 与 `Methodology` 对 HF workflow skill 是必需项；对非 workflow 的 technique / reference skill，可以按需合并进开场或 `Workflow`。
 - `Hard Gates`、`Output Contract`、`Common Mistakes`、`和其他 Skill 的区别`、`Reference Guide` 都是按需出现。
 - 对薄节点，可以只保留：开场、`When to Use`、最小 `Object Contract`、`Workflow`、`Red Flags`、`Verification`。
 - 标题名可以按节点需要轻微变化，但语义职责不能漂移。
@@ -541,7 +533,6 @@ description: Use when <triggering conditions>. Not for <clear exclusions>.
 - 需要交接时，是否写出 canonical next action 或 reroute 条件
 - 路径引用是否避免写死 repo-local 安装前缀，且项目工件路径是否以项目权威约定优先
 - 是否区分了 `Red Flags` 与 `Common Mistakes`
-- 是否补了 `Common Rationalizations`（v0.1.0 全量补，配合 ADR-001 D8 双层防御）
 - 共享语义是否已上收至 `docs/`
 - 长 reference 是否已下沉到 `references/`
 - 高风险边界行为是否有 `evals/`，且 eval 覆盖对象误判、方法落地、证据缺失和越权验收
