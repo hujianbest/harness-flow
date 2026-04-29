@@ -1,0 +1,1146 @@
+[
+  {
+    "skill": "hf-bug-patterns",
+    "path": "/workspace/skills/hf-bug-patterns/SKILL.md",
+    "line_count": 191,
+    "char_count": 3945,
+    "estimated_tokens": 986,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Rules",
+      "Workflow",
+      "Output Contract",
+      "候选模式判断",
+      "候选模式草稿",
+      "人工确认",
+      "暂不固化",
+      "落盘结果",
+      "和其他 Skill 的区别",
+      "Reference Guide",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-code-review",
+    "path": "/workspace/skills/hf-code-review/SKILL.md",
+    "line_count": 156,
+    "char_count": 8587,
+    "estimated_tokens": 2146,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "和其他 Skill 的区别",
+      "Reference Guide",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
+    ],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-completion-gate",
+    "path": "/workspace/skills/hf-completion-gate/SKILL.md",
+    "line_count": 165,
+    "char_count": 6774,
+    "estimated_tokens": 1693,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "Reference Guide",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-design",
+    "path": "/workspace/skills/hf-design/SKILL.md",
+    "line_count": 327,
+    "char_count": 15789,
+    "estimated_tokens": 3947,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Chain Contract",
+      "Hard Gates",
+      "Design Constraints",
+      "Workflow",
+      "Reference Guide",
+      "Red Flags",
+      "和其他 Skill 的区别",
+      "Output Contract",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-design-review",
+    "path": "/workspace/skills/hf-design-review/SKILL.md",
+    "line_count": 151,
+    "char_count": 4649,
+    "estimated_tokens": 1162,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Chain Contract",
+      "Hard Gates",
+      "Iron Laws",
+      "Workflow",
+      "Reference Guide",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
+    ],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-discovery-review",
+    "path": "/workspace/skills/hf-discovery-review/SKILL.md",
+    "line_count": 121,
+    "char_count": 3698,
+    "estimated_tokens": 924,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Reference Guide",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
+    ],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-doc-freshness-gate",
+    "path": "/workspace/skills/hf-doc-freshness-gate/SKILL.md",
+    "line_count": 177,
+    "char_count": 9971,
+    "estimated_tokens": 2492,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "Reference Guide",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-experiment",
+    "path": "/workspace/skills/hf-experiment/SKILL.md",
+    "line_count": 203,
+    "char_count": 6856,
+    "estimated_tokens": 1714,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Reference Guide",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-finalize",
+    "path": "/workspace/skills/hf-finalize/SKILL.md",
+    "line_count": 266,
+    "char_count": 9337,
+    "estimated_tokens": 2334,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Closeout Decision",
+      "Workflow",
+      "Output Contract",
+      "Closeout Summary",
+      "Evidence Matrix",
+      "State Sync",
+      "Release / Docs Sync",
+      "Handoff",
+      "Final Confirmation",
+      "和其他 Skill 的区别",
+      "Reference Guide",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-hotfix",
+    "path": "/workspace/skills/hf-hotfix/SKILL.md",
+    "line_count": 185,
+    "char_count": 4376,
+    "estimated_tokens": 1094,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "热修复摘要",
+      "证据基线",
+      "复现信息",
+      "修复范围",
+      "同步项",
+      "状态同步",
+      "和其他 Skill 的区别",
+      "Reference Guide",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-increment",
+    "path": "/workspace/skills/hf-increment/SKILL.md",
+    "line_count": 262,
+    "char_count": 6442,
+    "estimated_tokens": 1610,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "Overview",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "变更摘要",
+      "基线快照",
+      "变更包",
+      "影响矩阵",
+      "同步更新项",
+      "待同步项",
+      "状态回流",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-product-discovery",
+    "path": "/workspace/skills/hf-product-discovery/SKILL.md",
+    "line_count": 208,
+    "char_count": 8673,
+    "estimated_tokens": 2168,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Reference Guide",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-regression-gate",
+    "path": "/workspace/skills/hf-regression-gate/SKILL.md",
+    "line_count": 140,
+    "char_count": 4375,
+    "estimated_tokens": 1093,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "Reference Guide",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-spec-review",
+    "path": "/workspace/skills/hf-spec-review/SKILL.md",
+    "line_count": 133,
+    "char_count": 4262,
+    "estimated_tokens": 1065,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Reference Guide",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
+    ],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-specify",
+    "path": "/workspace/skills/hf-specify/SKILL.md",
+    "line_count": 273,
+    "char_count": 11636,
+    "estimated_tokens": 2909,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Reference Guide",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-tasks",
+    "path": "/workspace/skills/hf-tasks/SKILL.md",
+    "line_count": 173,
+    "char_count": 4951,
+    "estimated_tokens": 1237,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Reference Guide",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-tasks-review",
+    "path": "/workspace/skills/hf-tasks-review/SKILL.md",
+    "line_count": 134,
+    "char_count": 4671,
+    "estimated_tokens": 1167,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "和其他 Skill 的区别",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "Reference Guide",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-test-driven-dev",
+    "path": "/workspace/skills/hf-test-driven-dev/SKILL.md",
+    "line_count": 239,
+    "char_count": 12622,
+    "estimated_tokens": 3155,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Hard Gates",
+      "Workflow",
+      "实现交接块",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Supporting References",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
+    ],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-test-review",
+    "path": "/workspace/skills/hf-test-review/SKILL.md",
+    "line_count": 134,
+    "char_count": 4632,
+    "estimated_tokens": 1158,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "和其他 Skill 的区别",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "Reference Guide",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-traceability-review",
+    "path": "/workspace/skills/hf-traceability-review/SKILL.md",
+    "line_count": 143,
+    "char_count": 4606,
+    "estimated_tokens": 1151,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "和其他 Skill 的区别",
+      "Hard Gates",
+      "Workflow",
+      "Output Contract",
+      "Reference Guide",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-ui-design",
+    "path": "/workspace/skills/hf-ui-design/SKILL.md",
+    "line_count": 360,
+    "char_count": 15063,
+    "estimated_tokens": 3765,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Chain Contract",
+      "Hard Gates",
+      "Design Constraints",
+      "Workflow",
+      "Reference Guide",
+      "Red Flags",
+      "和其他 Skill 的区别",
+      "Output Contract",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-ui-review",
+    "path": "/workspace/skills/hf-ui-review/SKILL.md",
+    "line_count": 180,
+    "char_count": 7019,
+    "estimated_tokens": 1754,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Chain Contract",
+      "Hard Gates",
+      "Iron Laws",
+      "Workflow",
+      "Reference Guide",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
+    ],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "hf-workflow-router",
+    "path": "/workspace/skills/hf-workflow-router/SKILL.md",
+    "line_count": 181,
+    "char_count": 6494,
+    "estimated_tokens": 1623,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "和其他 Skill 的区别",
+      "Workflow",
+      "Output Contract",
+      "Red Flags",
+      "Reference Guide",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  },
+  {
+    "skill": "using-hf-workflow",
+    "path": "/workspace/skills/using-hf-workflow/SKILL.md",
+    "line_count": 210,
+    "char_count": 8649,
+    "estimated_tokens": 2162,
+    "name_matches_dir": true,
+    "description_present": true,
+    "description_imperative_or_use_when": true,
+    "description_looks_like_summary": false,
+    "h1_present": true,
+    "sections_found": [
+      "Methodology",
+      "When to Use",
+      "Boundary With Product Skills",
+      "Workflow",
+      "和其他 Skill 的区别",
+      "Red Flags",
+      "Supporting References",
+      "Verification"
+    ],
+    "missing_required": [],
+    "missing_workflow_required": [],
+    "missing_workflow_recommended": [
+      "Object Contract"
+    ],
+    "missing_release_gate": [
+      "Common Rationalizations"
+    ],
+    "missing_recommended": [
+      "Output Contract"
+    ],
+    "has_numbered_workflow": true,
+    "over_line_budget": false,
+    "over_token_budget": false,
+    "has_object_contract": false,
+    "has_methodology": true,
+    "has_common_rationalizations": false,
+    "has_red_flags": true,
+    "is_workflow_skill": true,
+    "hard_pass": true,
+    "release_gate_pass": false,
+    "notes": [
+      "workflow skill 缺 `Object Contract`（v0.1.0 推荐，v0.2.0 必需）",
+      "缺 `Common Rationalizations`（v0.1.0 release gate / ADR-001 D8）"
+    ]
+  }
+]

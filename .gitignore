@@ -1,2 +1,6 @@
 /.idea/
 /.agents/
+
+# Python bytecode (added by R1 anatomy audit)
+__pycache__/
+*.pyc
