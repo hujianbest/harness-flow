@@ -236,6 +236,17 @@ Full intent → node mapping and troubleshooting: `docs/opencode-setup.md`.
 
 HarnessFlow skills are plain Markdown, so they **may** work with Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.1.0 supported surface** and have no setup doc in this version.
 
+### Quickstart Demo: WriteOnce
+
+`examples/writeonce/` is the v0.1.0 quickstart demo: a CLI that publishes a Markdown file to Medium (with Zhihu / WeChat MP declared as extension points but not implemented). The demo's deliverable is **the trail of HarnessFlow main-chain artifacts** — every node from `hf-product-discovery` through `hf-finalize` produced a reviewable artifact you can read in `examples/writeonce/`. The walking-skeleton implementation under `examples/writeonce/src/` ships with 23 passing tests (offline, < 400 ms).
+
+Read order:
+
+1. `examples/writeonce/README.md` — demo framing, scope, layout.
+2. `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` — `hf-product-discovery` output.
+3. `examples/writeonce/features/001-walking-skeleton/README.md` — feature entry + status snapshot.
+4. Walk top-to-bottom through `spec.md` → `design.md` → `tasks.md` → `reviews/` → `verification/` → `closeout.md`.
+
 ### Repository layout to vendor
 
 When you vendor HarnessFlow into another workspace, copy `skills/` only. Each `hf-*` skill is **self-contained**: its `SKILL.md`, `references/` (templates, rubrics, dispatch protocols, worktree guides) and `evals/` ship together inside the skill folder. There is no top-level `skills/docs/`, `skills/templates/` or `skills/principles/` you also need to keep around.
