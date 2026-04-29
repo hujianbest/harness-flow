@@ -216,20 +216,24 @@ claude --plugin-dir "$PWD"
 
 ### OpenCode
 
-OpenCode 集成走 **agent-driven** 路径，**不需要 `AGENTS.md` sidecar**，也**不**注册 slash 命令文件（PR #21 已让每个 `hf-*` skill 自包含；ADR-001 D3 确认无需 sidecar）。Agent 通过自然语言 + `skills/` 下的工件证据完成路由。
+OpenCode 集成走 **agent-driven** 路径，**不需要 `AGENTS.md` sidecar**，也**不**注册 slash 命令文件（PR #21 已让每个 `hf-*` skill 自包含；ADR-001 D3 确认无需 sidecar）。Agent 通过自然语言 + `skill` 工具加载 `skills/` 下的 HF skill 完成路由。
+
+OpenCode 的 [`skill` 工具](https://opencode.ai/docs/skills/) 只会从 `.opencode/skills/`、`.claude/skills/`、`.agents/skills/`（项目级）或它们位于 `~/.config/opencode/`、`~/.claude/`、`~/.agents/` 下的全局对应路径里发现 skill；仓库根目录裸放的 `skills/` 文件夹**不会**被自动发现。为了不复制文件就让 HarnessFlow 工作，本仓库随包附带了一个软链接 `.opencode/skills -> ../skills`，所以克隆并打开仓库即可：
 
 ```bash
 git clone https://github.com/hujianbest/harness-flow.git
 cd harness-flow
+opencode .
 ```
 
-在 OpenCode 中打开仓库后，发出第一条 prompt：
+在 OpenCode 里运行 `/skills` 验证发现是否成功——你应当看到 24 个 `hf-*` skill 加上 `using-hf-workflow`。然后发出第一条 prompt：
 
 ```text
-使用这个仓库里的 HarnessFlow。从 `using-hf-workflow` 开始，把我路由到正确的 HF 节点。
+使用这个仓库里的 HarnessFlow。先用 skill 工具加载 `using-hf-workflow`，
+再把我路由到正确的 HF 节点。
 ```
 
-完整的「自然语言意图 → 节点」映射与故障排查见 `docs/opencode-setup.md`。
+如果要在其他项目中使用 HarnessFlow，把本仓库的 `skills/` 目录复制或软链接到目标项目的 `.opencode/skills/`（或者全局安装到 `~/.config/opencode/skills/`）。完整的安装拓扑、「自然语言意图 → 节点」映射、验证步骤与故障排查见 `docs/opencode-setup.md`。
 
 ### 其他客户端（v0.2+ 再支持）
 

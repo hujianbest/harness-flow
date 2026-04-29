@@ -216,21 +216,24 @@ Full setup notes, troubleshooting, and the SSH/HTTPS fallback for marketplace fe
 
 ### OpenCode
 
-OpenCode integration is intentionally **agent-driven** with **no `AGENTS.md` sidecar** and no slash command files (PR #21 made every `hf-*` skill self-contained; ADR-001 D3 confirmed no sidecar is needed). The agent uses natural language and the on-disk artifacts under `skills/` to route every request.
+OpenCode integration is intentionally **agent-driven** with **no `AGENTS.md` sidecar** and no slash command files (PR #21 made every `hf-*` skill self-contained; ADR-001 D3 confirmed no sidecar is needed). The agent uses natural language and the `skill` tool over the HF skills under `skills/` to route every request.
+
+OpenCode's [`skill` tool](https://opencode.ai/docs/skills/) only auto-discovers skills under `.opencode/skills/`, `.claude/skills/`, `.agents/skills/` (project-local) or their `~/.config/opencode/`, `~/.claude/`, `~/.agents/` global counterparts. A bare `skills/` folder at the repo root is **not** picked up. To make HarnessFlow work without duplicating files, this repository ships a symlink `.opencode/skills -> ../skills`, so cloning and opening it is enough:
 
 ```bash
 git clone https://github.com/hujianbest/harness-flow.git
 cd harness-flow
+opencode .
 ```
 
-Open the repository in OpenCode and start with:
+Verify discovery in OpenCode with `/skills` — you should see all 24 `hf-*` skills plus `using-hf-workflow`. Then start with:
 
 ```text
-Use HarnessFlow from this repo. Start with `using-hf-workflow` and route me
-through the correct HF workflow.
+Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool
+and route me through the correct HF workflow.
 ```
 
-Full intent → node mapping and troubleshooting: `docs/opencode-setup.md`.
+To use HarnessFlow inside another project, copy or symlink the `skills/` directory into that project's `.opencode/skills/` (or install globally under `~/.config/opencode/skills/`). Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md`.
 
 ### Other clients (deferred to v0.2+)
 
