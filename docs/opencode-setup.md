@@ -17,7 +17,7 @@ OpenCode's [`skill` tool](https://opencode.ai/docs/skills/) only loads `SKILL.md
 
 OpenCode walks up from the working directory to the git worktree root and loads any matching `*/SKILL.md` it finds along the way. **Putting a `skills/` folder at the repo root is not sufficient.**
 
-HarnessFlow stores its 24 self-contained skills under the top-level `skills/` directory (so vendor-by-copy works for any client). To make those skills discoverable to OpenCode without duplicating files, the repository ships a symlink:
+HarnessFlow stores its 23 self-contained skills under the top-level `skills/` directory (so vendor-by-copy works for any client). To make those skills discoverable to OpenCode without duplicating files, the repository ships a symlink:
 
 ```text
 .opencode/skills -> ../skills
@@ -39,7 +39,7 @@ cd harness-flow
 opencode .
 ```
 
-The shipped `.opencode/skills` symlink makes all 24 `hf-*` skills + `using-hf-workflow` immediately discoverable. No further setup.
+The shipped `.opencode/skills` symlink makes all 22 `hf-*` skills + `using-hf-workflow` immediately discoverable. No further setup.
 
 ### B. Vendor HarnessFlow skills into your own project
 
@@ -76,7 +76,7 @@ After opening OpenCode in any of the three topologies above, run:
 /skills
 ```
 
-You should see at least the following skills listed (24 total `hf-*` skills + `using-hf-workflow`):
+You should see at least the following skills listed (22 `hf-*` skills + `using-hf-workflow`):
 
 - `using-hf-workflow`
 - `hf-workflow-router`
@@ -88,7 +88,7 @@ You should see at least the following skills listed (24 total `hf-*` skills + `u
 - `hf-code-review`, `hf-traceability-review`
 - `hf-regression-gate`, `hf-doc-freshness-gate`, `hf-completion-gate`
 - `hf-finalize`
-- `hf-hotfix`, `hf-increment`, `hf-bug-patterns`, `hf-experiment`
+- `hf-hotfix`, `hf-increment`, `hf-experiment`
 
 If the list is empty, see [§5 Troubleshooting](#5-troubleshooting).
 
@@ -163,7 +163,6 @@ Natural-language intents also cover side branches and gates:
 |---|---|
 | "Production defect, hotfix needed." | branches into `hf-hotfix` (RCA / minimal safe fix boundary) |
 | "Scope change, re-enter the workflow." | branches into `hf-increment` (impact analysis + re-entry) |
-| "Capture the bug pattern we just hit." | activates `hf-bug-patterns` (optional learning loop) |
 | "Run the regression evidence check before completion." | router pulls `hf-regression-gate` from the canonical next action — do not push it manually |
 
 The `hf-regression-gate`, `hf-doc-freshness-gate`, and `hf-completion-gate` skills are intentionally **pulled** by upstream nodes, not pushed by the user. Asking for "/gate" directly would encourage skipping implementation or review — that is why HarnessFlow ships no `/gate` command, on Claude Code or on OpenCode (ADR-001 D4).

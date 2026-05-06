@@ -13,7 +13,7 @@
 
 HF 把 4 条 LLM coding 行为准则当作**横切的行为基线**，而不是一个独立 `hf-*` skill 节点：
 
-- 它们是**所有节点**（`using-hf-workflow` / `hf-workflow-router` / authoring / review / gate / branch / finalize / bug-patterns）共同遵守的行为约束。
+- 它们是**所有节点**（`using-hf-workflow` / `hf-workflow-router` / authoring / review / gate / branch / finalize）共同遵守的行为约束。
 - 它们由 HF 宪法层（`docs/principles/`）承载，通过 HF 仓库 design notes 体现；skills 在自己的 `SKILL.md` 中已经吸收并执行这些行为约束，运行时不再外链原文。
 - 它们**不**进入 canonical workflow vocabulary（不写进 `Current Stage` / `Next Action Or Recommended Skill` / `Pending Reviews And Gates` / 迁移表 / reviewer return contract）。
 - 与 `soul.md` 或项目级约定显式声明冲突时，soul / 项目级约定 优先；本文让位。
