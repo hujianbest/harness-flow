@@ -56,7 +56,7 @@ HarnessFlow's primary path covers the full **idea-to-product** arc:
 - **Regression and completion gates**: impact-based regression + evidence bundle + Definition of Done
 - **Formal closeout**: PMBOK-style task closeout and workflow closeout
 - **Runtime routing and recovery**: `using-hf-workflow` / `hf-workflow-router` resume orchestration from artifacts, not chat memory
-- **Side branches and learning loops**: `hf-hotfix` / `hf-increment` / `hf-bug-patterns`
+- **Side branches and learning loops**: `hf-hotfix` / `hf-increment`
 
 Further evolution toward commercial-grade delivery (release, ops, metrics feedback, team collaboration, long-term architecture health, data / AI product tracks) is planned but not yet landed.
 
@@ -145,7 +145,7 @@ These principles live in the constitution layer (`docs/principles/`) as HF's own
 | Skill | Core methodology |
 |-------|------------------|
 | `hf-test-driven-dev` | TDD, Walking Skeleton, Test Design Before Implementation, Fresh Evidence Principle, Two Hats (Beck/Fowler), Opportunistic + Boy Scout Refactoring, Preparatory Refactoring, Clean Architecture Conformance, Escalation Boundary |
-| `hf-test-review` | Fail-First Validation, Coverage Categories, Bug-Pattern-Driven Testing, Structured Walkthrough |
+| `hf-test-review` | Fail-First Validation, Coverage Categories, Risk-Based Testing, Structured Walkthrough |
 | `hf-code-review` | Fagan Code Inspection, Design Conformance Check, Defense-in-Depth Review, Clean Architecture Conformance Check, Two Hats / Refactoring Hygiene Review, Architectural Smells Detection, Separation of Author/Reviewer Roles |
 | `hf-traceability-review` | End-to-End Traceability, Zigzag Validation, Impact Analysis |
 
@@ -164,7 +164,6 @@ These principles live in the constitution layer (`docs/principles/`) as HF's own
 |-------|------------------|
 | `hf-hotfix` | Root Cause Analysis / 5 Whys, Minimal Safe Fix Boundary, Blameless Post-Mortem Mindset |
 | `hf-increment` | Change Impact Analysis, Re-entry Pattern, Baseline-before-Change, Separation of Analysis and Implementation |
-| `hf-bug-patterns` | Defect Pattern Catalog, Blameless Post-Mortem / Learning Review, Human-In-The-Loop Knowledge Curation |
 
 ## Why These Methods Are Assigned To These Skills
 
@@ -226,7 +225,7 @@ cd harness-flow
 opencode .
 ```
 
-Verify discovery in OpenCode with `/skills` — you should see all 24 `hf-*` skills plus `using-hf-workflow`. Then start with:
+Verify discovery in OpenCode with `/skills` — you should see all 22 `hf-*` skills plus `using-hf-workflow`. Then start with:
 
 ```text
 Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool
@@ -378,9 +377,7 @@ HF:     If more approved tasks remain, it closes out the task and returns to
 The point is not just to "use prompts." HarnessFlow reads artifacts, writes state,
 and produces one controlled next move at each step. If the issue is really a
 production defect or a scope change, the router can branch into `hf-hotfix` or
-`hf-increment` instead of forcing the normal path. If recurring mistakes emerge,
-`hf-bug-patterns` remains an optional knowledge-capture side path rather than a
-mandatory gate.
+`hf-increment` instead of forcing the normal path.
 
 ## What Makes It Different
 

@@ -45,7 +45,7 @@ Claude Code will read:
 - `.claude-plugin/plugin.json` — plugin manifest (name, version, license, commands path).
 - `.claude-plugin/marketplace.json` — marketplace entry used when published.
 - `.claude/commands/*.md` — the 6 slash command definitions.
-- `skills/` — the 24 self-contained `hf-*` skills + `using-hf-workflow`.
+- `skills/` — the 22 self-contained `hf-*` skills + `using-hf-workflow`.
 
 ## 3. Verify the install
 

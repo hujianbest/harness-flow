@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Removed
+
+- **`hf-bug-patterns` skill removed.** The standalone "knowledge side node" was deleted along with its `references/`, `evals/`, and `test-prompts.json`. The skill was an optional learning loop, not part of the canonical main chain or any review/gate. Risk-input language in `hf-test-review` (description, methodology row, workflow step 1, checklist `TT3`) now points to "项目缺陷模式记录 / 风险清单 / hotfix 历史" instead of the removed skill, so projects that maintain a defect catalog under their own conventions are still consumed as risk input. The `docs/bug-patterns/catalog.md` artifact slot was removed from `docs/principles/sdd-artifact-layout.md`, `skills/hf-workflow-router/references/workflow-shared-conventions.md`, and `skills/hf-finalize/SKILL.md` — projects that still want a bug catalog can declare their own path in project-level conventions. README skill counts updated to **22 `hf-*` skills + `using-hf-workflow`** (Claude Code marketplace description, OpenCode setup, Claude Code setup, both READMEs).
+
 ### Added
 
 - `SECURITY.md` — security policy with scope, supported versions, private reporting via GitHub Security Advisory.

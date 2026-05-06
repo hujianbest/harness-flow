@@ -3,20 +3,20 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "这是一个测试评审场景：\n- bug-patterns 已完成，识别出 3 个风险路径\n- 实现交接块中有有效 RED 和 GREEN 证据\n- 测试覆盖了 bug-patterns 识别的全部风险路径\n- 测试设计清晰，mock 限定在真正边界\n- 所有维度评分 >= 6\n- 不存在 route / stage / 证据链冲突\n\n请作为 `hf-test-review` 给出结论和下一步。",
+      "prompt": "这是一个测试评审场景：\n- 项目缺陷模式记录已识别出 3 个风险路径\n- 实现交接块中有有效 RED 和 GREEN 证据\n- 测试覆盖了已识别的全部风险路径\n- 测试设计清晰，mock 限定在真正边界\n- 所有维度评分 >= 6\n- 不存在 route / stage / 证据链冲突\n\n请作为 `hf-test-review` 给出结论和下一步。",
       "expected_output": "所有维度达标，应给出 `通过`，下一步指向 `hf-code-review`，`needs_human_confirmation=false`。",
       "files": [],
       "expectations": [
         "给出 `通过` 结论",
         "下一步指向 `hf-code-review`",
         "确认 fail-first 有效性",
-        "确认 bug-patterns 风险覆盖完整",
+        "确认已识别风险覆盖完整",
         "返回 `needs_human_confirmation=false`"
       ]
     },
     {
       "id": 2,
-      "prompt": "这是一个测试评审场景：\n- bug-patterns 已完成，识别出 2 个风险路径\n- 实现交接块中有 GREEN 证据，但 RED 证据不清晰——测试一跑就绿，无法确认行为缺口\n- 测试只覆盖了 happy path，未覆盖错误路径和边界条件\n- 这些问题可以通过 1-2 轮定向修订补齐\n- 不存在 route / stage / 证据链冲突\n\n请作为 `hf-test-review` 给出结论和下一步。",
+      "prompt": "这是一个测试评审场景：\n- 项目缺陷模式记录已识别出 2 个风险路径\n- 实现交接块中有 GREEN 证据，但 RED 证据不清晰——测试一跑就绿，无法确认行为缺口\n- 测试只覆盖了 happy path，未覆盖错误路径和边界条件\n- 这些问题可以通过 1-2 轮定向修订补齐\n- 不存在 route / stage / 证据链冲突\n\n请作为 `hf-test-review` 给出结论和下一步。",
       "expected_output": "fail-first 不足和行为覆盖缺口应导致 `需修改`，下一步指向 `hf-test-driven-dev`。",
       "files": [],
       "expectations": [
@@ -29,7 +29,7 @@
     },
     {
       "id": 3,
-      "prompt": "这是一个测试评审场景：\n- 实现交接块引用的 bug-patterns 记录与 task-progress.md 中记录的不一致\n- 当前阶段的证据链存在冲突\n- 测试质量本身尚可，但上游工件状态不稳定\n\n请作为 `hf-test-review` 给出结论和下一步。",
+      "prompt": "这是一个测试评审场景：\n- 实现交接块引用的风险清单与 task-progress.md 中记录的不一致\n- 当前阶段的证据链存在冲突\n- 测试质量本身尚可，但上游工件状态不稳定\n\n请作为 `hf-test-review` 给出结论和下一步。",
       "expected_output": "上游证据冲突应导致 `阻塞`，下一步指向 `hf-workflow-router`，`reroute_via_router=true`。",
       "files": [],
       "expectations": [
@@ -42,12 +42,12 @@
     },
     {
       "id": 4,
-      "prompt": "这是一个测试评审场景：\n- RED/GREEN 证据都存在且看起来新鲜\n- 但新增测试只验证了内部 helper 的返回值，没有明确映射到任务 acceptance\n- bug-patterns 风险中要求覆盖权限拒绝场景，但当前测试没有涉及\n- 这些问题可以通过一轮定向修订补齐\n\n请作为 `hf-test-review` 给出结论和下一步。",
+      "prompt": "这是一个测试评审场景：\n- RED/GREEN 证据都存在且看起来新鲜\n- 但新增测试只验证了内部 helper 的返回值，没有明确映射到任务 acceptance\n- 项目风险清单中要求覆盖权限拒绝场景，但当前测试没有涉及\n- 这些问题可以通过一轮定向修订补齐\n\n请作为 `hf-test-review` 给出结论和下一步。",
       "expected_output": "应识别测试缺少 acceptance 映射，且风险覆盖不完整；结论至少应为 `需修改`，下一步指向 `hf-test-driven-dev`。",
       "files": [],
       "expectations": [
         "识别测试没有清楚映射到任务 acceptance",
-        "识别 bug-patterns 风险覆盖缺口",
+        "识别已声明风险覆盖缺口",
         "给出 `需修改` 结论",
         "下一步指向 `hf-test-driven-dev`"
       ]

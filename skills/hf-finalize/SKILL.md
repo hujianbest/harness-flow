@@ -109,7 +109,7 @@ Profile-aware 证据矩阵：
 
 ### 4. 同步长期资产到 `docs/`，更新 release notes / CHANGELOG
 
-遵循 **sync-on-presence** 原则：**同步范围按 `docs/` 实际存在的子目录 + 本 feature 触发了升级条件的子目录决定**，不要求项目同步未启用的资产。`docs/` 各档载体（`docs/architecture.md` 单文件 vs `docs/arc42/` 拆分；`docs/runbooks/` / `docs/slo/` / `docs/postmortems/` / `docs/release-notes/` / `docs/diagrams/` / `docs/bug-patterns/` / `docs/insights/` / `docs/index.md` 等可选子目录；仓库根 `CHANGELOG.md` / `README.md`）按存在判断；具体载体清单见下方"必须 / 条件 / N/A"三类列表。
+遵循 **sync-on-presence** 原则：**同步范围按 `docs/` 实际存在的子目录 + 本 feature 触发了升级条件的子目录决定**，不要求项目同步未启用的资产。`docs/` 各档载体（`docs/architecture.md` 单文件 vs `docs/arc42/` 拆分；`docs/runbooks/` / `docs/slo/` / `docs/postmortems/` / `docs/release-notes/` / `docs/diagrams/` / `docs/insights/` / `docs/index.md` 等可选子目录；仓库根 `CHANGELOG.md` / `README.md`）按存在判断；具体载体清单见下方"必须 / 条件 / N/A"三类列表。
 
 必须同步项（任何 tier）：
 

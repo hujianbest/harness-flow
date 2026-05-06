@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow skill pack: 24 hf-* skills covering discovery -> spec -> design -> tasks -> TDD -> reviews -> gates -> finalize, with evidence-based routing."
+      "description": "HarnessFlow skill pack: 22 hf-* skills covering discovery -> spec -> design -> tasks -> TDD -> reviews -> gates -> finalize, with evidence-based routing."
     }
   ]
 }

@@ -66,7 +66,6 @@ HF node 的类型按职责划分，不按主链顺序划分。
 | Gate | `hf-regression-gate` / `hf-completion-gate` | 消费证据判断能否继续 | 制造缺失证据或替代 review |
 | Branch / Re-entry | `hf-hotfix` / `hf-increment` | 处理缺陷恢复、范围变化与安全回流 | 绕过主链直接改代码 |
 | Finalize | `hf-finalize` | closeout、release notes、handoff pack | 混入新实现 |
-| Knowledge Side Node | `hf-bug-patterns` | 沉淀重复缺陷模式 | 作为 mandatory gate 卡主链 |
 
 新增 skill 前应先判断它属于哪类 role。如果找不到清晰 role，通常说明它只是某个现有节点的 reference、rubric 或子步骤，不应该提升为独立 node。
 
