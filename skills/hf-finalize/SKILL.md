@@ -218,14 +218,6 @@ Closeout type-specific 约束：
 - If not confirmed: return to `hf-workflow-router`
 ```
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-completion-gate` | 判断当前任务能否宣告完成；本 skill 消费该结论并做状态 / 文档 / closeout 收口 |
-| `hf-workflow-router` | 决定下一任务或下一节点；本 skill 只在 closeout 之后把结果写回 router 或 null |
-| `hf-test-driven-dev` | 写实现与 fresh evidence；本 skill 不做新实现 |
-
 ## Reference Guide
 
 | 文件 | 用途 |

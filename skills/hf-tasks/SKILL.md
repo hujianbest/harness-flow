@@ -136,17 +136,6 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 注意：只有 review 通过且 approval step 完成后，才进入 `hf-test-driven-dev`。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 hf-tasks | 不用 |
-|------|-------------|------|
-| 规格与设计已批准，需任务拆解 | ✅ | |
-| 规格未稳定/未批准 | | → `hf-specify` / `hf-spec-review` |
-| 设计未稳定/未批准 | | → `hf-design` / `hf-design-review` |
-| 任务计划已批准，需进入实现 | | → `hf-test-driven-dev` |
-| 评审任务计划质量 | | → `hf-tasks-review` |
-| 阶段不清/证据冲突 | | → `hf-workflow-router` |
-
 ## Red Flags
 
 - 把任务计划写成设计文档副本

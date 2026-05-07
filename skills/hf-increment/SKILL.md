@@ -229,15 +229,6 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 - `Next Action Or Recommended Skill`: `hf-specify` | `hf-hotfix` | `hf-spec-review` | `hf-design` | `hf-design-review` | `hf-tasks` | `hf-test-driven-dev` | `hf-workflow-router`
 ```
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-hotfix` | 处理已上线功能的缺陷修复（复现→根因→最小修复）；本 skill 处理需求/范围/验收变更 |
-| `hf-test-driven-dev` | 写/修代码、TDD 实现；本 skill 只做变更分析和工件同步，不直接推进实现 |
-| `hf-workflow-router` | 编排/路由/阶段判断；本 skill 只处理已明确判定为 increment 的变更分支 |
-| `hf-specify` | 写/改规格；本 skill 判断变更影响并决定回流到哪个 canonical 节点 |
-
 ## Red Flags
 
 - 把需求变更误当成单纯任务调整

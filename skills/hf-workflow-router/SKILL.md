@@ -35,15 +35,6 @@ HF workflow family 的 **runtime authority**。负责根据最新证据决定：
 
 Direct invoke 信号：reviewer 返回 `reroute_via_router=true`、证据冲突需权威路由。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 hf-workflow-router | 不用 |
-|------|----------------------|------|
-| runtime 恢复编排、profile/mode 判断 | ✅ | |
-| 新会话 family discovery | | → `using-hf-workflow` |
-| 具体节点的作者/评审/实现工作 | | → 对应 leaf skill |
-| 具体节点的评审 | | → 对应 review skill |
-
 ## Workflow
 
 ### 1. 确认是否属于 runtime routing

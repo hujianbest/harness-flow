@@ -117,16 +117,6 @@ severity：`critical`（阻塞任务规划）> `important`（应修复）> `mino
 | 评审检查清单 | `references/review-checklist.md` | 执行 Step 2 多维审查时 |
 | 评审记录模板 | `references/review-record-template.md` | 执行 Step 4 写评审记录时 |
 
-## 和其他 Skill 的区别
-
-| 易混淆 skill | 区别 |
-|-------------|------|
-| `hf-design` | design 负责起草设计；本 skill 负责评审设计。起草者不能自审。 |
-| `hf-ui-review` | 本 skill 评审架构/模块/API/数据模型/后端 NFR；`hf-ui-review` 评审 IA/交互/视觉/前端 a11y。两者 peer 并行，不得跨权。联合通过后才进入 `设计真人确认`。 |
-| `hf-tasks` | 本 skill 是评审 gate，输出 verdict + findings；tasks 是拆解实现步骤。评审未通过前不进 tasks。 |
-| `hf-workflow-router` | router 负责阶段路由判断（含 UI surface 激活条件）；本 skill 假设已处于设计评审阶段。发现需求漂移/证据冲突/激活条件判定错时才 reroute 到 router。 |
-| `hf-spec-review` | spec-review 评审需求规格（做什么）；本 skill 评审实现设计（如何做）。 |
-
 ## Red Flags
 
 - 因"实现时再说"就直接通过

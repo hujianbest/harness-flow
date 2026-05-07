@@ -116,14 +116,6 @@ Profile-aware 回归范围：
 |------|------|
 | `references/verification-record-template.md` | regression verification record 模板（与 `hf-completion-gate` 同形态） |
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-completion-gate` | 判断当前任务可否宣告完成（证据束齐不齐）；本 skill 判断回归面健康度（旁边模块坏了没） |
-| `hf-finalize` | 关闭工作周期、产出 handoff pack；本 skill 只做回归门禁 |
-| `hf-workflow-router` | 编排/路由/阶段判断；本 skill 只做回归验证 |
-
 ## Red Flags
 
 - 不读上游 review 记录就跑回归

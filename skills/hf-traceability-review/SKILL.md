@@ -30,16 +30,6 @@ description: 适用于 code review 通过后判断追溯完整性、用户显式
 
 Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证据链完整性"。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 hf-traceability-review | 不用 |
-|------|---------------------------|------|
-| 评审规格→设计→任务→实现的追溯链 | ✅ | |
-| 评审代码质量 | | → `hf-code-review` |
-| 评审测试质量 | | → `hf-test-review` |
-| 评审任务计划质量 | | → `hf-tasks-review` |
-| 阶段不清/证据冲突 | | → `hf-workflow-router` |
-
 ## Hard Gates
 
 - traceability review 通过前不得进入 regression gate

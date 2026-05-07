@@ -151,15 +151,6 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 
 若草稿未达评审门槛，不伪造 handoff；明确还缺什么。
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `using-hf-workflow` | 入口层只负责判断是否该进入 discovery；本 skill 负责真正起草 discovery 正文。 |
-| `hf-discovery-review` | review 负责独立评审 discovery 草稿；本 skill 只负责起草和回修。 |
-| `hf-specify` | discovery 回答“为什么值得做、当前 wedge 是什么、哪些假设仍未关闭”；specify 回答“这一轮正式做什么、做到什么程度算完成”。 |
-| `hf-workflow-router` | router 负责 authoritative runtime routing；本 skill 假设当前已明确在做 discovery authoring。 |
-
 ## Red Flags
 
 - 把 brainstorming notes 直接当成已稳定结论

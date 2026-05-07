@@ -138,14 +138,6 @@ full/standard 记录缺失/过旧 → `阻塞`。
 |------|------|
 | `references/verification-record-template.md` | completion verification record 模板（与 `hf-regression-gate` 同形态） |
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-regression-gate` | 判断回归面健康度（修好了本地但旁边没坏）；本 skill 判断当前任务可否宣告完成 |
-| `hf-finalize` | 关闭工作周期、更新 release notes、产出 handoff pack；本 skill 只做任务完成判断 |
-| `hf-workflow-router` | 编排/路由/阶段判断；本 skill 只做完成门禁 |
-
 ## Red Flags
 
 - 说"应该算完成了"
