@@ -8,18 +8,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Planned (v0.2.0)
 
-> v0.2.0 范围与 10 项决策记录在 [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md)。版本号策略：v0.2.0 仍标记为 pre-release（ADR-002 D6）。
+> v0.2.0 范围与决策记录在 [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md)。原始 10 项决策于 2026-05-06 锁定；2026-05-07 D11 校准撤回 D2/D3/D4/D8（理由："太重 + 不完善"，不符 P-Honest）。版本号策略：v0.2.0 仍标记为 pre-release（ADR-002 D6）。
+
+v0.2.0 真正的对外承诺面（D11 校准后）：
 
 - **Tier 1 — Pillar C 部分推进**：新增 1 项 ops/release skill `hf-browser-testing`（取代 ADR-001 D1 占位名 `hf-browser-runtime-evidence`），作为 verify 阶段的 runtime evidence 节点，由 `hf-test-driven-dev` 在 GREEN 后按需拉取；不修改主链 FSM；不引入新 slash 命令。其余 6 项 ops/release skill 仍延后到 v0.3+。(ADR-002 D1, D7)
-- **Tier 2 — 客户端扩展到 7 家**：新增 Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro 的 `docs/<client>-setup.md` 与对应命令文件（Gemini CLI 的 `.gemini/commands/` × 6，命名避开 Gemini CLI 内置命令冲突）。Scope Note 与 README 同步刷新到 7 家客户端清单。(ADR-002 D2)
-- **Tier 2 — 真实环境安装冒烟**：作为 v0.2.0 GA 硬门禁，覆盖 Claude Code marketplace 一键安装、OpenCode `/skills` 全清单核对（22 `hf-*` + `using-hf-workflow` + 新增 `hf-browser-testing` = 24 项）、5 家新客户端 setup 文档的 recommended first prompt；结果落到 `docs/audits/v0.2.0-install-smoke.md`。(ADR-002 D3)
-- **Tier 3 — Agent personas 层**：新增 3 个 user-facing persona —— `agents/hf-staff-reviewer.md`、`agents/hf-qa-engineer.md`、`agents/hf-security-auditor.md`。设计原则：persona 是 review skill 的 orchestration shortcut，**不替代 review skill 产出 verdict**，**不调 implementation/authoring skill**，与 Fagan 角色分离不冲突。新增 `docs/principles/persona-anatomy.md` 作为 design reference（不作合规基线）。(ADR-002 D4, D8)
 - **Tier 3 — SKILL.md 自动化质量基线**：撤回 ADR-001 D11 中"audit 脚本不进 v0.1.0"的子条款。新增 `scripts/audit-skill-anatomy.py` 与 `scripts/test_audit_skill_anatomy.py`，CI 上挂 advisory check（不阻塞 PR merge）；首次 baseline 报告落到 `docs/audits/v0.2.0-skill-anatomy-baseline.md`。audit 检查项收敛为 5 条结构存在性（frontmatter / `When to Use` / `Workflow` / `Verification` / `Common Rationalizations` 必需 + `和其他 Skill 的区别` 禁止）+ 1 条预算（< 500 行）。(ADR-002 D5)
 - **SKILL.md 强制结构变更（影响全部 23 份现有 + 1 份新 SKILL.md = 24 份）**：
   - 移除 `## 和其他 Skill 的区别` 章节（与 `When to Use` 语义重复；删除前确保等价 reroute 信息已写进 `When to Use`）。
   - 全量补 `## Common Rationalizations` 章节（每条必须引用本 skill 已有的 Hard Gates / Workflow stop rule / Verification 条款，不能凭空编造新 rule）。
   - 取代 ADR-001 D8（v0.1.0 必须全量补）的强制时点，强制时点延后到 v0.2.0；强制范围一致。(ADR-002 D9)
 - **`docs/principles/skill-anatomy.md` 部分恢复合规基线性质**：仅就 `Common Rationalizations`（必需）与 `和其他 Skill 的区别`（禁止）两节的合规级别由 v0.2.0 起强制；其它段落（`Object Contract` / `Methodology` / `Hard Gates` / `Output Contract` 等）继续保持 ADR-001 D11 的"按需写"，不在 v0.2.0 升级。`soul.md` 仍是宪法层不变。(ADR-002 D10)
+
+由 D11 退回 v0.3+ 的项（不在 v0.2.0 GA 承诺面）：
+
+- 5 家新客户端扩展（Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro），含 setup 文档与命令文件 — 撤回 D2。
+- 真实环境安装冒烟硬门禁 — 撤回 D3。
+- 3 个 user-facing personas（`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`）+ `docs/principles/persona-anatomy.md` design reference — 撤回 D4 / D8。
+- v0.1.x 已存在的 5 项 ops/release skill 缺位（shipping / ci-cd / security / performance / debugging / deprecation） — 与 v0.1.0 同状态不变。
 
 ### Removed
 
