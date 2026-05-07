@@ -4,14 +4,14 @@
 
 **From idea to shipped product: high-quality engineering workflows for AI agents.**
 
-> ## Scope Note (v0.1.0 pre-release)
+> ## Scope Note (v0.2.0 pre-release)
 >
-> - **Version**: `v0.1.0`, marked as a **pre-release** on GitHub Releases. The public surface is intentionally small.
-> - **Officially supported clients**: **Claude Code** and **OpenCode** only. Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro are deferred to v0.2+ (HarnessFlow may run there because it is plain Markdown, but those paths are not part of the v0.1.0 commitment).
-> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). Release pipelines, deployment, observability, incident response, security hardening, performance gating, and post-launch ops are **not** first-class stages in v0.1.0; they are roadmap items for v0.2 / v0.3.
-> - This narrow surface is a deliberate choice (ADR-001 D1 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
+> - **Version**: `v0.2.0`, marked as a **pre-release** on GitHub Releases. The public surface is intentionally still small (one ops/release skill added, the other six remain deferred).
+> - **Officially supported clients (7)**: **Claude Code**, **OpenCode**, **Cursor**, **Gemini CLI**, **Windsurf**, **GitHub Copilot**, **Kiro**. v0.1.0 covered the first two; v0.2.0 added the other five.
+> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). v0.2.0 added `hf-browser-testing` as a verify-stage runtime evidence side node, but release pipelines, deployment, observability, incident response, security hardening, performance gating, debugging-and-error-recovery, and deprecation-and-migration are **still not** first-class stages in v0.2.0; they are roadmap items for v0.3+.
+> - This narrow surface is a deliberate choice (ADR-001 D1 / ADR-002 D1 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
 >
-> See `docs/decisions/ADR-001-release-scope-v0.1.0.md` for the full release scope decisions.
+> See `docs/decisions/ADR-002-release-scope-v0.2.0.md` for the full v0.2.0 release scope decisions; `docs/decisions/ADR-001-release-scope-v0.1.0.md` for v0.1.0.
 
 HarnessFlow is a skill pack for AI agents that turns the full **idea → insight → architecture → implementation → delivery** arc into structured artifacts, quality discipline, and clear handoffs. Product discovery, specification, architecture design, task breakdown, gated TDD implementation, independent reviews, regression and completion gates, and formal closeout are all first-class stages, so agents move along an explicit "one idea → reviewable direction → reviewable design → executable tasks → shipped product" path instead of relying on ad hoc prompt chains.
 
@@ -56,6 +56,7 @@ HarnessFlow's primary path covers the full **idea-to-product** arc:
 - **Regression and completion gates**: impact-based regression + evidence bundle + Definition of Done
 - **Formal closeout**: PMBOK-style task closeout and workflow closeout
 - **Runtime routing and recovery**: `using-hf-workflow` / `hf-workflow-router` resume orchestration from artifacts, not chat memory
+- **Verify-stage runtime evidence** (v0.2.0): `hf-browser-testing` — runtime DOM / Console / Network evidence bundle for frontend-touching tasks; pulled by `hf-test-driven-dev` after GREEN when the spec declares a UI surface; does not sign verdicts (those still belong to gates)
 - **Side branches and learning loops**: `hf-hotfix` / `hf-increment`
 
 Further evolution toward commercial-grade delivery (release, ops, metrics feedback, team collaboration, long-term architecture health, data / AI product tracks) is planned but not yet landed.
@@ -190,7 +191,19 @@ HF does not assign methods arbitrarily. Each skill gets the methods that best ma
 
 ## Installation
 
-HarnessFlow v0.1.0 officially supports **Claude Code** and **OpenCode**. Both paths read the same `skills/` directory; the difference is only in how each client discovers commands.
+HarnessFlow v0.2.0 officially supports **7 clients** — Claude Code, OpenCode, Cursor, Gemini CLI, Windsurf, GitHub Copilot, Kiro. All paths read the same `skills/` directory; they differ only in how each client discovers skills and (where applicable) commands.
+
+| Client | Setup doc | Slash commands | Skill discovery |
+|---|---|---|---|
+| Claude Code | [`docs/claude-code-setup.md`](docs/claude-code-setup.md) | 6 (`/hf` / `/spec` / `/plan` / `/build` / `/review` / `/ship`) | marketplace plugin |
+| OpenCode | [`docs/opencode-setup.md`](docs/opencode-setup.md) | none (natural-language) | `.opencode/skills` symlink |
+| Cursor | [`docs/cursor-setup.md`](docs/cursor-setup.md) | none (natural-language) | `.cursor/rules/harness-flow.mdc` |
+| Gemini CLI | [`docs/gemini-cli-setup.md`](docs/gemini-cli-setup.md) | 6 (`/hf` / `/spec` / **`/planning`** / `/build` / `/review` / `/ship`) | `gemini skills install` |
+| Windsurf | [`docs/windsurf-setup.md`](docs/windsurf-setup.md) | none (natural-language) | `.windsurf/rules.md` |
+| GitHub Copilot | [`docs/copilot-setup.md`](docs/copilot-setup.md) | none (natural-language) | `.github/copilot-instructions.md` |
+| Kiro | [`docs/kiro-setup.md`](docs/kiro-setup.md) | none (natural-language) | `.kiro/skills` symlink |
+
+**Note**: Gemini CLI uses `/planning` instead of `/plan` to avoid Gemini CLI's internal `/plan` command (ADR-002 D2). Other clients keep `/plan` if they ship slash commands.
 
 ### Claude Code (recommended)
 
@@ -225,7 +238,7 @@ cd harness-flow
 opencode .
 ```
 
-Verify discovery in OpenCode with `/skills` — you should see all 22 `hf-*` skills plus `using-hf-workflow`. Then start with:
+Verify discovery in OpenCode with `/skills` — you should see all 23 `hf-*` skills (including v0.2.0's `hf-browser-testing`) plus `using-hf-workflow`. Then start with:
 
 ```text
 Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool
@@ -234,9 +247,35 @@ and route me through the correct HF workflow.
 
 To use HarnessFlow inside another project, copy or symlink the `skills/` directory into that project's `.opencode/skills/` (or install globally under `~/.config/opencode/skills/`). Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md`.
 
-### Other clients (deferred to v0.2+)
+### Cursor
 
-HarnessFlow skills are plain Markdown, so they **may** work with Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.1.0 supported surface** and have no setup doc in this version.
+Cursor reads `.cursor/rules/*.mdc` on every session. The repository ships `.cursor/rules/harness-flow.mdc` (alwaysApply) pointing Cursor at `using-hf-workflow` + `hf-workflow-router`. Setup doc: [`docs/cursor-setup.md`](docs/cursor-setup.md).
+
+### Gemini CLI
+
+Install all 24 skills with `gemini skills install`, plus 6 slash commands under `.gemini/commands/` (note: `/planning` instead of `/plan`):
+
+```bash
+gemini skills install https://github.com/hujianbest/harness-flow.git --path skills
+```
+
+Setup doc: [`docs/gemini-cli-setup.md`](docs/gemini-cli-setup.md).
+
+### Windsurf
+
+Windsurf reads `.windsurf/rules.md` automatically. The repository ships that file pointing Windsurf at `using-hf-workflow` + `hf-workflow-router`. Setup doc: [`docs/windsurf-setup.md`](docs/windsurf-setup.md).
+
+### GitHub Copilot
+
+Copilot reads `.github/copilot-instructions.md` on every chat session. The repository ships an HF instructions block pointing Copilot at `using-hf-workflow` + `hf-workflow-router`. Setup doc: [`docs/copilot-setup.md`](docs/copilot-setup.md).
+
+### Kiro IDE & CLI
+
+Kiro auto-discovers skills under `.kiro/skills/`. The repository ships a symlink `.kiro/skills -> ../skills` so cloning the repo is enough. Setup doc: [`docs/kiro-setup.md`](docs/kiro-setup.md).
+
+### Other clients
+
+HarnessFlow skills are plain Markdown, so they **may** work with Codex / other agents by referencing `skills/` as instruction files. Codex etc. are **not** part of the v0.2.0 officially supported surface (the 7 clients above are).
 
 ### Quickstart Demo: WriteOnce
 
@@ -257,25 +296,25 @@ When you vendor HarnessFlow into another workspace, copy `skills/` only. Each `h
 
 > **Project conventions**: HF skills work with sensible defaults out of the box. If your project needs to override paths, templates, profile rules, execution mode, coverage thresholds or other policies, declare them wherever your repository already keeps such conventions (e.g. a project-level guidelines file, a `CONTRIBUTING.md`, or a host-tool config). Each `hf-*` skill points to "project-level convention (if declared)" — it does not require any particular sidecar file.
 
-## Slash Commands (Claude Code)
+## Slash Commands (Claude Code & Gemini CLI)
 
-The Claude Code plugin ships 6 short aliases (locked by ADR-001 D4). Every command is a **bias**, not a bypass — the router still validates upstream preconditions from on-disk artifacts.
+Claude Code and Gemini CLI ship 6 short aliases each (locked by ADR-001 D4 + ADR-002 D2). Every command is a **bias**, not a bypass — the router still validates upstream preconditions from on-disk artifacts.
 
 | Command | Bias toward | Notes |
 |---|---|---|
 | `/hf` | `using-hf-workflow` → `hf-workflow-router` | Default. Use this when you are not sure which node should run next. |
 | `/spec` | `hf-specify` | Spec authoring / revision. |
-| `/plan` | `hf-design` (and `hf-ui-design` when the spec declares a UI surface) or `hf-tasks` | Combined planning command — design + task breakdown are intentionally one command (ADR-001 D4 rationale). |
+| `/plan` (Claude Code) / `/planning` (Gemini CLI) | `hf-design` (and `hf-ui-design` when the spec declares a UI surface) or `hf-tasks` | Combined planning command — design + task breakdown are intentionally one command (ADR-001 D4 rationale). On Gemini CLI the command is `/planning` to avoid the client's internal `/plan` (ADR-002 D2). |
 | `/build` | `hf-test-driven-dev` | Only valid when exactly one `Current Active Task` is locked. |
 | `/review` | router dispatches to the matching `hf-*-review` | Reviews are independent nodes with author/reviewer separation. |
 | `/ship` | `hf-completion-gate` → `hf-finalize` | The gate decides whether finalize can actually run. Engineering-level closeout only — **not** production deployment. |
 
-Intentionally **not** included in v0.1.0:
+Intentionally **not** included:
 
 - No `/hotfix` — natural language + `/hf` lets the router branch into `hf-hotfix` / `hf-increment` for production defects or scope changes.
 - No `/gate` — gates are pulled by the canonical next action of the upstream node, not pushed by the user. A `/gate` command would encourage skipping implementation or review.
 
-OpenCode does not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow`.
+OpenCode / Cursor / Windsurf / GitHub Copilot / Kiro do not ship slash command files; the same intents are reached via natural language + `using-hf-workflow` + `hf-workflow-router`. The router's evidence-based selection is the single source of truth for "which leaf skill should run next" regardless of client.
 
 ## Quick Start
 

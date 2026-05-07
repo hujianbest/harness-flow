@@ -76,7 +76,7 @@ After opening OpenCode in any of the three topologies above, run:
 /skills
 ```
 
-You should see at least the following skills listed (22 `hf-*` skills + `using-hf-workflow`):
+You should see at least the following skills listed (23 `hf-*` skills + `using-hf-workflow`; v0.2.0 added `hf-browser-testing`):
 
 - `using-hf-workflow`
 - `hf-workflow-router`
@@ -89,6 +89,7 @@ You should see at least the following skills listed (22 `hf-*` skills + `using-h
 - `hf-regression-gate`, `hf-doc-freshness-gate`, `hf-completion-gate`
 - `hf-finalize`
 - `hf-hotfix`, `hf-increment`, `hf-experiment`
+- `hf-browser-testing` (new in v0.2.0)
 
 If the list is empty, see [§5 Troubleshooting](#5-troubleshooting).
 
