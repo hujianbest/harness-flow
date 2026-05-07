@@ -172,6 +172,8 @@ Refactor Note 必填规则：
 
 Next Action 用 canonical skill ID：full/standard 通常 → `hf-test-review`；lightweight 通常 → `hf-regression-gate`；回流修订完成 → 写回触发回流的那个 node。不把下一任务的实现写成输出。
 
+**Verify 拐点（v0.2.0 / ADR-002 D7）**：当 spec 声明 UI surface 且当前 active task 触碰前端表面时，由 router 在 GREEN 之后插入 `hf-browser-testing` 作为 verify side node，产出 runtime evidence bundle（DOM / Console / Network 三层）；该节点**不签发 verdict**，仅产 observation 与 canonical next action。激活与回流规则见 `skills/hf-workflow-router/references/profile-node-and-transition-map.md` 的「`hf-browser-testing` 激活与回流」一节。本 skill 在 GREEN 交接块中不需要主动声明是否触发 `hf-browser-testing`，由 router 依据 spec / tasks 工件证据判断。
+
 ### 6. 回流修订协议
 
 明确回流来源 → 只修当前活跃任务的相关 findings → 若改行为预期需重做测试设计确认 → 修订后写新 fresh evidence → 不从头重走质量链。

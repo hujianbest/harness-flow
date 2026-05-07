@@ -17,6 +17,7 @@
 - `hf-product-discovery`（conditional：当会话从模糊产品 idea 起步、或已存在 discovery 草稿时激活）
 - `hf-discovery-review`（conditional：`hf-product-discovery` 被激活后存在）
 - `hf-experiment`（conditional：discovery / spec 中存在 Blocking 或低 confidence 关键假设时，作为上游 stage 的 **conditional insertion**）
+- `hf-browser-testing`（conditional：`hf-test-driven-dev` GREEN 之后，仅当 spec 声明 UI surface 且当前 active task 触碰前端表面时激活，作为 verify 阶段的 runtime evidence side node；激活判定见本文件的 `hf-browser-testing 激活与回流` 一节）
 - `hf-specify`
 - `hf-spec-review`
 - `规格真人确认`
@@ -41,7 +42,9 @@
 
 - `hf-ui-design` / `hf-ui-review` 属于 **design stage 内部的 conditional peer**，不是 side-line。激活判定见 `ui-surface-activation.md`
 - `hf-experiment` 属于 **discovery / spec stage 内部的 conditional insertion**（Phase 0 引入）：在 discovery 或 spec 中发现 Blocking / 低 confidence 关键假设时临时插入，完成后回到插入点（`hf-product-discovery` / `hf-discovery-review` / `hf-specify` / `hf-spec-review`）；激活判定见本文件的 `hf-experiment 激活与回流` 一节
+- `hf-browser-testing` 属于 **verify stage 内部的 conditional side node**（v0.2.0 / ADR-002 D1 / D7 引入）：在 `hf-test-driven-dev` GREEN 之后，仅当 spec 声明 UI surface 且当前 active task 触碰前端表面时由 router 拐点拉入；产出 runtime evidence bundle（DOM / Console / Network 三层），不签发 verdict，不修改主链 FSM 主路径；完成后回到下游 gate（`hf-regression-gate` / `hf-completion-gate`）。激活判定见本文件的 `hf-browser-testing 激活与回流` 一节
 - `standard` / `lightweight` profile 不加入 `hf-ui-design` / `hf-ui-review` / `hf-product-discovery` / `hf-experiment` 作为主链节点；若新 iteration 需要补 discovery 或假设验证，应升级到 `full`
+- `hf-browser-testing` 不依赖 profile，全 profile 共享同一激活规则（spec UI surface 声明 + 当前 task 触碰前端）
 
 ### standard profile 主链推荐节点
 
@@ -347,3 +350,23 @@ branches:
 - 若下一推荐节点不是 approval node，也不是 hard stop，立刻在同一轮中进入该节点，不等待用户确认
 
 若该下一推荐节点是 review 节点，则“进入该节点”的含义是：按 `references/review-dispatch-protocol.md` 派发 reviewer subagent，并按 `references/reviewer-return-contract.md` 消费返回摘要，而不是在父会话内联执行 review。
+
+## `hf-browser-testing` 激活与回流
+
+`hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入）是 verify 阶段的 conditional side node，**不修改主链 FSM 主路径**。router 在以下条件全部满足时把它作为 `hf-test-driven-dev` 的下一推荐节点：
+
+1. `hf-test-driven-dev` 已完成当前 active task 的 GREEN（progress.md 中存在 GREEN 交接块且单元 fresh evidence 可读）。
+2. spec 显式声明 UI surface（`features/<active>/spec.md` 中存在 UI surface 段，或 `hf-ui-design` 已批准）。
+3. 当前 active task 影响面触碰前端 / UI 表面（依据 `tasks.md` 中该 task 的 module 标签或 design 工件中的影响面声明）。
+
+任一条件不满足 → router 跳过 `hf-browser-testing`，直接把 `hf-test-driven-dev` 的下一推荐节点收敛为下游正常迁移（典型为 `hf-test-review` / `hf-code-review` 二者并行 → `hf-regression-gate`）。
+
+回流（`hf-browser-testing` 完成后）：
+
+- 0 blocking + 0 major observation → 下一推荐节点 = `hf-regression-gate`（按主链原迁移规则继续）。
+- ≥ 1 blocking observation → 下一推荐节点 = `hf-test-driven-dev`（携带 finding，回修后重跑 GREEN）。
+- 0 blocking + ≥ 1 major observation → 下一推荐节点 = observations.md 中 majority `suggested next` 指向的节点（典型为 `hf-test-review` 或 `hf-ui-review`）。
+
+`hf-browser-testing` **不**签发 pass / fail verdict（参见 SKILL.md Hard Gates 与 Common Rationalizations）；上述回流是 router 基于 observation 计数的机械路由，不是 reviewer verdict。
+
+router 的实现职责仅限于：(a) 检查上述 3 个激活条件；(b) 读取 `features/<active>/verification/browser-evidence/<task-id>/observations.md` 的 severity 计数；(c) 把回流结论映射成唯一 canonical next action。**不读 evidence 内容、不参与 severity 改判**。
