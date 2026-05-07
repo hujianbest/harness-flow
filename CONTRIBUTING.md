@@ -2,12 +2,12 @@
 
 Thanks for your interest in HarnessFlow.
 
-This document is intentionally short. HarnessFlow is currently a **single-maintainer** pre-release (`v0.1.0`). The goal of this guide is to make small, well-scoped contributions easy to land and to keep larger changes from blocking on review forever.
+This document is intentionally short. HarnessFlow is currently a **single-maintainer** pre-release (`v0.2.0`). The goal of this guide is to make small, well-scoped contributions easy to land and to keep larger changes from blocking on review forever.
 
 ## Before You Start
 
-1. **Read [`README.md`](README.md)** (or [`README.zh-CN.md`](README.zh-CN.md)) end-to-end. Pay particular attention to the **Scope Note** at the top — `v0.1.0` is deliberately narrow (Claude Code + OpenCode only; main chain ends at `hf-finalize`; release / ops / monitoring out of scope). Many "missing feature" reports are actually documented scope choices.
-2. **Read the relevant ADR**. Release scope decisions are locked in [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md). If your contribution conflicts with an ADR decision, please open an issue first to discuss whether the ADR should be revisited.
+1. **Read [`README.md`](README.md)** (or [`README.zh-CN.md`](README.zh-CN.md)) end-to-end. Pay particular attention to the **Scope Note** at the top — `v0.2.0` is deliberately narrow (Claude Code + OpenCode only; main chain ends at `hf-finalize`; only `hf-browser-testing` was added from the deferred ops list, the other 6 ops/release skills remain out of scope). Many "missing feature" reports are actually documented scope choices.
+2. **Read the relevant ADR**. Release scope decisions are locked in [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md) (含 D11 校准撤回 D2/D3/D4/D8 的说明) and [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md). If your contribution conflicts with an ADR decision, please open an issue first to discuss whether the ADR should be revisited.
 3. **Read the [Code of Conduct](CODE_OF_CONDUCT.md)**. By participating you agree to abide by it.
 
 ## What HarnessFlow Will and Won't Accept Right Now

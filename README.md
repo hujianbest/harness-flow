@@ -4,14 +4,14 @@
 
 **From idea to shipped product: high-quality engineering workflows for AI agents.**
 
-> ## Scope Note (v0.1.0 pre-release)
+> ## Scope Note (v0.2.0 pre-release)
 >
-> - **Version**: `v0.1.0`, marked as a **pre-release** on GitHub Releases. The public surface is intentionally small.
-> - **Officially supported clients**: **Claude Code** and **OpenCode** only. Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro are deferred to v0.2+ (HarnessFlow may run there because it is plain Markdown, but those paths are not part of the v0.1.0 commitment).
-> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). Release pipelines, deployment, observability, incident response, security hardening, performance gating, and post-launch ops are **not** first-class stages in v0.1.0; they are roadmap items for v0.2 / v0.3.
-> - This narrow surface is a deliberate choice (ADR-001 D1 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
+> - **Version**: `v0.2.0`, marked as a **pre-release** on GitHub Releases. v0.2.0 is a quality-discipline-core hardening release; the internal additions (`hf-browser-testing` + SKILL.md anatomy enforcement + advisory audit) do **not** expand the client surface or the main-chain commitment beyond v0.1.0.
+> - **Officially supported clients**: **Claude Code** and **OpenCode** only (same as v0.1.0). Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro stay deferred to v0.3+. ADR-002 D11 (2026-05-07) explicitly revoked the in-flight v0.2.0 expansion to those 5 clients on the grounds of being "too heavy + not refined enough"; HarnessFlow may still run there because it is plain Markdown, but those paths are **not** part of the v0.2.0 commitment.
+> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). v0.2.0 added `hf-browser-testing` as a verify-stage runtime evidence side node (DOM + console + network), but release pipelines, deployment, observability, incident response, security hardening, performance gating, debugging-and-error-recovery, and deprecation-and-migration are **still not** first-class stages; they remain v0.3+ roadmap items.
+> - This narrow surface is a deliberate choice (ADR-001 D1 / ADR-002 D1 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
 >
-> See `docs/decisions/ADR-001-release-scope-v0.1.0.md` for the full release scope decisions.
+> See `docs/decisions/ADR-002-release-scope-v0.2.0.md` for the full v0.2.0 release scope decisions (含 D11 校准说明 R3/R4/R5 撤回原因); `docs/decisions/ADR-001-release-scope-v0.1.0.md` for v0.1.0 lineage.
 
 HarnessFlow is a skill pack for AI agents that turns the full **idea → insight → architecture → implementation → delivery** arc into structured artifacts, quality discipline, and clear handoffs. Product discovery, specification, architecture design, task breakdown, gated TDD implementation, independent reviews, regression and completion gates, and formal closeout are all first-class stages, so agents move along an explicit "one idea → reviewable direction → reviewable design → executable tasks → shipped product" path instead of relying on ad hoc prompt chains.
 

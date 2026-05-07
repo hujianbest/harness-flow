@@ -6,32 +6,47 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-### Planned (v0.2.0)
+（无）
 
-> v0.2.0 范围与决策记录在 [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md)。原始 10 项决策于 2026-05-06 锁定；2026-05-07 D11 校准撤回 D2/D3/D4/D8（理由："太重 + 不完善"，不符 P-Honest）。版本号策略：v0.2.0 仍标记为 pre-release（ADR-002 D6）。
+## [0.2.0] - 2026-05-07 — pre-release
 
-v0.2.0 真正的对外承诺面（D11 校准后）：
+> **Second public release.** Marked as a **pre-release** on GitHub Releases.
+>
+> v0.2.0 is a **质量纪律内核硬化** release. 在 v0.1.0 基础上加 1 个 verify-stage skill (`hf-browser-testing`)，把 SKILL.md 的"防 agent 偷懒"段（`Common Rationalizations`）从可选升级为必需，配套一个 advisory audit 脚本。客户端面、personas、ops/release 段全部留给 v0.3+。
+>
+> 完整范围决策见 [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md)（含 D11 校准说明 R3/R4/R5 撤回原因；D11 撤回了 D2/D3/D4/D8——5 家客户端扩展 / 真实环境冒烟硬门禁 / 3 personas / persona 命名空间）。
 
-- **Tier 1 — Pillar C 部分推进**：新增 1 项 ops/release skill `hf-browser-testing`（取代 ADR-001 D1 占位名 `hf-browser-runtime-evidence`），作为 verify 阶段的 runtime evidence 节点，由 `hf-test-driven-dev` 在 GREEN 后按需拉取；不修改主链 FSM；不引入新 slash 命令。其余 6 项 ops/release skill 仍延后到 v0.3+。(ADR-002 D1, D7)
-- **Tier 3 — SKILL.md 自动化质量基线**：撤回 ADR-001 D11 中"audit 脚本不进 v0.1.0"的子条款。新增 `scripts/audit-skill-anatomy.py` 与 `scripts/test_audit_skill_anatomy.py`，CI 上挂 advisory check（不阻塞 PR merge）；首次 baseline 报告落到 `docs/audits/v0.2.0-skill-anatomy-baseline.md`。audit 检查项收敛为 5 条结构存在性（frontmatter / `When to Use` / `Workflow` / `Verification` / `Common Rationalizations` 必需 + `和其他 Skill 的区别` 禁止）+ 1 条预算（< 500 行）。(ADR-002 D5)
-- **SKILL.md 强制结构变更（影响全部 23 份现有 + 1 份新 SKILL.md = 24 份）**：
-  - 移除 `## 和其他 Skill 的区别` 章节（与 `When to Use` 语义重复；删除前确保等价 reroute 信息已写进 `When to Use`）。
-  - 全量补 `## Common Rationalizations` 章节（每条必须引用本 skill 已有的 Hard Gates / Workflow stop rule / Verification 条款，不能凭空编造新 rule）。
-  - 取代 ADR-001 D8（v0.1.0 必须全量补）的强制时点，强制时点延后到 v0.2.0；强制范围一致。(ADR-002 D9)
-- **`docs/principles/skill-anatomy.md` 部分恢复合规基线性质**：仅就 `Common Rationalizations`（必需）与 `和其他 Skill 的区别`（禁止）两节的合规级别由 v0.2.0 起强制；其它段落（`Object Contract` / `Methodology` / `Hard Gates` / `Output Contract` 等）继续保持 ADR-001 D11 的"按需写"，不在 v0.2.0 升级。`soul.md` 仍是宪法层不变。(ADR-002 D10)
+### Added (v0.2.0 core)
 
-由 D11 退回 v0.3+ 的项（不在 v0.2.0 GA 承诺面）：
+- **`skills/hf-browser-testing/`** — verify 阶段的 runtime evidence side node：取 DOM / 控制台 / 网络三层证据，由 `hf-test-driven-dev` 在 GREEN 后按需拉取；不签发 verdict，不修改主链 FSM 主路径，不引入新 slash 命令；spec 未声明 UI surface 或 task 不触碰前端时由 router 自动跳过。含 `SKILL.md` + `references/runtime-evidence-protocol.md`（工具映射 / 目录约定 / `metadata.json` schema / `observations.md` 格式 / severity → canonical next action 映射 / 显式 non-goals）。(ADR-002 D1, D7)
+- **`scripts/audit-skill-anatomy.py`** + **`scripts/test_audit_skill_anatomy.py`** — SKILL.md anatomy advisory audit：5 项结构存在性检查（frontmatter `name` 与目录名一致 + `When to Use` / `Workflow` / `Verification` / `Common Rationalizations` 必需 + `和其他 Skill 的区别` 禁止）+ 1 项预算 warning（< 500 行）。CI 上挂 advisory check，**不阻塞 PR merge**。6 个 unittest（compliant / forbidden / missing-required / name-mismatch / missing-skill-md / code-block-headings-ignored）全部通过。撤回 ADR-001 D11 "audit 脚本不进 v0.1.0" 子条款（仅就脚本本身）。(ADR-002 D5)
+- **`## Common Rationalizations` 段补到全部 23 + 1 = 24 份 SKILL.md** — 每条必须引用本 skill 已有的 Hard Gates / Workflow stop rule / Verification 条款，不能凭空编造新 rule。覆盖 authoring (5) / review (8) / implementation (1) / gates (3) / side-branch (3) / finalize (1) / routing (2) + 新增的 `hf-browser-testing` (1)。重新激活 ADR-001 D8，强制时点延后到 v0.2.0。(ADR-002 D9)
+- **`docs/audits/v0.2.0-skill-anatomy-baseline.md`** + **`v0.2.0-skill-anatomy-baseline.json`** — audit 首次 baseline，24/24 OK / 0 warning / exit 0。
+- **`docs/decisions/ADR-002-release-scope-v0.2.0.md`** — v0.2.0 完整范围决策；2026-05-06 锁定 10 项决策，2026-05-07 D11 校准撤回 D2/D3/D4/D8。
+- **`examples/writeonce/features/001-walking-skeleton/verification/browser-testing-skip-2026-05-07.md`** — `hf-browser-testing` 在 writeonce demo 上的激活规则核对（结论 SKIP：spec 未声明 UI surface 且 task-001 未触碰前端表面，3 条件中 2/3 不命中）+ 4 条独立旁证。
 
-- 5 家新客户端扩展（Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro），含 setup 文档与命令文件 — 撤回 D2。
-- 真实环境安装冒烟硬门禁 — 撤回 D3。
-- 3 个 user-facing personas（`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`）+ `docs/principles/persona-anatomy.md` design reference — 撤回 D4 / D8。
-- v0.1.x 已存在的 5 项 ops/release skill 缺位（shipping / ci-cd / security / performance / debugging / deprecation） — 与 v0.1.0 同状态不变。
+### Changed (v0.2.0 core)
 
-### Removed
+- **`docs/principles/skill-anatomy.md`** — 部分恢复合规基线性质（仅就 `Common Rationalizations` 必需 + `和其他 Skill 的区别` 禁止两节，从 v0.2.0 起由 audit 脚本强制）。其余段落（`Object Contract` / `Methodology` / `Hard Gates` / `Output Contract` / `Red Flags` / `Common Mistakes` 等）继续保持 ADR-001 D11 的"按需写"性质。`soul.md` 仍是宪法层不变。具体修订点：文件头加 v0.2.0 baseline 提示；主文件骨架表加新行；删除 `Common Rationalizations` 在"默认不建议扩散"列表中的引用 + 新增"显式禁止的章节"段；`和其他 Skill 的区别` 子段重写为 `Common Rationalizations` 写作指南 + 邻接 skill 边界折叠回 `When to Use` 的指南；删除独立的 `和其他 Skill 的区别：最低要求` H2；Canonical skeleton 加 `Common Rationalizations` 占位；Common Mistakes 表加两行；检查清单加两条。(ADR-002 D10)
+- **`skills/hf-workflow-router/references/profile-node-and-transition-map.md`** — 把 `hf-browser-testing` 加到 full profile 节点表（标 conditional verify-stage side node，不修改主链 FSM 主路径）；新增 `hf-browser-testing 激活与回流` 一节，覆盖 3 条激活条件（GREEN 已成立 + spec 声明 UI surface + task 触碰前端）+ 3 种回流情形（0/0 → regression-gate；blocking → test-driven-dev with finding；major → suggested next）+ router 的机械路由职责声明（不读 evidence 内容，不参与 severity 改判）。
+- **`skills/hf-test-driven-dev/SKILL.md`** — Workflow 步骤 5 后追加 "Verify 拐点 (v0.2.0 / ADR-002 D7)" 提示，指向 router reference；不改 Hard Gates / Object Contract / Workflow（保 ADR-002 D7 "no FSM main-path change"）。
+- **`examples/writeonce/` demo refresh**（v0.2.0 evidence trail，**无实现 / 测试 / spec / design / tasks 修改**）：
+  - `features/001-walking-skeleton/closeout.md` Evidence Matrix 加 SKIP 行
+  - `features/001-walking-skeleton/README.md` Artifacts 表 + Reviews & Approvals 表各加 SKIP 行
+  - `features/001-walking-skeleton/progress.md` Progress Notes 加 v0.2.0 Refresh 子段，Evidence Paths 加 SKIP 记录路径
+  - `examples/writeonce/CHANGELOG.md` 新增 `[Unreleased] — HF v0.2.0 refresh` 段
+- **`.claude-plugin/plugin.json`** — `version` 从 `0.1.0` 升级到 `0.2.0`。
+- **`.claude-plugin/marketplace.json`** — plugin description 从 22 hf-* 升级到 23 hf-*（`hf-browser-testing` 已含）。
+- **`README.md` + `README.zh-CN.md`** — Scope Note 升级到 v0.2.0 pre-release（保持 Claude Code + OpenCode 两家客户端，不扩展；ADR-002 D11 已撤回 7 客户端提案）。
+- **`SECURITY.md`** — Supported Versions 表新增 `0.2.x (pre-release)` 行，原 `0.1.x` 行降级。
+- **`CONTRIBUTING.md`** — 引言中 `single-maintainer pre-release (v0.1.0)` 升级到 `(v0.2.0)`，Scope Note 引用同步指向 ADR-002。
 
-- **`hf-bug-patterns` skill removed.** The standalone "knowledge side node" was deleted along with its `references/`, `evals/`, and `test-prompts.json`. The skill was an optional learning loop, not part of the canonical main chain or any review/gate. Risk-input language in `hf-test-review` (description, methodology row, workflow step 1, checklist `TT3`) now points to "项目缺陷模式记录 / 风险清单 / hotfix 历史" instead of the removed skill, so projects that maintain a defect catalog under their own conventions are still consumed as risk input. The `docs/bug-patterns/catalog.md` artifact slot was removed from `docs/principles/sdd-artifact-layout.md`, `skills/hf-workflow-router/references/workflow-shared-conventions.md`, and `skills/hf-finalize/SKILL.md` — projects that still want a bug catalog can declare their own path in project-level conventions. README skill counts updated to **22 `hf-*` skills + `using-hf-workflow`** (Claude Code marketplace description, OpenCode setup, Claude Code setup, both READMEs).
+### Removed (v0.2.0 core)
 
-### Added
+- **`## 和其他 Skill 的区别` 段从全部 23 份既有 SKILL.md 移除**（24 份新基线含 v0.2.0 新增的 `hf-browser-testing` 也不允许有此段）。该段在 v0.1.x 时期与 `When to Use` 语义重复；移除前已逐份核对 `When to Use` 已覆盖等价 reroute 条目，是去重而非信息损失。(ADR-002 D9)
+- **`hf-bug-patterns` skill** — standalone "knowledge side node" 已删除（含 `references/`、`evals/`、`test-prompts.json`）。该 skill 是可选 learning loop，不在主链或任何 review/gate 上。`hf-test-review`（description / methodology row / workflow step 1 / checklist TT3）的 risk-input 措辞改指 "项目缺陷模式记录 / 风险清单 / hotfix 历史"，仍然消费项目自家约定的 defect catalog。`docs/bug-patterns/catalog.md` 工件槽位从 `docs/principles/sdd-artifact-layout.md`、`skills/hf-workflow-router/references/workflow-shared-conventions.md`、`skills/hf-finalize/SKILL.md` 中移除——仍想保留的项目可在自家约定中声明路径。README 与 marketplace 描述中 skill 数对应改成 22 + 1（v0.2.0 新增 hf-browser-testing） = 23 hf-* + `using-hf-workflow`。
+
+### Added (v0.1.x stabilization, also shipping in v0.2.0)
 
 - `SECURITY.md` — security policy with scope, supported versions, private reporting via GitHub Security Advisory.
 - `CODE_OF_CONDUCT.md` — Contributor Covenant 2.1.
@@ -40,16 +55,39 @@ v0.2.0 真正的对外承诺面（D11 校准后）：
 - `.github/ISSUE_TEMPLATE/config.yml` — disables blank issues; adds contact links to security advisory + Code of Conduct + Scope Note.
 - `.github/PULL_REQUEST_TEMPLATE.md` — PR template with Scope Note check + per-area testing prompts (no CI yet, see `CONTRIBUTING.md` "Known Limitations").
 
-### Fixed
+### Fixed (v0.1.x stabilization, also shipping in v0.2.0)
 
 - **OpenCode install path** now actually works out-of-the-box. The previous setup told users to "clone the repo and open it in OpenCode", but OpenCode's [`skill` tool](https://opencode.ai/docs/skills/) only auto-discovers `SKILL.md` files under `.opencode/skills/`, `.claude/skills/`, `.agents/skills/`, or their global counterparts — a top-level `skills/` directory was never picked up, so `using-hf-workflow` and the 23 leaf skills were invisible to OpenCode agents. Added a `.opencode/skills -> ../skills` symlink so clone-and-open works without duplicating files.
 - **`docs/opencode-setup.md`** rewritten to describe OpenCode's real skill-discovery model and the three legitimate install topologies (clone-and-open, vendor into another project's `.opencode/skills/`, global install under `~/.config/opencode/skills/`), with a `/skills` verification step and updated troubleshooting.
 - **`README.md` + `README.zh-CN.md`** OpenCode sections updated to match: shipped symlink + verification command + cross-project install guidance.
 
+### Decided (v0.2.0)
+
+- **v0.2.0 仍是 pre-release** on GitHub Releases. Tier 1 只覆盖 1/7 ops，仍未达到 GA 承诺面；且 v0.2.0 的工程纪律硬化不扩展对外承诺面。(ADR-002 D6)
+- **官方支持客户端仍为 Claude Code + OpenCode**（与 v0.1.0 一致；ADR-002 D11 撤回了 D2 的 7 客户端扩展）。
+- **主链终点仍是 `hf-finalize`**。`hf-browser-testing` 是 verify-stage runtime evidence 节点，不是 ship/deploy/ops 节点。
+- **`docs/principles/` 的整体定位仍是设计参考**（ADR-001 D11）；v0.2.0 D10 仅就 `Common Rationalizations`（必需）与 `和其他 Skill 的区别`（禁止）两节恢复合规基线，其它段落不动。
+
+### Voided / Superseded (v0.2.0)
+
+- **ADR-002 D2** (5 客户端扩展：Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro) — **superseded by D11**. v0.2.0 不扩展客户端面；R3 实现已 git revert，原 commit 保留在历史中（`18b1d99`、`0c93809`）方便 v0.3+ cherry-pick。
+- **ADR-002 D3** (真实环境 install smoke 硬门禁) — **superseded by D11**. v0.2.0 不增设新硬门禁；R5 骨架已删。
+- **ADR-002 D4** (3 user-facing personas: `hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — **superseded by D11**. v0.2.0 不引入 `agents/` 目录；R4 实现已 git revert，原 commit 保留在 `560ac26`。
+- **ADR-002 D8** (Persona 命名空间约定 + `docs/principles/persona-anatomy.md`) — **superseded by D11**（D4 撤回的连带影响；persona-anatomy.md 一并删除，与 ADR-001 D11 删除 audit 脚本对称）。
+
+### Deferred (to v0.3+)
+
+- 6 项剩余 ops/release skills（`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`）—与 ADR-001 D1 / ADR-002 D1 一致。
+- 5 家新客户端扩展 + 6 个 Gemini CLI commands。
+- 3 个 user-facing personas + `docs/principles/persona-anatomy.md`。
+- 真实环境 install smoke 硬门禁。
+- `docs/principles/` 其它段落升级为合规基线（继续保持 ADR-001 D11 "设计参考" 性质）。
+
 ### Notes
 
-- These additions are governance / hygiene only; no `skills/`, `docs/principles/`, or `examples/writeonce/` content changes.
-- Real-environment install verification of the Claude Code marketplace path and the OpenCode setup path is the remaining `v0.1.x` stabilization item that **cannot** be completed inside this repository — see `CONTRIBUTING.md` "Known Limitations".
+- audit script 是 advisory，不阻塞 PR merge；v0.2.0 GA 后视实际 SKILL.md 漂移率再决定是否升级为 hard gate。
+- writeonce demo 的 v0.2.0 refresh 仅是 evidence trail 补全（SKIP 记录 + 4 处索引），不改实现 / 测试 / spec / design / tasks / review verdict / gate verdict（与 ADR-001 D9 "demo deliverable is the artifact trail, not the product" 一致）。
+- 真实环境 marketplace install 验证仍是已知 limitation（自 v0.1.x 沿用至今；CONTRIBUTING.md "Known Limitations" 已声明），v0.2.0 不再视其为 GA 硬门禁（D11 撤回 D3）。
 
 ## [0.1.0] - pre-release
 
@@ -110,5 +148,6 @@ v0.2.0 真正的对外承诺面（D11 校准后）：
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.2.0
 [0.1.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.1.0
