@@ -156,6 +156,14 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 - 命中 AI 默认审美 slop（紫色默认 / Inter 默认 / 左 4px 彩条 / dashboard 模板）却以"看上去能用"为由放行
 - 接受"自画 SVG 插画"、"自编 hero copy"、"自造品牌色"等 LLM 自补行为，未要求换为 placeholder
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "Nielsen 启发式评估全 pass，没意见就直接通过。" | Hard Gates: rubric 必须逐项落 finding 或显式标 N/A；空白即视为未评估。 |
+| "WCAG 2.2 AA 我抽样了几条。" | Hard Gates: WCAG 2.2 AA 是 baseline，必须按 checklist 全量过；抽样 → finding。 |
+| "interaction state inventory 缺一两个状态没关系。" | Workflow stop rule: hover / focus / active / disabled / loading / error / empty 任一缺失即判 finding。 |
+
 ## Verification
 
 完成条件：

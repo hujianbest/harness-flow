@@ -158,6 +158,14 @@ runtime canonical 写法统一：`hf-workflow-router`、`reroute_via_router`。
 | `references/routing-evidence-examples.md` | 路由判定示例 |
 | `references/ui-surface-activation.md` | UI surface 激活条件、Design Execution Mode、联合 design approval 规则 |
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "用户喊 /build 就跳过 router 直接到 hf-test-driven-dev。" | Workflow stop rule: 命令是 bias 不是 bypass；必须读 on-disk artifacts 决定真实下一步。 |
+| "上游证据不全，我替默认一下走下去。" | Hard Gates (soul.md): router 不替用户做方向 / 取舍；缺 evidence → reroute 回上游或停下抛回。 |
+| "FSM 里没列的边角场景我自己加跳转。" | Workflow stop rule: 路径必须落在 references/profile-node-and-transition-map.md；新增跳转需走 ADR / increment，不在 runtime 拍。 |
+
 ## Verification
 
 - [ ] 已确认在做 runtime routing（非 public entry）

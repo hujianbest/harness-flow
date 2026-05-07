@@ -238,6 +238,14 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 - 没有完成影响分析，就提前回到实现阶段
 - `Next Action Or Recommended Skill` 写成自由文本或自然语言阶段名
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "scope 改一点点，不开 increment 直接改 active task。" | Hard Gates: 已批准 spec / design 的范围改动必须走 hf-increment 的 impact 分析与 re-entry，不能在 active task 内悄悄扩大。 |
+| "影响分析心里过了一遍就行。" | Workflow stop rule: impact analysis 必须落盘，hf-workflow-router 据此重新规划路径。 |
+| "increment 后跳过 review，直接进 build。" | Hard Gates: re-entry 节点的下游仍按主链 review / gate 流转，不允许跳过。 |
+
 ## Verification
 
 只有在以下两种情况之一成立时，这个 skill 才算完成：

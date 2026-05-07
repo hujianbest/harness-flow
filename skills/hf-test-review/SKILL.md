@@ -113,6 +113,15 @@ Findings 带 severity（critical/important/minor）和分类（USER-INPUT/LLM-FI
 - 评审中修测试
 - 返回多个候选下一步
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "测试设计写得简单但跑通了，pass。" | Hard Gates: 测试设计必须显式声明 SUT Form（naive / pattern:<name> / emergent）；缺位 → finding。 |
+| "缺反向 / 边界 case 但正向跑过即可。" | Hard Gates: 反向 / 边界 / "看似正确实则错"覆盖是 rubric 必查项；缺位 → finding。 |
+| "我读 SKILL.md 时没看 testing-anti-patterns，直接评。" | Workflow stop rule: 必须先读 references/testing-anti-patterns.md 再下 verdict。 |
+| "mock 范围有点大但能跑。" | Hard Gates: mock 必须限定在真正边界（外部 IO / 时间 / 随机源），跨边界 mock → finding。 |
+
 ## Verification
 
 - [ ] review record 已落盘

@@ -330,6 +330,15 @@ UI 设计文档草稿已起草完成，下一步应派发独立 reviewer subagen
 
 若 UI 设计稿仍未达评审门槛，不伪造 handoff；明确还缺什么，继续修订。
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "spec 没声明 UI surface 但反正会有界面，提前开 UI design。" | Workflow stop rule: 仅当 spec 显式声明 UI surface 时本 skill 才被 router 调度，否则属于越权。 |
+| "WCAG 2.2 AA 太严格，先按 A 写。" | Hard Gates: 无障碍基线为 WCAG 2.2 AA；降级会被 hf-ui-review 判 fail。 |
+| "Atomic Design / Design Tokens 跳过。" | Hard Gates: IA + Atomic Design + Design Tokens + interaction state inventory 是 UI design 必需输出。 |
+| "Heuristic Evaluation 和 review 一起做。" | Hard Gates (soul.md): 作者不能验收自己；启发式评估的 verdict 由 hf-ui-review 独立产出。 |
+
 ## Verification
 
 - [ ] UI 设计草稿已保存到约定路径（非规格文件、非 `hf-design` 文件、非任务文件）

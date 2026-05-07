@@ -1,0 +1,168 @@
+{
+  "skills": [
+    {
+      "name": "hf-code-review",
+      "path": "skills/hf-code-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-completion-gate",
+      "path": "skills/hf-completion-gate/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-design",
+      "path": "skills/hf-design/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-design-review",
+      "path": "skills/hf-design-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-discovery-review",
+      "path": "skills/hf-discovery-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-doc-freshness-gate",
+      "path": "skills/hf-doc-freshness-gate/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-experiment",
+      "path": "skills/hf-experiment/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-finalize",
+      "path": "skills/hf-finalize/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-hotfix",
+      "path": "skills/hf-hotfix/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-increment",
+      "path": "skills/hf-increment/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-product-discovery",
+      "path": "skills/hf-product-discovery/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-regression-gate",
+      "path": "skills/hf-regression-gate/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-spec-review",
+      "path": "skills/hf-spec-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-specify",
+      "path": "skills/hf-specify/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-tasks",
+      "path": "skills/hf-tasks/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-tasks-review",
+      "path": "skills/hf-tasks-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-test-driven-dev",
+      "path": "skills/hf-test-driven-dev/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-test-review",
+      "path": "skills/hf-test-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-traceability-review",
+      "path": "skills/hf-traceability-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-ui-design",
+      "path": "skills/hf-ui-design/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-ui-review",
+      "path": "skills/hf-ui-review/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "hf-workflow-router",
+      "path": "skills/hf-workflow-router/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
+      "name": "using-hf-workflow",
+      "path": "skills/using-hf-workflow/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    }
+  ],
+  "ok": true,
+  "failed_count": 0,
+  "warning_count": 0
+}

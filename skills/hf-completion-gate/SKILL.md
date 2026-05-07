@@ -147,6 +147,14 @@ full/standard 记录缺失/过旧 → `阻塞`。
 - 不读 regression 记录就宣告完成
 - worktree-active 但 completion record 没写 Worktree Path
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "DoD 大部分满足就放行，剩下几条 finalize 阶段补。" | Hard Gates: DoD 是闭合判据；任一未满足即判 fail，不延后到 hf-finalize。 |
+| "regression-gate 没跑，我替它默认 pass。" | Hard Gates: 上游 gate evidence 必须存在；缺位 → reroute 回 hf-regression-gate / hf-doc-freshness-gate。 |
+| "verdict pass with caveats。" | Hard Gates: verdict 唯一；caveats 必须落 finding 由作者回修，不并入 verdict。 |
+
 ## Verification
 
 - [ ] completion verification record 已落盘

@@ -153,6 +153,15 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 | `references/task-board-guide.md` | Task Board 示例、队列投影、活跃任务选择规则 |
 | `references/reviewer-handoff.md` | reviewer 派发协议与结果处理 |
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "design 还没批，但任务已经能拆，先动手。" | Hard Gates: design / design-review 未通过前 hf-tasks 不应启动（Workflow step 1 precondition）。 |
+| "INVEST 太理想化，做大任务一次性搞定更快。" | Workflow stop rule: 任务必须满足 INVEST（独立 / 可协商 / 有价值 / 可估算 / 小 / 可测）；大任务无法 fit 进单 active task TDD 节奏。 |
+| "依赖图 / 关键路径以后想到再加。" | Hard Gates: 依赖图 + critical path 是 tasks 必需输出，缺位会被 hf-tasks-review 判 fail。 |
+| "DoD 我写在心里。" | Verification: 每个 task 必须有可读 Definition of Done 落盘，hf-completion-gate 会按 DoD 评估。 |
+
 ## Verification
 
 - [ ] 任务计划已保存到约定路径

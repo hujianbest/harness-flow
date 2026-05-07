@@ -180,6 +180,14 @@ probe 执行完毕后（或触发 Timebox），产出 **probe result** 文档：
 - 本 skill 仅在 `full` profile 下激活（standard / lightweight 不激活 `hf-experiment`）
 - reference 数量仅 1，full profile 下直接读即可
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "假设很明显，跳过 probe 直接进 spec。" | Workflow stop rule: 高风险 / 阻塞性假设未验证时 hf-specify 不应启动；hf-experiment 是其前置条件。 |
+| "用过去的数据当 probe 结果。" | Verification: probe evidence 必须是当前会话内的 fresh evidence，不能用过期数据。 |
+| "probe 只跑一次就足够。" | Hard Gates: probe 设计必须包含 success / failure threshold；不达 threshold 必须重设或 escalate，不允许"差不多"通过。 |
+
 ## Verification
 
 - [ ] probe plan 已保存到约定路径

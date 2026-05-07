@@ -123,6 +123,14 @@ Profile-aware 回归范围：
 - 依赖旧运行结果
 - worktree-active 但 evidence 没锚定同一路径
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "影响面分析跳过，直接看 CI 绿。" | Hard Gates: impact-based regression 要求基于 design + code change 显式列影响面；CI 绿不等于覆盖到位。 |
+| "evidence bundle 里少一条 trace 不影响结论。" | Workflow stop rule: bundle 任一必需证据缺失即判 fail，不允许"不影响"裁量。 |
+| "我先放过这次，下次回归再补全。" | Hard Gates (soul.md): gate 不能替用户降低门禁；补全才能 pass。 |
+
 ## Verification
 
 - [ ] regression record 已落盘

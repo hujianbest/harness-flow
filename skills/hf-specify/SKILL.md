@@ -241,6 +241,15 @@ Phase 0 起必须显式落下以下 **hard anchor** 章节，不可省略：
 - `standard`：在 lightweight 基础上预读 `granularity-and-deferral.md`
 - `full`：按实际需要加载；多 Must 冲突时预读跨 skill 量化优先级
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "discovery 还没批，但 spec 内容已经清楚了，先开始写。" | Hard Gates: discovery / discovery-review 未通过前 hf-specify 不应启动（Workflow step 1 precondition）。 |
+| "EARS / BDD 太繁琐，写自然语言段落更快。" | Hard Gates: 验收准则必须以 EARS / BDD 形式落地；自然段落不构成可测试 acceptance criteria。 |
+| "NFR / 质量属性以后再补。" | Workflow stop rule: ISO 25010 + Quality Attribute Scenarios 是 spec 必需段；缺位时 hf-spec-review 必判 fail。 |
+| "既然 spec 我写的我也顺便 review 一下。" | Hard Gates (soul.md): 作者不能验收自己；spec verdict 由 hf-spec-review 独立产出。 |
+
 ## Verification
 
 - [ ] 规格草稿已保存到 `features/<active>/spec.md`（或 项目级覆盖路径）

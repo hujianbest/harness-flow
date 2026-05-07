@@ -128,6 +128,15 @@ severity：`critical`（阻塞任务规划）> `important`（应修复）> `mino
 - 文档长度长就认为设计充分
 - 顺手把任务也列出来"更完整"（reviewer 是 gate，不是拆任务）
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "Bounded Context 边界稍模糊但不影响实现。" | Hard Gates: DDD 战略边界含糊会在实现时反弹为模块边界争议；缺位 → finding。 |
+| "ADR 我可以替作者补。" | Hard Gates (soul.md): 评审者不能补作者的工件；缺 ADR → finding，由作者回修。 |
+| "STRIDE 没做但风险不大。" | Hard Gates: 缺 STRIDE → finding；不能由 reviewer 替评估为"风险不大"。 |
+| "verdict pass，回头实现时再发现问题再说。" | Verification: design verdict 是后续 hf-tasks / hf-test-driven-dev 的 precondition；草率 pass 会回流大量返工。 |
+
 ## Verification
 
 完成条件：

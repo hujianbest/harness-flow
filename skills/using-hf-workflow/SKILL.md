@@ -155,6 +155,14 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 当前 pack 已提供 `hf-product-discovery` 作为 discovery leaf；本 skill 继续作为唯一 public entry，不再引入第二个 product public shell。
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "我知道下一步是哪个 leaf skill，直接 invoke。" | Workflow stop rule: 路径不确定 / 证据冲突时必须经 hf-workflow-router；越过 router 会绕开 evidence-based recovery。 |
+| "聊天上下文里我已经记得状态了。" | Hard Gates: 状态从 on-disk artifacts 恢复，不依赖 chat memory；记忆 ≠ evidence。 |
+| "新会话直接 /build。" | Workflow stop rule: 新会话 family discovery 必须从 using-hf-workflow 开始，再决定 bias。 |
+
 ## Verification
 
 - [ ] 已判断 entry vs runtime recovery

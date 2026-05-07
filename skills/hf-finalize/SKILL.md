@@ -238,6 +238,15 @@ Closeout type-specific 约束：
 - 用会话记忆代替 on-disk 记录
 - 忘记记录 worktree 最终 disposition
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "completion-gate pass 了，state sync 我下次会话再补。" | Hard Gates: state sync / progress 闭合是 finalize 必需输出；跨会话补 = 没补。 |
+| "release notes 我直接复制 commit messages。" | Workflow stop rule: release notes 必须按 PMBOK closeout 的格式，覆盖 scope / artifact / handoff，不是 commit dump。 |
+| "handoff pack 不重要，next agent 自己看 commit。" | Hard Gates: handoff pack 是 evidence-based recovery 的唯一入口；缺位 → 下游 agent 无 canonical 起点。 |
+| "finalize 之后顺便 deploy。" | Hard Gates (ADR-001 D1 / ADR-002 D1): 主链终点是工程级 closeout；deploy / ship / ops 不在 v0.1.x / v0.2.x 范围。 |
+
 ## Verification
 
 - [ ] precheck 已完成；若证据缺失或 queue 冲突，已返回 `blocked` + `hf-workflow-router`

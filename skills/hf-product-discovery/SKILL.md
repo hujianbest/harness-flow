@@ -182,6 +182,15 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 - `standard` 会话默认读 `discovery-template.md` + `jtbd-framework.md`；其余按命中条件
 - `full` 会话按实际需要加载；若主题已明确为切换型或多候选并排，预读对应 reference
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "用户只是要个 MVP，跳过 JTBD 直接开 spec 更快。" | Hard Gates: 必须沉淀 Job / Outcome / Opportunity Tree 才能进入 hf-discovery-review。Verification: discovery record 落盘且包含可回读的 hypothesis。 |
+| "目标用户已经很清楚了，不必走 RICE / ICE。" | Workflow stop rule: 优先级证据缺失就不能产出 backend output object（discovery findings）。 |
+| "我可以同时帮用户拍板技术栈。" | Hard Gates: discovery 阶段不替用户做方向 / 取舍 / 标准（soul.md），技术栈是 hf-specify / hf-design 的对象。 |
+| "已经有相似产品调研，直接抄结论。" | Verification: 必须为本次 feature 产出 fresh evidence，外部调研只能作为输入参考。 |
+
 ## Verification
 
 - [ ] discovery 草稿已保存到约定路径

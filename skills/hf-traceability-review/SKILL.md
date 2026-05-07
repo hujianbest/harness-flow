@@ -123,6 +123,14 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 - 忽略规格/设计与代码的不一致
 - 返回多个候选下一步
 
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "spec → code 链路抽样几条就行。" | Hard Gates: 必须全量映射 spec 段 → design 元素 → task → impl → 测试；抽样 → finding。 |
+| "缺一两条 backward link 不影响交付。" | Workflow stop rule: backward traceability 缺失会让 hf-completion-gate 无法判定 DoD 全覆盖。 |
+| "我自己补缺失的 traceability 条目。" | Hard Gates (soul.md): 评审者只产出 finding，traceability 条目由作者补。 |
+
 ## Verification
 
 - [ ] review record 已落盘
