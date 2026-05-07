@@ -38,6 +38,7 @@
 | Regression gate | `verification/regression-2026-04-29.md` | present | 通过 |
 | Doc-freshness gate | `verification/doc-freshness-2026-04-29.md` | present | 通过 |
 | Completion gate | `verification/completion-task-001.md` | present | 通过 |
+| Browser testing activation check | `verification/browser-testing-skip-2026-05-07.md` | present | SKIP（v0.2.0 节点；spec 未声明 UI surface 且 task 未触碰前端，激活规则 2/3 均不满足） |
 | Demo CHANGELOG | `examples/writeonce/CHANGELOG.md` | present | v0.1.0 段 |
 | Feature README | `features/001-walking-skeleton/README.md` | present | 状态总览已收口 |
 | Demo README | `examples/writeonce/README.md` | present | 含 Limits 段 |

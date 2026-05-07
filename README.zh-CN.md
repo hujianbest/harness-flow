@@ -4,14 +4,14 @@
 
 **从一个 idea 到产品落地：面向 AI Agent 的高质量工程工作流。**
 
-> ## 范围声明（v0.1.0 pre-release）
+> ## 范围声明（v0.2.0 pre-release）
 >
-> - **版本**：`v0.1.0`，在 GitHub Releases 上标记为 **pre-release**。对外承诺面是刻意收窄的。
-> - **正式支持的客户端**：仅 **Claude Code** 与 **OpenCode**。Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro 延后到 v0.2+（HarnessFlow 是纯 Markdown，理论上能在那些环境运行，但**不在 v0.1.0 的承诺范围内**）。
-> - **主链终点是 `hf-finalize`**——这是**工程级 closeout**（状态同步、release notes、handoff pack）。发布管线、部署、可观测、事故响应、安全加固、性能门禁、上线后运维**都不是 v0.1.0 的一等阶段**，列入 v0.2 / v0.3 roadmap。
-> - 这种窄而硬的范围是刻意选择（ADR-001 D1 — "P-Honest，窄而硬"）。HarnessFlow 拒绝把"代码合并 / 工程 closeout"伪装成"上线到生产"。
+> - **版本**：`v0.2.0`，在 GitHub Releases 上标记为 **pre-release**。v0.2.0 是一次质量纪律内核硬化版本——内部加 `hf-browser-testing` + SKILL.md anatomy 强制基线 + advisory audit，**不**扩展客户端面，**不**扩大主链承诺面。
+> - **正式支持的客户端**：仍仅 **Claude Code** 与 **OpenCode**（与 v0.1.0 一致）。Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro 仍延后到 v0.3+。ADR-002 D11（2026-05-07）显式撤回了 v0.2.0 期间扩到 7 客户端的提案（理由："太重 + 不完善"，不符 P-Honest）；HarnessFlow 是纯 Markdown，理论上仍能在那些环境运行，但**不在 v0.2.0 的承诺范围内**。
+> - **主链终点仍是 `hf-finalize`**——这是**工程级 closeout**（状态同步、release notes、handoff pack）。v0.2.0 新增了 `hf-browser-testing` 作为 verify 阶段的 runtime evidence side node（DOM / 控制台 / 网络三层证据），但发布管线、部署、可观测、事故响应、安全加固、性能门禁、debugging-and-error-recovery、deprecation-and-migration **仍然不是 v0.2.0 的一等阶段**，列入 v0.3+ roadmap。
+> - 这种窄而硬的范围是刻意选择（ADR-001 D1 / ADR-002 D1 — "P-Honest，窄而硬"）。HarnessFlow 拒绝把"代码合并 / 工程 closeout"伪装成"上线到生产"。
 >
-> 完整发版范围决策见 `docs/decisions/ADR-001-release-scope-v0.1.0.md`。
+> 完整 v0.2.0 发版范围决策见 `docs/decisions/ADR-002-release-scope-v0.2.0.md`（含 D11 校准说明 R3/R4/R5 撤回原因）；v0.1.0 沿革见 `docs/decisions/ADR-001-release-scope-v0.1.0.md`。
 
 HarnessFlow 是一个面向 AI Agent 的 skill pack，用来把**从产品洞察到架构设计、再到实现与交付**的完整工程节奏落到结构化工件、质量纪律和清晰交接上。它把产品发现、规格澄清、架构设计、任务拆解、带门禁的 TDD 实现、多道独立评审、回归与完成门禁、正式收尾都当作一等阶段，让 agent 沿着显式阶段推进"一个 idea → 可评审方向 → 可评审设计 → 可执行任务 → 可落地产品"，而不是依赖临时拼接的 prompt 链路。
 

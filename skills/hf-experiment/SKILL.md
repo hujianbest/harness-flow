@@ -157,16 +157,6 @@ probe 执行完毕后（或触发 Timebox），产出 **probe result** 文档：
 
 若 probe 结果尚未生成，不伪造回流；明确写出当前停在哪一步。
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|---|---|
-| `hf-product-discovery` | discovery 回答"要不要做、打哪个 wedge、有哪些假设"；experiment 回答"关键假设是否站得住"。 |
-| `hf-discovery-review` | review 负责独立评审 discovery 草稿质量；experiment 负责执行假设验证。 |
-| `hf-specify` | specify 回答"正式做什么、做到什么程度算完成"；experiment 在 Blocking 假设未关闭时先插入。 |
-| `hf-workflow-router` | router 负责 runtime routing；本 skill 假设已明确在做假设验证。 |
-| `hf-test-driven-dev` | TDD 是在已批准 spec 与 design 之后的实现验证；experiment 是在 spec 之前或之中的**假设**验证。不允许互相替代。 |
-
 ## Red Flags
 
 - 一次 probe 同时塞了 4 条假设
@@ -189,6 +179,14 @@ probe 执行完毕后（或触发 Timebox），产出 **probe result** 文档：
 
 - 本 skill 仅在 `full` profile 下激活（standard / lightweight 不激活 `hf-experiment`）
 - reference 数量仅 1，full profile 下直接读即可
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "假设很明显，跳过 probe 直接进 spec。" | Workflow stop rule: 高风险 / 阻塞性假设未验证时 hf-specify 不应启动；hf-experiment 是其前置条件。 |
+| "用过去的数据当 probe 结果。" | Verification: probe evidence 必须是当前会话内的 fresh evidence，不能用过期数据。 |
+| "probe 只跑一次就足够。" | Hard Gates: probe 设计必须包含 success / failure threshold；不达 threshold 必须重设或 escalate，不允许"差不多"通过。 |
 
 ## Verification
 

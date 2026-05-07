@@ -151,14 +151,6 @@ Hotfix 分析结束时必须明确：
 - 修复边界是否已确认
 - 下一步是 `hf-test-driven-dev`、`hf-increment` 还是 `hf-workflow-router`
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-test-driven-dev` | 写/修代码、TDD 实现；本 skill 只做分析和根因收敛，不写生产代码 |
-| `hf-increment` | 处理需求变更/范围调整；本 skill 处理已上线功能的缺陷修复 |
-| `hf-workflow-router` | 编排/路由/阶段判断；本 skill 专注于紧急缺陷的分析与 handoff |
-
 ## Reference Guide
 
 | 文件 | 用途 |
@@ -172,6 +164,14 @@ Hotfix 分析结束时必须明确：
 - 把 hotfix 当借口跳过 review/gate
 - 根因没确认就进入实现
 - 边界已明显扩散，却不暂停确认
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "线上着急，先打补丁，复现路径回头补。" | Hard Gates: hotfix 必须有最小复现路径；无复现 → 回 hf-workflow-router 走 increment 流程。 |
+| "顺手把附近不相关的 bug 一起修。" | Hard Gates: hotfix 必须最小修复边界；越界改动 → 拆出 hf-increment。 |
+| "test 留到 mainline merge 时再补。" | Hard Gates: hotfix 仍走 RED → GREEN，缺 RED 即视为未完成。 |
 
 ## Verification
 

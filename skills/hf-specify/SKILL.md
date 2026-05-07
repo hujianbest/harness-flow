@@ -202,16 +202,6 @@ Phase 0 起必须显式落下以下 **hard anchor** 章节，不可省略：
 
 若草稿未达评审门槛，不伪造 handoff；明确写出仍缺什么。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 hf-specify | 不用 |
-|------|---------------|------|
-| 尚无规格或规格仍为草稿 | ✅ | |
-| 已有批准规格，问题在 HOW 层 | | → `hf-design` |
-| 规格和设计都已批准，需要任务计划 | | → `hf-tasks` |
-| 评审规格草稿质量 | | → `hf-spec-review` |
-| 阶段不清/证据冲突 | | → `hf-workflow-router` |
-
 ## Red Flags
 
 - 从用户想法直接跳到架构设计
@@ -250,6 +240,15 @@ Phase 0 起必须显式落下以下 **hard anchor** 章节，不可省略：
 - `lightweight`：默认读 `spec-template.md` + `requirement-authoring-contract.md` + `success-metrics-and-hypotheses.md`；NFR 存在时加 `nfr-quality-attribute-scenarios.md`。其余按命中条件
 - `standard`：在 lightweight 基础上预读 `granularity-and-deferral.md`
 - `full`：按实际需要加载；多 Must 冲突时预读跨 skill 量化优先级
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "discovery 还没批，但 spec 内容已经清楚了，先开始写。" | Hard Gates: discovery / discovery-review 未通过前 hf-specify 不应启动（Workflow step 1 precondition）。 |
+| "EARS / BDD 太繁琐，写自然语言段落更快。" | Hard Gates: 验收准则必须以 EARS / BDD 形式落地；自然段落不构成可测试 acceptance criteria。 |
+| "NFR / 质量属性以后再补。" | Workflow stop rule: ISO 25010 + Quality Attribute Scenarios 是 spec 必需段；缺位时 hf-spec-review 必判 fail。 |
+| "既然 spec 我写的我也顺便 review 一下。" | Hard Gates (soul.md): 作者不能验收自己；spec verdict 由 hf-spec-review 独立产出。 |
 
 ## Verification
 

@@ -136,17 +136,6 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 注意：只有 review 通过且 approval step 完成后，才进入 `hf-test-driven-dev`。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 hf-tasks | 不用 |
-|------|-------------|------|
-| 规格与设计已批准，需任务拆解 | ✅ | |
-| 规格未稳定/未批准 | | → `hf-specify` / `hf-spec-review` |
-| 设计未稳定/未批准 | | → `hf-design` / `hf-design-review` |
-| 任务计划已批准，需进入实现 | | → `hf-test-driven-dev` |
-| 评审任务计划质量 | | → `hf-tasks-review` |
-| 阶段不清/证据冲突 | | → `hf-workflow-router` |
-
 ## Red Flags
 
 - 把任务计划写成设计文档副本
@@ -163,6 +152,15 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 | `references/task-plan-template.md` | 默认计划模板结构与保存路径 |
 | `references/task-board-guide.md` | Task Board 示例、队列投影、活跃任务选择规则 |
 | `references/reviewer-handoff.md` | reviewer 派发协议与结果处理 |
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "design 还没批，但任务已经能拆，先动手。" | Hard Gates: design / design-review 未通过前 hf-tasks 不应启动（Workflow step 1 precondition）。 |
+| "INVEST 太理想化，做大任务一次性搞定更快。" | Workflow stop rule: 任务必须满足 INVEST（独立 / 可协商 / 有价值 / 可估算 / 小 / 可测）；大任务无法 fit 进单 active task TDD 节奏。 |
+| "依赖图 / 关键路径以后想到再加。" | Hard Gates: 依赖图 + critical path 是 tasks 必需输出，缺位会被 hf-tasks-review 判 fail。 |
+| "DoD 我写在心里。" | Verification: 每个 task 必须有可读 Definition of Done 落盘，hf-completion-gate 会按 DoD 评估。 |
 
 ## Verification
 

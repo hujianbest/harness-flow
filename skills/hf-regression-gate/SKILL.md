@@ -116,20 +116,20 @@ Profile-aware 回归范围：
 |------|------|
 | `references/verification-record-template.md` | regression verification record 模板（与 `hf-completion-gate` 同形态） |
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-completion-gate` | 判断当前任务可否宣告完成（证据束齐不齐）；本 skill 判断回归面健康度（旁边模块坏了没） |
-| `hf-finalize` | 关闭工作周期、产出 handoff pack；本 skill 只做回归门禁 |
-| `hf-workflow-router` | 编排/路由/阶段判断；本 skill 只做回归验证 |
-
 ## Red Flags
 
 - 不读上游 review 记录就跑回归
 - "本地测试通过"等同于"回归安全"
 - 依赖旧运行结果
 - worktree-active 但 evidence 没锚定同一路径
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "影响面分析跳过，直接看 CI 绿。" | Hard Gates: impact-based regression 要求基于 design + code change 显式列影响面；CI 绿不等于覆盖到位。 |
+| "evidence bundle 里少一条 trace 不影响结论。" | Workflow stop rule: bundle 任一必需证据缺失即判 fail，不允许"不影响"裁量。 |
+| "我先放过这次，下次回归再补全。" | Hard Gates (soul.md): gate 不能替用户降低门禁；补全才能 pass。 |
 
 ## Verification
 
