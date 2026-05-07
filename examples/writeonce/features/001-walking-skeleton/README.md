@@ -24,6 +24,7 @@
 | Spec | `spec.md` | approved |
 | Design | `design.md` | approved |
 | UI Design | — | N/A（spec 未声明 UI surface） |
+| Browser Testing (HF v0.2.0) | `verification/browser-testing-skip-2026-05-07.md` | N/A（spec 未声明 UI surface 且 task 未触碰前端，激活规则不命中） |
 | Data Model | — | N/A |
 | API Contracts | `contracts/platform-adapter.contract.md` | present |
 | Tasks | `tasks.md` | approved |
@@ -47,6 +48,7 @@
 | code-review (task-001) | `reviews/code-review-task-001.md` | 通过 | 2026-04-29 |
 | test-review (task-001) | `reviews/test-review-task-001.md` | 通过 | 2026-04-29 |
 | traceability-review | `reviews/traceability-review.md` | 通过 | 2026-04-29 |
+| browser-testing activation | `verification/browser-testing-skip-2026-05-07.md` | SKIP（HF v0.2.0 新节点；spec 未声明 UI surface） | 2026-05-07 |
 
 ## Verification
 
