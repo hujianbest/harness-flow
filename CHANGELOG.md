@@ -8,6 +8,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 （无）
 
+## [0.2.1] - 2026-05-07 — pre-release patch
+
+> **Docs-and-metadata-only patch.** No skill content changes, no behavior changes, no API changes. Fixes the Claude Code marketplace install path that broke for users without GitHub SSH keys, and syncs the marketplace.json description that v0.2.0's release-prep had failed to actually update (CHANGELOG `[0.2.0]` claimed a 22 → 23 hf-* bump but the file edit was never landed before the v0.2.0 tag).
+
+### Fixed
+
+- **Claude Code marketplace install no longer fails on `git@github.com: Permission denied (publickey)`** for users without GitHub SSH keys. `docs/claude-code-setup.md` now leads with the **HTTPS URL form** (`https://github.com/hujianbest/harness-flow.git`, with explicit `.git` suffix), matching how `addyosmani/agent-skills` documents the same Claude Code marketplace SSH default. The shortcut form `hujianbest/harness-flow` makes the marketplace default to SSH cloning, which is what triggered the user-reported failure on v0.2.0 smoke. The HTTPS URL form forces HTTPS cloning regardless of SSH key configuration.
+- **`.claude-plugin/marketplace.json` plugin description** bumped from `22 hf-* skills` to `23 hf-* skills` (the v0.2.0 `[0.2.0]` Changed entry claimed this happened but the actual file edit was never landed before the v0.2.0 tag — this patch ships the actual edit). Description also now mentions `hf-browser-testing` as the new verify-stage addition.
+- **`docs/audits/v0.2.0-skill-anatomy-baseline.md` + `.json`** regenerated against current 24-skill state. The original baseline was written at R1.2 (23 skills, before R2 added `hf-browser-testing`) and never refreshed afterwards; the v0.2.0 GA shipped with that stale baseline.
+
+### Changed
+
+- **`docs/claude-code-setup.md`** — Marketplace install section now leads with HTTPS URL form. Added "Already hit the SSH error?" recovery callout (`/plugin marketplace remove harness-flow` → re-add with HTTPS → install). Kept the global git config rewrite + add-an-SSH-key paths as alternatives, with explicit side-effect warning on the global rewrite. Scope Note + "What is NOT included" section also synced to v0.2.x phrasing.
+- **`docs/opencode-setup.md`** — Scope Note synced to v0.2.0 with D11 narrowing note. `/skills` verification list adds `hf-browser-testing` (now 23rd hf-* skill). "What is NOT included" section synced to ADR-002 D1 / D11.
+- **`README.md`** — OpenCode verification line bumped from `22 hf-*` to `23 hf-*` mentioning `hf-browser-testing`.
+- **`.claude-plugin/plugin.json`** — `version` bumped `0.2.0` → `0.2.1`.
+
+### Notes
+
+- This patch is **optional to tag**. If `main` is the source-of-truth for marketplace clones, simply merging this PR fixes the user-visible install path and the description string — no `v0.2.1` tag strictly required. Tag `v0.2.1` is recommended if the maintainer wants `plugin.json.version` to reflect the actual shipped state.
+- The user-reported smoke that triggered this patch was specifically a `Permission denied (publickey)` during `/plugin install` after `/plugin marketplace add hujianbest/harness-flow` (shortcut form); the HTTPS URL form recovery is documented inline in `docs/claude-code-setup.md` § 1.
+
 ## [0.2.0] - 2026-05-07 — pre-release
 
 > **Second public release.** Marked as a **pre-release** on GitHub Releases.
@@ -150,6 +172,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.2.1
 [0.2.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.2.0
 [0.1.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.1.0
