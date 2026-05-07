@@ -10,8 +10,10 @@ Use the **full HTTPS URL** form, not the `owner/repo` shortcut. Claude Code's ma
 
 ```text
 /plugin marketplace add https://github.com/hujianbest/harness-flow.git
-/plugin install harness-flow@harness-flow
+/plugin install harness-flow@hujianbest-harness-flow
 ```
+
+The install command is `harness-flow@hujianbest-harness-flow`, not `harness-flow@harness-flow`. The format is `<plugin-name>@<marketplace-name>`; HarnessFlow's marketplace is named `hujianbest-harness-flow` (mirroring `addyosmani/agent-skills`'s `addy-agent-skills` pattern) to keep it distinct from the plugin name `harness-flow`. Earlier v0.2.x docs incorrectly used `harness-flow@harness-flow`, which made Claude Code's resolver hit a name-collision bug; v0.2.1 renamed the marketplace to fix this.
 
 After install, the following 6 slash commands become available in Claude Code:
 
@@ -29,10 +31,12 @@ Hard rule: every command above is a **bias**, not a bypass. The router decides t
 > **Already hit the SSH error?** If you previously ran `/plugin marketplace add hujianbest/harness-flow` (the shortcut form) and saw `git@github.com: Permission denied (publickey)`, the marketplace entry registered partially but the install clone failed. Recover with:
 >
 > ```text
-> /plugin marketplace remove harness-flow
+> /plugin marketplace remove hujianbest-harness-flow
 > /plugin marketplace add https://github.com/hujianbest/harness-flow.git
-> /plugin install harness-flow@harness-flow
+> /plugin install harness-flow@hujianbest-harness-flow
 > ```
+>
+> If you installed v0.2.0 with the older marketplace name `harness-flow`, run `/plugin marketplace remove harness-flow` (the old name) before re-adding — otherwise the old marketplace entry stays cached.
 >
 > **Alternative (global git config workaround)**: rewrite all SSH GitHub URLs to HTTPS once and for all:
 >

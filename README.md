@@ -194,14 +194,16 @@ HarnessFlow v0.1.0 officially supports **Claude Code** and **OpenCode**. Both pa
 
 ### Claude Code (recommended)
 
-Marketplace install:
+Marketplace install (use the explicit HTTPS URL with `.git` suffix to force HTTPS cloning; the `owner/repo` shortcut form would default to SSH and fail without GitHub SSH keys):
 
 ```text
-/plugin marketplace add hujianbest/harness-flow
-/plugin install harness-flow@harness-flow
+/plugin marketplace add https://github.com/hujianbest/harness-flow.git
+/plugin install harness-flow@hujianbest-harness-flow
 ```
 
 This installs 6 short slash commands (see [Slash Commands](#slash-commands-claude-code) below).
+
+> The install command is `harness-flow@hujianbest-harness-flow` (plugin name `harness-flow` + marketplace name `hujianbest-harness-flow`), not `harness-flow@harness-flow`. v0.2.0 shipped with the marketplace also named `harness-flow`, which caused a name-collision bug in Claude Code's resolver; v0.2.1 renamed the marketplace to fix it. See `docs/claude-code-setup.md` for full setup notes including SSH troubleshooting.
 
 Local / development install (when iterating on HarnessFlow itself):
 
