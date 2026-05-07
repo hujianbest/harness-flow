@@ -1,8 +1,8 @@
 # HarnessFlow on OpenCode
 
-HarnessFlow v0.1.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
+HarnessFlow v0.2.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
 
-> **Scope (v0.1.0 pre-release).** v0.1.0 only officially supports **Claude Code** and **OpenCode**. Other clients (Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro) are deferred to v0.2+. The HarnessFlow main chain ends at `hf-finalize` (engineering-level closeout); release / ops / monitoring / metrics-feedback are intentionally out of scope for this version. See ADR-001 D1 / D3.
+> **Scope (v0.2.0 pre-release).** v0.2.0 still officially supports only **Claude Code** and **OpenCode** (ADR-002 D11 revoked the in-flight 7-client expansion). Other clients (Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro) are deferred to v0.3+. The HarnessFlow main chain still ends at `hf-finalize` (engineering-level closeout); v0.2.0 added `hf-browser-testing` as a verify-stage runtime evidence side node, but release pipelines / deployment / monitoring / security hardening / performance gating remain out of scope. See ADR-002 D1 / D11.
 
 ## How OpenCode discovers HF skills
 
@@ -39,7 +39,7 @@ cd harness-flow
 opencode .
 ```
 
-The shipped `.opencode/skills` symlink makes all 22 `hf-*` skills + `using-hf-workflow` immediately discoverable. No further setup.
+The shipped `.opencode/skills` symlink makes all 23 `hf-*` skills + `using-hf-workflow` immediately discoverable (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*` skill). No further setup.
 
 ### B. Vendor HarnessFlow skills into your own project
 
@@ -76,7 +76,7 @@ After opening OpenCode in any of the three topologies above, run:
 /skills
 ```
 
-You should see at least the following skills listed (22 `hf-*` skills + `using-hf-workflow`):
+You should see at least the following skills listed (23 `hf-*` skills + `using-hf-workflow`; v0.2.0 added `hf-browser-testing` as the 23rd):
 
 - `using-hf-workflow`
 - `hf-workflow-router`
@@ -89,6 +89,7 @@ You should see at least the following skills listed (22 `hf-*` skills + `using-h
 - `hf-regression-gate`, `hf-doc-freshness-gate`, `hf-completion-gate`
 - `hf-finalize`
 - `hf-hotfix`, `hf-increment`, `hf-experiment`
+- `hf-browser-testing` (new in v0.2.0)
 
 If the list is empty, see [§5 Troubleshooting](#5-troubleshooting).
 
@@ -167,15 +168,17 @@ Natural-language intents also cover side branches and gates:
 
 The `hf-regression-gate`, `hf-doc-freshness-gate`, and `hf-completion-gate` skills are intentionally **pulled** by upstream nodes, not pushed by the user. Asking for "/gate" directly would encourage skipping implementation or review — that is why HarnessFlow ships no `/gate` command, on Claude Code or on OpenCode (ADR-001 D4).
 
-## 7. What is NOT included in v0.1.0
+## 7. What is NOT included in v0.2.0
 
-Per ADR-001 D1 (P-Honest, "narrow but hard") and D11 (R1 concluded):
+Per ADR-001 D1 + ADR-002 D1 / D11 (P-Honest, "narrow but hard"):
 
-- No release / deployment / ops skills (no `hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`, `hf-browser-runtime-evidence` in v0.1.0).
-- No automated SKILL.md anatomy audit script.
-- No batched `Common Rationalizations` / `Object Contract` rewrites across the 24 skills (D8 superseded, D10 voided).
+- 6 of 7 deferred ops/release skills remain out of scope (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`). Only `hf-browser-testing` was added in v0.2.0 (verify-stage runtime evidence side node, ADR-002 D1 / D7).
+- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** and does not block PR merge in maintainer workflows (ADR-002 D5 sub-decision).
+- No 5-client expansion (Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro) — ADR-002 D11 revoked the in-flight v0.2.0 expansion; deferred to v0.3+.
+- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; deferred to v0.3+.
+- ADR-001 D11's stance on `Object Contract` (neither mandatory nor recommended in v0.1.0) is preserved in v0.2.0 — only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are now hard rules in `skill-anatomy.md` (ADR-002 D9 / D10).
 
-These constraints are intentional. They keep the surface area small enough for the v0.1.0 pre-release to be honest about what it does and does not cover.
+These constraints are intentional. They keep the surface area small enough for the v0.2.0 pre-release to be honest about what it does and does not cover.
 
 ## 8. Cross-references
 

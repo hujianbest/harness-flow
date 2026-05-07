@@ -36,7 +36,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   - `features/001-walking-skeleton/progress.md` Progress Notes 加 v0.2.0 Refresh 子段，Evidence Paths 加 SKIP 记录路径
   - `examples/writeonce/CHANGELOG.md` 新增 `[Unreleased] — HF v0.2.0 refresh` 段
 - **`.claude-plugin/plugin.json`** — `version` 从 `0.1.0` 升级到 `0.2.0`。
-- **`.claude-plugin/marketplace.json`** — plugin description 从 22 hf-* 升级到 23 hf-*（`hf-browser-testing` 已含）。
+- **`.claude-plugin/marketplace.json`** — plugin description 从 22 hf-* 升级到 23 hf-*（`hf-browser-testing` 已含；释出 v0.2.0 时附在 release-prep 阶段刷新）。
+- **`docs/claude-code-setup.md`** — Marketplace install 改用 **HTTPS URL** (`https://github.com/hujianbest/harness-flow.git`) 作为主要路径，规避 Claude Code marketplace 默认 SSH 克隆（`git@github.com: Permission denied (publickey)`）的常见错误；保留 SSH 配置 + 全局 `git config --global url."https://github.com/".insteadOf "git@github.com:"` 作为备选。新增"已经踩过 SSH 错"的恢复步骤（`/plugin marketplace remove harness-flow` → 用 HTTPS 重新 add → install）。Scope Note 同步 v0.2.0 措辞。
+- **`docs/opencode-setup.md`** — Scope Note 同步 v0.2.0；`/skills` 验证清单从 22 hf-* 升级到 23 hf-*（追加 `hf-browser-testing`）；"What is NOT included" 段同步 v0.2.0 + ADR-002 D11 措辞。
 - **`README.md` + `README.zh-CN.md`** — Scope Note 升级到 v0.2.0 pre-release（保持 Claude Code + OpenCode 两家客户端，不扩展；ADR-002 D11 已撤回 7 客户端提案）。
 - **`SECURITY.md`** — Supported Versions 表新增 `0.2.x (pre-release)` 行，原 `0.1.x` 行降级。
 - **`CONTRIBUTING.md`** — 引言中 `single-maintainer pre-release (v0.1.0)` 升级到 `(v0.2.0)`，Scope Note 引用同步指向 ADR-002。
