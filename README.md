@@ -225,7 +225,7 @@ cd harness-flow
 opencode .
 ```
 
-Verify discovery in OpenCode with `/skills` — you should see all 22 `hf-*` skills plus `using-hf-workflow`. Then start with:
+Verify discovery in OpenCode with `/skills` — you should see all 23 `hf-*` skills (including v0.2.0's `hf-browser-testing`) plus `using-hf-workflow`. Then start with:
 
 ```text
 Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool

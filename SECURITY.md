@@ -13,11 +13,11 @@ Runtime behavior of any agent (Claude Code, OpenCode, Cursor, etc.) that loads H
 
 ## Supported Versions
 
-HarnessFlow follows SemVer. `v0.2.0` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
+HarnessFlow follows SemVer. `v0.2.1` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 | Version | Supported for security fixes |
 |---|---|
-| `0.2.x` (current pre-release) | Best-effort; fixes shipped via patch releases on the `main` branch |
+| `0.2.x` (current pre-release; latest `0.2.1`) | Best-effort; fixes shipped via patch releases on the `main` branch |
 | `0.1.x` (previous pre-release) | Best-effort, security-only; users encouraged to upgrade to `0.2.x` |
 | `< 0.1.0` | Not applicable (no prior public release) |
 

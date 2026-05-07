@@ -1,6 +1,13 @@
 {
   "skills": [
     {
+      "name": "hf-browser-testing",
+      "path": "skills/hf-browser-testing/SKILL.md",
+      "failures": [],
+      "warnings": [],
+      "ok": true
+    },
+    {
       "name": "hf-code-review",
       "path": "skills/hf-code-review/SKILL.md",
       "failures": [],
