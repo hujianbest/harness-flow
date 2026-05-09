@@ -14,11 +14,11 @@ Runtime behavior of any agent (Claude Code, OpenCode, Cursor, etc.) that loads H
 
 ## Supported Versions
 
-HarnessFlow follows SemVer. `v0.5.0` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
+HarnessFlow follows SemVer. `v0.5.1` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 | Version | Supported for security fixes |
 |---|---|
-| `0.5.x` (current pre-release; latest `0.5.0`) | Best-effort; fixes shipped via patch releases on the `main` branch |
+| `0.5.x` (current pre-release; latest `0.5.1`) | Best-effort; fixes shipped via patch releases on the `main` branch |
 | `0.4.x` (previous pre-release; latest `0.4.0`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
 | `0.3.x` (older pre-release; latest `0.3.0`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
 | `0.2.x` (older pre-release; latest `0.2.1`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
@@ -50,7 +50,7 @@ The following are **not** security issues for this repository, even though they 
 - An agent (Claude Code, OpenCode, Cursor, etc.) misinterpreting a skill or producing unsafe code at runtime — that is an agent-vendor or user-prompt issue.
 - A user vendoring HarnessFlow into a private workspace and then exposing secrets via their own configuration.
 - The WriteOnce demo's Medium / Zhihu / WeChat MP adapters performing real network calls — they don't (per ADR-0003); the `Node20FetchHttpClient` exists for a hypothetical future integration and is not exercised by tests.
-- The fact that v0.1.0 / v0.2.0 / v0.3.0 / v0.4.0 / v0.5.0 explicitly do **not** ship deployment / monitoring / rollback skills (per [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md) D1, [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md) D1, [`docs/decisions/ADR-003-release-scope-v0.3.0.md`](docs/decisions/ADR-003-release-scope-v0.3.0.md) D2, [`docs/decisions/ADR-004-hf-release-skill.md`](docs/decisions/ADR-004-hf-release-skill.md) D2, [`docs/decisions/ADR-005-release-scope-v0.5.0.md`](docs/decisions/ADR-005-release-scope-v0.5.0.md) D9). v0.4.0 introduces `hf-release` for engineer-level version cuts (release scope ADR + release-wide regression + release docs aggregation + tag readiness pack); v0.5.0 adds a closeout HTML companion report to `hf-finalize` (reviewer 视觉化体验; rendered by `scripts/render-closeout-html.py`). Deployment-side concerns remain v0.6+ planned `hf-shipping-and-launch`. This is a documented scope choice, not a security gap.
+- The fact that v0.1.0 / v0.2.0 / v0.3.0 / v0.4.0 / v0.5.0 explicitly do **not** ship deployment / monitoring / rollback skills (per [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md) D1, [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md) D1, [`docs/decisions/ADR-003-release-scope-v0.3.0.md`](docs/decisions/ADR-003-release-scope-v0.3.0.md) D2, [`docs/decisions/ADR-004-hf-release-skill.md`](docs/decisions/ADR-004-hf-release-skill.md) D2, [`docs/decisions/ADR-005-release-scope-v0.5.0.md`](docs/decisions/ADR-005-release-scope-v0.5.0.md) D9). v0.4.0 introduces `hf-release` for engineer-level version cuts (release scope ADR + release-wide regression + release docs aggregation + tag readiness pack); v0.5.0 adds a closeout HTML companion report to `hf-finalize` (reviewer 视觉化体验; rendered by `skills/hf-finalize/scripts/render-closeout-html.py`). Deployment-side concerns remain v0.6+ planned `hf-shipping-and-launch`. This is a documented scope choice, not a security gap.
 
 ## Coordination
 
