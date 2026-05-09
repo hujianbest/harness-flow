@@ -8,6 +8,62 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 （无）
 
+## [0.4.0] - 2026-05-09 — pre-release
+
+> **Fourth public release.** Marked as a **pre-release** on GitHub Releases.
+>
+> v0.4.0 是一次**首个 release-tier skill 引入**版本。在 v0.3.0 基础上首次扩大 skill 集合（23 → **24** `hf-*` + `using-hf-workflow`）：新增 `hf-release` 作为**独立 standalone 工具型 skill**，把多个已 `workflow-closeout` 的 feature 汇总成 vX.Y.Z **engineer-level release**（版本切片 + release-wide regression + docs aggregation + tag readiness pack）。**不**改主链 FSM；**不**进 `hf-workflow-router` transition map；**不**做部署 / staged rollout / 监控 / 回滚（仍归 v0.5+ planned `hf-shipping-and-launch`，**当前尚未实现**）。Slash 命令面从 6 → **7**：新增 `/release` direct invoke `hf-release`，不经 router。
+>
+> 完整范围决策见 [`docs/decisions/ADR-004-hf-release-skill.md`](docs/decisions/ADR-004-hf-release-skill.md)（9 项决策；与 ADR-003 D2 / D4 立场兼容——P-Honest 仍然成立，本版严格停在工程级 release，未把"代码合并 / 工程 closeout"伪装成"上线到生产"）。
+
+### Added
+
+- **`skills/hf-release/`** — release-tier 独立 skill：把 N 个 `workflow-closeout` 的 feature 汇总成 vX.Y.Z 工程级发版。Standalone，不依赖 `hf-workflow-router` / `hf-finalize` / `hf-regression-gate` / `hf-doc-freshness-gate` 在同一 session 跑过；read-only 消费各 feature 的 `closeout.md`，写入 `features/release-vX.Y.Z/release-pack.md` + `docs/decisions/ADR-NNN-release-scope-vX.Y.Z.md` + `CHANGELOG.md` 的 `[vX.Y.Z]` 段 + `docs/release-notes/vX.Y.Z.md`（按存在）。Workflow 11 步覆盖 entry-vs-recovery / 候选盘点 / scope ADR 起草 / SemVer 决策 / worktree 盘点 / release-wide regression（协议内联）/ cross-feature traceability 摘要 / pre-release engineering checklist / evidence matrix / release pack 产出 / interactive Final Confirmation。SKILL.md 通过 `audit-skill-anatomy.py` 全部检查（含 `Common Rationalizations` 必需段、禁 `和其他 Skill 的区别`、< 500 行预算）。配 3 份 references 模板（`release-scope-adr-template.md` / `pre-release-engineering-checklist.md` / `release-pack-template.md`）+ `evals/` baseline 4 条用例。(ADR-004 D1, D2, D3, D5, D6, D7)
+- **`.claude/commands/release.md`** — 第 7 条 Claude Code slash 命令。语义与既有 6 条不同：**direct invoke** `skills/hf-release/SKILL.md`，**不**先经 `using-hf-workflow` → `hf-workflow-router`（与 `/spec` / `/plan` / `/build` / `/review` / `/ship` 的"router-first"模式区分）。命令体明列 11 步 workflow 简版 + Hard rules（standalone、engineer-level only、no auto git tag、no ops actions）。OpenCode / Cursor **不**注册等价 slash 命令文件——延续 ADR-001 D3 + ADR-003 D6 立场，那两家走 NL + entry shell 触发。(ADR-004 D4)
+- **`docs/decisions/ADR-004-hf-release-skill.md`** — v0.4.0 完整范围决策；2026-05-09 锁定 9 项决策（D1 引入 `hf-release` / D2 与 `hf-shipping-and-launch` 正交不替代 / D3 完全解耦于 router / D4 新增 `/release` slash 命令 / D5 standalone 不依赖任何上游 skill 已运行 / D6 release-tier 工件目录用 `features/release-vX.Y.Z/` / D7 内置 SemVer + pre-release 默认 / D8 v0.4.0 仍是 pre-release / D9 不刷新 `examples/writeonce/` demo evidence trail）。
+
+### Changed
+
+- **`.claude-plugin/plugin.json`** — `version` 从 `0.3.0` 升级到 `0.4.0`。
+- **`.claude-plugin/marketplace.json`** — plugin description 从 23 hf-* 升级到 24 hf-*，加入 `release (hf-release, v0.4.0)` 条目，并显式说明"engineer-level release; deployment / staged rollout / monitoring / rollback remain v0.5+ planned `hf-shipping-and-launch`"。
+- **`skills/using-hf-workflow/SKILL.md`** — § 5 entry bias 表加 1 行（"切版本 / 出 release / 打 tag / 发版本号" → direct invoke `hf-release`）；`Boundary With Product Skills` 段加 1 行说明（`hf-release` 是 release-tier 独立 skill，不进 coding family / discovery family 主链，不进 router transition map；entry shell 加这一行只用于"用户表达切版本意图时直接 direct invoke"）。**审视过 router 不动**：`skills/hf-workflow-router/references/profile-node-and-transition-map.md` 不改、`skills/hf-finalize/SKILL.md` 不改、`skills/hf-regression-gate/SKILL.md` 不改、`skills/hf-doc-freshness-gate/SKILL.md` 不改——release-wide regression 协议与 sync-on-presence 协议**内联**到 `hf-release` 自己（D3 / D5）。
+- **`README.md` + `README.zh-CN.md`** — Scope Note 升级到 v0.4.0；Slash 命令表从 6 → 7（新增 `/release` 行）；skill 数 23 → 24；项目概览 / Workflow Shape 段对照说明 `hf-release` 为 release-tier 独立 skill 不进主链；"What is NOT included" 调整：`hf-shipping-and-launch` 仍延后到 v0.5+，但 `hf-release` 从延后清单移除。
+- **`docs/claude-code-setup.md`** — 顶部句子 v0.3.0 → v0.4.0；Scope Note 重写为 v0.4.0（3 客户端不变、24 skills、新增 `/release` 命令、`hf-shipping-and-launch` 仍 v0.5+ planned）；Slash 命令章节加 `/release` 行；§ 4 "What is NOT included in v0.3.0" → "v0.4.0"，6 ops skill 修订为 5 + 1 deferred-but-renamed（`hf-release` 已落地，剩余 5 项 ops skill 仍延后）；§ 6 cross-references 加 ADR-004。
+- **`docs/opencode-setup.md`** — 顶部句子 + Scope Note v0.3.0 → v0.4.0；`/skills` 验证清单 23 → 24（追加 `hf-release`）；NL intent → node 映射加"切版本 / 出 release"行直指 `hf-release`（**direct invoke**，不经 router）；§ 7 "What is NOT included" 同步 v0.4.0 措辞；§ 8 cross-references 加 ADR-004。
+- **`docs/cursor-setup.md`** — 同形改动：顶部、Scope Note、`.cursor/rules/harness-flow.mdc` 解读段、§ 4 NL intent → router 映射加"切版本 / 出 release"行直指 `hf-release`、§ 6 "What is NOT included in v0.3.0" → "v0.4.0"、§ 7 cross-references 加 ADR-004。
+- **`.cursor/rules/harness-flow.mdc`** — `Scope honesty` 段更新到 v0.4.0：声明 v0.4.0 引入了 `hf-release` 作为 release-tier 独立 skill，**不**进主链；剩余 5 项 ops/release skills（`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`）继续延后到 v0.5+ roadmap（ADR-004 D2）；3 deferred personas + 4 deferred clients 立场不变。
+- **`SECURITY.md`** — Supported Versions 表加 `0.4.x` 行；`0.3.x` 降级为 security-only；`0.2.x` 降级为 older；out-of-scope 段对 ADR 的引用补全为 ADR-001 D1 + ADR-002 D1 + ADR-003 D2 + ADR-004 D2。
+- **`CONTRIBUTING.md`** — 引言版本号 `v0.3.0` → `v0.4.0` + Scope Note 文案更新（24 skills、`/release` 命令、`hf-shipping-and-launch` 仍 v0.5+ planned）；Will accept / Will defer 段补 ADR-004 与 v0.5+ 引用；feature_request 提示从 ADR-003 改成 ADR-004 first。
+
+### Decided
+
+- **v0.4.0 仍是 pre-release** on GitHub Releases。理由：主链覆盖未达 100%（仍缺 5 项 ops/release skill；ADR-004 D2 显式不补）；客户端面无变化（仍 3 家）；与 ADR-001 D6 / ADR-002 D6 / ADR-003 D5 同向，版本号不跨 v1.0。(ADR-004 D8)
+- **`hf-release` 与 `hf-shipping-and-launch` 正交，不替代。** `hf-release` 处理"版本切片"（多 feature → vX.Y.Z + 全量回归 + 发布文档聚合）；`hf-shipping-and-launch`（v0.5+ planned，**当前尚未实现**）处理"上线时刻"（feature flag / staged rollout / 监控 / 回滚）。两者解决的工程问题不同，合并违反 `docs/principles/skill-anatomy.md` 一个 skill 一个 concern 立场。(ADR-004 D2)
+- **`hf-release` 完全解耦于 `hf-workflow-router`。** 不进 transition map，不修改主链 FSM，不与 `hf-finalize` / `hf-regression-gate` / `hf-doc-freshness-gate` 互引；release-wide regression 协议与 sync-on-presence 协议**内联**到 `hf-release` 自身。(ADR-004 D3, D5)
+- **`/release` 命令在 Claude Code 注册；OpenCode / Cursor 不注册等价 slash 命令文件。** 沿用 ADR-001 D3 + ADR-003 D6 立场（OpenCode / Cursor 走 NL + entry shell）。(ADR-004 D4)
+- **release-tier 工件目录用 `features/release-vX.Y.Z/`。** 与 router 既有 `features/<active>/` 路径假设兼容；不引入新顶级目录扩大工作面承诺。(ADR-004 D6)
+- **`hf-release` 内置 SemVer + pre-release 默认策略，但允许项目级覆盖。** 默认沿用 ADR-001 D6 / ADR-002 D6 / ADR-003 D5 "主链未达 100% 时勾 pre-release" 立场；项目可在自家 guidelines / `CONTRIBUTING.md` 中显式声明 CalVer / 项目自定义版本策略。(ADR-004 D7)
+- **不刷新 `examples/writeonce/` demo evidence trail。** 与 ADR-003 D10 同向；`hf-release` 是 standalone skill 不进主链，writeonce demo 没有自然演示位；强加 refresh 段是空洞的版本号同步。(ADR-004 D9)
+- **官方支持客户端仍为 Claude Code + OpenCode + Cursor（3 家）。** 其余 4 家（Gemini CLI / Windsurf / GitHub Copilot / Kiro）继续延后到 v0.5+。
+
+### Deferred (to v0.5+)
+
+- 6 项原 deferred ops/release skills（`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`）**全部**继续延后到 v0.5+。v0.4.0 新增的 `hf-release` 是**新 skill**（不在原 6 项 deferred 列表中），覆盖"工程级版本切片"切面（多 feature 汇总 / scope ADR / release-wide regression / 发布文档聚合 / tag readiness）；它**不**替代 `hf-shipping-and-launch`，二者正交（前者管"版本切片"，后者管"上线时刻"）。与 ADR-001 D1 / ADR-002 D1 / ADR-003 D2 / ADR-004 D2 一致。
+- 4 家剩余客户端扩展（Gemini CLI / Windsurf / GitHub Copilot / Kiro）+ Gemini CLI 的 6+1 条 slash 命令。
+- 3 个 user-facing personas（`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`）+ `agents/` 命名空间约定 + `docs/principles/persona-anatomy.md`。
+- 真实环境 install smoke 硬门禁（视客户端面铺开节奏 / 真实事故触发再启动）。
+- `docs/principles/` 其它段落升级为合规基线（继续保持 ADR-001 D11 "设计参考" 性质）。
+- `audit-skill-anatomy.py` 升级为 hard gate（视 SKILL.md 漂移率）。
+- `examples/writeonce/` demo evidence trail 下次主链节点变更或 release-tier dogfood 同步触发。
+
+### Notes
+
+- v0.4.0 是 v0.3.0 之后的第一个 minor release，体现"先把客户端面收敛、再把 release-tier 切片做出来"的节奏：v0.1.0 → v0.2.0 是质量纪律内核硬化（`hf-browser-testing` + audit advisory + `Common Rationalizations` 合规基线）；v0.3.0 是单客户端扩张（Cursor，2 → 3 家）；v0.4.0 首次扩 skill 集合（23 → 24）但限制为 release-tier 独立 skill。
+- `hf-release` 起草借鉴了 `addyosmani/agent-skills` 的 `shipping-and-launch` SKILL anatomy 风格（process 分小节 + verification 前后两段 + red flags + rationalizations），但内容上严格停在工程级 release。`addyosmani/shipping-and-launch` 对应的 HF 等价物是 v0.5+ planned `hf-shipping-and-launch`（**当前尚未实现**），与 `hf-release` 正交。
+- `hf-release` 第一次为 standalone 工具型 skill 在 entry shell 开 direct invoke 通道（既有 `using-hf-workflow` § 5 entry bias 表的 6 行均涉及 router-first；本次新增第 7 行直 direct invoke `hf-release`）。这是"分类器层" vs "runtime FSM 层"的明确分离——entry shell 仍只识别意图、分流给正确 leaf skill，不替代 router 做任何 authoritative routing。
+- 本 release 是新 skill + 1 条命令 + entry shell 1 行 patch + 元数据 / 文档同步，工作面规模与 v0.3.0 patch 量级相当；不涉及主链 FSM 编辑、router transition map 编辑、demo 工件刷新。
+- v0.4.0 GA 之后，HF 自身的下一次发版可以用 `hf-release` 走通自举（dogfood）；首次 dogfood 需手工对照 ADR-001/002/003/004 模板做，验证 `references/release-scope-adr-template.md` 实战可用。
+
 ## [0.3.0] - 2026-05-09 — pre-release
 
 > **Third public release.** Marked as a **pre-release** on GitHub Releases.
@@ -237,7 +293,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.4.0
 [0.3.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.3.0
 [0.2.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.2.1
 [0.2.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.2.0
