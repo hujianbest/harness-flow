@@ -8,6 +8,65 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 （无）
 
+## [0.3.0] - 2026-05-09 — pre-release
+
+> **Third public release.** Marked as a **pre-release** on GitHub Releases.
+>
+> v0.3.0 is a **single-client-expansion** release. 在 v0.2.1 基础上把 **Cursor** 加入正式支持的客户端列表（成为第 3 家），**不**新增任何 `hf-*` skill，**不**引入 personas，**不**改主链 FSM。Skill 集合保持 23 `hf-*` + `using-hf-workflow` 不变；主链终点保持 `hf-finalize` 不变；其余 4 家延后客户端（Gemini CLI / Windsurf / GitHub Copilot / Kiro）继续延后到 v0.4+。
+>
+> 完整范围决策见 [`docs/decisions/ADR-003-release-scope-v0.3.0.md`](docs/decisions/ADR-003-release-scope-v0.3.0.md)（10 项决策；与 ADR-002 D11 同向，"窄而硬，一次进一家"）。
+
+### Added
+
+- **`.cursor/rules/harness-flow.mdc`** — Cursor 入口规则，frontmatter `alwaysApply: true`。每次 Cursor 会话自动加载，告诉 agent 把 `skills/using-hf-workflow/SKILL.md` 作为入口 shell 加载、在意图模糊时切换到 `skills/hf-workflow-router/SKILL.md`，并执行 HF 的 hard rules（One Current Active Task / 评审与门禁是 first-class 节点 / evidence-based routing / Fagan 作者-评审分离）。文件附带 scope-honesty 段：v0.3.0 没有改主链、没加新 skill、没引入 personas。(ADR-003 D1, D6)
+- **`docs/cursor-setup.md`** — Cursor 集成完整 setup 文档（109 行起），同形于 `docs/claude-code-setup.md` 与 `docs/opencode-setup.md`：
+  - § 1 install：A. clone-and-open 本仓库；B. vendor 到自己项目（`.cursor/rules/` + `skills/` 软链接）
+  - § 2 the shipped rule：解释 `.cursor/rules/harness-flow.mdc` 干什么 / 为什么不要替换为 cheatsheet
+  - § 3 verify：first prompt + 期望路由行为
+  - § 4 NL intent → router 映射（9 行表，含 `hf-browser-testing`）
+  - § 5 troubleshooting（7 行表）
+  - § 6 What is NOT included in v0.3.0（明列 6 ops skill / 4 延后客户端 / 3 personas / install smoke 不是硬门禁）
+  - § 7 cross-references（ADR-003 + ADR-002 + ADR-001 + 其他 setup 文档 + Cursor rules 官方文档）
+- **`docs/decisions/ADR-003-release-scope-v0.3.0.md`** — v0.3.0 完整范围决策；2026-05-09 锁定 10 项决策（D1 仅引入 Cursor / D2 不引入新 skill / D3 不引入 personas / D4 主链终点不变 / D5 仍是 pre-release / D6 Cursor 走 NL + router 不注册 slash 命令 / D7 不增设 install smoke 硬门禁 / D8 audit 仍是 advisory / D9 docs/principles/ 仍是设计参考 / D10 不刷新 demo evidence trail）。
+
+### Changed
+
+- **`.claude-plugin/plugin.json`** — `version` 从 `0.2.1` 升级到 `0.3.0`。
+- **`.claude-plugin/marketplace.json`** — plugin description 末尾追加："v0.3.0 adds Cursor as the third officially-supported client (Claude Code + OpenCode + Cursor)"，skill 数 23 不变。
+- **`README.md` + `README.zh-CN.md`** — Scope Note 升级到 v0.3.0 pre-release（3 客户端：Claude Code + OpenCode + Cursor）；Installation 段头部从"两条路径 / Both paths"改为"三条路径 / All three paths"；新增 `### Cursor (new in v0.3.0)` / `### Cursor（v0.3.0 新增）` 子段；"Other clients (deferred)" 子段从 v0.2+ → v0.4+，列表从 5 家改为 4 家（Cursor 移出延后列表）；Slash Commands 段尾追加"OpenCode and Cursor do not ship slash command files"说明（ADR-003 D6）。`README.zh-CN.md` 顺手修复 v0.2.0 sync 时漏掉的一处 `22 个 hf-*` → `23 个 hf-*`（OpenCode `/skills` 验证行；英文 README 在 v0.2.0 时已修复）。
+- **`docs/claude-code-setup.md`** — 顶部句子 v0.2.0 → v0.3.0；Scope Note 重写为 v0.3.0（3 客户端，4 家延后）；§ 4 "What is NOT included in v0.2.0" → "v0.3.0"，"No 5-client expansion" → "No 4-client expansion"，Cursor 从延后列表移除；§ 6 cross-references 加 ADR-003 与 cursor-setup.md。
+- **`docs/opencode-setup.md`** — 同形改动：顶部句子、Scope Note、§ 7 "What is NOT included in v0.3.0"、§ 8 cross-references 加 ADR-003 与 cursor-setup.md。
+- **`SECURITY.md`** — Scope 段 setup 文档列表加 `docs/cursor-setup.md` + `.cursor/rules/harness-flow.mdc`；Supported Versions 表加 `0.3.x` 行，`0.2.x` 降级为 security-only，`0.1.x` 降级为 older；out-of-scope 段对 ADR 的引用补全为 ADR-001 D1 + ADR-002 D1 + ADR-003 D2。
+- **`CONTRIBUTING.md`** — 引言版本号 `v0.2.0` → `v0.3.0` + Scope Note 文案更新（Cursor + "no new skills, no personas"）；Will accept / Will defer 段补 ADR-003 与 v0.4+ 引用；新增 personas 行（ADR-002 D11 + ADR-003 D3 延后到 v0.4+）；Known Limitations 段重写：CI 仍是 v0.4+ work item、audit script advisory（ADR-002 D5 + ADR-003 D8）、install smoke 不是硬门禁（ADR-003 D7）；feature_request 提示从 ADR-001 改成 ADR-003 first。
+
+### Decided
+
+- **v0.3.0 仍是 pre-release** on GitHub Releases。理由同 ADR-001 D6 / ADR-002 D6：主链未达 100%（仍缺 6 项 ops；ADR-003 D2 显式不补）；客户端面只增加 1 家（2 → 3）不构成 GA 信号。(ADR-003 D5)
+- **官方支持客户端为 Claude Code + OpenCode + Cursor（3 家）。** 其余 4 家（Gemini CLI / Windsurf / GitHub Copilot / Kiro）继续延后到 v0.4+。沿用 ADR-002 D11 "一次进一家" 立场——v0.3.0 先把 Cursor 落地，其余客户端待真实使用反馈成熟后再批量进。(ADR-003 D1)
+- **主链终点仍是 `hf-finalize`**。v0.3.0 不引入任何新主链节点。(ADR-003 D2, D4)
+- **Cursor 集成走 rules-based 路径，不注册 Cursor slash 命令。** 与 OpenCode 一致采取 NL + router 模型；Claude Code 的 6 条短 slash 命令（ADR-001 D4）是 Claude-Code-specific 历史决策，不向 Cursor 复制。(ADR-003 D6)
+- **不增设真实环境 install smoke 硬门禁。** 沿用 ADR-002 D11 撤回 D3 的判断；3 家客户端仍然是 maintainer 自验范围；Cursor 路径承担与 v0.1.x stabilization "Known Limitations" 相同的"已知缺口"性质（cloud agent VM 无 Cursor binary）。(ADR-003 D7)
+- **`audit-skill-anatomy.py` 仍是 advisory**（不升级为 hard gate；ADR-003 D8）。
+- **`docs/principles/` 其余段落继续保持 "设计参考" 性质**（ADR-001 D11 + ADR-002 D10 + ADR-003 D9）；`Common Rationalizations`（必需）+ `和其他 Skill 的区别`（禁止）两节是 v0.2.0 起的硬规则，v0.3.0 不扩展硬规则面。
+- **不刷新 `examples/writeonce/` demo evidence trail。** v0.3.0 没有新主链节点 / 没改 skill 集合 / 没改 SKILL.md 内容；按 ADR-001 D9 "demo deliverable is the trail of HF main-chain artifacts" 立场，没有新工件可加，强加 refresh 段会是空洞的版本号同步。(ADR-003 D10)
+
+### Deferred (to v0.4+)
+
+- 6 项剩余 ops/release skills（`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`）—与 ADR-001 D1 / ADR-002 D1 / ADR-003 D2 一致。
+- 4 家剩余客户端扩展（Gemini CLI / Windsurf / GitHub Copilot / Kiro）+ Gemini CLI 的 6 条 slash 命令（含原 `/plan` → `/planning` 重命名）。ADR-002 D11 撤回的 R3 实现 commit `18b1d99` / `0c93809` 在 v0.3.0 仅取 Cursor 部分手工摘出复用，其余 4 家继续在 git 历史中等待 v0.4+ cherry-pick。
+- 3 个 user-facing personas（`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`）+ `agents/` 命名空间约定 + `docs/principles/persona-anatomy.md`。ADR-002 D11 撤回的 D4 / D8 在 v0.3.0 继续延后；R4 实现 commit `560ac26` 同样保留在历史中等待 v0.4+ cherry-pick。
+- 真实环境 install smoke 硬门禁（视客户端面铺开节奏 / 真实事故触发再启动）。
+- `docs/principles/` 其它段落升级为合规基线（继续保持 ADR-001 D11 "设计参考" 性质）。
+- `audit-skill-anatomy.py` 升级为 hard gate（视 SKILL.md 漂移率）。
+- `examples/writeonce/` demo evidence trail 下次主链节点变更时同步触发。
+
+### Notes
+
+- v0.3.0 是 v0.2.1 之后的第一个 minor release，体现"一次进一家"的客户端铺开节奏：v0.1.0 起步 2 家（Claude Code + OpenCode），v0.3.0 加 1 家（Cursor → 3 家），v0.4+ 视真实使用反馈再决定下一家。
+- Cursor 集成内容（`docs/cursor-setup.md` + `.cursor/rules/harness-flow.mdc`）的种子来源是 ADR-002 R3 的 commit `18b1d99`（被 D11 撤回）。v0.3.0 选择手工摘 Cursor 部分 + 重写文案匹配 v0.3.0 承诺面（3 客户端、ADR-003 而非 ADR-002 D2）；未做 git cherry-pick，因为原 R3 commit 同时引入 5 客户端 + 5 份 setup 文档，整 cherry-pick 会带入 4 家不需要的工件。
+- v0.2.1 的两个 install bug（marketplace SSH 默认 + name-collision）是 Claude Code 一家的，与 Cursor 集成正交；它们已经在 v0.2.1 修复，并在 `docs/claude-code-setup.md` 留下了恢复说明。Cursor 自己的真实环境 install smoke 仍是 known limitation（ADR-003 D7）。
+- 本 release 是 doc-and-metadata-only 加 1 个 Cursor rule 文件，工作面规模与 v0.2.1 patch 量级相当；不涉及 SKILL.md 内容编辑、router profile-node 表编辑、demo 工件刷新。
+
 ## [0.2.1] - 2026-05-07 — pre-release patch
 
 > **Docs-and-metadata-only patch.** No skill content changes, no behavior changes, no API changes. Fixes **two install-blocking bugs** discovered during real-environment smoke against the v0.2.0 tag (Claude Code marketplace SSH default + marketplace/plugin name collision), and syncs three stale-metadata items that v0.2.0 GA shipped with.
@@ -178,7 +237,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.3.0
 [0.2.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.2.1
 [0.2.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.2.0
 [0.1.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.1.0
