@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content="hf-finalize render-closeout-html.py" />
+<title>Closeout · 001-walking-skeleton</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --bg-elev: #1e293b;
+  --bg-elev-2: #273449;
+  --fg: #e2e8f0;
+  --fg-mute: #94a3b8;
+  --accent: #38bdf8;
+  --accent-2: #818cf8;
+  --ok: #22c55e;
+  --warn: #f59e0b;
+  --err: #ef4444;
+  --na: #64748b;
+  --border: #334155;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f8fafc;
+    --bg-elev: #ffffff;
+    --bg-elev-2: #f1f5f9;
+    --fg: #0f172a;
+    --fg-mute: #475569;
+    --accent: #0284c7;
+    --accent-2: #4f46e5;
+    --border: #e2e8f0;
+    --shadow: 0 4px 24px rgba(15,23,42,0.08);
+  }
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+header.hero {
+  background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+header.hero h1 {
+  margin: 0 0 8px; font-size: 22px; font-weight: 600;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+header.hero .subtitle { color: var(--fg-mute); font-size: 13px; }
+header.hero .conclusion {
+  margin-top: 14px; padding: 12px 14px;
+  background: var(--bg); border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+}
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; line-height: 1.6;
+  background: var(--bg-elev-2); color: var(--fg);
+  border: 1px solid var(--border);
+}
+.badge.workflow-closeout { background: rgba(34,197,94,0.15); color: #4ade80; border-color: rgba(34,197,94,0.4); }
+.badge.task-closeout    { background: rgba(56,189,248,0.15); color: var(--accent); border-color: rgba(56,189,248,0.4); }
+.badge.blocked          { background: rgba(239,68,68,0.15);  color: #f87171; border-color: rgba(239,68,68,0.4); }
+.badge.unknown          { background: rgba(100,116,139,0.15); color: var(--fg-mute); border-color: var(--border); }
+.badge.status-present { background: rgba(34,197,94,0.15); color: #4ade80; border-color: rgba(34,197,94,0.4); }
+.badge.status-na      { background: rgba(100,116,139,0.15); color: var(--fg-mute); border-color: var(--border); }
+.badge.status-missing { background: rgba(239,68,68,0.15);  color: #f87171; border-color: rgba(239,68,68,0.4); }
+.badge.status-unknown { background: rgba(245,158,11,0.15); color: var(--warn); border-color: rgba(245,158,11,0.4); }
+
+.grid { display: grid; gap: 20px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+section.panel {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+section.panel > h2 {
+  margin: 0 0 14px; font-size: 15px; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+section.panel > h2 .count { color: var(--fg-mute); font-weight: 400; font-size: 12px; }
+
+dl.kv { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+dl.kv dt { color: var(--fg-mute); font-size: 12px; }
+dl.kv dd { margin: 0; font-size: 13px; word-break: break-word; }
+dl.kv dd code { background: var(--bg-elev-2); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+ul.assets { list-style: none; padding: 0; margin: 0; }
+ul.assets li {
+  padding: 6px 10px; background: var(--bg-elev-2);
+  border-radius: var(--radius-sm); margin-bottom: 6px;
+  font-size: 12.5px; word-break: break-word;
+}
+ul.assets li code { background: transparent; padding: 0; }
+
+ul.notes { padding-left: 18px; margin: 0; }
+ul.notes li { margin-bottom: 6px; font-size: 13px; }
+
+table.evidence {
+  width: 100%; border-collapse: collapse; font-size: 12.5px;
+}
+table.evidence th, table.evidence td {
+  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+table.evidence th {
+  background: var(--bg-elev-2); color: var(--fg-mute); font-weight: 500;
+  cursor: pointer; user-select: none;
+}
+table.evidence th.sorted-asc::after { content: "  \25B2"; }
+table.evidence th.sorted-desc::after { content: "  \25BC"; }
+table.evidence td code { font-size: 12px; }
+table.evidence tr.hidden { display: none; }
+
+.evidence-toolbar {
+  display: flex; gap: 12px; align-items: center;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.evidence-toolbar input[type="search"] {
+  flex: 1 1 220px; padding: 6px 10px;
+  background: var(--bg-elev-2); color: var(--fg);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+.evidence-toolbar select {
+  padding: 6px 10px; background: var(--bg-elev-2); color: var(--fg);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.timeline {
+  display: flex; gap: 0; flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: var(--bg-elev-2);
+}
+.timeline .node {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; margin: 4px 4px;
+  background: var(--bg-elev); border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 12.5px;
+  position: relative;
+}
+.timeline .node .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ok);
+}
+.timeline .node.na .dot { background: var(--na); }
+.timeline .node.missing .dot { background: var(--err); }
+.timeline .node .label { font-weight: 500; }
+.timeline .node .id { color: var(--fg-mute); font-size: 11px; }
+.timeline .node .arrow {
+  color: var(--fg-mute); margin: 0 4px;
+}
+
+.cov-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 540px) { .cov-grid { grid-template-columns: 1fr; } }
+.cov-item .row { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg-mute); margin-bottom: 4px; }
+.cov-item .bar {
+  height: 10px; background: var(--bg-elev-2);
+  border-radius: 999px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.cov-item .bar > span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
+}
+.cov-item .bar > span.low { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+.cov-item .bar > span.med { background: linear-gradient(90deg, #facc15, #f59e0b); }
+.cov-item .bar > span.high { background: linear-gradient(90deg, #22c55e, #38bdf8); }
+
+.empty {
+  padding: 16px; color: var(--fg-mute); font-size: 13px;
+  border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.tests-summary {
+  display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;
+}
+.stat-pill {
+  flex: 1 1 140px; min-width: 120px;
+  padding: 12px 14px; background: var(--bg-elev-2);
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
+.stat-pill .num { font-size: 22px; font-weight: 700; color: var(--fg); }
+.stat-pill .lbl { color: var(--fg-mute); font-size: 12px; margin-top: 2px; }
+
+footer.meta {
+  margin-top: 24px; color: var(--fg-mute); font-size: 12px;
+  text-align: center;
+}
+footer.meta a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>
+    <span>Closeout 报告</span>
+    <span class="badge workflow-closeout">workflow-closeout</span>
+  </h1>
+  <div class="subtitle">
+    Feature: <code>001-walking-skeleton</code>
+    <span style="margin: 0 8px;">·</span>
+    Generated: 2026-05-09 16:19
+  </div>
+  <div class="conclusion">
+    <strong>Conclusion · </strong>通过。HF 主链 16 节点全部留下可回读工件；walking-skeleton 实现 + 23 测试全绿；HF 根文档已同步引用 demo。
+  </div>
+</header>
+
+
+<section class="panel">
+  <h2>Workflow Trace <span class="count">19 节点</span></h2>
+  <div class="timeline"><div class="node present"><span class="dot"></span><span class="label">产品发现</span><span class="id">hf-product-discovery</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">发现评审</span><span class="id">hf-discovery-review</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">规格</span><span class="id">hf-specify</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">规格评审</span><span class="id">hf-spec-review</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">设计</span><span class="id">hf-design</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">设计评审</span><span class="id">hf-design-review</span></div><div class="arrow">→</div><div class="node na"><span class="dot"></span><span class="label">UI 设计</span><span class="id">hf-ui-design</span></div><div class="arrow">→</div><div class="node na"><span class="dot"></span><span class="label">UI 评审</span><span class="id">hf-ui-review</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">任务拆分</span><span class="id">hf-tasks</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">任务评审</span><span class="id">hf-tasks-review</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">TDD 实现</span><span class="id">hf-test-driven-dev</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">测试评审</span><span class="id">hf-test-review</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">代码评审</span><span class="id">hf-code-review</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">可追溯评审</span><span class="id">hf-traceability-review</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">浏览器测试</span><span class="id">hf-browser-testing</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">回归 gate</span><span class="id">hf-regression-gate</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">文档 gate</span><span class="id">hf-doc-freshness-gate</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">完成 gate</span><span class="id">hf-completion-gate</span></div><div class="arrow">→</div><div class="node present"><span class="dot"></span><span class="label">Finalize</span><span class="id">hf-finalize</span></div></div>
+</section>
+
+
+<section class="panel">
+  <h2>Summary</h2>
+  <dl class="kv"><dt>Closeout Type</dt><dd>workflow-closeout</dd><dt>Scope</dt><dd>整个 `001-walking-skeleton` feature（v0.1.0 demo 唯一 feature）</dd><dt>Completion Record</dt><dd>verification/completion-task-001.md</dd><dt>Regression Record</dt><dd>verification/regression-2026-04-29.md</dd></dl>
+</section>
+
+
+<section class="panel">
+  <h2>Tests &amp; Coverage</h2>
+  <div class="tests-summary"><div class="stat-pill"><div class="num">23/23</div><div class="lbl">Tests Passed</div></div><div class="stat-pill"><div class="num">6/6</div><div class="lbl">Test Files</div></div><div class="stat-pill"><div class="num">367 ms</div><div class="lbl">Duration</div></div><div class="stat-pill"><div class="num">100.0%</div><div class="lbl">Pass Rate</div></div></div>
+  <div class="subtitle" style="color:var(--fg-mute); font-size:12px;">数据源：<code>evidence/regression-2026-04-29.log</code></div>
+  <div class="empty" style="margin-top: 12px;">未提供覆盖率数据。在 verification/coverage.json 或 evidence 日志中带上 Lines/Statements/Functions/Branches 即可。</div>
+</section>
+
+
+<section class="panel">
+  <h2>Evidence Matrix <span class="count">30 条</span></h2>
+  <div class="evidence-toolbar">
+    <input id="evidence-search" type="search" placeholder="搜索工件、路径、备注…" />
+    <select id="evidence-status">
+      <option value="">全部状态</option>
+      <option value="present">present</option>
+      <option value="na">N/A</option>
+      <option value="missing">missing</option>
+      <option value="unknown">未识别</option>
+    </select>
+  </div>
+  <table class="evidence">
+    <thead>
+      <tr>
+        <th>Artifact</th><th>Record Path</th><th>Status</th><th>Notes</th>
+      </tr>
+    </thead>
+    <tbody><tr data-status="present"><td>Discovery draft</td><td><code>examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md</code></td><td><span class="badge status-present">present</span></td><td>状态：已批准</td></tr><tr data-status="present"><td>Spec bridge</td><td><code>examples/writeonce/docs/insights/2026-04-29-writeonce-spec-bridge.md</code></td><td><span class="badge status-present">present</span></td><td>状态：已批准</td></tr><tr data-status="present"><td>Discovery review</td><td><code>reviews/discovery-review-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Discovery approval</td><td><code>approvals/discovery-approval-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>Approved</td></tr><tr data-status="present"><td>Spec</td><td><code>spec.md</code></td><td><span class="badge status-present">present</span></td><td>状态：已批准</td></tr><tr data-status="present"><td>Spec review</td><td><code>reviews/spec-review-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Spec approval</td><td><code>approvals/spec-approval-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>Approved</td></tr><tr data-status="present"><td>Design</td><td><code>design.md</code></td><td><span class="badge status-present">present</span></td><td>状态：已批准</td></tr><tr data-status="present"><td>Design review</td><td><code>reviews/design-review-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Design approval</td><td><code>approvals/design-approval-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>Approved</td></tr><tr data-status="na"><td>UI design / UI review</td><td><code>—</code></td><td><span class="badge status-na">N/A (profile skipped)</span></td><td>spec 未声明 UI surface</td></tr><tr data-status="present"><td>Tasks</td><td><code>tasks.md</code></td><td><span class="badge status-present">present</span></td><td>状态：已批准</td></tr><tr data-status="present"><td>Tasks review</td><td><code>reviews/tasks-review-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Tasks approval</td><td><code>approvals/tasks-approval-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>Approved</td></tr><tr data-status="present"><td>Contracts</td><td><code>contracts/platform-adapter.contract.md</code></td><td><span class="badge status-present">present</span></td><td>草稿（与代码同步生效）</td></tr><tr data-status="present"><td>Source code</td><td><code>examples/writeonce/src/**</code></td><td><span class="badge status-present">present</span></td><td>7 文件</td></tr><tr data-status="present"><td>Test code</td><td><code>examples/writeonce/test/**</code></td><td><span class="badge status-present">present</span></td><td>6 文件 / 23 cases</td></tr><tr data-status="present"><td>RED evidence</td><td><code>evidence/task-001-red.log</code></td><td><span class="badge status-present">present</span></td><td>6 suite 全部 import 失败（源码不存在）</td></tr><tr data-status="present"><td>GREEN evidence</td><td><code>evidence/task-001-green.log</code></td><td><span class="badge status-present">present</span></td><td>23/23 通过</td></tr><tr data-status="present"><td>Regression evidence</td><td><code>evidence/regression-2026-04-29.log</code></td><td><span class="badge status-present">present</span></td><td>复跑 23/23 通过</td></tr><tr data-status="present"><td>Test review (T1)</td><td><code>reviews/test-review-task-001.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Code review (T1)</td><td><code>reviews/code-review-task-001.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Traceability review</td><td><code>reviews/traceability-review.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Regression gate</td><td><code>verification/regression-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Doc-freshness gate</td><td><code>verification/doc-freshness-2026-04-29.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Completion gate</td><td><code>verification/completion-task-001.md</code></td><td><span class="badge status-present">present</span></td><td>通过</td></tr><tr data-status="present"><td>Browser testing activation check</td><td><code>verification/browser-testing-skip-2026-05-07.md</code></td><td><span class="badge status-present">present</span></td><td>SKIP（v0.2.0 节点；spec 未声明 UI surface 且 task 未触碰前端，激活规则 2/3 均不满足）</td></tr><tr data-status="present"><td>Demo CHANGELOG</td><td><code>examples/writeonce/CHANGELOG.md</code></td><td><span class="badge status-present">present</span></td><td>v0.1.0 段</td></tr><tr data-status="present"><td>Feature README</td><td><code>features/001-walking-skeleton/README.md</code></td><td><span class="badge status-present">present</span></td><td>状态总览已收口</td></tr><tr data-status="present"><td>Demo README</td><td><code>examples/writeonce/README.md</code></td><td><span class="badge status-present">present</span></td><td>含 Limits 段</td></tr></tbody>
+  </table>
+</section>
+
+
+<section class="panel">
+  <h2>State Sync</h2>
+  <dl class="kv"><dt>Current Stage</dt><dd>`null`（workflow 已 closeout）</dd><dt>Current Active Task</dt><dd>`task-001-completed`</dd><dt>Workspace Isolation</dt><dd>`in-place`</dd><dt>Worktree Path</dt><dd>N/A</dd><dt>Worktree Branch</dt><dd>`cursor/m6-writeonce-demo-87a5`</dd><dt>Worktree Disposition</dt><dd>`kept-for-pr`（M6 PR 合入 main 后销毁分支）</dd></dl>
+</section>
+
+
+<section class="panel">
+  <h2>Release / Docs Sync</h2>
+  <dl class="kv"><dt>Release Notes Path</dt><dd>`examples/writeonce/CHANGELOG.md`（demo 内部 v0.1.0 段）+ HF 仓库根 `CHANGELOG.md` v0.1.0 &quot;Quickstart demo (delivered)&quot; 段</dd><dt>CHANGELOG Path</dt><dd>HF 仓库根 `CHANGELOG.md`</dd><dt>Status Fields Synced</dt><dd></dd><dt>Index Updated</dt><dd>HF 根 `README.md` / `README.zh-CN.md` 通过新增 &quot;Quickstart Demo: WriteOnce&quot; 段补 demo 入口指针；HF 仓库目前是档 0/1，无独立 `docs/index.md`，由根 README 承担</dd></dl>
+  <h3 style="margin: 16px 0 8px; font-size: 13px; color: var(--fg-mute);">Updated Long-Term Assets (16)</h3><ul class="assets"><li>`examples/writeonce/docs/adr/0001-record-architecture-decisions.md`（status: accepted）</li><li>`examples/writeonce/docs/adr/0002-platform-adapter-as-extension-boundary.md`（status: accepted）</li><li>`examples/writeonce/docs/adr/0003-no-real-network-in-walking-skeleton.md`（status: accepted）</li><li>`examples/writeonce/CHANGELOG.md`（新建 + v0.1.0 段）</li><li>HF 根 `README.md` &quot;Quickstart Demo: WriteOnce&quot; 段</li><li>HF 根 `README.zh-CN.md` &quot;Quickstart Demo：WriteOnce&quot; 段</li><li>HF 根 `CHANGELOG.md` v0.1.0 &quot;Quickstart demo (delivered)&quot; 段</li><li>`.gitignore`（追加 `examples/writeonce/node_modules/` 等 4 行）</li><li>`docs/architecture.md` / `docs/arc42/` / `docs/runbooks/` / `docs/slo/` / `docs/postmortems/`：N/A（HF 仓库未启用；demo 未上生产）</li><li>`docs/index.md`：N/A（HF 仓库由根 `README.md` 承担导航；档 0 配置）</li><li>HF `docs/decisions/ADR-001-...md`：N/A（D9 子项 b 措辞由用户 2026-04-29 委托覆盖；ADR 文本不修改属&quot;按存在同步&quot;接受面，可后续补 housekeeping commit）</li><li>`examples/writeonce/features/001-walking-skeleton/spec.md` 状态：草稿 → 已批准</li><li>同上 `design.md`、`tasks.md`</li><li>3 个 ADR 的 status 字段：accepted（与设计 review 同节点完成时翻转）</li><li>feature `README.md` Status Snapshot 全部填写</li><li>feature `progress.md` Next Action Or Recommended Skill: `null`</li></ul>
+</section>
+
+
+<section class="panel">
+  <h2>Handoff</h2>
+  <dl class="kv"><dt>Remaining Approved Tasks</dt><dd>无（v0.1.0 demo 范围内）</dd><dt>Next Action Or Recommended Skill</dt><dd>`null`（workflow 已 closeout）</dd><dt>PR / Branch Status</dt><dd>本 closeout 由 `cursor/m6-writeonce-demo-87a5` 分支携带；提 PR 后等待合入 main；M7 在 main 上推 `v0.1.0` pre-release tag。</dd></dl>
+  <h3 style="margin: 16px 0 8px; font-size: 13px; color: var(--fg-mute);">Limits / Open Notes (4)</h3><ul class="notes"><li>demo 不真集成 Medium / Zhihu / WeChat MP；HTTP 走 RecordingHttpClient（ADR-0003）。</li><li>T2 / T3 / T4 列为 demo 内部 `v0.x backlog`，不阻塞 v0.1.0 demo closeout。</li><li>HF 根 README 新增的 &quot;Quickstart Demo&quot; 段是首次写出，没有走单独 review 节点；它属&quot;按存在同步&quot;的入口指针更新，文本质量风险接受范围内。如未来需要更严格的入口文档治理，可在 v0.x 引入&quot;README 入口段评审&quot;作为可选 review 节点。</li><li>HF `docs/decisions/ADR-001-...md` D9 子项 b 措辞与本次 demo 的实际产出方式（用户委托 cursor agent）有少量不同口径；非阻塞，建议作为 housekeeping 在 main 合入后由独立 PR 处理（文本仅措辞调整，不改决策）。</li></ul>
+</section>
+
+<footer class="meta">
+  HarnessFlow closeout report · 由 <code>scripts/render-closeout-html.py</code> 自 <code>001-walking-skeleton/closeout.md</code> 生成 ·
+  <a href="closeout.md">查看原始 Markdown</a>
+</footer>
+</div>
+<script>
+(function () {
+  var input = document.getElementById('evidence-search');
+  var sel = document.getElementById('evidence-status');
+  var table = document.querySelector('table.evidence');
+  if (!table) return;
+  var tbody = table.tBodies[0];
+  function applyFilter() {
+    var q = (input && input.value || '').trim().toLowerCase();
+    var s = sel && sel.value || '';
+    Array.prototype.forEach.call(tbody.rows, function (row) {
+      var text = row.textContent.toLowerCase();
+      var rowStatus = row.getAttribute('data-status') || '';
+      var matchQ = !q || text.indexOf(q) !== -1;
+      var matchS = !s || rowStatus === s;
+      row.classList.toggle('hidden', !(matchQ && matchS));
+    });
+  }
+  if (input) input.addEventListener('input', applyFilter);
+  if (sel) sel.addEventListener('change', applyFilter);
+
+  var headers = table.tHead ? table.tHead.rows[0].cells : [];
+  Array.prototype.forEach.call(headers, function (th, idx) {
+    th.addEventListener('click', function () {
+      var asc = !th.classList.contains('sorted-asc');
+      Array.prototype.forEach.call(headers, function (h) {
+        h.classList.remove('sorted-asc');
+        h.classList.remove('sorted-desc');
+      });
+      th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+      var rows = Array.prototype.slice.call(tbody.rows);
+      rows.sort(function (a, b) {
+        var av = a.cells[idx] ? a.cells[idx].textContent.trim().toLowerCase() : '';
+        var bv = b.cells[idx] ? b.cells[idx].textContent.trim().toLowerCase() : '';
+        if (av < bv) return asc ? -1 : 1;
+        if (av > bv) return asc ? 1 : -1;
+        return 0;
+      });
+      rows.forEach(function (r) { tbody.appendChild(r); });
+    });
+  });
+})();
+</script>
+</body>
+</html>
