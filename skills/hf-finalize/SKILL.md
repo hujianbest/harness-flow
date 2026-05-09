@@ -40,6 +40,7 @@ description: Use when completion gate already allows closeout and the remaining 
 - 无剩余 approved tasks 时，不得把下一步再写回 `hf-workflow-router`
 - `workflow closeout` 在 `interactive` 模式下必须先给出 closeout summary，再等真人确认后才把 next action 写成 `null`
 - 必须记录 worktree 最终 disposition
+- 落盘 `closeout.md` 后必须同时产出 `closeout.html` 视觉伴生报告（除非 closeout.md 自身因前置步骤判定不写入）
 
 ## Closeout Decision
 
@@ -155,6 +156,30 @@ Profile-aware 证据矩阵：
 - 当前 stage / active task / next action
 - 限制、未完成项、分支 / PR 状态
 
+### 6A. 产出 closeout HTML 工作总结报告
+
+`closeout.md` 是 canonical 机器可读契约，但对人类 reviewer 不够直观。Finalize 结束前**必须**额外产出一份 HTML 工作总结报告，作为 `closeout.md` 的视觉伴生文件：
+
+- 路径：`features/<active>/closeout.html`（与 `closeout.md` 同目录）
+- 生成方式：调用 `scripts/render-closeout-html.py <feature-dir>`（纯 Python stdlib，无外部依赖）
+- 内容：从 `closeout.md` + `evidence/*.log` + `verification/*.md` + `verification/coverage.json`（如存在）解析得到，自包含单文件，含嵌入式 CSS / 极小 JS，离线可读
+- 至少呈现：closeout 类型徽标 + conclusion / workflow trace 时间线 / tests & coverage 面板 / evidence matrix（可搜索可排序）/ state sync / release & docs sync / handoff & limits
+
+执行命令（默认）：
+
+```bash
+python3 scripts/render-closeout-html.py features/<active>/
+```
+
+判 `blocked` 的情况下也要尝试生成（HTML 自身能展示 blocked 徽标 + 缺失证据状态）；只有当 `closeout.md` 因前置步骤判定不写入时才跳过。
+
+覆盖率取数说明：
+- 优先读 `verification/coverage.json`（istanbul / vitest --coverage --reporter=json-summary 的 `total` 字段）
+- 否则从 `verification/*.md` 与 `evidence/*.log` 的 `Lines: 92.5%` / `Branches: 70%` / istanbul `All files | ...` 表格行中扫描
+- 全部缺失则在 HTML 中显式渲染"未提供覆盖率数据"，不阻塞 closeout
+
+不在 HTML 里塞新的事实：HTML 报告**只是渲染** `closeout.md` + 已落盘的 evidence，不允许引入 closeout pack 之外的新 conclusion / approval。
+
 ## Output Contract
 
 默认 closeout pack 结构：
@@ -222,7 +247,8 @@ Closeout type-specific 约束：
 
 | 文件 | 用途 |
 |------|------|
-| `references/finalize-closeout-pack-template.md` | closeout pack 模板 |
+| `references/finalize-closeout-pack-template.md` | closeout pack 模板（含 HTML 伴生报告字段说明） |
+| `scripts/render-closeout-html.py`（仓库根 `scripts/`） | 由 `closeout.md` + 旁路工件生成 `closeout.html` 视觉报告，纯 Python stdlib，自包含单文件输出 |
 | `hf-test-driven-dev/references/worktree-isolation.md` | worktree disposition 的收尾语义（不擅自删除；只记录 `kept-for-pr` / `cleaned-per-project-rule` / `in-place`） |
 
 ## Red Flags
@@ -237,6 +263,7 @@ Closeout type-specific 约束：
 - 把 closeout 后的 feature 目录移动到 `features/archived/`，破坏其它工件的反向引用
 - 用会话记忆代替 on-disk 记录
 - 忘记记录 worktree 最终 disposition
+- 只写 `closeout.md` 不生成 `closeout.html`，或在 HTML 里捏造 `closeout.md` 之外的 conclusion / 测试数据 / 覆盖率
 
 ## Common Rationalizations
 
@@ -259,6 +286,7 @@ Closeout type-specific 约束：
 - [ ] feature `README.md` 中 Closed / Closeout Type / Linked Long-Term Assets 等区块已更新
 - [ ] 未为项目当前未启用的可选资产（如档 0/1 没有的 `docs/slo/` / `docs/postmortems/`）误判 `blocked`
 - [ ] closeout pack 已写入 `features/<active>/closeout.md`
+- [ ] HTML 视觉伴生报告已写入 `features/<active>/closeout.html`（由 `python3 scripts/render-closeout-html.py <feature-dir>` 生成）；缺覆盖率数据时 HTML 已显式标注"未提供"，未编造数据
 - [ ] worktree 状态已同步
 - [ ] `task closeout` 时 next action = `hf-workflow-router`
 - [ ] `workflow closeout` 时 next action = `null` 或项目 null 约定
