@@ -1,8 +1,8 @@
 # HarnessFlow on OpenCode
 
-HarnessFlow v0.4.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
+HarnessFlow v0.5.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
 
-> **Scope (v0.4.0 pre-release).** v0.4.0 officially supports 3 clients (unchanged from v0.3.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.5+. v0.4.0 introduces **`hf-release`** as a release-tier **standalone** skill (engineer-level release: scope ADR + release-wide regression + docs aggregation + tag readiness pack); it does **not** enter the router transition map and is invoked via natural language ("cut a release / tag a version") through the `using-hf-workflow` entry shell's bias row, which then **direct invokes** `hf-release` without going through `hf-workflow-router` (ADR-004 D3). The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout). The remaining 5 ops/release skills (`hf-shipping-and-launch` / etc.) and personas all stay deferred to v0.5+ (ADR-004 D2 / D3). See `docs/decisions/ADR-004-hf-release-skill.md` for the full v0.4.0 scope decisions.
+> **Scope (v0.5.0 pre-release).** v0.5.0 officially supports 3 clients (unchanged from v0.3.0 / v0.4.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.6+. v0.5.0 adds a **closeout HTML companion report** to `hf-finalize` — every closeout now also produces `features/<active>/closeout.html` rendered by the new stdlib-only `scripts/render-closeout-html.py` (workflow timeline rail + tests + coverage rings + searchable evidence matrix; WCAG 2.2 AA, dark/light, printable). v0.4.0's `hf-release` (release-tier **standalone** skill) is unchanged; on OpenCode it is invoked via natural language ("cut a release / tag a version") through the `using-hf-workflow` entry shell's bias row, which then **direct invokes** `hf-release` without going through `hf-workflow-router` (ADR-004 D3). The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout, now with HTML companion). The remaining 5 ops/release skills (`hf-shipping-and-launch` / etc.) and personas all stay deferred to v0.6+ (ADR-005 D5 / D7). See `docs/decisions/ADR-005-release-scope-v0.5.0.md` for the full v0.5.0 scope decisions.
 
 ## How OpenCode discovers HF skills
 
@@ -170,23 +170,24 @@ Natural-language intents also cover side branches and gates:
 
 The `hf-regression-gate`, `hf-doc-freshness-gate`, and `hf-completion-gate` skills are intentionally **pulled** by upstream nodes, not pushed by the user. Asking for "/gate" directly would encourage skipping implementation or review — that is why HarnessFlow ships no `/gate` command, on Claude Code or on OpenCode (ADR-001 D4).
 
-## 7. What is NOT included in v0.4.0
+## 7. What is NOT included in v0.5.0
 
 Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Honest, "narrow but hard"):
 
-- All 6 originally-deferred ops/release skills (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`) remain out of scope. v0.4.0 added a **new** skill `hf-release` (release-tier engineer-level version cut) — `hf-release` is **not** one of the 6 original deferred skills, and it does **not** replace `hf-shipping-and-launch`; the two are orthogonal (version cut vs. ship to production).
+- All 6 originally-deferred ops/release skills (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`) remain out of scope. v0.4.0 added a **new** skill `hf-release` (release-tier engineer-level version cut), and v0.5.0 added a **closeout HTML companion report** to `hf-finalize` — neither is one of the 6 original deferred ops/release skills, and neither replaces `hf-shipping-and-launch`; all three slices are orthogonal (closeout reviewer experience vs. version cut vs. ship to production).
 - `hf-release` does **not** enter the router transition map — it is a release-tier standalone skill, decoupled from the main chain (ADR-004 D3). Asking "where in the workflow is `hf-release`?" — it isn't; it sits beside the workflow.
 - `hf-release` does **not** auto-execute `git tag` or `git push --tags`. The skill produces a readiness pack only; tag operations are project-maintainer actions.
 - The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** and does not block PR merge in maintainer workflows (ADR-002 D5 sub-decision; ADR-003 D8 / ADR-004 keep this stance).
-- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — Cursor was added in v0.3.0; the other 4 stay deferred to v0.5+.
-- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 / ADR-004 keep deferred to v0.5+.
+- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — Cursor was added in v0.3.0; the other 4 stay deferred to v0.6+.
+- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 / ADR-004 / ADR-005 D5 keep deferred to v0.6+.
 - ADR-001 D11's stance on `Object Contract` (neither mandatory nor recommended in v0.1.0) is preserved — only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are hard rules in `skill-anatomy.md` (ADR-002 D9 / D10; ADR-003 D9 / ADR-004 keep the rest as design reference).
 
-These constraints are intentional. They keep the surface area small enough for the v0.4.0 pre-release to be honest about what it does and does not cover.
+These constraints are intentional. They keep the surface area small enough for the v0.5.0 pre-release to be honest about what it does and does not cover.
 
 ## 8. Cross-references
 
 - ADR-004 (v0.4.0 release scope: hf-release standalone skill + /release command): `docs/decisions/ADR-004-hf-release-skill.md`
+- ADR-005 (v0.5.0 release scope: hf-finalize closeout HTML companion + scripts/render-closeout-html.py): `docs/decisions/ADR-005-release-scope-v0.5.0.md`
 - ADR-003 (v0.3.0 release scope: Cursor-only client expansion): `docs/decisions/ADR-003-release-scope-v0.3.0.md`
 - ADR-002 (v0.2.0 release scope, with D11 narrowing): `docs/decisions/ADR-002-release-scope-v0.2.0.md`
 - ADR-001 (v0.1.0 release scope): `docs/decisions/ADR-001-release-scope-v0.1.0.md`
