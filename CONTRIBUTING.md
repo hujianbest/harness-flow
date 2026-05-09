@@ -2,12 +2,12 @@
 
 Thanks for your interest in HarnessFlow.
 
-This document is intentionally short. HarnessFlow is currently a **single-maintainer** pre-release (`v0.2.0`). The goal of this guide is to make small, well-scoped contributions easy to land and to keep larger changes from blocking on review forever.
+This document is intentionally short. HarnessFlow is currently a **single-maintainer** pre-release (`v0.3.0`). The goal of this guide is to make small, well-scoped contributions easy to land and to keep larger changes from blocking on review forever.
 
 ## Before You Start
 
-1. **Read [`README.md`](README.md)** (or [`README.zh-CN.md`](README.zh-CN.md)) end-to-end. Pay particular attention to the **Scope Note** at the top — `v0.2.0` is deliberately narrow (Claude Code + OpenCode only; main chain ends at `hf-finalize`; only `hf-browser-testing` was added from the deferred ops list, the other 6 ops/release skills remain out of scope). Many "missing feature" reports are actually documented scope choices.
-2. **Read the relevant ADR**. Release scope decisions are locked in [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md) (含 D11 校准撤回 D2/D3/D4/D8 的说明) and [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md). If your contribution conflicts with an ADR decision, please open an issue first to discuss whether the ADR should be revisited.
+1. **Read [`README.md`](README.md)** (or [`README.zh-CN.md`](README.zh-CN.md)) end-to-end. Pay particular attention to the **Scope Note** at the top — `v0.3.0` is deliberately narrow (Claude Code + OpenCode + Cursor only; main chain ends at `hf-finalize`; only `hf-browser-testing` was added from the deferred ops list, the other 6 ops/release skills remain out of scope; v0.3.0 added Cursor as the third client but no new `hf-*` skills and no personas). Many "missing feature" reports are actually documented scope choices.
+2. **Read the relevant ADR**. Release scope decisions are locked in [`docs/decisions/ADR-003-release-scope-v0.3.0.md`](docs/decisions/ADR-003-release-scope-v0.3.0.md) (Cursor-only client expansion; no new skills; no personas), [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md) (含 D11 校准撤回 D2/D3/D4/D8 的说明) and [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md). If your contribution conflicts with an ADR decision, please open an issue first to discuss whether the ADR should be revisited.
 3. **Read the [Code of Conduct](CODE_OF_CONDUCT.md)**. By participating you agree to abide by it.
 
 ## What HarnessFlow Will and Won't Accept Right Now
@@ -16,14 +16,15 @@ This document is intentionally short. HarnessFlow is currently a **single-mainta
 
 - Bug fixes (broken links, typos, factual errors in skill `SKILL.md` files, demo bugs).
 - Documentation improvements that respect the Scope Note.
-- Setup instructions for clients that v0.1.0 doesn't yet support, **clearly marked** as additions, not as v0.1.0 commitments.
+- Setup instructions for clients that v0.3.0 doesn't yet support (Gemini CLI / Windsurf / GitHub Copilot / Kiro), **clearly marked** as additions, not as v0.3.0 commitments.
 - Improvements to the WriteOnce demo's walking-skeleton implementation that respect ADR-001 D9 (the demo is not a finished publishing tool; HTTP must stay stubbed).
 
 ### Will defer (please open an issue first)
 
-- New `hf-*` skills, especially release / ops / monitoring skills (out of scope per ADR-001 D1; tracked for v0.2+).
-- Major restructuring of an existing `SKILL.md` (per ADR-001 D11 the 24 skills are deliberately maintained as-is for v0.1.0).
-- Anything that touches `docs/principles/` (ADR-001 D11 marks these as design references; treat them as authored documents, not editable specs).
+- New `hf-*` skills, especially release / ops / monitoring skills (out of scope per ADR-001 D1 + ADR-002 D1 + ADR-003 D2; tracked for v0.4+).
+- Major restructuring of an existing `SKILL.md` (per ADR-001 D11 + ADR-003 D2 the 24 skills are deliberately maintained as-is in v0.3.0; only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are hard rules per ADR-002 D9 / D10).
+- Anything that touches `docs/principles/` (ADR-001 D11 + ADR-003 D9 mark these as design references; treat them as authored documents, not editable specs).
+- New `agents/` personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 + ADR-003 D3 keep these deferred to v0.4+.
 
 ### Will probably reject (please don't spend time on these without prior discussion)
 
@@ -64,17 +65,18 @@ This document is intentionally short. HarnessFlow is currently a **single-mainta
 
 These are honest gaps, not preferences:
 
-- **No CI yet.** v0.1.0 ships without GitHub Actions. PR authors should run `cd examples/writeonce && npm test && npx tsc --noEmit` locally and paste the output in the PR. CI is a v0.2 work item.
+- **No CI yet.** v0.3.0 still ships without GitHub Actions. PR authors should run `cd examples/writeonce && npm test && npx tsc --noEmit` locally and paste the output in the PR. CI remains a v0.4+ work item.
 - **Single maintainer.** Reviews can be slow. If a PR has been quiet for more than 14 days, a polite ping in the PR thread is welcome.
-- **No automated `SKILL.md` lint.** Per ADR-001 D11 the anatomy audit script is not in v0.1.0. Please be careful when editing `SKILL.md` files and follow the implicit structure used by neighbouring skills.
-- **No formal release cadence.** v0.1.0 is a pre-release; patch releases (`v0.1.x`) ship when meaningful fixes accumulate, not on a fixed schedule.
+- **`SKILL.md` lint is advisory.** `scripts/audit-skill-anatomy.py` exists since v0.2.0 (ADR-002 D5) but is **advisory** (does not block PR merge); ADR-003 D8 keeps this stance. Please be careful when editing `SKILL.md` files and follow the implicit structure used by neighbouring skills.
+- **No real-environment install smoke as a release hard gate.** ADR-002 D11 revoked the proposed hard gate; ADR-003 D7 keeps this stance for v0.3.0 (3 clients still small enough that maintainer self-verification is sufficient). The first real Cursor / Claude Code / OpenCode install verification on a clean user environment is community-driven; please open an issue if anything install-related breaks.
+- **No formal release cadence.** v0.3.0 is a pre-release; patch releases (`v0.3.x`) ship when meaningful fixes accumulate, not on a fixed schedule.
 
 ## Reporting Bugs and Requesting Features
 
 Please use the issue templates under `.github/ISSUE_TEMPLATE/`:
 
 - `bug_report.md` — for things that look broken in HarnessFlow itself.
-- `feature_request.md` — for new behavior. Please check the Scope Note and ADR-001 first; many "missing features" are deliberate scope choices for v0.1.0.
+- `feature_request.md` — for new behavior. Please check the Scope Note and ADR-003 (then ADR-002, then ADR-001) first; many "missing features" are deliberate scope choices for v0.3.0.
 
 For security issues, see [`SECURITY.md`](SECURITY.md).
 
