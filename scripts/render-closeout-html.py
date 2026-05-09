@@ -137,6 +137,7 @@ class ClosoutPack:
     state_sync: Dict[str, str] = field(default_factory=dict)
     release_docs_sync: Dict[str, str] = field(default_factory=dict)
     updated_long_term_assets: List[str] = field(default_factory=list)
+    status_fields_synced: List[str] = field(default_factory=list)
     handoff: Dict[str, str] = field(default_factory=dict)
     limits_notes: List[str] = field(default_factory=list)
 
@@ -285,58 +286,63 @@ def _parse_evidence_matrix(body: str) -> List[EvidenceRow]:
     return rows
 
 
-def _parse_updated_assets(release_body: str) -> List[str]:
-    """Extract sub-bullets under `Updated Long-Term Assets`."""
-    assets: List[str] = []
+def _parse_sub_bullets(body: str, header_pattern: str) -> List[str]:
+    """Extract indented sub-bullets under a top-level bullet whose key
+    matches `header_pattern` (case-insensitive).
+
+    A "top-level bullet" is any line starting at column 0 with `- `; once we
+    enter the matching section we stop at the next such line so we don't
+    spill into sibling bullets.
+    """
+    items: List[str] = []
     inside = False
-    for raw in release_body.splitlines():
+    header_re = re.compile(
+        r"^-\s*" + header_pattern + r"\s*[:：]?", re.IGNORECASE
+    )
+    for raw in body.splitlines():
         stripped = raw.strip()
         if not inside:
-            if re.match(
-                r"^-\s*Updated Long-?Term Assets\s*[:：]?", stripped, re.IGNORECASE
-            ):
+            if header_re.match(stripped):
                 inside = True
                 continue
         else:
-            if re.match(r"^-\s+\S+\s*[:：]", raw):
-                # next top-level bullet (Status Fields Synced, Index Updated, ...)
+            if re.match(r"^-\s+", raw):
                 break
             m = re.match(r"^\s+-\s+(.*)$", raw)
             if m:
-                assets.append(m.group(1).strip())
+                items.append(m.group(1).strip())
             elif stripped == "":
                 continue
             elif stripped.startswith("##"):
                 break
-    return assets
+    return items
+
+
+def _parse_updated_assets(release_body: str) -> List[str]:
+    """Extract sub-bullets under `Updated Long-Term Assets`."""
+    return _parse_sub_bullets(release_body, r"Updated Long-?Term Assets")
+
+
+def _parse_status_fields_synced(release_body: str) -> List[str]:
+    """Extract sub-bullets under `Status Fields Synced`."""
+    return _parse_sub_bullets(release_body, r"Status Fields Synced")
 
 
 def _parse_limits_notes(handoff_body: str) -> List[str]:
-    """Extract sub-bullets under `Limits / Open Notes`."""
-    notes: List[str] = []
-    inside = False
+    """Extract sub-bullets under `Limits / Open Notes`.
+
+    Also handles inline values: `- Limits / Open Notes: some value`.
+    """
+    notes = _parse_sub_bullets(handoff_body, r"Limits\s*/\s*Open Notes")
     for raw in handoff_body.splitlines():
-        stripped = raw.strip()
-        if not inside:
-            if re.match(
-                r"^-\s*Limits\s*/\s*Open Notes\s*[:：]?", stripped, re.IGNORECASE
-            ):
-                inside = True
-                # might be inline value too
-                m = re.match(
-                    r"^-\s*Limits\s*/\s*Open Notes\s*[:：]\s*(.+)$",
-                    stripped,
-                    re.IGNORECASE,
-                )
-                if m and m.group(1).strip():
-                    notes.append(m.group(1).strip())
-                continue
-        else:
-            if re.match(r"^-\s+\S", raw):
-                break
-            m = re.match(r"^\s+-\s+(.*)$", raw)
-            if m:
-                notes.append(m.group(1).strip())
+        m = re.match(
+            r"^-\s*Limits\s*/\s*Open Notes\s*[:：]\s*(.+)$",
+            raw.strip(),
+            re.IGNORECASE,
+        )
+        if m and m.group(1).strip():
+            notes.insert(0, m.group(1).strip())
+            break
     return notes
 
 
@@ -647,10 +653,10 @@ def parse_closeout(feature_dir: Path) -> ClosoutPack:
     pack.evidence = _parse_evidence_matrix(sections.get("Evidence Matrix", ""))
 
     pack.state_sync = _parse_bullet_kv(sections.get("State Sync", ""))
-    pack.release_docs_sync = _parse_bullet_kv(sections.get("Release / Docs Sync", ""))
-    pack.updated_long_term_assets = _parse_updated_assets(
-        sections.get("Release / Docs Sync", "")
-    )
+    release_body = sections.get("Release / Docs Sync", "")
+    pack.release_docs_sync = _parse_bullet_kv(release_body)
+    pack.updated_long_term_assets = _parse_updated_assets(release_body)
+    pack.status_fields_synced = _parse_status_fields_synced(release_body)
     pack.handoff = _parse_bullet_kv(sections.get("Handoff", ""))
     pack.limits_notes = _parse_limits_notes(sections.get("Handoff", ""))
 
@@ -1149,15 +1155,34 @@ def _render_release_panel(pack: ClosoutPack) -> str:
     base_keys = [
         "Release Notes Path",
         "CHANGELOG Path",
-        "Status Fields Synced",
         "Index Updated",
     ]
-    if not any(pack.release_docs_sync.get(k) for k in base_keys) and not pack.updated_long_term_assets:
+    if (
+        not any(pack.release_docs_sync.get(k) for k in base_keys)
+        and not pack.updated_long_term_assets
+        and not pack.status_fields_synced
+    ):
         return ""
-    rows = "".join(
-        f"<dt>{_e(k)}</dt><dd>{_e(pack.release_docs_sync.get(k, '—'))}</dd>"
-        for k in base_keys
-    )
+
+    # Render KV rows; for `Status Fields Synced` we prefer inline value if any,
+    # else show "见下方列表" when sub-bullets exist.
+    kv_rows: List[str] = []
+    for k in base_keys:
+        v = pack.release_docs_sync.get(k, "—") or "—"
+        kv_rows.append(f"<dt>{_e(k)}</dt><dd>{_e(v)}</dd>")
+    sfs_inline = pack.release_docs_sync.get("Status Fields Synced", "") or ""
+    if sfs_inline:
+        kv_rows.append(
+            f"<dt>Status Fields Synced</dt><dd>{_e(sfs_inline)}</dd>"
+        )
+    elif pack.status_fields_synced:
+        kv_rows.append(
+            f'<dt>Status Fields Synced</dt><dd>'
+            f'<span style="color: var(--fg-mute);">见下方列表</span></dd>'
+        )
+
+    rows = "".join(kv_rows)
+
     assets_html = ""
     if pack.updated_long_term_assets:
         items = "".join(
@@ -1168,11 +1193,24 @@ def _render_release_panel(pack: ClosoutPack) -> str:
             f"Updated Long-Term Assets ({len(pack.updated_long_term_assets)})</h3>"
             f'<ul class="assets">{items}</ul>'
         )
+
+    sfs_html = ""
+    if pack.status_fields_synced:
+        items = "".join(
+            f"<li>{_e(a)}</li>" for a in pack.status_fields_synced
+        )
+        sfs_html = (
+            '<h3 style="margin: 16px 0 8px; font-size: 13px; color: var(--fg-mute);">'
+            f"Status Fields Synced ({len(pack.status_fields_synced)})</h3>"
+            f'<ul class="assets">{items}</ul>'
+        )
+
     return f"""
 <section class="panel">
   <h2>Release / Docs Sync</h2>
   <dl class="kv">{rows}</dl>
   {assets_html}
+  {sfs_html}
 </section>
 """
 

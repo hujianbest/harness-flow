@@ -209,6 +209,71 @@ class TestParseCloseout(unittest.TestCase):
             self.assertEqual(len(pack.updated_long_term_assets), 2)
             self.assertEqual(len(pack.limits_notes), 2)
 
+    def test_status_fields_synced_sub_bullets(self) -> None:
+        md = textwrap.dedent("""\
+            # Closeout
+
+            ## Closeout Summary
+
+            - Closeout Type: `task-closeout`
+
+            ## Release / Docs Sync
+
+            - Release Notes Path: `CHANGELOG.md`
+            - CHANGELOG Path: `CHANGELOG.md`
+            - Updated Long-Term Assets:
+              - `docs/adr/0001-foo.md`
+            - Status Fields Synced:
+              - `spec.md` 状态 → 已批准
+              - `design.md` 状态 → 已批准
+              - `tasks.md` 状态 → 已批准
+            - Index Updated: README.md
+            """)
+        with tempfile.TemporaryDirectory() as td:
+            fdir = _make_feature(Path(td), md)
+            pack = _MOD.parse_closeout(fdir)
+            self.assertEqual(len(pack.status_fields_synced), 3)
+            self.assertIn("spec.md", pack.status_fields_synced[0])
+            html = _MOD.render_html(pack)
+            self.assertIn("Status Fields Synced (3)", html)
+            self.assertIn("见下方列表", html)
+
+    def test_assets_do_not_spill_into_sibling_bullets(self) -> None:
+        """`- Status Fields Synced:` must terminate `Updated Long-Term Assets`.
+
+        Regression test: an earlier version of `_parse_updated_assets` only
+        treated the next bullet as a terminator if it matched
+        `^-\\s+\\S+\\s*[:：]`, which fails on multi-word keys like
+        "Status Fields Synced" and caused the asset list to spill into the
+        next sibling section's sub-bullets.
+        """
+        md = textwrap.dedent("""\
+            # Closeout
+
+            ## Closeout Summary
+
+            - Closeout Type: `task-closeout`
+
+            ## Release / Docs Sync
+
+            - Release Notes Path: `CHANGELOG.md`
+            - CHANGELOG Path: `CHANGELOG.md`
+            - Updated Long-Term Assets:
+              - `docs/adr/0001-foo.md`（status: accepted）
+              - `docs/adr/0002-bar.md`（status: accepted）
+            - Status Fields Synced:
+              - `spec.md` 状态：草稿 → 已批准
+              - 同上 `design.md`、`tasks.md`
+            - Index Updated: README.md
+            """)
+        with tempfile.TemporaryDirectory() as td:
+            fdir = _make_feature(Path(td), md)
+            pack = _MOD.parse_closeout(fdir)
+            self.assertEqual(len(pack.updated_long_term_assets), 2)
+            for a in pack.updated_long_term_assets:
+                self.assertIn("docs/adr/", a)
+                self.assertNotIn("spec.md", a)
+
     def test_blocked_closeout_kind(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             fdir = _make_feature(Path(td), SAMPLE_BLOCKED)
