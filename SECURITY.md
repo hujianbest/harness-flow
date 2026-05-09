@@ -7,20 +7,21 @@ HarnessFlow is a Markdown-based skill pack for AI coding agents. It does **not**
 - Skill content authored under `skills/`
 - Setup paths described under `docs/claude-code-setup.md`, `docs/opencode-setup.md`, and `docs/cursor-setup.md`
 - The `.claude-plugin/` plugin manifest registered with Claude Code's marketplace
-- The `.cursor/rules/harness-flow.mdc` rule (v0.3.0) loaded by Cursor's rules system
+- The `.cursor/rules/harness-flow.mdc` rule (v0.3.0; refreshed in v0.4.0) loaded by Cursor's rules system
 - The `examples/writeonce/` quickstart demo (a self-contained Node.js project under that directory)
 
 Runtime behavior of any agent (Claude Code, OpenCode, Cursor, etc.) that loads HarnessFlow is **out of scope** for this policy — please report runtime issues to the agent vendor instead.
 
 ## Supported Versions
 
-HarnessFlow follows SemVer. `v0.3.0` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
+HarnessFlow follows SemVer. `v0.4.0` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 | Version | Supported for security fixes |
 |---|---|
-| `0.3.x` (current pre-release; latest `0.3.0`) | Best-effort; fixes shipped via patch releases on the `main` branch |
-| `0.2.x` (previous pre-release; latest `0.2.1`) | Best-effort, security-only; users encouraged to upgrade to `0.3.x` |
-| `0.1.x` (older pre-release) | Best-effort, security-only; users encouraged to upgrade to `0.3.x` |
+| `0.4.x` (current pre-release; latest `0.4.0`) | Best-effort; fixes shipped via patch releases on the `main` branch |
+| `0.3.x` (previous pre-release; latest `0.3.0`) | Best-effort, security-only; users encouraged to upgrade to `0.4.x` |
+| `0.2.x` (older pre-release; latest `0.2.1`) | Best-effort, security-only; users encouraged to upgrade to `0.4.x` |
+| `0.1.x` (older pre-release) | Best-effort, security-only; users encouraged to upgrade to `0.4.x` |
 | `< 0.1.0` | Not applicable (no prior public release) |
 
 When `v1.0.0` ships, this table will be updated with a formal support window.
@@ -48,7 +49,7 @@ The following are **not** security issues for this repository, even though they 
 - An agent (Claude Code, OpenCode, Cursor, etc.) misinterpreting a skill or producing unsafe code at runtime — that is an agent-vendor or user-prompt issue.
 - A user vendoring HarnessFlow into a private workspace and then exposing secrets via their own configuration.
 - The WriteOnce demo's Medium / Zhihu / WeChat MP adapters performing real network calls — they don't (per ADR-0003); the `Node20FetchHttpClient` exists for a hypothetical future integration and is not exercised by tests.
-- The fact that v0.1.0 / v0.2.0 / v0.3.0 explicitly do **not** ship release / ops / monitoring skills (per [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md) D1, [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md) D1, [`docs/decisions/ADR-003-release-scope-v0.3.0.md`](docs/decisions/ADR-003-release-scope-v0.3.0.md) D2). This is a documented scope choice, not a security gap.
+- The fact that v0.1.0 / v0.2.0 / v0.3.0 / v0.4.0 explicitly do **not** ship deployment / monitoring / rollback skills (per [`docs/decisions/ADR-001-release-scope-v0.1.0.md`](docs/decisions/ADR-001-release-scope-v0.1.0.md) D1, [`docs/decisions/ADR-002-release-scope-v0.2.0.md`](docs/decisions/ADR-002-release-scope-v0.2.0.md) D1, [`docs/decisions/ADR-003-release-scope-v0.3.0.md`](docs/decisions/ADR-003-release-scope-v0.3.0.md) D2, [`docs/decisions/ADR-004-hf-release-skill.md`](docs/decisions/ADR-004-hf-release-skill.md) D2). v0.4.0 introduces `hf-release` for engineer-level version cuts (release scope ADR + release-wide regression + release docs aggregation + tag readiness pack); deployment-side concerns remain v0.5+ planned `hf-shipping-and-launch`. This is a documented scope choice, not a security gap.
 
 ## Coordination
 
