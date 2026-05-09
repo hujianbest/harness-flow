@@ -8,6 +8,50 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 （无）
 
+## [0.5.1] - 2026-05-09 — pre-release
+
+> **Patch release on top of v0.5.0.** Marked as a **pre-release** on GitHub Releases.
+>
+> v0.5.1 修复 v0.5.0 引入的一个 vendoring 缺陷：v0.5.0 把 `hf-finalize` step 6A 的 hard gate 工具 `render-closeout-html.py` 放在仓库根 `scripts/`，但 OpenCode `.opencode/skills/` 软链接 + Cursor `.cursor/rules/` + "vendor by copying `skills/`" 三种集成路径都**只**带 `skills/` 不带仓库根 `scripts/`，导致 step 6A 在这两条路径下跑不通。本版把脚本物理迁移到 `skills/hf-finalize/scripts/`，并把这一区分锁成 HF skill anatomy v2（4 类子目录：`SKILL.md` + `references/` + `evals/` + `scripts/`；仓库根 `scripts/` 收紧为跨 skill 维护者工具）。
+>
+> 完整范围决策见 [`docs/decisions/ADR-006-skill-anatomy-v2-and-vendoring-fix.md`](docs/decisions/ADR-006-skill-anatomy-v2-and-vendoring-fix.md)（4 项决策）。本 release 是 HF 自身**第三次** dogfood `hf-release`（前两次为 v0.4.0 / v0.5.0），首次验证 patch release 流程；release pack 落到 [`features/release-v0.5.1/release-pack.md`](features/release-v0.5.1/release-pack.md)。
+>
+> **不**改 closeout pack schema、**不**改 closeout HTML 输出语义、**不**触动其它 23 个 skill；只动 hf-finalize 的脚本物理位置 + 配套契约文本。
+
+### Fixed
+
+- **vendoring 缺陷修复**（ADR-006 D2）—— v0.5.0 把 `render-closeout-html.py` 放在仓库根 `scripts/` 是判断失误：OpenCode `.opencode/skills/` 软链接 / Cursor `.cursor/rules/` + 复制 `skills/` / "vendor by copying `skills/`" 三种集成路径下 hf-finalize step 6A 的 hard gate 跑不通——脚本不在 vendoring 树里。本版把脚本物理搬到 `skills/hf-finalize/scripts/render-closeout-html.py` + `skills/hf-finalize/scripts/test_render_closeout_html.py`，三种集成路径自动恢复完整。
+
+### Changed
+
+- **HF skill anatomy v2**（ADR-006 D1）—— skill anatomy 从 v0.2.0 起约定的 3 类子目录（`SKILL.md` + `references/` + `evals/`）扩展为 4 类，新增 `skills/<name>/scripts/` 作为 **skill-owned 工具** 子目录；仓库根 `scripts/` 同步收紧为 **跨 skill 维护者工具**（典型：`audit-skill-anatomy.py`）。区分依据是 **工具受众**：用户每次跑该 skill 都要跑的工具属于 skill-owned，受众是仓库 contributor 的工具留在仓库根。**向前兼容**：v0.4.0 / v0.5.0 留下的 3 类布局仍合法；本版只新增一类，不淘汰旧约定；其它 23 个 skill 当前没有 skill-owned 工具，按需后续 ADR 单独迁移。
+- **`skills/hf-finalize/SKILL.md`** —— step 6A 命令、生成方式描述、Reference Guide 表行、Verification 列表项中所有脚本路径同步从 `scripts/render-closeout-html.py` 改为 `skills/hf-finalize/scripts/render-closeout-html.py`；Reference Guide 行额外注明 `ADR-006 引入的 skill-owned 工具约定` 与 `仓库根 scripts/ 保留给跨 skill 的维护者工具` 立场。
+- **`skills/hf-finalize/references/finalize-closeout-pack-template.md`** —— 顶部使用说明 + `HTML Companion Report` 段中的 2 处脚本路径同步更新。
+- **`skills/hf-finalize/scripts/render-closeout-html.py`** —— 顶部 docstring 加 `Note on script location (since v0.5.0)` 段，解释 ADR-006 立场（为什么住在 skill 目录下）。脚本本体逻辑 / 输出语义完全不变。
+- **`scripts/audit-skill-anatomy.py`** —— 顶部 docstring 加段说明 v0.5.1 起的 4 类子目录约定；审计行为不变（仅读 `<skill>/SKILL.md`，不遍历子目录，新加的 `skills/*/scripts/` 子目录对它完全透明）。
+- **`.claude-plugin/plugin.json`** —— `version` 从 `0.5.0` 升级到 `0.5.1`。
+- **`.claude-plugin/marketplace.json`** —— description 段追加 v0.5.1 vendoring fix 说明 + 脚本路径同步。
+- **`SECURITY.md`** —— Supported Versions 表 `0.5.x` 行 latest 从 `0.5.0` 升到 `0.5.1`。
+- **`CONTRIBUTING.md`** —— 引言版本号 `v0.5.0` → `v0.5.1`（patch refresh）。
+- **`.cursor/rules/harness-flow.mdc`** —— Hard rules 段 step 6A 命令脚本路径同步。
+- **`README.md` / `README.zh-CN.md`** —— Scope Note / 范围声明段加 v0.5.1 patch 注解；脚本路径同步。
+- **`docs/claude-code-setup.md` / `docs/cursor-setup.md` / `docs/opencode-setup.md`** —— 顶部句子 + Scope Note + cross-references 段脚本路径与版本号同步。
+- **`examples/writeonce/features/001-walking-skeleton/closeout.html`** —— 由新位置渲染器重新生成；HTML 仅 footer 1 行（生成器路径文本）+ 嵌入时间戳差异。
+
+### Decided
+
+- **v0.5.1 是 patch release，不是 minor。** 不引入新功能（HTML 伴生报告本身在 v0.5.0 已 GA）；不改 closeout.md schema / closeout.html 输出语义；修复的是物理位置 / vendoring 链路的工程债务——典型 patch 范畴。仍勾 pre-release on GitHub Releases。(ADR-006 D3)
+- **不保留旧路径 symlink。** 避免双源混乱与 Windows 上 symlink 行为差异；旧路径 `scripts/render-closeout-html.py` 在 v0.5.1 升级后立即失效；任何项目级 CI / 别名 / 文档中 hardcode 了旧路径的地方需手工同步——见 Notes 段 migration 提示。(ADR-006 D2)
+- **HF 第三次 dogfood `hf-release`**（首次验证 patch release 流程）。前两次（v0.4.0 / v0.5.0）都是 minor；本次验证 hf-release / `references/release-pack-template.md` / `pre-release-engineering-checklist.md` 在 patch 范畴下仍然适用——release pack `Fixed` 子段替代 `Added` 子段；其它结构不变。(ADR-006 D4)
+- **不动其它 22 个 skill 的 anatomy。** ADR-006 D1 引入的 4 类子目录约定是**新增**而非强制迁移；其它 skill 当前没有 skill-owned 工具，按需后续 ADR 单独迁移。
+
+### Notes
+
+- **Migration 提示**：升级到 v0.5.1 的项目下次跑 `hf-finalize` 会自动用新路径 `skills/hf-finalize/scripts/render-closeout-html.py`；任何项目级 CI / 别名 / 文档 / sidecar 中 **hardcode** 了旧路径 `scripts/render-closeout-html.py` 的地方需要同步更新。如果你之前在自己的 `package.json` scripts 段 / Makefile / GitHub Actions workflow / 项目本地 hf-finalize sidecar 写过类似 `python3 scripts/render-closeout-html.py ...` 的命令，请改为 `python3 skills/hf-finalize/scripts/render-closeout-html.py ...`。
+- v0.5.0 已落盘的 `closeout.md` / `closeout.html` 不需要修订（schema / 输出语义不变）；v0.5.0 已落盘的 `features/release-v0.5.0/` 也不修订（已是 tagged 历史）。
+- v0.5.1 是 HF 自身**首个 patch release**（v0.0.0–v0.4.0 都是 minor，v0.5.0 也是 minor）；首次验证 ADR / release pack / pre-release-engineering-checklist 在 patch 范畴下仍然适用——release pack 模板 `Fixed` 子段替代 `Added` 子段，其它结构不变。
+- 本 release diff 极小（约 3 commit；脚本 git mv + 7 处契约文本同步 + ADR-006 + release pack 三件套 + 顶层文档版本号同步）；体现"工程债务发现立即修，不留 v0.6.0 一起带"的节奏。
+
 ## [0.5.0] - 2026-05-09 — pre-release
 
 > **Fifth public release.** Marked as a **pre-release** on GitHub Releases.
@@ -356,7 +400,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.1
 [0.5.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.0
 [0.4.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.4.0
 [0.3.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.3.0

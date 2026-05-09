@@ -8,7 +8,7 @@
 - `Release / Docs Sync` 必须显式列出本次 closeout 同步到 `docs/` 的所有路径（arc42、glossary、runbooks、SLO、release notes、CHANGELOG、ADR 状态翻转等），缺失项目应视为 `blocked`。
 - 若项目在 项目声明了等价模板或 closeout 路径，优先遵循项目约定。
 - **HTML 视觉伴生报告**：写完 `closeout.md` 后必须运行
-  `python3 scripts/render-closeout-html.py features/<NNN>-<slug>/`
+  `python3 skills/hf-finalize/scripts/render-closeout-html.py features/<NNN>-<slug>/`
   生成 `closeout.html`（同目录），作为给 reviewer / 干系人查看的视觉总结。它**渲染**本 closeout pack 的内容，不引入新事实。
 - **Coverage 数据**：希望 HTML 报告显示代码覆盖率时，把 vitest/jest/pytest-cov 等工具的 `--coverage --reporter=json-summary` 输出落到 `verification/coverage.json`，或在 `verification/regression-*.md` / `evidence/regression-*.log` 中保留 `Lines:` / `Branches:` / istanbul `All files | …` 行；若不提供则 HTML 自动显示 `未提供`，不阻塞 closeout。
 
@@ -82,6 +82,6 @@
 ## HTML Companion Report
 
 - Path: `features/<NNN>-<slug>/closeout.html`
-- Generator: `python3 scripts/render-closeout-html.py features/<NNN>-<slug>/`
+- Generator: `python3 skills/hf-finalize/scripts/render-closeout-html.py features/<NNN>-<slug>/`
 - 必填：写完本 `closeout.md` 后立即生成；HTML 由本 pack + `evidence/*.log` + `verification/*.md`(+ optional `verification/coverage.json`) 渲染，不允许在 HTML 中加入 pack 之外的事实。
 - Coverage 数据源（按优先顺序）：`verification/coverage.json` → `verification/*.md` 中的 `Lines:` / `Branches:` 行 → evidence 日志中的 istanbul / vitest 覆盖率表；缺失则 HTML 渲染为 `未提供`。
