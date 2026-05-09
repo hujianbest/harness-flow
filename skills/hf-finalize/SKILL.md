@@ -161,14 +161,14 @@ Profile-aware 证据矩阵：
 `closeout.md` 是 canonical 机器可读契约，但对人类 reviewer 不够直观。Finalize 结束前**必须**额外产出一份 HTML 工作总结报告，作为 `closeout.md` 的视觉伴生文件：
 
 - 路径：`features/<active>/closeout.html`（与 `closeout.md` 同目录）
-- 生成方式：调用 `scripts/render-closeout-html.py <feature-dir>`（纯 Python stdlib，无外部依赖）
+- 生成方式：调用 `skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>`（纯 Python stdlib，无外部依赖；脚本随 skill 一起 vendor，OpenCode `.opencode/skills/` 软链接 / Cursor `.cursor/rules/` 集成路径都能直接拿到）
 - 内容：从 `closeout.md` + `evidence/*.log` + `verification/*.md` + `verification/coverage.json`（如存在）解析得到，自包含单文件，含嵌入式 CSS / 极小 JS，离线可读
 - 至少呈现：closeout 类型徽标 + conclusion / workflow trace 时间线 / tests & coverage 面板 / evidence matrix（可搜索可排序）/ state sync / release & docs sync / handoff & limits
 
 执行命令（默认）：
 
 ```bash
-python3 scripts/render-closeout-html.py features/<active>/
+python3 skills/hf-finalize/scripts/render-closeout-html.py features/<active>/
 ```
 
 判 `blocked` 的情况下也要尝试生成（HTML 自身能展示 blocked 徽标 + 缺失证据状态）；只有当 `closeout.md` 因前置步骤判定不写入时才跳过。
@@ -248,7 +248,7 @@ Closeout type-specific 约束：
 | 文件 | 用途 |
 |------|------|
 | `references/finalize-closeout-pack-template.md` | closeout pack 模板（含 HTML 伴生报告字段说明） |
-| `scripts/render-closeout-html.py`（仓库根 `scripts/`） | 由 `closeout.md` + 旁路工件生成 `closeout.html` 视觉报告，纯 Python stdlib，自包含单文件输出 |
+| `scripts/render-closeout-html.py`（本 skill 子目录 `skills/hf-finalize/scripts/`，ADR-005 D10 引入的 skill-owned 工具约定） | 由 `closeout.md` + 旁路工件生成 `closeout.html` 视觉报告，纯 Python stdlib，自包含单文件输出。仓库根 `scripts/` 保留给跨 skill 的维护者工具（如 `audit-skill-anatomy.py`） |
 | `hf-test-driven-dev/references/worktree-isolation.md` | worktree disposition 的收尾语义（不擅自删除；只记录 `kept-for-pr` / `cleaned-per-project-rule` / `in-place`） |
 
 ## Red Flags
@@ -286,7 +286,7 @@ Closeout type-specific 约束：
 - [ ] feature `README.md` 中 Closed / Closeout Type / Linked Long-Term Assets 等区块已更新
 - [ ] 未为项目当前未启用的可选资产（如档 0/1 没有的 `docs/slo/` / `docs/postmortems/`）误判 `blocked`
 - [ ] closeout pack 已写入 `features/<active>/closeout.md`
-- [ ] HTML 视觉伴生报告已写入 `features/<active>/closeout.html`（由 `python3 scripts/render-closeout-html.py <feature-dir>` 生成）；缺覆盖率数据时 HTML 已显式标注"未提供"，未编造数据
+- [ ] HTML 视觉伴生报告已写入 `features/<active>/closeout.html`（由 `python3 skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>` 生成；脚本与 skill 同 vendor）；缺覆盖率数据时 HTML 已显式标注"未提供"，未编造数据
 - [ ] worktree 状态已同步
 - [ ] `task closeout` 时 next action = `hf-workflow-router`
 - [ ] `workflow closeout` 时 next action = `null` 或项目 null 约定
