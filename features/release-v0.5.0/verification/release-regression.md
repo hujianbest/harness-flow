@@ -7,11 +7,12 @@
 - Date: 2026-05-09
 - Record Path: `features/release-v0.5.0/verification/release-regression.md`
 - Worktree Path / Worktree Branch: `cursor/hf-finalize-html-closeout-report-eea2`（in-place）
+- Re-run timestamp (post ADR-005 D10 skill anatomy migration): `2026-05-09T18:59:34Z` —— 验证脚本搬到 `skills/hf-finalize/scripts/` 后所有 release-wide regression 检查仍 PASS
 
 ## Upstream Evidence Consumed
 
 - ADR: `docs/decisions/ADR-005-release-scope-v0.5.0.md`（D2 渲染脚本仅 stdlib + D3 反 slop 自检 + D6 minor bump + D8 不刷新 demo）
-- 候选 feature scope: 单 feature（hf-finalize 输出契约扩展 + scripts/render-closeout-html.py 新增），无独立 `features/<feature-id>/closeout.md` 候选（本版以 hf-release dogfood 形态打包 engineering-tier 改进，见 release-pack.md `Limits / Open Notes` 段）
+- 候选 feature scope: 单 feature（hf-finalize 输出契约扩展 + `skills/hf-finalize/scripts/render-closeout-html.py` 新增；脚本物理位置按 ADR-005 D10 引入的 skill-owned 工具约定），无独立 `features/<feature-id>/closeout.md` 候选（本版以 hf-release dogfood 形态打包 engineering-tier 改进，见 release-pack.md `Limits / Open Notes` 段）
 
 ## Claim Being Verified
 
@@ -31,9 +32,9 @@ Claim: v0.5.0 引入的所有变更（新脚本 + hf-finalize SKILL.md step 6A +
 - Included Coverage:
   - `scripts/audit-skill-anatomy.py`（24 `hf-*` + `using-hf-workflow` 全部结构合规）
   - `scripts/test_audit_skill_anatomy.py`（6 个单元测试）
-  - `scripts/test_render_closeout_html.py`（17 个单元测试覆盖 markdown 解析 / vitest+jest+pytest 日志 / coverage.json + 内联 KV / 完整与 blocked 渲染 / sub-bullet 不溢出 / Status Fields Synced 子项渲染 / HTML 转义 / CLI exit code）
+  - `skills/hf-finalize/scripts/test_render_closeout_html.py`（17 个单元测试覆盖 markdown 解析 / vitest+jest+pytest 日志 / coverage.json + 内联 KV / 完整与 blocked 渲染 / sub-bullet 不溢出 / Status Fields Synced 子项渲染 / HTML 转义 / CLI exit code）
   - JSON validity：plugin.json / marketplace.json / hf-finalize/test-prompts.json / hf-finalize/evals.json / hf-release/evals.json
-  - 真实样例渲染：`python3 scripts/render-closeout-html.py examples/writeonce/features/001-walking-skeleton`
+  - 真实样例渲染：`python3 skills/hf-finalize/scripts/render-closeout-html.py examples/writeonce/features/001-walking-skeleton`
 - Uncovered Areas:
   - `examples/writeonce/` 自身的 vitest 套件（按 ADR-005 D8 + ADR-001 D9 立场，本 release 不修订 demo，因此 demo 测试套件不在 v0.5.0 release-wide regression scope）
   - 真实 client install smoke（按 ADR-002 D11 / ADR-003 D7 / ADR-004 立场，未升级为 hard gate）
@@ -58,7 +59,7 @@ python3 scripts/test_audit_skill_anatomy.py
 
 ```text
 # 3. test_render_closeout_html.py
-python3 scripts/test_render_closeout_html.py
+python3 skills/hf-finalize/scripts/test_render_closeout_html.py
 ```
 
 - Exit Code: `0`
@@ -78,7 +79,7 @@ python3 -m json.tool skills/hf-release/evals/evals.json > /dev/null
 
 ```text
 # 5. real sample render
-python3 scripts/render-closeout-html.py examples/writeonce/features/001-walking-skeleton
+python3 skills/hf-finalize/scripts/render-closeout-html.py examples/writeonce/features/001-walking-skeleton
 ```
 
 - Exit Code: `0`
@@ -87,7 +88,7 @@ python3 scripts/render-closeout-html.py examples/writeonce/features/001-walking-
 
 ## Freshness Anchor
 
-- Why this evidence is for the latest relevant code state: 5 项命令在同一次 shell 调用中按顺序执行，时间戳 `2026-05-09T17:34:59Z` 标记开始执行点；执行点晚于本次 release 所有 hf-finalize SKILL.md / 模板 / 脚本 / 测试 commit；执行点早于本 release-regression.md 落盘 commit
+- Why this evidence is for the latest relevant code state: 5 项命令在同一次 shell 调用中按顺序执行；初次时间戳 `2026-05-09T17:34:59Z`（脚本在仓库根 `scripts/` 时）+ ADR-005 D10 迁移后 re-run 时间戳 `2026-05-09T18:59:34Z`（脚本已在 `skills/hf-finalize/scripts/`），两次执行全部检查 PASS；两次执行点都晚于本次 release 所有 hf-finalize SKILL.md / 模板 / 脚本 / 测试 commit
 - Output Log / Terminal / Artifact: 终端输出已抓取（hf-release dogfood 不要求保留独立 log 文件，hf-release SKILL.md §6 只要求记录命令 / 时间戳 / 通过结论）
 
 ## Conclusion

@@ -14,7 +14,8 @@
 ## Scope Summary
 
 - Included Features:
-  - **closeout HTML 工作总结报告**（hf-finalize 视觉伴生制品）—— 给 `hf-finalize` 的输出契约新增一份 `closeout.html`，由新的 `scripts/render-closeout-html.py` 从已落盘 `closeout.md` + `evidence/*.log` + `verification/*.md`（+ optional `verification/coverage.json`）渲染得到的自包含单文件 HTML。视觉系统按 `hf-ui-design` 方法论 + `anti-slop-checklist` 自检 S1-S8 全过。包含：closeout 类型徽标 + conclusion banner、HF 主链节点 timeline rail、tests + coverage rings、可搜索可排序 evidence matrix、state / release / docs / handoff 面板；暗亮主题 / WCAG 2.2 AA / 可打印。
+  - **closeout HTML 工作总结报告**（hf-finalize 视觉伴生制品）—— 给 `hf-finalize` 的输出契约新增一份 `closeout.html`，由新的 `skills/hf-finalize/scripts/render-closeout-html.py` 从已落盘 `closeout.md` + `evidence/*.log` + `verification/*.md`（+ optional `verification/coverage.json`）渲染得到的自包含单文件 HTML。视觉系统按 `hf-ui-design` 方法论 + `anti-slop-checklist` 自检 S1-S8 全过。包含：closeout 类型徽标 + conclusion banner、HF 主链节点 timeline rail、tests + coverage rings、可搜索可排序 evidence matrix、state / release / docs / handoff 面板；暗亮主题 / WCAG 2.2 AA / 可打印。
+  - **HF skill anatomy v2 引入 `skills/<name>/scripts/` 约定**（ADR-005 D10）—— 同时引入 4 类子目录约定，把 skill-owned 工具与跨 skill 维护者工具区分开来；`render-closeout-html.py` 物理位置从仓库根 `scripts/` 迁移到 `skills/hf-finalize/scripts/`，修复 OpenCode / Cursor / vendor-by-copying 三种集成路径下 step 6A hard gate 跑不通的 vendoring 漏洞。
 - Deferred Features (with reason):
   - 5 项原 deferred ops/release skills（`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`）—— 继续延后到 **v0.6+**（ADR-005 D7：v0.5.0 prioritized reviewer 视觉化体验，roadmap 漂移 1 个 minor）
   - 4 家剩余客户端扩展（Gemini CLI / Windsurf / GitHub Copilot / Kiro）—— 继续延后到 v0.6+（ADR-005 D5）
@@ -52,12 +53,18 @@
   - 仓库根 `README.zh-CN.md` 范围声明段已升级到 v0.5.0
 - Project Metadata Sync:
   - `.claude-plugin/plugin.json`: version `0.4.0` → `0.5.0` ✓
-  - `.claude-plugin/marketplace.json`: 描述追加 v0.5.0 closeout HTML 伴生报告 + 24 hf-* 不变 ✓
+  - `.claude-plugin/marketplace.json`: 描述追加 v0.5.0 closeout HTML 伴生报告 + 24 hf-* 不变 + 脚本路径 `skills/hf-finalize/scripts/render-closeout-html.py` ✓
   - `SECURITY.md`: Supported Versions 表加 `0.5.x` 行；`0.4.x` 降级为 security-only ✓
   - `CONTRIBUTING.md`: 引言版本号 `v0.4.0` → `v0.5.0`；ADR-005 引用补全 ✓
   - `.cursor/rules/harness-flow.mdc`: Scope honesty 段升级到 v0.5.0 ✓
   - `docs/claude-code-setup.md` / `docs/cursor-setup.md` / `docs/opencode-setup.md`: 顶部句子 + Scope Note + § "What is NOT included" 同步到 v0.5.0 ✓
   - `package.json` / `pyproject.toml` / `Cargo.toml` 等：N/A（HF 仓库本身不是 npm/pypi/crates 包；examples/writeonce/package.json 是 demo 私有，与 HF release 版本号脱钩，按 ADR-001 D9 立场不动）
+- Skill Anatomy Migration (ADR-005 D10):
+  - `scripts/render-closeout-html.py` → `skills/hf-finalize/scripts/render-closeout-html.py` ✓
+  - `scripts/test_render_closeout_html.py` → `skills/hf-finalize/scripts/test_render_closeout_html.py` ✓
+  - 引入 HF skill anatomy v2 4 类子目录约定（`SKILL.md` + `references/` + `evals/` + `scripts/`）；仓库根 `scripts/` 收紧为跨 skill 维护者工具 ✓
+  - `scripts/audit-skill-anatomy.py` 顶部 docstring 加段说明新约定（行为不变）✓
+  - 修复 vendoring 漏洞：OpenCode `.opencode/skills/` 软链接 + Cursor `.cursor/rules/` + "vendor by copying" 三种集成路径现在都能拿到完整的 hf-finalize 包（含 step 6A hard gate 工具）✓
 
 ## Tag Readiness
 
