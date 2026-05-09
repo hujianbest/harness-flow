@@ -22,19 +22,19 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 ## 2. 目标与成功标准
 
 - **目标**：closeout 阶段产出 `features/<active>/closeout.html`，覆盖 feature 元数据、生命周期 timeline、工件索引、reviews/approvals、verification/coverage、release/docs sync、handoff。
-- **成功标准（高层）**：在不引入"二次审批"的前提下，让一个**未参与本轮 workflow** 的读者，仅打开 `closeout.html` 就能在 5 分钟内回答 5 个核心问题：
+- **成功标准（高层）**：在不引入"二次审批"的前提下，让一个**未参与本轮 workflow** 的读者，仅打开 `closeout.html` 就能回答 5 个核心问题：
   1. 本 feature 完成了什么、范围是什么？
   2. 关键评审与门禁是否都通过、由谁通过？
   3. 测试与覆盖率结论如何（如有）？
   4. 同步了哪些长期资产（ADR / arc42 / runbooks / CHANGELOG / index）？
   5. 是否还有未完成项 / handoff 给谁？
 
-可量化度量见 §3。
+可量化度量（含阅读时限阈值）见 §3。
 
 ## 3. Success Metrics
 
-- **Outcome Metric**：在样本 closeout 集合上，非作者读者只读 `closeout.html`、不打开任何 `.md` 即可回答上面 5 个核心问题中的题数。
-- **Threshold**：≥ 4/5 题答对，样本量 ≥ 5 次（含本 feature 自身的 dogfood closeout + 4 个由 fixture 模拟的历史 closeout 输入）。
+- **Outcome Metric**：在样本 closeout 集合上，非作者读者**在 5 分钟阅读时间内**只读 `closeout.html`、不打开任何 `.md` 即可回答 §2 列出的 5 个核心问题中的题数。
+- **Threshold**：≥ 4/5 题答对，样本量 ≥ 5 次（含本 feature 自身的 dogfood closeout + 4 个由 fixture 模拟的历史 closeout 输入）；单次阅读时长以读者自报告为准，超出 5 分钟视为该题未达成。
 - **Leading Indicator**：渲染脚本在 fixture 输入集合（含完整证据 / 缺工件 / 含 N/A 项 / `task-closeout` / `workflow-closeout` / `blocked` 六类样本）上的渲染成功率 = 100%。
 - **Lagging Indicator**：本 feature closeout 之后，新启动的 features 在其 `hf-finalize` 阶段默认启用 HTML 渲染（即不需要逐项目重新决策）。
 - **Measurement Method**：
@@ -55,9 +55,10 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 | HYP-001 | 单文件、内嵌 CSS、零外部依赖的 HTML 在主流浏览器和本地预览中能足够好地呈现 reviews / coverage / timeline 等结构 | Feasibility | 需引入静态站点构建器（mkdocs / 11ty 等），范围爆炸 | 高 | design 阶段给出 minimal HTML 样例，PR 内人工本地预览确认 | 否 |
 | HYP-002 | 多数项目能在 closeout 时从 `verification/` 或可选的 `evidence/coverage.json` 提供至少一个覆盖率数字 | Feasibility | "覆盖率卡片"将永远显示 N/A，feature 价值打折但仍可用 | 中 | design 阶段定义最小 coverage schema 并给出 ≥ 2 个常见 toolchain（pytest-cov / jest-coverage）的对接示例；HF 自身仓库也至少接入 pytest-cov 一次作为 dogfood | 否 |
 | HYP-003 | HTML 作为 closeout.md 的纯衍生 view，不引入"作者验收自己"问题 | Viability | 需把 HTML 也纳入独立 review，增加流程负担 | 高 | design 阶段约束"HTML 100% 来自已批准 `.md` / 不引入新结论 / 不修改任何长期资产"；reviewer 抽查 | 否 |
-| HYP-004 | 渲染脚本可使用 Python 标准库实现，与现有 `scripts/audit-skill-anatomy.py` 的依赖纪律一致 | Feasibility | 需引入第三方依赖（Jinja2 / pyyaml 等），项目维护负担上升 | 中 | design 阶段实测：用 `string.Template` + `html.escape` + `re` 实现章节解析与渲染，跑通 fixture | 否 |
+| HYP-004 | 在不引入新运行时依赖（即不新增第三方包 / CDN / 字体 / 图片 / 字体）的前提下，存在一种渲染实现能从 closeout pack 解析章节、转义文本、渲染表格 / 进度条 / 色标 | Feasibility | 需引入第三方依赖（如模板引擎 / Markdown 解析库），CON-001 失效，需走 ADR 决定 | 中 | design 阶段产出最小渲染 spike，使用项目已选定的工具链跑通 fixture，并给出 ≥ 2 个常见 toolchain 的 coverage 对接示例 | 否 |
+| HYP-005 | 非工程读者在 5 分钟内只读 `closeout.html` 就能回答 §2 列出的 5 个核心问题中的 ≥ 4 题 | Usability | §3 Outcome Metric 失效，feature 主张"比 markdown 更可读"被推翻；可能需要额外 reading aid（导读、TOC、focus mode）或重新平衡章节顺序 | 中 | 按 §3 Measurement Method 在 ≥ 5 个 closeout 样本上做 spotcheck，结果写入 `evidence/usability-spotcheck.md` | 否 |
 
-无 Blocking 假设。HYP-002 / HYP-004 confidence 为中，design 阶段必须落实验证计划并把结果写入 design 评审证据。
+无 Blocking 假设。HYP-002 / HYP-004 / HYP-005 confidence 为中，design / completion 阶段必须落实验证计划并把结果写入对应 review / verification 证据。
 
 ## 5. 用户角色与关键场景
 
@@ -73,8 +74,7 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 **范围内（Must）**
 
 - `hf-finalize` 在步骤 6（产出 closeout pack）之后增加渲染步骤，调用渲染器产出 `features/<active>/closeout.html`。
-- 渲染器：单 Python 文件（路径默认 `scripts/render-closeout-html.py`），仅依赖标准库。
-- 渲染输入：`features/<active>/closeout.md`（必需）、`README.md`、`progress.md`、`reviews/*`、`approvals/*`、`verification/*`、可选 `evidence/coverage.json`。
+- 渲染输入（逻辑契约，具体输入聚合方式由 design 决定）：`features/<active>/closeout.md`（必需）、`README.md`、`progress.md`、`reviews/*`、`approvals/*`、`verification/*`、可选 `evidence/coverage.json`。
 - HTML 报告章节（顺序）：
   1. Hero header（feature ID / title / closeout type / scope / conclusion / dates / profile / mode）
   2. Lifecycle Timeline（spec → design → tasks → TDD → reviews → gates → finalize 各阶段产出 + 日期 + verdict 色标）
@@ -84,15 +84,15 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
   6. Release / Docs Sync（ADR 状态翻转、CHANGELOG / arc42 / runbooks / SLO / index 同步路径列表）
   7. Handoff（remaining approved tasks / next action / worktree disposition / PR & branch）
   8. Open Notes / Limits
-- 单文件 HTML：内嵌 CSS、零外部 CDN / 字体 / 图片依赖；可离线打开。
-- 渲染失败的降级：脚本异常不阻塞 closeout 主流程；closeout pack `Evidence Matrix` 显式记录 `closeout.html` 状态为 `present` / `render-failed` / `N/A (project disabled)` 之一。
+- HTML 报告必须为单文件、内嵌样式、零外部 CDN / 字体 / 图片依赖、可离线打开（具体技术实现由 design 决定）。
+- 渲染失败的降级：渲染器异常不阻塞 closeout 主流程；closeout pack `Evidence Matrix` 显式记录 `closeout.html` 状态为 `present` / `render-failed` / `N/A (project disabled)` 之一。
 - 文档同步：
   - `skills/hf-finalize/SKILL.md` 增补步骤与 Output Contract；
   - `skills/hf-finalize/references/finalize-closeout-pack-template.md` 在 `Evidence Matrix` 增加 `closeout.html` 行；
   - `docs/principles/sdd-artifact-layout.md` 中 feature 目录布局示例增补 `closeout.html`；
   - `CHANGELOG.md` 在 `[Unreleased]` 写入条目（不假设版本号）。
-- 测试：渲染器单元测试（`scripts/test_render_closeout_html.py`）覆盖：完整证据 / 缺工件降级 / `task-closeout` / `workflow-closeout` / `blocked` / 缺 coverage 五至六类 fixture。
-- Dogfood：本 feature 自身在 `hf-finalize` 时跑通脚本，把渲染结果作为本 feature 的 closeout 证据。
+- 测试：渲染器自动化测试覆盖至少 6 类 fixture：完整证据 / 缺工件降级 / `task-closeout` / `workflow-closeout` / `blocked` / 缺 coverage / XSS payload 注入（测试组织形式由 design 决定）。
+- Dogfood：本 feature 自身在 `hf-finalize` 时跑通渲染器，把渲染结果作为本 feature 的 closeout 证据。
 
 **关键边界**
 
@@ -102,17 +102,16 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 
 ## 7. 范围外内容
 
-- 跨 feature / 项目级 dashboard 或 index HTML（即不渲染 `docs/index.html`）。
-- PDF / DOCX 导出。
-- 静态站点托管 / GitHub Pages 配置。
-- 覆盖率**数据采集**本身（pytest-cov / jest-coverage 配置由项目侧负责；HF 只读 schema）。
-- 自动生成 release notes / CHANGELOG 正文。
-- HTML 内嵌交互式查询、过滤、搜索（report 是只读快照）。
-- i18n（英文/中文双语）—— 本轮跟随 closeout.md 当前语言，不做语言切换。
-- CI 集成（GitHub Actions / GitLab CI 模板）。
-- 引入 Jinja2 / pyyaml / markdown-it 等第三方依赖。
+本节仅列出**hard non-goals**——本 feature 永久不做或不应通过本 feature 实现的能力。**未来增量候选** 已迁出至 [`spec-deferred.md`](spec-deferred.md)，每条带 Source ID / Priority / Deferral Reason / Re-entry Hint / Recommended Skill。
 
-后续增量候选见 `spec-deferred.md`（如有，本轮可暂不创建；deferred 内容已在本节列出）。
+Hard non-goals：
+
+- **不替代 `closeout.md`**：HTML 永远是衍生 view，Markdown 仍是 source of truth。
+- **不引入新的运行时依赖**：第三方包（Jinja2 / pyyaml / markdown-it 等）、外部 CDN / 字体 / 图片资源、远端样式表均不允许（约束已落 CON-001）。
+- **不进行覆盖率数据采集**：HF 只读取宿主项目已落盘的 coverage 数据，不替代 pytest-cov / jest-coverage 等工程工具的角色。
+- **不自动生成 release notes / CHANGELOG 正文**：HTML 仅以可视化方式呈现 closeout pack 中已批准的 release / docs sync 信息。
+- **不托管或部署**：本 feature 不引入 GitHub Pages / Netlify 等托管配置，HTML 是仓库内本地工件。
+- **不修改任何长期资产**：渲染器仅产出 `closeout.html` 一个文件，不写 `docs/`、`CHANGELOG.md`、`README.md`。
 
 ## 8. 功能需求
 
@@ -120,11 +119,12 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 
 - 优先级: Must
 - 来源: 用户请求"closeout 能有一份 HTML 工作总结报告"
-- 需求陈述（EARS 事件触发）: 当 `hf-finalize` 写入 `features/<active>/closeout.md` 之后，系统必须立即调用 HTML 渲染器并尝试写入 `features/<active>/closeout.html`。
+- 需求陈述（EARS 事件触发）: 当 `hf-finalize` 写入 `features/<active>/closeout.md` 之后，且项目级约定未显式禁用 HTML 渲染时，系统必须立即调用 HTML 渲染器并尝试写入 `features/<active>/closeout.html`。
 - 验收标准:
-  - Given `hf-finalize` 已成功写入 `closeout.md`，When 渲染器执行成功，Then `features/<active>/closeout.html` 必须存在，且 closeout pack 的 `Evidence Matrix` 中包含 `closeout.html` 行，状态为 `present`。
+  - Given `hf-finalize` 已成功写入 `closeout.md` 且项目未禁用 HTML 渲染，When 渲染器执行成功，Then `features/<active>/closeout.html` 必须存在，且 closeout pack 的 `Evidence Matrix` 中包含 `closeout.html` 行，状态为 `present`。
   - Given 渲染器执行抛异常（如必需输入解析失败），When closeout 流程继续，Then `closeout.md` 仍按原流程落盘，closeout pack `Evidence Matrix` 中 `closeout.html` 行状态为 `render-failed`，并附 1–3 行错误摘要。
-  - Given 项目级约定显式声明禁用 HTML 渲染，When closeout 执行，Then 系统不调用渲染器，`Evidence Matrix` 中 `closeout.html` 行状态为 `N/A (project disabled)`。
+
+（项目级 disabled 状态的 AC 由 FR-005 单独承担，避免双处定义。）
 
 ### FR-002 HTML 报告必含章节
 
@@ -140,11 +140,17 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 - 优先级: Must
 - 来源: 用户请求"要包含代码测试覆盖率等信息"
 - 需求陈述（EARS 状态约束）: 在 `Verification & Coverage` 章节下，当存在 coverage 数据来源时，系统必须把覆盖率数值以可视化卡片（含数字 + 进度条 / 圆环）的形式展示，并标注来源路径。
+- 数据来源优先级（从高到低，渲染器按此顺序逐级回落）：
+  1. `features/<active>/evidence/coverage.json` 且符合最小 schema（至少含 `lines.pct` 字段，数值在 [0, 100]）
+  2. `features/<active>/verification/regression-*.md` 或 `verification/completion-*.md` 中可识别的 `Coverage:` 行（形如 `Coverage: 84.3%`）
+  3. 上述均缺失或不可识别 → 标注为 `N/A（项目未提供覆盖率数据）`
 - 验收标准:
-  - Given `features/<active>/evidence/coverage.json` 存在且符合最小 schema（至少含 `lines.pct` 字段），When 渲染完成，Then HTML 必须显示 line coverage 的数值与进度条，并在卡片下方注明来源 `evidence/coverage.json`。
-  - Given `coverage.json` 不存在但 `verification/regression-*.md` 中含 `Coverage:` 行（形如 `Coverage: 84.3%`），When 渲染完成，Then HTML 必须显示该数值并注明来源 `verification/regression-*.md`。
-  - Given 既无 `coverage.json` 也无 `verification/*.md` 中可识别的 Coverage 行，When 渲染完成，Then HTML 必须在覆盖率卡片处显式显示 `N/A（项目未提供覆盖率数据）`，并提供 1 行接入指引链接（指向 design 阶段产出的 coverage schema 文档）。
-  - Given coverage 值不在 [0, 100] 范围或无法解析，When 渲染完成，Then HTML 必须显示 `Invalid` 而不是抛错，并把原始字符串放入 tooltip / data 属性。
+  - Given 数据来源 1 命中，When 渲染完成，Then HTML 显示 line coverage 数值与进度条，并在卡片下方注明来源 `evidence/coverage.json`。
+  - Given 数据来源 1 与数据来源 2 同时存在，When 渲染完成，Then HTML 必须使用数据来源 1 的数值；并在卡片下方以"次级来源"形式列出数据来源 2 的路径与数值（避免读者误以为冲突被隐藏）。
+  - Given `coverage.json` 存在但缺 `lines.pct` 字段或 schema 不完整，When 渲染完成，Then 视为数据来源 1 不命中并继续按优先级回落到数据来源 2；若数据来源 2 也不命中则按数据来源 3 处理。
+  - Given 数据来源 1 缺失但数据来源 2 命中，When 渲染完成，Then HTML 显示数据来源 2 的数值并注明来源 `verification/<file>.md`。
+  - Given 三级来源均缺失，When 渲染完成，Then HTML 必须在覆盖率卡片处显式显示 `N/A（项目未提供覆盖率数据）`，并提供 1 行接入指引链接（指向 design 阶段产出的 coverage schema 文档）。
+  - Given coverage 数值不在 [0, 100] 范围或无法解析为浮点数，When 渲染完成，Then HTML 必须显示 `Invalid` 而不是抛错，并把原始字符串保留在可访问的元数据属性中（如 tooltip / data attribute），便于排障。
 
 ### FR-004 verdict 色标与状态徽章
 
@@ -168,10 +174,10 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 
 - 优先级: Must
 - 来源: 用户请求"直观"——不应让读者再去翻文件树
-- 需求陈述: HTML 中所有引用周期内工件路径（spec / design / reviews / approvals / verification / evidence）的位置，必须使用相对链接（`<a href="...">`）使浏览器在文件协议下可点击跳转。
+- 需求陈述: HTML 中所有引用周期内工件路径（spec / design / reviews / approvals / verification / evidence）的位置，必须以浏览器可点击的 hypertext anchor 形式使用相对路径，使读者在 `file://` 协议下也能直接跳转。
 - 验收标准:
   - Given closeout.html 与 closeout.md 同目录，When 在浏览器以 `file://` 协议打开，Then 所有工件链接必须能跳转到对应文件而不报 404。
-  - Given 工件链接的目标文件不存在（如 `verification/regression-2026-05-09.md` 实际未生成），Then 该链接必须以 `class="missing"` 标记并显示为 strikethrough，避免误导读者认为已生成。
+  - Given 工件链接的目标文件不存在（如 `verification/regression-2026-05-09.md` 实际未生成），Then 该链接必须在视觉上以 missing-state 形式区分（如划线 / 弱化色 / 显式标记），避免误导读者认为已生成；具体视觉与可访问性表达由 design 决定。
 
 ## 9. 非功能需求 (ISO 25010 + Quality Attribute Scenarios)
 
@@ -188,7 +194,7 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 - Acceptance:
   - Given fixture 集合的 6 个 closeout 样本，When 在每个样本上独立运行渲染器，Then 0 个 unhandled exception；Markdown 渲染失败的样本产生 `render-failed` 状态并写入 stderr，但 exit code ≤ 1。
 
-### NFR-002 单文件可移植性（Portability / Installability + Compatibility / Co-existence）
+### NFR-002 单文件可移植性（Portability / Installability）
 
 - 优先级: Must
 - 来源: HYP-001
@@ -197,7 +203,7 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
   - Stimulus: 在离线环境双击或 `file://` 协议打开 `closeout.html`
   - Environment: 无网络、无任何项目工具链、仅有现代浏览器（Chromium ≥ 110 / Firefox ≥ 110）
   - Response: 报告完整渲染，包括样式、色标、布局
-  - Response Measure: HTML 文件不引用任何外部 URL（`http://` / `https://` / `//`）作为样式 / 字体 / 脚本来源；唯一允许的外部链接是 `<a href>` 指向 GitHub PR / commit / 工件相对路径。
+  - Response Measure: HTML 文件不引用任何外部 URL（`http://` / `https://` / `//`）作为样式 / 字体 / 脚本 / 图片来源；允许的外部链接仅限 hypertext anchor 指向 GitHub PR / commit 等远端语境，禁止把外部 URL 用作资源加载。
 - Acceptance:
   - Given 任一渲染产物 `closeout.html`，When 在离线浏览器打开，Then 页面布局、色标、卡片完整呈现；
   - Given 同一文件在 `grep -E 'src="https?://|href="https?://[^"]*\.(css|js|woff|svg|png|jpg)"' closeout.html` 下，Then 命中数 = 0。
@@ -260,7 +266,7 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
 
 ## 10. 外部接口与依赖
 
-- **输入接口**：feature 目录路径（`features/<NNN>-<slug>/`）。脚本 CLI 形式：`python scripts/render-closeout-html.py <feature-dir>`，输出落到 `<feature-dir>/closeout.html`。
+- **输入接口（逻辑契约）**：渲染器以 feature 目录路径（`features/<NNN>-<slug>/`）作为唯一必需输入，输出 `<feature-dir>/closeout.html`。具体调用形式（命令行 / 函数调用 / 子进程）由 design 决定。
 - **可选输入：coverage 最小 schema**（design 阶段固化）：
   ```json
   {
@@ -271,12 +277,12 @@ HarnessFlow 当前的 closeout 产出物 `closeout.md` 是一份结构化 Markdo
   }
   ```
   仅 `lines.pct` 是 design 阶段需保证可读取的最小字段；其余允许缺失。
-- **依赖**：Python ≥ 3.9（标准库），与现有 `scripts/audit-skill-anatomy.py` 一致。
-- **失效影响**：Python 解释器缺失时，HF 主流程不受影响（HTML 渲染降级为 `render-failed` 并写入诊断信息）。
+- **依赖**：渲染器不引入任何新的运行时依赖（包括第三方 Python 包 / Node 包 / CDN / 字体 / 图片资源）；具体语言与运行时由 design 决定，但必须沿用项目既有工具链纪律（参见 CON-001）。
+- **失效影响**：渲染器所依赖的运行时缺失时，HF closeout 主流程不受影响——`closeout.md` 仍按原流程落盘，`Evidence Matrix` 中 `closeout.html` 行状态为 `render-failed` 并附诊断信息。
 
 ## 11. 约束与兼容性要求
 
-- **CON-001**：不引入第三方 Python 依赖（标准库优先），与 `scripts/audit-skill-anatomy.py` 风格一致。来源：项目纪律 / HYP-004。
+- **CON-001**：渲染器不引入任何新的运行时依赖——包括但不限于第三方 Python 包、第三方 Node 包、外部 CDN 引用、外部字体 / 图片 / 图标资源。沿用项目既有工具链纪律（参见 `scripts/audit-skill-anatomy.py` 的标准库纪律风格）。具体技术栈与文件组织由 design 决定。来源：项目纪律 / HYP-004。
 - **CON-002**：不破坏现有 `closeout.md` 契约——`hf-finalize` 的所有既有 hard gate / verification / output contract 保持不变。HTML 是**追加**输出，不是替换。来源：`skills/hf-finalize/SKILL.md` 现行契约。
 - **CON-003**：HTML 文件必须放在 `features/<active>/closeout.html`，与 `closeout.md` 同目录，遵循 `docs/principles/sdd-artifact-layout.md` 的双根目录布局。来源：sdd-artifact-layout.md。
 - **CON-004**：feature 目录平铺保留在 `features/` 下，不移动到 `archived/`；HTML 路径不会因 closeout 后归档而失效。来源：sdd-artifact-layout.md Red Flags。
