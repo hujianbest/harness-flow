@@ -146,7 +146,6 @@ HF 的设计前提是：方法论按**层**先分工，再按**字段**分工，
 | Canon TDD「test list」 | HF「测试设计 approval」 | HF 在 Canon 前加了"测试设计 approval"前置步；不允许以 Canon 为由跳过 approval | `hf-test-driven-dev/SKILL.md` |
 | Two Hats | Preparatory Refactoring | 都是 Beck / Fowler 纪律；preparatory 必须**独立成步**且在 RED 之前，不允许混进 RED | `hf-test-driven-dev/SKILL.md` workflow |
 | `hf-experiment` | `hf-test-driven-dev` | experiment 是在 spec 之前或之中的**假设**验证；TDD 是在已批准 spec / design 之后的**实现**验证；**互相不得替代** | `hf-experiment/SKILL.md` 区别表 |
-| `hf-bug-patterns`（mandatory gate） | `hf-bug-patterns`（可选经验沉淀） | `hf-bug-patterns` 只是**可选旁路**，不得写成 `hf-test-review` 前的 mandatory gate | `docs/principles/hf-sdd-tdd-skill-design.md` |
 | Fagan inspection full protocol | HF review skills | HF 只取"独立 reviewer"纪律，不搬 Fagan 完整流程 | review skills 的 Methodology 表 |
 | ATAM full protocol | HF design-review | 同上：取"QA driven"精神，不跑 ATAM 完整会议流程 | `hf-design-review` |
 
@@ -231,7 +230,7 @@ Phase 0 之后仍存在的冲突风险，按优先级排列：
 
 - 每次 Phase 新增 / 调整方法时，**必须**更新本文件
 - 每次 skill 的 Methodology 表改动，**必须**对应检查本文件
-- `hf-bug-patterns` / `hf-retrospective`（Phase 1 起引入）中若沉淀出方法冲突的新案例，应**反馈**到本文件而非在各 skill 里散落修复
+- `hf-retrospective`（Phase 1 起引入）中若沉淀出方法冲突的新案例，应**反馈**到本文件而非在各 skill 里散落修复
 
 ---
 

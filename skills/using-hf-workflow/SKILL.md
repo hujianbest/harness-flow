@@ -129,48 +129,6 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 `route-first` 时，不回放 entry matrix、不重讲分层历史、不展开不相关的备选；只说明"为什么不能 direct invoke"然后立即转交。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 using-hf-workflow | 不用 |
-|------|----------------------|------|
-| 新会话入口、意图识别、direct vs route | ✅ | |
-| runtime 恢复编排、profile/mode 判断 | | → `hf-workflow-router` |
-| 已在 leaf skill 内部 | | → 继续当前 skill |
-| 产品 thesis 层面 | | → `hf-product-discovery` |
-
-### Public entry vs Router vs Direct invoke
-
-| 维度 | Public entry（本 skill） | Router 编排 | Direct invoke |
-|---|---|---|---|
-| 目标 | 判断该 direct invoke 哪个 leaf 还是交给 router | 决定当前应进入哪个节点 | 完成某个已经明确的节点职责 |
-| 最小输入 | 用户请求 + 最少 family entry context + Execution Mode 信号 | 用户请求 + 项目级约定 + 上游工件状态 + 当前 active feature 的 `progress.md` + review/gate/verification/approval 证据 | 当前节点所需最小工件 + 当前请求 + Execution Mode 信号 |
-| 是否判断 profile | 否；profile 不清就回 router | 是 | 否；profile 不清就回 router |
-| 是否处理 Execution Mode | 只识别并下传 | 是；归一化并约束 `interactive` / `auto` | 只消费已明确的 mode；冲突就回 router |
-| 是否决定下一节点 | 只决定"leaf 还是 router" | 是 | 否；只写 canonical handoff，后续编排回到父会话 / router |
-| review 如何执行 | 只判断是否进入某 review 节点；进入后由 router/父会话按 review-dispatch 派发 | 由父会话按 review-dispatch protocol 派发 reviewer subagent | 同 router 模式 |
-| 输出 | 进入 leaf skill 或交给 `hf-workflow-router` | 当前阶段判断 + profile + 推荐节点，并立即继续或命中暂停点 | 节点本地工件 + 状态更新 + canonical handoff + 必要 review/verification record |
-
-### 典型 direct invoke 示例
-
-- "先把产品方向、问题和 wedge 收敛清楚，不要直接写 spec" → `hf-product-discovery`
-- "这条假设没把握，先做个最小 probe 再决定 spec" → `hf-experiment`
-- "先把需求梳理清楚，不要做设计" → `hf-specify`
-- "帮我 review 这份 spec 草稿"（spec 草稿已存在且这是 review-only 请求）→ `hf-spec-review`
-- "按 TDD 实现当前 active task"（任务计划已批准且活跃任务唯一）→ `hf-test-driven-dev`
-- "这是线上 bug，先收敛 root cause 和最小修复边界" → `hf-hotfix`
-- "这是需求变更，不要改代码，先做影响分析和 re-entry"（变更请求明确且关键工件可读）→ `hf-increment`
-- "completion gate 过了，帮我做收尾和 release notes"（gate 记录已落盘）→ `hf-finalize`
-
-### 不算合法 direct invoke 的反模式
-
-- 用户点名 skill 就直接执行，不核对当前阶段
-- direct invoke implementation / gate skill，却没读取最小上游工件
-- 让 authoring skill 顺手决定完整下游链路
-- 让 review skill 顺手开始修文档或做实现
-- 让 finalize 在 gate 未通过时提前收尾
-- 把 `using-hf-workflow` 写进 `Next Action Or Recommended Skill`
-- 在 route / stage / profile 冲突下继续硬做当前 skill
-
 ## Red Flags
 
 - 把 `using-hf-workflow` 写成完整状态机
@@ -196,6 +154,14 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 4. **Goal-Driven Execution**：始终对齐"帮助用户从 idea 到产品高质量落地"，未达成 direct invoke 标准就 route-first，不为速度让步
 
 当前 pack 已提供 `hf-product-discovery` 作为 discovery leaf；本 skill 继续作为唯一 public entry，不再引入第二个 product public shell。
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "我知道下一步是哪个 leaf skill，直接 invoke。" | Workflow stop rule: 路径不确定 / 证据冲突时必须经 hf-workflow-router；越过 router 会绕开 evidence-based recovery。 |
+| "聊天上下文里我已经记得状态了。" | Hard Gates: 状态从 on-disk artifacts 恢复，不依赖 chat memory；记忆 ≠ evidence。 |
+| "新会话直接 /build。" | Workflow stop rule: 新会话 family discovery 必须从 using-hf-workflow 开始，再决定 bias。 |
 
 ## Verification
 

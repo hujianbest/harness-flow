@@ -151,15 +151,6 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 
 若草稿未达评审门槛，不伪造 handoff；明确还缺什么。
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `using-hf-workflow` | 入口层只负责判断是否该进入 discovery；本 skill 负责真正起草 discovery 正文。 |
-| `hf-discovery-review` | review 负责独立评审 discovery 草稿；本 skill 只负责起草和回修。 |
-| `hf-specify` | discovery 回答“为什么值得做、当前 wedge 是什么、哪些假设仍未关闭”；specify 回答“这一轮正式做什么、做到什么程度算完成”。 |
-| `hf-workflow-router` | router 负责 authoritative runtime routing；本 skill 假设当前已明确在做 discovery authoring。 |
-
 ## Red Flags
 
 - 把 brainstorming notes 直接当成已稳定结论
@@ -190,6 +181,15 @@ Direct invoke 信号：“先帮我把产品方向想清楚”“先收敛问题
 - `lightweight` 会话默认只读 `discovery-template.md`；JTBD / OST / 量化只在模板章节显式触发时再按上表加载
 - `standard` 会话默认读 `discovery-template.md` + `jtbd-framework.md`；其余按命中条件
 - `full` 会话按实际需要加载；若主题已明确为切换型或多候选并排，预读对应 reference
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "用户只是要个 MVP，跳过 JTBD 直接开 spec 更快。" | Hard Gates: 必须沉淀 Job / Outcome / Opportunity Tree 才能进入 hf-discovery-review。Verification: discovery record 落盘且包含可回读的 hypothesis。 |
+| "目标用户已经很清楚了，不必走 RICE / ICE。" | Workflow stop rule: 优先级证据缺失就不能产出 backend output object（discovery findings）。 |
+| "我可以同时帮用户拍板技术栈。" | Hard Gates: discovery 阶段不替用户做方向 / 取舍 / 标准（soul.md），技术栈是 hf-specify / hf-design 的对象。 |
+| "已经有相似产品调研，直接抄结论。" | Verification: 必须为本次 feature 产出 fresh evidence，外部调研只能作为输入参考。 |
 
 ## Verification
 

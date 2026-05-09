@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "prompt": "bug-patterns 已完成，review 当前测试质量，看能不能进 code review。",
+    "prompt": "实现已完成，review 当前测试质量，看能不能进 code review。",
     "expected": "检查 fail-first、行为覆盖、风险覆盖和测试设计质量，给出 verdict 和唯一下一步。"
   },
   {

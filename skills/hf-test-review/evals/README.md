@@ -16,6 +16,6 @@
 ## 建议评分关注点
 
 1. 是否基于 RED/GREEN 证据判断 fail-first 有效性
-2. 是否检查 bug-patterns 风险覆盖
+2. 是否检查已声明风险（项目缺陷模式 / 风险清单 / hotfix 历史）的覆盖
 3. 是否给出唯一 canonical 下一步
 4. 是否能指出 acceptance 映射或 stale evidence 缺口，而不是只给抽象意见

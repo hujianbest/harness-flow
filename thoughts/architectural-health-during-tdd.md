@@ -178,7 +178,6 @@ Refactor Note 必须出现在实现交接块里，原因：
 | `hf-traceability-review` | 不变；通过 Refactor Note 获得更稳定的实现-设计对齐证据 |
 | `hf-increment` | 接收 escalation：跨模块结构性重构、ADR 变更、模块边界变更都走这里 |
 | `hf-hotfix` | 不变；`Minimal Safe Fix Boundary` 已经禁止热修复中夹带重构 |
-| `hf-bug-patterns` | 不变；可消化重复出现的 architectural smell 作为长期模式 |
 
 ## 反模式
 

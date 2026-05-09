@@ -239,8 +239,6 @@ hf-test-driven-dev
   -> hf-finalize
 ```
 
-`hf-bug-patterns` 更适合作为独立经验固化旁路：当 AI 识别到“这类错误以前犯过，而且值得沉淀成长期模式”时触发，先询问真人是否要固化到 bug pattern catalog，而不是作为 canonical gate 卡在 `hf-test-review` 之前。
-
 ### 支线
 
 ```text

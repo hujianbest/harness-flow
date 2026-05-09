@@ -2,6 +2,21 @@
 
 This is the **demo-internal** changelog. It is independent of HarnessFlow's repository-root `CHANGELOG.md` (which tracks the HarnessFlow skill pack itself).
 
+## [Unreleased] — HF v0.2.0 refresh
+
+> 触发：HarnessFlow 升级到 v0.2.0 pre-release（参见 HF 仓库根 `CHANGELOG.md` `[Unreleased] / Planned (v0.2.0)` 段 + `docs/decisions/ADR-002-release-scope-v0.2.0.md`）。**demo 工件、实现、测试均不变**；只补一份 v0.2.0 新节点的 evidence-based 激活核对痕迹。
+
+### Added
+
+- `features/001-walking-skeleton/verification/browser-testing-skip-2026-05-07.md` — HF v0.2.0 新增节点 `hf-browser-testing`（verify-stage runtime evidence side node，ADR-002 D1 / D7）的激活规则核对记录。结论 **SKIP**：spec 未声明 UI surface 且 task-001 模块边界未触碰前端，激活规则 2/3 均不命中（条件 1 GREEN 已满足）。4 条独立旁证（spec-review verdict / closeout matrix / feature README artifacts / spec.md grep）同向支持 SKIP。
+
+### Notes
+
+- 新增的 `hf-browser-testing` 是 v0.2.0 首个对外承诺面新增工程节点（其余 R3/R4/R5 由 ADR-002 D11 撤回到 v0.3+，不影响本 demo）。
+- demo 受 HF 升级影响的范围**仅限 evidence 痕迹补全**：`closeout.md` Evidence Matrix、`features/001-walking-skeleton/README.md` Artifacts + Reviews & Approvals 表、`progress.md` Progress Notes / Evidence Paths 各加一条对应 SKIP 记录的索引行。
+- demo 不改代码 / 测试 / spec / design / tasks / 任何 review verdict / 任何 gate verdict（与 ADR-001 D9 "demo 的 deliverable 是 HF 主链工件痕迹，不是产品本身" 一致）。
+- 当 writeonce 后续真的引入 UI surface 时（例如 web 化的发布预览），spec 会显式声明 UI surface，`hf-ui-design` + `hf-ui-review` 与 `hf-browser-testing` 都会被 router 自动激活，届时本 SKIP 记录自然失效。
+
 ## [0.1.0] - 2026-04-29
 
 First and only WriteOnce release for the HarnessFlow v0.1.0 quickstart demo.

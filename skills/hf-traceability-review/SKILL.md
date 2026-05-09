@@ -30,16 +30,6 @@ description: 适用于 code review 通过后判断追溯完整性、用户显式
 
 Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证据链完整性"。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 hf-traceability-review | 不用 |
-|------|---------------------------|------|
-| 评审规格→设计→任务→实现的追溯链 | ✅ | |
-| 评审代码质量 | | → `hf-code-review` |
-| 评审测试质量 | | → `hf-test-review` |
-| 评审任务计划质量 | | → `hf-tasks-review` |
-| 阶段不清/证据冲突 | | → `hf-workflow-router` |
-
 ## Hard Gates
 
 - traceability review 通过前不得进入 regression gate
@@ -132,6 +122,14 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 - "代码能跑"等同于"追溯完整"
 - 忽略规格/设计与代码的不一致
 - 返回多个候选下一步
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "spec → code 链路抽样几条就行。" | Hard Gates: 必须全量映射 spec 段 → design 元素 → task → impl → 测试；抽样 → finding。 |
+| "缺一两条 backward link 不影响交付。" | Workflow stop rule: backward traceability 缺失会让 hf-completion-gate 无法判定 DoD 全覆盖。 |
+| "我自己补缺失的 traceability 条目。" | Hard Gates (soul.md): 评审者只产出 finding，traceability 条目由作者补。 |
 
 ## Verification
 

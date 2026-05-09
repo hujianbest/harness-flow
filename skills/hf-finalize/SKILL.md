@@ -109,7 +109,7 @@ Profile-aware 证据矩阵：
 
 ### 4. 同步长期资产到 `docs/`，更新 release notes / CHANGELOG
 
-遵循 **sync-on-presence** 原则：**同步范围按 `docs/` 实际存在的子目录 + 本 feature 触发了升级条件的子目录决定**，不要求项目同步未启用的资产。`docs/` 各档载体（`docs/architecture.md` 单文件 vs `docs/arc42/` 拆分；`docs/runbooks/` / `docs/slo/` / `docs/postmortems/` / `docs/release-notes/` / `docs/diagrams/` / `docs/bug-patterns/` / `docs/insights/` / `docs/index.md` 等可选子目录；仓库根 `CHANGELOG.md` / `README.md`）按存在判断；具体载体清单见下方"必须 / 条件 / N/A"三类列表。
+遵循 **sync-on-presence** 原则：**同步范围按 `docs/` 实际存在的子目录 + 本 feature 触发了升级条件的子目录决定**，不要求项目同步未启用的资产。`docs/` 各档载体（`docs/architecture.md` 单文件 vs `docs/arc42/` 拆分；`docs/runbooks/` / `docs/slo/` / `docs/postmortems/` / `docs/release-notes/` / `docs/diagrams/` / `docs/insights/` / `docs/index.md` 等可选子目录；仓库根 `CHANGELOG.md` / `README.md`）按存在判断；具体载体清单见下方"必须 / 条件 / N/A"三类列表。
 
 必须同步项（任何 tier）：
 
@@ -218,14 +218,6 @@ Closeout type-specific 约束：
 - If not confirmed: return to `hf-workflow-router`
 ```
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-completion-gate` | 判断当前任务能否宣告完成；本 skill 消费该结论并做状态 / 文档 / closeout 收口 |
-| `hf-workflow-router` | 决定下一任务或下一节点；本 skill 只在 closeout 之后把结果写回 router 或 null |
-| `hf-test-driven-dev` | 写实现与 fresh evidence；本 skill 不做新实现 |
-
 ## Reference Guide
 
 | 文件 | 用途 |
@@ -245,6 +237,15 @@ Closeout type-specific 约束：
 - 把 closeout 后的 feature 目录移动到 `features/archived/`，破坏其它工件的反向引用
 - 用会话记忆代替 on-disk 记录
 - 忘记记录 worktree 最终 disposition
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "completion-gate pass 了，state sync 我下次会话再补。" | Hard Gates: state sync / progress 闭合是 finalize 必需输出；跨会话补 = 没补。 |
+| "release notes 我直接复制 commit messages。" | Workflow stop rule: release notes 必须按 PMBOK closeout 的格式，覆盖 scope / artifact / handoff，不是 commit dump。 |
+| "handoff pack 不重要，next agent 自己看 commit。" | Hard Gates: handoff pack 是 evidence-based recovery 的唯一入口；缺位 → 下游 agent 无 canonical 起点。 |
+| "finalize 之后顺便 deploy。" | Hard Gates (ADR-001 D1 / ADR-002 D1): 主链终点是工程级 closeout；deploy / ship / ops 不在 v0.1.x / v0.2.x 范围。 |
 
 ## Verification
 

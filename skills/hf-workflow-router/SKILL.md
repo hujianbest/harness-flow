@@ -35,15 +35,6 @@ HF workflow family 的 **runtime authority**。负责根据最新证据决定：
 
 Direct invoke 信号：reviewer 返回 `reroute_via_router=true`、证据冲突需权威路由。
 
-## 和其他 Skill 的区别
-
-| 场景 | 用 hf-workflow-router | 不用 |
-|------|----------------------|------|
-| runtime 恢复编排、profile/mode 判断 | ✅ | |
-| 新会话 family discovery | | → `using-hf-workflow` |
-| 具体节点的作者/评审/实现工作 | | → 对应 leaf skill |
-| 具体节点的评审 | | → 对应 review skill |
-
 ## Workflow
 
 ### 1. 确认是否属于 runtime routing
@@ -166,6 +157,14 @@ runtime canonical 写法统一：`hf-workflow-router`、`reroute_via_router`。
 | `references/routing-evidence-guide.md` | 路由证据收集指南 |
 | `references/routing-evidence-examples.md` | 路由判定示例 |
 | `references/ui-surface-activation.md` | UI surface 激活条件、Design Execution Mode、联合 design approval 规则 |
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "用户喊 /build 就跳过 router 直接到 hf-test-driven-dev。" | Workflow stop rule: 命令是 bias 不是 bypass；必须读 on-disk artifacts 决定真实下一步。 |
+| "上游证据不全，我替默认一下走下去。" | Hard Gates (soul.md): router 不替用户做方向 / 取舍；缺 evidence → reroute 回上游或停下抛回。 |
+| "FSM 里没列的边角场景我自己加跳转。" | Workflow stop rule: 路径必须落在 references/profile-node-and-transition-map.md；新增跳转需走 ADR / increment，不在 runtime 拍。 |
 
 ## Verification
 

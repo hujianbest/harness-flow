@@ -192,7 +192,7 @@
 ## 风险与状态同步
 
 - 剩余风险：其他认证入口可能存在相同空值问题
-- 是否需要后续补强：需要把“空值分支遗漏”整理成独立 `hf-bug-patterns` 候选经验
+- 是否需要后续补强：需在其他认证入口排查是否存在相同的空值分支遗漏
 - `Current Stage`：`hf-regression-gate`
 - `Current Active Task`：T18
 - `Pending Reviews And Gates`：`hf-regression-gate`, `hf-completion-gate`

@@ -229,15 +229,6 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 - `Next Action Or Recommended Skill`: `hf-specify` | `hf-hotfix` | `hf-spec-review` | `hf-design` | `hf-design-review` | `hf-tasks` | `hf-test-driven-dev` | `hf-workflow-router`
 ```
 
-## 和其他 Skill 的区别
-
-| Skill | 区别 |
-|-------|------|
-| `hf-hotfix` | 处理已上线功能的缺陷修复（复现→根因→最小修复）；本 skill 处理需求/范围/验收变更 |
-| `hf-test-driven-dev` | 写/修代码、TDD 实现；本 skill 只做变更分析和工件同步，不直接推进实现 |
-| `hf-workflow-router` | 编排/路由/阶段判断；本 skill 只处理已明确判定为 increment 的变更分支 |
-| `hf-specify` | 写/改规格；本 skill 判断变更影响并决定回流到哪个 canonical 节点 |
-
 ## Red Flags
 
 - 把需求变更误当成单纯任务调整
@@ -246,6 +237,14 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 - 不显式标记失效的批准、任务或验证证据
 - 没有完成影响分析，就提前回到实现阶段
 - `Next Action Or Recommended Skill` 写成自由文本或自然语言阶段名
+
+## Common Rationalizations
+
+| 借口 | 反驳 / Hard rule |
+|------|-------------------|
+| "scope 改一点点，不开 increment 直接改 active task。" | Hard Gates: 已批准 spec / design 的范围改动必须走 hf-increment 的 impact 分析与 re-entry，不能在 active task 内悄悄扩大。 |
+| "影响分析心里过了一遍就行。" | Workflow stop rule: impact analysis 必须落盘，hf-workflow-router 据此重新规划路径。 |
+| "increment 后跳过 review，直接进 build。" | Hard Gates: re-entry 节点的下游仍按主链 review / gate 流转，不允许跳过。 |
 
 ## Verification
 

@@ -4,14 +4,14 @@
 
 **From idea to shipped product: high-quality engineering workflows for AI agents.**
 
-> ## Scope Note (v0.1.0 pre-release)
+> ## Scope Note (v0.3.0 pre-release)
 >
-> - **Version**: `v0.1.0`, marked as a **pre-release** on GitHub Releases. The public surface is intentionally small.
-> - **Officially supported clients**: **Claude Code** and **OpenCode** only. Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro are deferred to v0.2+ (HarnessFlow may run there because it is plain Markdown, but those paths are not part of the v0.1.0 commitment).
-> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). Release pipelines, deployment, observability, incident response, security hardening, performance gating, and post-launch ops are **not** first-class stages in v0.1.0; they are roadmap items for v0.2 / v0.3.
-> - This narrow surface is a deliberate choice (ADR-001 D1 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
+> - **Version**: `v0.3.0`, marked as a **pre-release** on GitHub Releases. v0.3.0 is a single-client-expansion release: it adds **Cursor** as the third officially-supported client; it does **not** add new `hf-*` skills, does **not** introduce personas, and does **not** change the main chain.
+> - **Officially supported clients**: **Claude Code**, **OpenCode**, and **Cursor** (Cursor newly added in v0.3.0). The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.4+ (ADR-003 D1, mirroring ADR-002 D11's "do one client at a time" stance; HarnessFlow may still run there because it is plain Markdown, but those paths are **not** part of the v0.3.0 commitment).
+> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). v0.2.0 added `hf-browser-testing` as a verify-stage runtime evidence side node (DOM + console + network); v0.3.0 added no further main-chain skills (ADR-003 D2 / D4). Release pipelines, deployment, observability, incident response, security hardening, performance gating, debugging-and-error-recovery, and deprecation-and-migration remain v0.4+ roadmap items.
+> - This narrow surface is a deliberate choice (ADR-001 D1 / ADR-002 D1 / ADR-003 D2 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
 >
-> See `docs/decisions/ADR-001-release-scope-v0.1.0.md` for the full release scope decisions.
+> See `docs/decisions/ADR-003-release-scope-v0.3.0.md` for the full v0.3.0 release scope decisions; `docs/decisions/ADR-002-release-scope-v0.2.0.md` (含 D11 校准说明) and `docs/decisions/ADR-001-release-scope-v0.1.0.md` for lineage.
 
 HarnessFlow is a skill pack for AI agents that turns the full **idea → insight → architecture → implementation → delivery** arc into structured artifacts, quality discipline, and clear handoffs. Product discovery, specification, architecture design, task breakdown, gated TDD implementation, independent reviews, regression and completion gates, and formal closeout are all first-class stages, so agents move along an explicit "one idea → reviewable direction → reviewable design → executable tasks → shipped product" path instead of relying on ad hoc prompt chains.
 
@@ -56,7 +56,7 @@ HarnessFlow's primary path covers the full **idea-to-product** arc:
 - **Regression and completion gates**: impact-based regression + evidence bundle + Definition of Done
 - **Formal closeout**: PMBOK-style task closeout and workflow closeout
 - **Runtime routing and recovery**: `using-hf-workflow` / `hf-workflow-router` resume orchestration from artifacts, not chat memory
-- **Side branches and learning loops**: `hf-hotfix` / `hf-increment` / `hf-bug-patterns`
+- **Side branches and learning loops**: `hf-hotfix` / `hf-increment`
 
 Further evolution toward commercial-grade delivery (release, ops, metrics feedback, team collaboration, long-term architecture health, data / AI product tracks) is planned but not yet landed.
 
@@ -145,7 +145,7 @@ These principles live in the constitution layer (`docs/principles/`) as HF's own
 | Skill | Core methodology |
 |-------|------------------|
 | `hf-test-driven-dev` | TDD, Walking Skeleton, Test Design Before Implementation, Fresh Evidence Principle, Two Hats (Beck/Fowler), Opportunistic + Boy Scout Refactoring, Preparatory Refactoring, Clean Architecture Conformance, Escalation Boundary |
-| `hf-test-review` | Fail-First Validation, Coverage Categories, Bug-Pattern-Driven Testing, Structured Walkthrough |
+| `hf-test-review` | Fail-First Validation, Coverage Categories, Risk-Based Testing, Structured Walkthrough |
 | `hf-code-review` | Fagan Code Inspection, Design Conformance Check, Defense-in-Depth Review, Clean Architecture Conformance Check, Two Hats / Refactoring Hygiene Review, Architectural Smells Detection, Separation of Author/Reviewer Roles |
 | `hf-traceability-review` | End-to-End Traceability, Zigzag Validation, Impact Analysis |
 
@@ -164,7 +164,6 @@ These principles live in the constitution layer (`docs/principles/`) as HF's own
 |-------|------------------|
 | `hf-hotfix` | Root Cause Analysis / 5 Whys, Minimal Safe Fix Boundary, Blameless Post-Mortem Mindset |
 | `hf-increment` | Change Impact Analysis, Re-entry Pattern, Baseline-before-Change, Separation of Analysis and Implementation |
-| `hf-bug-patterns` | Defect Pattern Catalog, Blameless Post-Mortem / Learning Review, Human-In-The-Loop Knowledge Curation |
 
 ## Why These Methods Are Assigned To These Skills
 
@@ -191,18 +190,20 @@ HF does not assign methods arbitrarily. Each skill gets the methods that best ma
 
 ## Installation
 
-HarnessFlow v0.1.0 officially supports **Claude Code** and **OpenCode**. Both paths read the same `skills/` directory; the difference is only in how each client discovers commands.
+HarnessFlow v0.3.0 officially supports **Claude Code**, **OpenCode**, and **Cursor**. All three paths read the same `skills/` directory; the difference is only in how each client discovers HF (Claude Code: marketplace plugin + 6 slash commands; OpenCode: `.opencode/skills` symlink + NL routing; Cursor: `.cursor/rules/harness-flow.mdc` alwaysApply rule + NL routing).
 
 ### Claude Code (recommended)
 
-Marketplace install:
+Marketplace install (use the explicit HTTPS URL with `.git` suffix to force HTTPS cloning; the `owner/repo` shortcut form would default to SSH and fail without GitHub SSH keys):
 
 ```text
-/plugin marketplace add hujianbest/harness-flow
-/plugin install harness-flow@harness-flow
+/plugin marketplace add https://github.com/hujianbest/harness-flow.git
+/plugin install harness-flow@hujianbest-harness-flow
 ```
 
 This installs 6 short slash commands (see [Slash Commands](#slash-commands-claude-code) below).
+
+> The install command is `harness-flow@hujianbest-harness-flow` (plugin name `harness-flow` + marketplace name `hujianbest-harness-flow`), not `harness-flow@harness-flow`. v0.2.0 shipped with the marketplace also named `harness-flow`, which caused a name-collision bug in Claude Code's resolver; v0.2.1 renamed the marketplace to fix it. See `docs/claude-code-setup.md` for full setup notes including SSH troubleshooting.
 
 Local / development install (when iterating on HarnessFlow itself):
 
@@ -216,25 +217,41 @@ Full setup notes, troubleshooting, and the SSH/HTTPS fallback for marketplace fe
 
 ### OpenCode
 
-OpenCode integration is intentionally **agent-driven** with **no `AGENTS.md` sidecar** and no slash command files (PR #21 made every `hf-*` skill self-contained; ADR-001 D3 confirmed no sidecar is needed). The agent uses natural language and the on-disk artifacts under `skills/` to route every request.
+OpenCode integration is intentionally **agent-driven** with **no `AGENTS.md` sidecar** and no slash command files (PR #21 made every `hf-*` skill self-contained; ADR-001 D3 confirmed no sidecar is needed). The agent uses natural language and the `skill` tool over the HF skills under `skills/` to route every request.
+
+OpenCode's [`skill` tool](https://opencode.ai/docs/skills/) only auto-discovers skills under `.opencode/skills/`, `.claude/skills/`, `.agents/skills/` (project-local) or their `~/.config/opencode/`, `~/.claude/`, `~/.agents/` global counterparts. A bare `skills/` folder at the repo root is **not** picked up. To make HarnessFlow work without duplicating files, this repository ships a symlink `.opencode/skills -> ../skills`, so cloning and opening it is enough:
 
 ```bash
 git clone https://github.com/hujianbest/harness-flow.git
 cd harness-flow
+opencode .
 ```
 
-Open the repository in OpenCode and start with:
+Verify discovery in OpenCode with `/skills` — you should see all 23 `hf-*` skills (including v0.2.0's `hf-browser-testing`) plus `using-hf-workflow`. Then start with:
 
 ```text
-Use HarnessFlow from this repo. Start with `using-hf-workflow` and route me
-through the correct HF workflow.
+Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool
+and route me through the correct HF workflow.
 ```
 
-Full intent → node mapping and troubleshooting: `docs/opencode-setup.md`.
+To use HarnessFlow inside another project, copy or symlink the `skills/` directory into that project's `.opencode/skills/` (or install globally under `~/.config/opencode/skills/`). Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md`.
 
-### Other clients (deferred to v0.2+)
+### Cursor (new in v0.3.0)
 
-HarnessFlow skills are plain Markdown, so they **may** work with Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.1.0 supported surface** and have no setup doc in this version.
+Cursor integration uses Cursor's **rules** mechanism (no plugin, no slash commands). The repository ships `.cursor/rules/harness-flow.mdc` with `alwaysApply: true` frontmatter, which on every Cursor session loads `skills/using-hf-workflow/SKILL.md` as the entry shell and hands off to `skills/hf-workflow-router/SKILL.md`.
+
+```bash
+git clone https://github.com/hujianbest/harness-flow.git
+cursor harness-flow
+```
+
+Then send any natural-language intent (e.g. "Use HarnessFlow from this repo. I want to add rate limiting to our notifications API. Do not jump straight to code."). The router will pick the canonical next node from on-disk evidence — same NL + router model as OpenCode (ADR-003 D6).
+
+To use HarnessFlow inside another project on Cursor, copy `.cursor/rules/harness-flow.mdc` into that project's `.cursor/rules/` and either keep `skills/` at the project root or symlink it under `.cursor/harness-flow-skills/`. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/cursor-setup.md`.
+
+### Other clients (deferred to v0.4+)
+
+HarnessFlow skills are plain Markdown, so they **may** work with Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.3.0 supported surface** and have no setup doc in this version. ADR-003 D1 keeps them deferred to v0.4+ (mirroring ADR-002 D11's "do one client at a time" stance — Cursor is the first to land in v0.3.0; the others will be evaluated by real-usage feedback before batch-adding).
 
 ### Quickstart Demo: WriteOnce
 
@@ -273,7 +290,7 @@ Intentionally **not** included in v0.1.0:
 - No `/hotfix` — natural language + `/hf` lets the router branch into `hf-hotfix` / `hf-increment` for production defects or scope changes.
 - No `/gate` — gates are pulled by the canonical next action of the upstream node, not pushed by the user. A `/gate` command would encourage skipping implementation or review.
 
-OpenCode does not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow`.
+OpenCode and Cursor do not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow` (ADR-003 D6 keeps Cursor on the same NL + router model as OpenCode rather than replicating Claude Code's 6 short slash commands).
 
 ## Quick Start
 
@@ -375,9 +392,7 @@ HF:     If more approved tasks remain, it closes out the task and returns to
 The point is not just to "use prompts." HarnessFlow reads artifacts, writes state,
 and produces one controlled next move at each step. If the issue is really a
 production defect or a scope change, the router can branch into `hf-hotfix` or
-`hf-increment` instead of forcing the normal path. If recurring mistakes emerge,
-`hf-bug-patterns` remains an optional knowledge-capture side path rather than a
-mandatory gate.
+`hf-increment` instead of forcing the normal path.
 
 ## What Makes It Different
 

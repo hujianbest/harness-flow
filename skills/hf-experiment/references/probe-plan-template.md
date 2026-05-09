@@ -132,7 +132,7 @@
 ## 7. 学习点 (learnings，按需)
 
 - 超出本假设范围但值得记录的观察
-- 若值得进入 `hf-bug-patterns` 或后续 retrospective（Phase 1 起），在此标注
+- 若值得进入后续 retrospective（Phase 1 起），在此标注
 ```
 
 ## 编写要求

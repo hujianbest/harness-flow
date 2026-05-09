@@ -1,0 +1,30 @@
+---
+description: HarnessFlow entry rule — always load the using-hf-workflow shell and route through hf-workflow-router. Skill pack lives under skills/hf-*/SKILL.md.
+alwaysApply: true
+---
+
+# HarnessFlow on Cursor
+
+This Cursor workspace ships HarnessFlow, a skill pack for spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, and formal closeout.
+
+## On every session
+
+1. Load the entry shell: `skills/using-hf-workflow/SKILL.md`.
+2. Hand off to the router: `skills/hf-workflow-router/SKILL.md`.
+3. Let the router pick the canonical next node from on-disk artifacts under the active feature directory (default `features/<active>/`).
+
+## Hard rules (do not bypass)
+
+- **One Current Active Task at a time.** Cross-task switches are decided by `hf-workflow-router`, not by you.
+- **Approvals and gates are first-class nodes.** Don't skip `hf-spec-review` / `hf-design-review` / `hf-tasks-review` / `hf-test-review` / `hf-code-review` / `hf-traceability-review` / `hf-regression-gate` / `hf-doc-freshness-gate` / `hf-completion-gate`.
+- **Evidence-based routing.** Recover the next step from on-disk artifacts (spec / design / tasks / progress / verification / reviews), not from chat memory.
+- **Author / reviewer separation (Fagan).** Whoever wrote the artifact under review must NOT also approve it.
+- **No HF slash commands on Cursor in v0.3.0.** Use natural-language intent; the router will pick the leaf skill (see `docs/cursor-setup.md` § 4).
+
+## Scope honesty
+
+HarnessFlow's main chain ends at `hf-finalize` (engineering-level closeout). It is NOT production deployment, observability, incident response, or post-launch ops. v0.3.0 added Cursor as the third officially-supported client; it did NOT add any new `hf-*` skills, did NOT introduce personas, and did NOT change the main chain. The 6 deferred ops/release skills (`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`), the 3 deferred personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`), and the 4 remaining deferred clients (Gemini CLI / Windsurf / GitHub Copilot / Kiro) all stay on the v0.4+ roadmap (ADR-003 D1 / D2 / D3).
+
+## When in doubt
+
+If you're not sure which node to use, the user's intent is ambiguous, evidence conflicts, or a review/gate just finished — load `using-hf-workflow` and let `hf-workflow-router` decide.
