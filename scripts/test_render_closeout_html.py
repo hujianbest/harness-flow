@@ -235,8 +235,9 @@ class TestParseCloseout(unittest.TestCase):
             self.assertEqual(len(pack.status_fields_synced), 3)
             self.assertIn("spec.md", pack.status_fields_synced[0])
             html = _MOD.render_html(pack)
-            self.assertIn("Status Fields Synced (3)", html)
-            self.assertIn("见下方列表", html)
+            self.assertIn("Status Fields Synced", html)
+            self.assertIn("· 3</p>", html)
+            self.assertIn("见下方清单", html)
 
     def test_assets_do_not_spill_into_sibling_bullets(self) -> None:
         """`- Status Fields Synced:` must terminate `Updated Long-Term Assets`.
@@ -345,12 +346,16 @@ class TestRender(unittest.TestCase):
             pack = _MOD.parse_closeout(fdir)
             html = _MOD.render_html(pack)
             self.assertIn("<!doctype html>", html)
-            self.assertIn("Closeout 报告", html)
-            self.assertIn("task-closeout", html)
-            self.assertIn("18/18", html)
-            self.assertIn("92.0%", html)  # lines coverage
-            self.assertIn("Workflow Trace", html)
-            self.assertIn("Evidence Matrix", html)
+            self.assertIn("Closeout Report", html)  # hero eyebrow
+            self.assertIn("task-closeout", html)  # verdict modifier class
+            self.assertIn("Task Closeout", html)  # human-readable verdict label
+            self.assertIn("001-demo", html)  # feature slug as h1
+            # Test stat: passed/total split into two spans, so check separately
+            self.assertIn(">18<", html)
+            self.assertIn(" / 18", html)
+            self.assertIn('aria-label="92.0 percent"', html)  # coverage ring SVG
+            self.assertIn("主链节点轨迹", html)  # workflow section title
+            self.assertIn("证据矩阵", html)  # evidence section title
             self.assertIn("evidence-search", html)  # JS hook id
             # Sanitization: no raw `<` from markdown bullet content
             self.assertNotIn("<script>alert", html)
@@ -360,9 +365,10 @@ class TestRender(unittest.TestCase):
             fdir = _make_feature(Path(td), SAMPLE_BLOCKED)
             pack = _MOD.parse_closeout(fdir)
             html = _MOD.render_html(pack)
-            self.assertIn("blocked", html)
-            self.assertIn("status-missing", html)
-            self.assertIn("未在 evidence/", html)  # tests panel empty state
+            self.assertIn("blocked", html)  # verdict modifier class
+            self.assertIn("Blocked", html)  # human-readable verdict label
+            self.assertIn('class="dot missing"', html)  # missing status dot
+            self.assertIn("未在", html)  # tests panel empty state lede
 
     def test_main_writes_file(self) -> None:
         with tempfile.TemporaryDirectory() as td:

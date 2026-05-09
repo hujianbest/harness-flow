@@ -5,7 +5,8 @@ Reads `<feature-dir>/closeout.md` plus a few sibling artifacts (progress.md,
 verification/*.md, evidence/*.log) and writes a self-contained
 `<feature-dir>/closeout.html` work-summary report.
 
-Design goals:
+Design goals
+============
 
 - Pure Python stdlib (no external dependencies, works in any env that already
   runs `audit-skill-anatomy.py`).
@@ -16,7 +17,53 @@ Design goals:
 - Visual companion to closeout.md, NOT a replacement: closeout.md is still
   the canonical machine-readable record.
 
-Usage:
+System Manifesto (vocalize the system, hf-ui-design § 6.5)
+==========================================================
+
+The visual treatment is governed by the following design system declarations
+so future edits don't drift into the AI-default SaaS-dashboard slop tropes
+listed in `skills/hf-ui-design/references/anti-slop-checklist.md`:
+
+- Style positioning: 工程交付物的"严肃克制" — like an RFC / postmortem /
+  commit log, NOT a marketing dashboard. Typography-led, not chrome-led.
+- Layout: single column, max 880px content width.
+- Background: ONE surface tone for both page and panels; sections separated
+  by hairline borders + 56px breathing space, never by elevation shadow.
+- Color (OKLCH-derived): neutral cool-gray surface scale + ONE restrained
+  accent (engineering indigo, NOT default violet/sky); status family shares
+  one chroma value across hues so they read as a set.
+- Typography: system stack (explicit reason: zero network requests, broad
+  CJK coverage, self-contained HTML); display headings sit 28-36px with
+  -0.01em tracking; body 15px / 1.6; numbers `tabular-nums`.
+- Heading vs image division: information-dense doc → typography wins;
+  the hero shows a quote-style conclusion, not a decorative graphic.
+- Global constraints (only 1-3 stops each):
+  - radius: 4 / 8 / 12 px — three stops, no 16/20px adhoc
+  - shadow: none in default flow (single token reserved for future sticky)
+  - motion: ONE easing token (`cubic-bezier(0.2, 0, 0.2, 1)`)
+  - border: 1px hairline only
+
+Anti-slop checks consumed (anti-slop-checklist.md § 1-3):
+  S1 渐变滥用 — no gradients
+  S2 左竖线 callout — quote uses typography, not border-left bar
+  S3 默认字体 — system stack with explicit rationale above
+  S4 默认紫/蓝 — accent is OKLCH(48% 0.13 250), restrained indigo, not violet
+  S5 装饰 SVG / emoji icons — only geometric primitives (dots, rings, bars)
+  S6 千篇一律 dashboard — single-column typography-led, not nav+rail+grid
+  S7 glassmorphism — none
+  S8 浮起卡片 — no box-shadow on cards; hairline borders only
+
+Accessibility (hf-ui-design § 7 + a11y-checklist):
+  - WCAG 2.2 AA contrast: ink-1 vs surface-0 ≥ 7:1; ink-3 captions ≥ 4.5:1
+  - Focus visible: 2px accent outline + 2px offset on all interactive elements
+  - prefers-reduced-motion respected
+  - prefers-color-scheme: light / dark both supported
+  - Decorative dots wrapped in aria-hidden; status text duplicated in cell
+  - Print stylesheet expands the evidence table and drops toolbars
+
+Usage
+=====
+
     python3 scripts/render-closeout-html.py <feature-dir>
     python3 scripts/render-closeout-html.py <feature-dir> --output path.html
 
@@ -670,215 +717,506 @@ def parse_closeout(feature_dir: Path) -> ClosoutPack:
 # ---------------------------------------------------------------------------
 
 
+# Design tokens (see module docstring "System Manifesto" for rationale).
+# All visual decisions go through tokens; no hard-coded color/size in render
+# helpers. OKLCH used for color derivation so dark/light themes share hue.
 _CSS = """
 :root {
-  --bg: #0f172a;
-  --bg-elev: #1e293b;
-  --bg-elev-2: #273449;
-  --fg: #e2e8f0;
-  --fg-mute: #94a3b8;
-  --accent: #38bdf8;
-  --accent-2: #818cf8;
-  --ok: #22c55e;
-  --warn: #f59e0b;
-  --err: #ef4444;
-  --na: #64748b;
-  --border: #334155;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 4px 24px rgba(0,0,0,0.35);
+  /* surface scale - off-white, single hue, very low chroma */
+  --surface-0: oklch(99% 0.004 250);
+  --surface-1: oklch(96.5% 0.005 250);
+  --surface-2: oklch(93% 0.006 250);
+  /* ink scale - off-black, never #000 */
+  --ink-1: oklch(20% 0.012 250);
+  --ink-2: oklch(38% 0.012 250);
+  --ink-3: oklch(54% 0.012 250);
+  --ink-4: oklch(68% 0.010 250);
+  /* hairline */
+  --line-1: oklch(91% 0.006 250);
+  --line-2: oklch(85% 0.008 250);
+  /* status - same chroma family, different hue */
+  --ok:    oklch(58% 0.14 150);
+  --ok-bg: oklch(96% 0.04 150);
+  --warn:  oklch(64% 0.16 75);
+  --warn-bg: oklch(96% 0.06 75);
+  --err:   oklch(55% 0.20 25);
+  --err-bg: oklch(96% 0.05 25);
+  --na:    oklch(60% 0.005 250);
+  --na-bg: oklch(95% 0.004 250);
+  /* one accent - restrained engineering indigo, not violet */
+  --accent: oklch(48% 0.13 250);
+  --accent-soft: oklch(95% 0.03 250);
+  /* radii (3 stops only) */
+  --r-1: 4px;
+  --r-2: 8px;
+  --r-3: 12px;
+  /* motion (1 easing only) */
+  --ease: cubic-bezier(0.2, 0, 0.2, 1);
 }
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #f8fafc;
-    --bg-elev: #ffffff;
-    --bg-elev-2: #f1f5f9;
-    --fg: #0f172a;
-    --fg-mute: #475569;
-    --accent: #0284c7;
-    --accent-2: #4f46e5;
-    --border: #e2e8f0;
-    --shadow: 0 4px 24px rgba(15,23,42,0.08);
+    --surface-0: oklch(16% 0.012 250);
+    --surface-1: oklch(20% 0.014 250);
+    --surface-2: oklch(24% 0.014 250);
+    --ink-1: oklch(94% 0.006 250);
+    --ink-2: oklch(78% 0.008 250);
+    --ink-3: oklch(62% 0.010 250);
+    --ink-4: oklch(50% 0.010 250);
+    --line-1: oklch(28% 0.012 250);
+    --line-2: oklch(36% 0.014 250);
+    --ok-bg: oklch(28% 0.06 150);
+    --warn-bg: oklch(28% 0.08 75);
+    --err-bg: oklch(28% 0.08 25);
+    --na-bg: oklch(26% 0.006 250);
+    --accent: oklch(72% 0.14 250);
+    --accent-soft: oklch(28% 0.06 250);
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 html, body {
-  margin: 0; padding: 0;
-  background: var(--bg);
-  color: var(--fg);
+  margin: 0;
+  background: var(--surface-0);
+  color: var(--ink-1);
+  /* System stack chosen explicitly: zero network requests (self-contained
+     single-file HTML), broad CJK coverage on macOS / Windows / Linux,
+     no need to pay for an extra font hue we can't use offline. */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
                "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  font-feature-settings: "kern", "liga", "calt";
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+::selection { background: var(--accent-soft); color: var(--ink-1); }
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+a:hover { color: var(--ink-1); }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+               "Liberation Mono", monospace;
+  font-size: 0.92em;
+  font-variant-numeric: tabular-nums;
+}
+.tabular { font-variant-numeric: tabular-nums; }
+
+.page { max-width: 880px; margin: 0 auto; padding: 56px 28px 96px; }
+@media (max-width: 640px) { .page { padding: 40px 20px 64px; } }
+
+/* ─── Hero ───────────────────────────────────────────── */
+
+.hero { margin-bottom: 64px; }
+.hero .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin: 0 0 12px;
+}
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 36px);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink-1);
+  font-feature-settings: "ss01", "cv01";
+}
+.hero .feature-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.55em;
+  font-weight: 400;
+  color: var(--ink-3);
+  margin-left: 0.6em;
+  letter-spacing: 0;
+}
+.hero .type-line {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  margin: 4px 0 28px;
+}
+.hero .type-line .label {
+  font-size: 13px; color: var(--ink-3);
+}
+.hero .type-line .verdict {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.hero .type-line .verdict.workflow-closeout { color: var(--ok); }
+.hero .type-line .verdict.task-closeout     { color: var(--accent); }
+.hero .type-line .verdict.blocked           { color: var(--err); }
+.hero .type-line .verdict.unknown           { color: var(--ink-3); }
+.hero blockquote {
+  margin: 0 0 28px;
+  padding: 0;
+  font-size: 18px;
   line-height: 1.55;
+  color: var(--ink-1);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  max-width: 64ch;
 }
-.wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
-header.hero {
-  background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-elev-2) 100%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px 32px;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow);
+.hero blockquote::before {
+  content: "“";
+  display: inline-block;
+  font-size: 1.6em;
+  line-height: 0;
+  vertical-align: -0.18em;
+  color: var(--ink-4);
+  margin-right: 0.1em;
 }
-header.hero h1 {
-  margin: 0 0 8px; font-size: 22px; font-weight: 600;
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+.hero .meta-line {
+  display: flex; flex-wrap: wrap; gap: 24px;
+  font-size: 13px; color: var(--ink-3);
+  border-top: 1px solid var(--line-1);
+  padding-top: 16px;
 }
-header.hero .subtitle { color: var(--fg-mute); font-size: 13px; }
-header.hero .conclusion {
-  margin-top: 14px; padding: 12px 14px;
-  background: var(--bg); border-radius: var(--radius-sm);
-  border-left: 3px solid var(--accent);
-}
-.badge {
-  display: inline-block; padding: 2px 10px; border-radius: 999px;
-  font-size: 12px; font-weight: 600; line-height: 1.6;
-  background: var(--bg-elev-2); color: var(--fg);
-  border: 1px solid var(--border);
-}
-.badge.workflow-closeout { background: rgba(34,197,94,0.15); color: #4ade80; border-color: rgba(34,197,94,0.4); }
-.badge.task-closeout    { background: rgba(56,189,248,0.15); color: var(--accent); border-color: rgba(56,189,248,0.4); }
-.badge.blocked          { background: rgba(239,68,68,0.15);  color: #f87171; border-color: rgba(239,68,68,0.4); }
-.badge.unknown          { background: rgba(100,116,139,0.15); color: var(--fg-mute); border-color: var(--border); }
-.badge.status-present { background: rgba(34,197,94,0.15); color: #4ade80; border-color: rgba(34,197,94,0.4); }
-.badge.status-na      { background: rgba(100,116,139,0.15); color: var(--fg-mute); border-color: var(--border); }
-.badge.status-missing { background: rgba(239,68,68,0.15);  color: #f87171; border-color: rgba(239,68,68,0.4); }
-.badge.status-unknown { background: rgba(245,158,11,0.15); color: var(--warn); border-color: rgba(245,158,11,0.4); }
+.hero .meta-line dt { display: inline; color: var(--ink-4); margin-right: 6px; font-weight: 500; }
+.hero .meta-line dd { display: inline; margin: 0; color: var(--ink-2); }
 
-.grid { display: grid; gap: 20px; grid-template-columns: 1fr 1fr; }
-@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+/* ─── Section ────────────────────────────────────────── */
 
-section.panel {
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
+section { margin-bottom: 56px; }
+section > header.section-head {
   margin-bottom: 20px;
-  box-shadow: var(--shadow);
 }
-section.panel > h2 {
-  margin: 0 0 14px; font-size: 15px; font-weight: 600;
-  display: flex; align-items: center; gap: 10px;
-  color: var(--fg);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 8px;
+section > header.section-head .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin: 0 0 6px;
 }
-section.panel > h2 .count { color: var(--fg-mute); font-weight: 400; font-size: 12px; }
+section > header.section-head h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink-1);
+  display: flex; align-items: baseline; gap: 12px;
+}
+section > header.section-head h2 .count {
+  font-size: 13px; font-weight: 400; color: var(--ink-3);
+}
+section > header.section-head .lede {
+  margin: 4px 0 0; color: var(--ink-3); font-size: 13px;
+}
 
-dl.kv { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
-dl.kv dt { color: var(--fg-mute); font-size: 12px; }
-dl.kv dd { margin: 0; font-size: 13px; word-break: break-word; }
-dl.kv dd code { background: var(--bg-elev-2); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+/* ─── KV ─────────────────────────────────────────────── */
 
-ul.assets { list-style: none; padding: 0; margin: 0; }
-ul.assets li {
-  padding: 6px 10px; background: var(--bg-elev-2);
-  border-radius: var(--radius-sm); margin-bottom: 6px;
-  font-size: 12.5px; word-break: break-word;
+dl.kv {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  gap: 10px 28px;
+  border-top: 1px solid var(--line-1);
+  padding-top: 14px;
 }
-ul.assets li code { background: transparent; padding: 0; }
+dl.kv dt {
+  color: var(--ink-3); font-size: 13px; font-weight: 400;
+}
+dl.kv dd {
+  margin: 0; color: var(--ink-1); font-size: 14px; word-break: break-word;
+}
+dl.kv dd.muted { color: var(--ink-3); font-style: italic; }
 
-ul.notes { padding-left: 18px; margin: 0; }
-ul.notes li { margin-bottom: 6px; font-size: 13px; }
+/* ─── Workflow Trace ─────────────────────────────────── */
 
-table.evidence {
-  width: 100%; border-collapse: collapse; font-size: 12.5px;
+.trace {
+  position: relative;
+  padding: 4px 0 4px 0;
 }
-table.evidence th, table.evidence td {
-  text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border);
-  vertical-align: top;
+.trace ol {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 22px;
+  position: relative;
 }
-table.evidence th {
-  background: var(--bg-elev-2); color: var(--fg-mute); font-weight: 500;
-  cursor: pointer; user-select: none;
+.trace ol::before {
+  content: "";
+  position: absolute;
+  left: 5px; top: 8px; bottom: 8px;
+  width: 1px;
+  background: var(--line-2);
 }
-table.evidence th.sorted-asc::after { content: "  \\25B2"; }
-table.evidence th.sorted-desc::after { content: "  \\25BC"; }
-table.evidence td code { font-size: 12px; }
-table.evidence tr.hidden { display: none; }
+.trace li {
+  position: relative;
+  padding: 6px 0 6px 20px;
+  display: flex; align-items: baseline; gap: 12px;
+  flex-wrap: wrap;
+}
+.trace li::before {
+  content: "";
+  position: absolute;
+  left: -22px; top: 13px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--surface-0);
+  border: 1.5px solid var(--ink-4);
+  box-sizing: border-box;
+}
+.trace li.present::before {
+  background: var(--ok); border-color: var(--ok);
+}
+.trace li.na::before {
+  background: var(--surface-0); border-color: var(--ink-4);
+}
+.trace li.missing::before {
+  background: var(--err); border-color: var(--err);
+}
+.trace li .label {
+  color: var(--ink-1); font-weight: 500; font-size: 14px;
+}
+.trace li.na .label { color: var(--ink-3); }
+.trace li .id {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px; color: var(--ink-3);
+}
+.trace li .tag {
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-4); margin-left: auto;
+}
+
+/* ─── Stats / Coverage ──────────────────────────────── */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  border-top: 1px solid var(--line-1);
+  padding-top: 18px;
+  margin-bottom: 28px;
+}
+@media (max-width: 640px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+.stat .num {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink-1);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.stat .num small { font-size: 0.55em; color: var(--ink-3); font-weight: 400; }
+.stat .num.ok { color: var(--ok); }
+.stat .lbl {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.cov-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 8px;
+}
+@media (max-width: 640px) { .cov-grid { grid-template-columns: repeat(2, 1fr); } }
+.cov-ring {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px;
+}
+.cov-ring svg { display: block; }
+.cov-ring .center {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-1);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.cov-ring .lbl {
+  font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 500;
+}
+.cov-source { font-size: 12px; color: var(--ink-3); margin-top: 18px; }
+.tests-source { font-size: 12px; color: var(--ink-3); margin-top: -16px; margin-bottom: 28px; }
+
+/* ─── Evidence Matrix ───────────────────────────────── */
 
 .evidence-toolbar {
   display: flex; gap: 12px; align-items: center;
-  margin-bottom: 12px; flex-wrap: wrap;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+.evidence-toolbar input[type="search"],
+.evidence-toolbar select {
+  font: inherit; font-size: 13px;
+  padding: 8px 10px;
+  background: var(--surface-0);
+  color: var(--ink-1);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-1);
+  transition: border-color 120ms var(--ease);
 }
 .evidence-toolbar input[type="search"] {
-  flex: 1 1 220px; padding: 6px 10px;
-  background: var(--bg-elev-2); color: var(--fg);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  font-size: 13px;
+  flex: 1 1 240px;
 }
-.evidence-toolbar select {
-  padding: 6px 10px; background: var(--bg-elev-2); color: var(--fg);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  font-size: 13px;
+.evidence-toolbar input[type="search"]:focus,
+.evidence-toolbar select:focus {
+  outline: none; border-color: var(--accent);
 }
-
-.timeline {
-  display: flex; gap: 0; flex-wrap: wrap;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  background: var(--bg-elev-2);
+.evidence-toolbar .legend {
+  margin-left: auto; display: flex; gap: 14px;
+  font-size: 12px; color: var(--ink-3);
 }
-.timeline .node {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px; margin: 4px 4px;
-  background: var(--bg-elev); border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  font-size: 12.5px;
-  position: relative;
-}
-.timeline .node .dot {
+.evidence-toolbar .legend .item { display: flex; align-items: center; gap: 6px; }
+.evidence-toolbar .legend .dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--ok);
-}
-.timeline .node.na .dot { background: var(--na); }
-.timeline .node.missing .dot { background: var(--err); }
-.timeline .node .label { font-weight: 500; }
-.timeline .node .id { color: var(--fg-mute); font-size: 11px; }
-.timeline .node .arrow {
-  color: var(--fg-mute); margin: 0 4px;
 }
 
-.cov-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
-@media (max-width: 540px) { .cov-grid { grid-template-columns: 1fr; } }
-.cov-item .row { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg-mute); margin-bottom: 4px; }
-.cov-item .bar {
-  height: 10px; background: var(--bg-elev-2);
-  border-radius: 999px; overflow: hidden;
-  border: 1px solid var(--border);
+table.evidence {
+  width: 100%; border-collapse: collapse;
+  font-size: 13.5px;
 }
-.cov-item .bar > span {
-  display: block; height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  border-radius: 999px;
+table.evidence thead th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--ink-3);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-2);
+  cursor: pointer;
+  user-select: none;
 }
-.cov-item .bar > span.low { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-.cov-item .bar > span.med { background: linear-gradient(90deg, #facc15, #f59e0b); }
-.cov-item .bar > span.high { background: linear-gradient(90deg, #22c55e, #38bdf8); }
+table.evidence thead th:not(:first-child) { padding-left: 16px; }
+table.evidence thead th.sorted-asc::after  { content: " ↑"; color: var(--accent); }
+table.evidence thead th.sorted-desc::after { content: " ↓"; color: var(--accent); }
+table.evidence tbody td {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-1);
+  vertical-align: top;
+  color: var(--ink-1);
+}
+table.evidence tbody td:not(:first-child) { padding-left: 16px; }
+table.evidence tbody tr.hidden { display: none; }
+table.evidence tbody tr.na td { color: var(--ink-3); }
+table.evidence td.col-status {
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+table.evidence td.col-status .dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; margin-right: 8px; vertical-align: 1px;
+}
+table.evidence .dot.present { background: var(--ok); }
+table.evidence .dot.na      { background: var(--surface-0); border: 1.5px solid var(--ink-4); width: 6px; height: 6px; vertical-align: 2px; }
+table.evidence .dot.missing { background: var(--err); }
+table.evidence .dot.unknown { background: var(--warn); }
+table.evidence .dot { background: var(--ink-4); }
+.evidence-toolbar .legend .dot.present { background: var(--ok); }
+.evidence-toolbar .legend .dot.na      { background: transparent; border: 1.5px solid var(--ink-4); width: 6px; height: 6px; }
+.evidence-toolbar .legend .dot.missing { background: var(--err); }
+table.evidence td code {
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+
+/* ─── Lists ─────────────────────────────────────────── */
+
+ul.assets { list-style: none; margin: 0; padding: 0; }
+ul.assets li {
+  padding: 10px 0;
+  font-size: 13.5px;
+  color: var(--ink-1);
+  border-bottom: 1px solid var(--line-1);
+  word-break: break-word;
+}
+ul.assets li:last-child { border-bottom: none; }
+ul.assets li code { color: var(--ink-2); }
+
+.subgroup-head {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin: 28px 0 8px;
+}
+
+ol.notes {
+  list-style: none;
+  counter-reset: note;
+  margin: 0;
+  padding: 0;
+}
+ol.notes li {
+  position: relative;
+  counter-increment: note;
+  padding: 8px 0 8px 28px;
+  font-size: 14px;
+  color: var(--ink-1);
+  border-bottom: 1px solid var(--line-1);
+}
+ol.notes li:last-child { border-bottom: none; }
+ol.notes li::before {
+  content: counter(note, decimal-leading-zero);
+  position: absolute; left: 0; top: 9px;
+  font-size: 11px;
+  color: var(--ink-4);
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+/* ─── Empty state ───────────────────────────────────── */
 
 .empty {
-  padding: 16px; color: var(--fg-mute); font-size: 13px;
-  border: 1px dashed var(--border); border-radius: var(--radius-sm);
-  text-align: center;
+  padding: 18px 0;
+  color: var(--ink-3); font-size: 13.5px;
+  border-top: 1px solid var(--line-1);
+  border-bottom: 1px solid var(--line-1);
+  text-align: left;
+  line-height: 1.7;
 }
 
-.tests-summary {
-  display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;
-}
-.stat-pill {
-  flex: 1 1 140px; min-width: 120px;
-  padding: 12px 14px; background: var(--bg-elev-2);
-  border-radius: var(--radius-sm); border: 1px solid var(--border);
-}
-.stat-pill .num { font-size: 22px; font-weight: 700; color: var(--fg); }
-.stat-pill .lbl { color: var(--fg-mute); font-size: 12px; margin-top: 2px; }
+/* ─── Footer ────────────────────────────────────────── */
 
-footer.meta {
-  margin-top: 24px; color: var(--fg-mute); font-size: 12px;
-  text-align: center;
+footer.colophon {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-1);
+  font-size: 12px;
+  color: var(--ink-3);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
 }
-footer.meta a { color: var(--accent); text-decoration: none; }
+footer.colophon a { color: var(--accent); border-bottom-color: var(--line-2); }
+
+/* ─── Print ─────────────────────────────────────────── */
+
+@media print {
+  :root {
+    --surface-0: white;
+    --surface-1: white;
+    --ink-1: #111;
+    --ink-2: #333;
+    --ink-3: #555;
+    --line-1: #ddd;
+    --line-2: #bbb;
+  }
+  body { background: white; }
+  .page { padding: 0; max-width: none; }
+  .evidence-toolbar { display: none; }
+  table.evidence tbody tr.hidden { display: table-row; }
+  section { page-break-inside: avoid; }
+  footer.colophon { page-break-inside: avoid; }
+}
 """
 
 
@@ -931,74 +1269,110 @@ def _e(s: str) -> str:
     return _html.escape(s, quote=True)
 
 
-def _coverage_class(pct: float) -> str:
-    if pct < 50:
-        return "low"
-    if pct < 80:
-        return "med"
-    return "high"
+_TYPE_LABEL = {
+    "workflow-closeout": "Workflow Closeout",
+    "task-closeout": "Task Closeout",
+    "blocked": "Blocked",
+    "unknown": "Unspecified",
+}
+
+
+def _section(eyebrow: str, title: str, count: Optional[int], body: str,
+             lede: str = "") -> str:
+    count_html = (
+        f' <span class="count">{count}</span>' if count is not None else ""
+    )
+    lede_html = f'<p class="lede">{_e(lede)}</p>' if lede else ""
+    return (
+        f'<section>'
+        f'<header class="section-head">'
+        f'<p class="eyebrow">{_e(eyebrow)}</p>'
+        f'<h2>{_e(title)}{count_html}</h2>'
+        f'{lede_html}'
+        f'</header>'
+        f'{body}'
+        f'</section>'
+    )
 
 
 def _render_hero(pack: ClosoutPack) -> str:
     kind = pack.closeout_type_kind()
-    type_label = pack.closeout_type or "未填写"
-    conclusion = pack.conclusion or "未填写"
+    type_label = _TYPE_LABEL.get(kind, pack.closeout_type or "Unspecified")
+    conclusion = pack.conclusion or "未填写。"
+
+    meta_items: List[Tuple[str, str]] = [("Generated", pack.generated_at)]
+    if pack.based_on_completion:
+        meta_items.append(("Completion", pack.based_on_completion))
+    if pack.based_on_regression and "缺失" not in pack.based_on_regression:
+        meta_items.append(("Regression", pack.based_on_regression))
+    if pack.scope:
+        scope_short = pack.scope if len(pack.scope) <= 64 else pack.scope[:62] + "…"
+        meta_items.append(("Scope", scope_short))
+
+    meta_html = "".join(
+        f'<div><dt>{_e(k)}</dt><dd>{_e(v)}</dd></div>'
+        for k, v in meta_items
+    )
+
     return f"""
 <header class="hero">
-  <h1>
-    <span>Closeout 报告</span>
-    <span class="badge {_e(kind)}">{_e(type_label)}</span>
-  </h1>
-  <div class="subtitle">
-    Feature: <code>{_e(pack.feature_slug)}</code>
-    <span style="margin: 0 8px;">·</span>
-    Generated: {_e(pack.generated_at)}
+  <p class="eyebrow">Closeout Report</p>
+  <h1>{_e(pack.feature_slug)}</h1>
+  <div class="type-line">
+    <span class="label">结论类型 ·</span>
+    <span class="verdict {_e(kind)}">{_e(type_label)}</span>
   </div>
-  <div class="conclusion">
-    <strong>Conclusion · </strong>{_e(conclusion)}
-  </div>
+  <blockquote>{_e(conclusion)}</blockquote>
+  <dl class="meta-line">{meta_html}</dl>
 </header>
-"""
-
-
-def _render_summary_panel(pack: ClosoutPack) -> str:
-    items = [
-        ("Closeout Type", pack.closeout_type or "—"),
-        ("Scope", pack.scope or "—"),
-        ("Completion Record", pack.based_on_completion or "—"),
-        ("Regression Record", pack.based_on_regression or "—"),
-    ]
-    rows = "".join(
-        f"<dt>{_e(k)}</dt><dd>{_e(v)}</dd>" for k, v in items
-    )
-    return f"""
-<section class="panel">
-  <h2>Summary</h2>
-  <dl class="kv">{rows}</dl>
-</section>
 """
 
 
 def _render_workflow_timeline(pack: ClosoutPack) -> str:
     if not pack.workflow_trace:
         return ""
-    parts: List[str] = []
-    for i, (node_id, label, status) in enumerate(pack.workflow_trace):
-        if i > 0:
-            parts.append('<div class="arrow">→</div>')
-        parts.append(
-            f'<div class="node {_e(status)}">'
-            f'<span class="dot"></span>'
+    items: List[str] = []
+    for node_id, label, status in pack.workflow_trace:
+        tag_text = {"present": "完成", "na": "N/A", "missing": "缺失"}.get(status, "")
+        items.append(
+            f'<li class="{_e(status)}">'
             f'<span class="label">{_e(label)}</span>'
             f'<span class="id">{_e(node_id)}</span>'
-            "</div>"
+            f'<span class="tag">{_e(tag_text)}</span>'
+            "</li>"
         )
-    return f"""
-<section class="panel">
-  <h2>Workflow Trace <span class="count">{len(pack.workflow_trace)} 节点</span></h2>
-  <div class="timeline">{"".join(parts)}</div>
-</section>
-"""
+    body = (
+        f'<div class="trace"><ol>{"".join(items)}</ol></div>'
+    )
+    return _section(
+        eyebrow="Workflow",
+        title="主链节点轨迹",
+        count=len(pack.workflow_trace),
+        body=body,
+        lede="按 evidence matrix 推导出本周期触达的 HF 节点；空心圆点表示按 profile 跳过。",
+    )
+
+
+def _ring_svg(value: float, size: int = 72, stroke: int = 7) -> str:
+    """Tiny inline SVG donut chart for one coverage metric."""
+    radius = (size - stroke) / 2
+    circumference = 2 * 3.14159265 * radius
+    pct = max(0.0, min(value, 100.0))
+    dash = circumference * pct / 100.0
+    cx = cy = size / 2
+    # Use semantic accent color for the progress arc; the empty track is hairline.
+    return (
+        f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}" '
+        f'role="img" aria-label="{pct:.1f} percent">'
+        f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="none" '
+        f'stroke="var(--line-2)" stroke-width="{stroke}" />'
+        f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="none" '
+        f'stroke="var(--accent)" stroke-width="{stroke}" '
+        f'stroke-linecap="round" '
+        f'stroke-dasharray="{dash:.2f} {circumference - dash:.2f}" '
+        f'transform="rotate(-90 {cx} {cy})" />'
+        f'</svg>'
+    )
 
 
 def _render_test_panel(pack: ClosoutPack) -> str:
@@ -1006,126 +1380,153 @@ def _render_test_panel(pack: ClosoutPack) -> str:
     cov = pack.coverage
 
     if s.is_empty() and cov.is_empty():
-        return f"""
-<section class="panel">
-  <h2>Tests &amp; Coverage</h2>
-  <div class="empty">未在 evidence/ 与 verification/ 下发现测试或覆盖率证据。<br>
-  如需展示，请在 evidence/regression-*.log 中保留测试运行原始输出，或在 verification/coverage.json 写入覆盖率汇总。</div>
-</section>
-"""
+        empty_body = (
+            '<div class="empty">'
+            '未在 <code>evidence/</code> 与 <code>verification/</code> 下发现测试或覆盖率证据。'
+            '<br>如需展示，可保留 <code>evidence/regression-*.log</code> 或在 '
+            '<code>verification/coverage.json</code> 写入覆盖率汇总（pct 字段）。'
+            '</div>'
+        )
+        return _section("Quality", "测试与覆盖率", None, empty_body)
 
-    pills: List[str] = []
+    stat_cells: List[str] = []
     if s.tests_total is not None:
-        pills.append(
-            f'<div class="stat-pill"><div class="num">{s.tests_passed}/{s.tests_total}</div>'
-            f'<div class="lbl">Tests Passed</div></div>'
+        stat_cells.append(
+            f'<div class="stat">'
+            f'<div class="num ok"><span class="tabular">{s.tests_passed}</span>'
+            f'<small> / {s.tests_total}</small></div>'
+            f'<div class="lbl">Tests Passed</div>'
+            f'</div>'
         )
     if s.files_total is not None:
-        pills.append(
-            f'<div class="stat-pill"><div class="num">{s.files_passed}/{s.files_total}</div>'
-            f'<div class="lbl">Test Files</div></div>'
+        stat_cells.append(
+            f'<div class="stat">'
+            f'<div class="num"><span class="tabular">{s.files_passed}</span>'
+            f'<small> / {s.files_total}</small></div>'
+            f'<div class="lbl">Test Files</div>'
+            f'</div>'
         )
     if s.duration_ms is not None:
         if s.duration_ms < 1000:
-            dur = f"{s.duration_ms:.0f} ms"
+            dur_num, dur_unit = f"{s.duration_ms:.0f}", "ms"
         else:
-            dur = f"{s.duration_ms / 1000:.2f} s"
-        pills.append(
-            f'<div class="stat-pill"><div class="num">{_e(dur)}</div>'
-            f'<div class="lbl">Duration</div></div>'
+            dur_num, dur_unit = f"{s.duration_ms / 1000:.2f}", "s"
+        stat_cells.append(
+            f'<div class="stat">'
+            f'<div class="num"><span class="tabular">{_e(dur_num)}</span>'
+            f'<small> {dur_unit}</small></div>'
+            f'<div class="lbl">Duration</div>'
+            f'</div>'
         )
     if s.pass_rate is not None:
-        pills.append(
-            f'<div class="stat-pill"><div class="num">{s.pass_rate * 100:.1f}%</div>'
-            f'<div class="lbl">Pass Rate</div></div>'
+        stat_cells.append(
+            f'<div class="stat">'
+            f'<div class="num ok"><span class="tabular">{s.pass_rate * 100:.1f}</span>'
+            f'<small>%</small></div>'
+            f'<div class="lbl">Pass Rate</div>'
+            f'</div>'
         )
 
-    cov_html = ""
-    if not cov.is_empty():
-        items = []
-        for label, val in cov.items():
-            cls = _coverage_class(val)
-            items.append(
-                f'<div class="cov-item">'
-                f'<div class="row"><span>{_e(label)}</span><span>{val:.1f}%</span></div>'
-                f'<div class="bar"><span class="{cls}" style="width: {min(val, 100):.1f}%;"></span></div>'
-                "</div>"
-            )
-        source_label = (
-            f'<div class="subtitle" style="color:var(--fg-mute); font-size:12px; margin-top:8px;">'
-            f"覆盖率数据源：<code>{_e(cov.source)}</code></div>"
-            if cov.source else ""
-        )
-        cov_html = (
-            '<h3 style="margin: 18px 0 10px; font-size: 13px; color: var(--fg-mute);">Code Coverage</h3>'
-            f'<div class="cov-grid">{"".join(items)}</div>{source_label}'
-        )
-    elif not s.is_empty():
-        cov_html = (
-            '<div class="empty" style="margin-top: 12px;">未提供覆盖率数据。'
-            '在 verification/coverage.json 或 evidence 日志中带上 Lines/Statements/Functions/Branches 即可。</div>'
-        )
-
-    pills_html = (
-        f'<div class="tests-summary">{"".join(pills)}</div>' if pills else ""
+    stat_html = (
+        f'<div class="stat-row">{"".join(stat_cells)}</div>' if stat_cells else ""
     )
     src_html = (
-        f'<div class="subtitle" style="color:var(--fg-mute); font-size:12px;">数据源：<code>{_e(s.source_log or "")}</code></div>'
+        f'<p class="tests-source">数据源 · <code>{_e(s.source_log or "")}</code></p>'
         if s.source_log else ""
     )
 
-    return f"""
-<section class="panel">
-  <h2>Tests &amp; Coverage</h2>
-  {pills_html}
-  {src_html}
-  {cov_html}
-</section>
-"""
+    cov_html = ""
+    if not cov.is_empty():
+        rings: List[str] = []
+        for label, val in cov.items():
+            rings.append(
+                f'<div class="cov-ring">'
+                f'<div style="position: relative; width: 72px; height: 72px;">'
+                f'{_ring_svg(val)}'
+                f'<div style="position: absolute; inset: 0; '
+                f'display: flex; align-items: center; justify-content: center;" '
+                f'class="center">{val:.0f}'
+                f'<small style="font-size:0.6em; color: var(--ink-3);">%</small>'
+                f'</div>'
+                f'</div>'
+                f'<div class="lbl">{_e(label)}</div>'
+                f'</div>'
+            )
+        src = (
+            f'<p class="cov-source">覆盖率数据源 · <code>{_e(cov.source)}</code></p>'
+            if cov.source else ""
+        )
+        cov_html = (
+            '<p class="subgroup-head">Code Coverage</p>'
+            f'<div class="cov-grid">{"".join(rings)}</div>{src}'
+        )
+    elif not s.is_empty():
+        cov_html = (
+            '<p class="subgroup-head">Code Coverage</p>'
+            '<div class="empty">未提供覆盖率数据。在 '
+            '<code>verification/coverage.json</code> 或 evidence 日志中带上 '
+            'Lines / Statements / Functions / Branches 即可。</div>'
+        )
+
+    body = stat_html + src_html + cov_html
+    return _section(
+        eyebrow="Quality",
+        title="测试与覆盖率",
+        count=None,
+        body=body,
+    )
 
 
 def _render_evidence_table(pack: ClosoutPack) -> str:
     if not pack.evidence:
-        return f"""
-<section class="panel">
-  <h2>Evidence Matrix</h2>
-  <div class="empty">closeout.md 中未发现 Evidence Matrix 内容。</div>
-</section>
-"""
+        body = '<div class="empty">closeout.md 中未发现 Evidence Matrix 内容。</div>'
+        return _section("Trace", "证据矩阵", None, body)
+
     rows: List[str] = []
     for r in pack.evidence:
         kind = r.status_kind
         rows.append(
-            f'<tr data-status="{_e(kind)}">'
-            f"<td>{_e(r.artifact)}</td>"
-            f"<td><code>{_e(r.record_path)}</code></td>"
-            f'<td><span class="badge status-{_e(kind)}">{_e(r.status or "—")}</span></td>'
-            f"<td>{_e(r.notes)}</td>"
+            f'<tr class="{_e(kind)}" data-status="{_e(kind)}">'
+            f'<td class="col-artifact">{_e(r.artifact)}</td>'
+            f'<td class="col-path"><code>{_e(r.record_path)}</code></td>'
+            f'<td class="col-status">'
+            f'<span class="dot {_e(kind)}" aria-hidden="true"></span>'
+            f'{_e(r.status or "—")}'
+            f'</td>'
+            f'<td class="col-notes">{_e(r.notes)}</td>'
             "</tr>"
         )
-    return f"""
-<section class="panel">
-  <h2>Evidence Matrix <span class="count">{len(pack.evidence)} 条</span></h2>
-  <div class="evidence-toolbar">
-    <input id="evidence-search" type="search" placeholder="搜索工件、路径、备注…" />
-    <select id="evidence-status">
-      <option value="">全部状态</option>
-      <option value="present">present</option>
-      <option value="na">N/A</option>
-      <option value="missing">missing</option>
-      <option value="unknown">未识别</option>
-    </select>
-  </div>
-  <table class="evidence">
-    <thead>
-      <tr>
-        <th>Artifact</th><th>Record Path</th><th>Status</th><th>Notes</th>
-      </tr>
-    </thead>
-    <tbody>{"".join(rows)}</tbody>
-  </table>
-</section>
-"""
+
+    body = (
+        '<div class="evidence-toolbar">'
+        '<input id="evidence-search" type="search" '
+        'placeholder="搜索工件、路径、备注…" aria-label="搜索证据" />'
+        '<select id="evidence-status" aria-label="按状态过滤">'
+        '<option value="">所有状态</option>'
+        '<option value="present">present</option>'
+        '<option value="na">N/A</option>'
+        '<option value="missing">missing</option>'
+        '<option value="unknown">unknown</option>'
+        '</select>'
+        '<div class="legend" aria-hidden="true">'
+        '<span class="item"><span class="dot present"></span>present</span>'
+        '<span class="item"><span class="dot na"></span>N/A</span>'
+        '<span class="item"><span class="dot missing"></span>missing</span>'
+        '</div>'
+        '</div>'
+        '<table class="evidence">'
+        '<thead><tr>'
+        '<th>工件</th><th>记录路径</th><th>状态</th><th>备注</th>'
+        '</tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody>'
+        '</table>'
+    )
+    return _section(
+        eyebrow="Trace",
+        title="证据矩阵",
+        count=len(pack.evidence),
+        body=body,
+    )
 
 
 def _render_state_panel(pack: ClosoutPack) -> str:
@@ -1140,15 +1541,11 @@ def _render_state_panel(pack: ClosoutPack) -> str:
     if not any(pack.state_sync.get(k) for k in keys):
         return ""
     rows = "".join(
-        f"<dt>{_e(k)}</dt><dd>{_e(pack.state_sync.get(k, '—'))}</dd>"
+        f"<dt>{_e(k)}</dt><dd>{_e(pack.state_sync.get(k, '—') or '—')}</dd>"
         for k in keys
     )
-    return f"""
-<section class="panel">
-  <h2>State Sync</h2>
-  <dl class="kv">{rows}</dl>
-</section>
-"""
+    body = f'<dl class="kv">{rows}</dl>'
+    return _section("State", "状态收口", None, body)
 
 
 def _render_release_panel(pack: ClosoutPack) -> str:
@@ -1164,12 +1561,11 @@ def _render_release_panel(pack: ClosoutPack) -> str:
     ):
         return ""
 
-    # Render KV rows; for `Status Fields Synced` we prefer inline value if any,
-    # else show "见下方列表" when sub-bullets exist.
     kv_rows: List[str] = []
     for k in base_keys:
         v = pack.release_docs_sync.get(k, "—") or "—"
         kv_rows.append(f"<dt>{_e(k)}</dt><dd>{_e(v)}</dd>")
+
     sfs_inline = pack.release_docs_sync.get("Status Fields Synced", "") or ""
     if sfs_inline:
         kv_rows.append(
@@ -1177,11 +1573,11 @@ def _render_release_panel(pack: ClosoutPack) -> str:
         )
     elif pack.status_fields_synced:
         kv_rows.append(
-            f'<dt>Status Fields Synced</dt><dd>'
-            f'<span style="color: var(--fg-mute);">见下方列表</span></dd>'
+            '<dt>Status Fields Synced</dt>'
+            '<dd class="muted">见下方清单</dd>'
         )
 
-    rows = "".join(kv_rows)
+    rows_html = f'<dl class="kv">{"".join(kv_rows)}</dl>'
 
     assets_html = ""
     if pack.updated_long_term_assets:
@@ -1189,8 +1585,7 @@ def _render_release_panel(pack: ClosoutPack) -> str:
             f"<li>{_e(a)}</li>" for a in pack.updated_long_term_assets
         )
         assets_html = (
-            '<h3 style="margin: 16px 0 8px; font-size: 13px; color: var(--fg-mute);">'
-            f"Updated Long-Term Assets ({len(pack.updated_long_term_assets)})</h3>"
+            f'<p class="subgroup-head">Updated Long-Term Assets · {len(pack.updated_long_term_assets)}</p>'
             f'<ul class="assets">{items}</ul>'
         )
 
@@ -1200,19 +1595,17 @@ def _render_release_panel(pack: ClosoutPack) -> str:
             f"<li>{_e(a)}</li>" for a in pack.status_fields_synced
         )
         sfs_html = (
-            '<h3 style="margin: 16px 0 8px; font-size: 13px; color: var(--fg-mute);">'
-            f"Status Fields Synced ({len(pack.status_fields_synced)})</h3>"
+            f'<p class="subgroup-head">Status Fields Synced · {len(pack.status_fields_synced)}</p>'
             f'<ul class="assets">{items}</ul>'
         )
 
-    return f"""
-<section class="panel">
-  <h2>Release / Docs Sync</h2>
-  <dl class="kv">{rows}</dl>
-  {assets_html}
-  {sfs_html}
-</section>
-"""
+    body = rows_html + assets_html + sfs_html
+    return _section(
+        eyebrow="Release",
+        title="发布与长期资产同步",
+        count=None,
+        body=body,
+    )
 
 
 def _render_handoff_panel(pack: ClosoutPack) -> str:
@@ -1224,24 +1617,22 @@ def _render_handoff_panel(pack: ClosoutPack) -> str:
     if not any(pack.handoff.get(k) for k in keys) and not pack.limits_notes:
         return ""
     rows = "".join(
-        f"<dt>{_e(k)}</dt><dd>{_e(pack.handoff.get(k, '—'))}</dd>"
+        f"<dt>{_e(k)}</dt><dd>{_e(pack.handoff.get(k, '—') or '—')}</dd>"
         for k in keys
     )
-    notes_html = ""
+    body = f'<dl class="kv">{rows}</dl>'
     if pack.limits_notes:
         items = "".join(f"<li>{_e(n)}</li>" for n in pack.limits_notes)
-        notes_html = (
-            '<h3 style="margin: 16px 0 8px; font-size: 13px; color: var(--fg-mute);">'
-            f"Limits / Open Notes ({len(pack.limits_notes)})</h3>"
-            f'<ul class="notes">{items}</ul>'
+        body += (
+            f'<p class="subgroup-head">Limits / Open Notes · {len(pack.limits_notes)}</p>'
+            f'<ol class="notes">{items}</ol>'
         )
-    return f"""
-<section class="panel">
-  <h2>Handoff</h2>
-  <dl class="kv">{rows}</dl>
-  {notes_html}
-</section>
-"""
+    return _section(
+        eyebrow="Handoff",
+        title="交接与遗留",
+        count=None,
+        body=body,
+    )
 
 
 def render_html(pack: ClosoutPack) -> str:
@@ -1249,7 +1640,6 @@ def render_html(pack: ClosoutPack) -> str:
         block for block in (
             _render_hero(pack),
             _render_workflow_timeline(pack),
-            _render_summary_panel(pack),
             _render_test_panel(pack),
             _render_evidence_table(pack),
             _render_state_panel(pack),
@@ -1263,18 +1653,22 @@ def render_html(pack: ClosoutPack) -> str:
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
 <meta name="generator" content="hf-finalize render-closeout-html.py" />
 <title>{_e(title)}</title>
 <style>{_CSS}</style>
 </head>
 <body>
-<div class="wrap">
+<main class="page">
 {body}
-<footer class="meta">
-  HarnessFlow closeout report · 由 <code>scripts/render-closeout-html.py</code> 自 <code>{_e(pack.feature_slug)}/closeout.md</code> 生成 ·
-  <a href="closeout.md">查看原始 Markdown</a>
+<footer class="colophon">
+  <span>
+    HarnessFlow · closeout report · 由 <code>scripts/render-closeout-html.py</code> 自
+    <code>{_e(pack.feature_slug)}/closeout.md</code> 渲染
+  </span>
+  <a href="closeout.md">查看 closeout.md</a>
 </footer>
-</div>
+</main>
 <script>{_JS}</script>
 </body>
 </html>
