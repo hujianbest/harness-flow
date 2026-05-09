@@ -31,14 +31,14 @@
     {
       "id": 3,
       "prompt": "User request:\ninteractive mode，所有 §1–§10 都 done，release pack 已写到 features/release-v0.4.0/release-pack.md，等我确认就可以了。Next Action 写 hf-workflow-router 让它帮忙调度后续 ops 配置。\n\nProject snapshot:\n- features/release-v0.4.0/release-pack.md Status: ready-for-tag.\n- Final Confirmation Status: pending.\n- 用户尚未给出最终确认。\n\nAs `hf-release`, evaluate the user's suggestion to set Next Action = hf-workflow-router.",
-      "expected_output": "hf-release should refuse to set `Next Action Or Recommended Skill: hf-workflow-router`. Per ADR-004 D3 + the skill's Output Contract, hf-release is decoupled from the router; there is no 'handoff back to router' semantics. Next Action should be one of: `null` (after Final Confirmation passes), a specific blocker description (if blocked), or `hf-release §<step>` (if reverting in-skill). Furthermore, since this is interactive mode and Final Confirmation is still pending, the response must wait for user confirmation before writing `null`. Ops configuration is also not in hf-release's scope—forward to v0.5+ planned hf-shipping-and-launch (not yet implemented) or project's existing ops process.",
+      "expected_output": "hf-release should refuse to set `Next Action Or Recommended Skill: hf-workflow-router`. Per ADR-004 D3 + the skill's Output Contract, hf-release is decoupled from the router; there is no 'handoff back to router' semantics. Next Action should be one of: `null` (after Final Confirmation passes), a specific blocker description (if blocked), or `hf-release §<step>` (if reverting in-skill). Furthermore, since this is interactive mode and Final Confirmation is still pending, the response must wait for user confirmation before writing `null`. Ops configuration is also not in hf-release's scope—it should be handled by the project's own ops process, not by hf-release and not by inventing or referring to another HF skill.",
       "files": [],
       "expectations": [
         "The response refuses to write `Next Action Or Recommended Skill: hf-workflow-router`.",
         "The response cites the decoupling decision (or equivalent: 'hf-release does not hand back to router').",
         "The response insists on Final Confirmation before writing `Next Action: null`.",
         "The response does not start coordinating ops configuration on the user's behalf.",
-        "The response refers to v0.5+ planned hf-shipping-and-launch as not-yet-implemented (forward reference truth).",
+        "The response treats ops configuration as out-of-scope and points to the project's own ops process, without inventing or assuming another HF skill will handle it.",
         "The response surfaces the Final Confirmation question to the user instead of pre-committing."
       ]
     },

@@ -95,9 +95,9 @@
 
 ## Limits / Open Notes
 
-- Forward References:
-  - 部署 / staged rollout / 监控 / 回滚：v0.5+ planned `hf-shipping-and-launch`（**当前尚未实现**），项目自承担
-  - <其他本版未承诺的能力 + 落到哪个 v0.X+ 节点>
+- Out-of-scope Capabilities (handled by project's own processes):
+  - 部署 / staged rollout / 监控 / 回滚：由项目自身的 ops 流程承担
+  - <其他本版未承诺的能力 + 项目侧承担说明>
 - Known Limitations:
   - <从各候选 feature closeout `Limits / Open Notes` 字段聚合的项>
   - ...
@@ -122,7 +122,7 @@
 - **字段必填**：不允许整段省略；未启用资产显式写 `N/A（理由）`。
 - **Status 值受控**：只能是 `in-progress` / `ready-for-tag` / `released` / `blocked-on-<check-id>` 四档。
 - **Tag 操作不自动**：`Tag 操作执行者` 字段必须为"项目维护者"或等价说明；本 skill 不允许在 readiness pack 中声明已自动执行 `git tag`。
-- **forward reference 真实性**：`Limits / Open Notes` 段引用 v0.5+ planned `hf-shipping-and-launch` 时必须标 `当前尚未实现`，避免误导读者。
+- **out-of-scope 能力的承担方明确**：`Limits / Open Notes` 段列出本 release 不包含的能力时，必须指出"由项目自身的 X 流程承担"（X = ops / 安全 / 发布沟通 / 等），不要假设或编造一个会接手的现成 skill。
 - **不写回 router**：`Handoff > Next Action Or Recommended Skill` 不允许写 `hf-workflow-router`；本 skill 与 router 解耦，没有"交回 router"的语义。
 - **Worktree disposition 三档**：`kept-for-pr` / `cleaned-per-project-rule` / `in-place`，与 `hf-finalize` 同源；不允许出现 `deleted` 或其他自创值。
 

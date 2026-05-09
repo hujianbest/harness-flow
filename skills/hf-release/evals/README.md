@@ -10,7 +10,7 @@
 4. **不写回 router**：本 skill 与 router 解耦；Next Action 不允许是 `hf-workflow-router`
 5. **不自动执行 git tag / git push --tags**：tag 操作交项目维护者
 6. **不混入 ops 动作**：feature flag / staged rollout / 监控 / 回滚不在本 skill 范围；在 release pack 中标记或承诺这些 = 越权
-7. **forward reference 真实性**：v0.5+ planned `hf-shipping-and-launch` 必须标 `当前尚未实现`
+7. **不假设 HF 提供了部署/上线 skill**：out-of-scope 能力（部署 / staged rollout / 监控 / 回滚）应说"由项目自身 ops 流程承担"，不能编造或假设另一个现成 HF skill 接手
 8. **Final Confirmation interactive**：interactive 模式下未确认前不得把 ADR 翻 accepted、不得写 `Next Action: null`
 
 ## 文件结构

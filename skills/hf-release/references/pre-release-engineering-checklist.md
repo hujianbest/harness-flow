@@ -33,7 +33,7 @@
 | D8 | `docs/diagrams/` 同步 | 同上 |
 | D9 | feature closeout `Release / Docs Sync` 字段对账一致 | 任一候选 feature 声称已同步某路径，本次 release 必须能找到对应路径；不一致即视为冲突，停下问用户 |
 | D10 | Migration / breaking changes 已写入 release notes 的 `## Migration Notes` | 若本版含任何 breaking change（C1 → §4 SemVer 决策应得 major bump），必须写；否则写 `N/A（无 breaking change）` |
-| D11 | Known Limitations 已聚合 | 各 feature closeout 的 `Limits / Open Notes` 字段汇总到 release notes / release pack；含 forward reference（如 v0.5+ planned `hf-shipping-and-launch` 的占位） |
+| D11 | Known Limitations 已聚合 | 各 feature closeout 的 `Limits / Open Notes` 字段汇总到 release notes / release pack；含 out-of-scope 能力的承担方说明（项目自身 ops 流程 / 项目自身安全流程 / 等） |
 
 ## Versioning Hygiene
 
@@ -59,18 +59,18 @@
 
 | 动作 | 落到哪 |
 |---|---|
-| 部署到 production / staging / canary | v0.5+ planned `hf-shipping-and-launch`（**当前尚未实现**） |
-| Feature flag 0% → 5% → 100% 的 staged rollout | 同上 |
-| 监控仪表盘 / 错误上报配置 | 同上 |
-| SLO 配置 / 基线监控 | 同上 |
-| 回滚 procedure / 回滚演练 | 同上 |
-| Health check / CDN / DNS / SSL 配置 | 同上 |
-| Rate limiting / 安全 headers 配置 | v0.5+ planned `hf-security-hardening` |
-| 上线后的观察窗口 | v0.5+ planned `hf-shipping-and-launch` |
-| Staged rollout decision thresholds | 同上 |
-| User communication / launch announcement | 项目自承担（不在 HF 任何 skill 范围） |
+| 部署到 production / staging / canary | 项目自身的 ops 流程 |
+| Feature flag 0% → 5% → 100% 的 staged rollout | 项目自身的 ops 流程 |
+| 监控仪表盘 / 错误上报配置 | 项目自身的 ops 流程 |
+| SLO 配置 / 基线监控 | 项目自身的 ops 流程 |
+| 回滚 procedure / 回滚演练 | 项目自身的 ops 流程 |
+| Health check / CDN / DNS / SSL 配置 | 项目自身的 ops 流程 |
+| Rate limiting / 安全 headers 配置 | 项目自身的安全流程 |
+| 上线后的观察窗口 | 项目自身的 ops 流程 |
+| Staged rollout decision thresholds | 项目自身的 ops 流程 |
+| User communication / launch announcement | 项目自身的发布沟通流程 |
 
-以上动作 **不应** 出现在 release pack 或 release notes 的"已完成"清单中；如果项目需要在切版本同时做这些事，请按 v0.5+ planned `hf-shipping-and-launch`（待实现）或项目既有 ops 流程独立承担，**不**写进本 skill 的 evidence 中。
+以上动作 **不应** 出现在 release pack 或 release notes 的"已完成"清单中；如果项目需要在切版本同时做这些事，请按项目自身的 ops / 安全 / 发布沟通流程独立承担，**不**写进本 skill 的 evidence 中。
 
 ## 失败处理流程
 

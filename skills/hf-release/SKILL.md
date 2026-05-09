@@ -1,11 +1,11 @@
 ---
 name: hf-release
-description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z 工程级发版（版本切片 + 全量回归 + 发布文档聚合）。当用户表达"切版本/出 release/打 tag/发版本号"时使用。不适用于单 feature closeout（→ hf-finalize）、上线/部署/监控/回滚（→ v0.5+ planned hf-shipping-and-launch，当前尚未实现）。
+description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z 工程级发版（版本切片 + 全量回归 + 发布文档聚合）。当用户表达"切版本/出 release/打 tag/发版本号"时使用。不适用于单 feature closeout（→ hf-finalize）、上线/部署/监控/回滚（不在本 skill 范围；由项目自身的 ops 流程承担）。
 ---
 
 # HF Release
 
-把若干个已 `workflow-closeout` 的 feature 汇总成一次 vX.Y.Z **engineer-level release**。负责锁范围、做版本级回归、聚合发布文档、产出 tag-ready pack。**不**做部署 / staged rollout / 监控 / 回滚——那是 v0.5+ planned `hf-shipping-and-launch` 的范围（**当前尚未实现**）。
+把若干个已 `workflow-closeout` 的 feature 汇总成一次 vX.Y.Z **engineer-level release**。负责锁范围、做版本级回归、聚合发布文档、产出 tag-ready pack。**不**做部署 / staged rollout / 监控 / 回滚——这些不在本 skill 范围，由项目自身的 ops 流程承担。
 
 ## When to Use
 
@@ -20,7 +20,7 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 不适用：
 
 - 单 feature closeout（task-closeout 或 workflow-closeout） → `hf-finalize`
-- 实际部署 / feature flag rollout / 监控配置 / 回滚演练 → v0.5+ planned `hf-shipping-and-launch`（**当前尚未实现**；项目暂用既有 ops 工具自承担）
+- 实际部署 / feature flag rollout / 监控配置 / 回滚演练 → 不在本 skill 范围；由项目自身的 ops 流程承担
 - 需要新实现或补 fresh evidence → 上游 `hf-test-driven-dev` / 各 gate；本 skill **不**写新代码
 - 候选 feature 还没 `workflow-closeout` → 先回到 `hf-finalize` 把它们 close 掉
 - 阶段不清 / 用户意图不是切版本 → `using-hf-workflow` → 由 entry shell 重新分流
@@ -35,7 +35,7 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 - CHANGELOG `[vX.Y.Z]` 段未落盘 → **拒出**
 - release scope ADR 草稿未落盘 → **拒出**
 - `interactive` 模式下 Final Confirmation 未通过 → 不写 `Next Action: null`
-- **不得**承诺部署 / 监控 / 回滚演练 / SLO / health check / staged rollout / feature flag——这些属于 v0.5+ planned `hf-shipping-and-launch`，本 skill 范围之外
+- **不得**承诺部署 / 监控 / 回滚演练 / SLO / health check / staged rollout / feature flag——这些不在本 skill 范围
 - **不得**自动执行 `git tag` / `git push --tags`——本 skill 只产 readiness pack，tag 操作交给项目维护者
 - **不得**自动删除 worktree——只能记录 disposition
 - **不得**让 release scope ADR 由作者自我批准——`docs/principles/soul.md` 立场：HF 不替用户验收自己；建议由独立人/会话评审 ADR draft 后再 commit
@@ -182,7 +182,7 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 - Health check / CDN / DNS / SSL / Rate limiting
 - 上线后的观察窗口
 
-以上属于 v0.5+ planned `hf-shipping-and-launch`（**当前尚未实现**），本 skill 不替代、不实施、不勾选。
+以上不在本 skill 范围；如项目需要这些能力，由项目自身的 ops 流程承担——**不**写进本 skill 的 evidence。
 
 ### 9. 形成 Evidence Matrix
 
@@ -205,7 +205,7 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 - Tag Readiness（建议 tag 名 / 建议 commit / 分支 / PR 状态）
 - Worktree Disposition
 - Final Confirmation（interactive only）
-- Limits / Open Notes / Forward References（含对 v0.5+ planned `hf-shipping-and-launch` 的指向，明确告知"上线侧由项目自承担"）
+- Limits / Open Notes（明确告知部署 / 监控 / 回滚等上线侧能力不在本 skill 范围，由项目自身 ops 流程承担）
 
 ### 11. Final Confirmation（interactive only）
 
@@ -263,7 +263,7 @@ Next Action 规则：
 - 因为没有项目级 release-wide 测试入口就把 §6 写成 `N/A` 蒙混过关
 - release scope ADR 由 skill 作者一手批准（违反 Fagan 分离 advisory）
 - 把"用户当前在用什么客户端"作为 release 决策的输入（HF release 是 client-agnostic）
-- 在 SKILL.md 或文档中把 v0.5+ planned `hf-shipping-and-launch` 写成"另一个现成 skill"（应明示 planned / not implemented）
+- 假设存在一个"现成的部署/上线 skill"可以承接被本 skill 拒绝的 ops 动作；out-of-scope 能力应直接说"由项目自身 ops 流程承担"，不要把读者推到一个虚构或未交付的 skill
 
 ## Common Rationalizations
 
@@ -272,7 +272,7 @@ Next Action 规则：
 | "/release 之后顺便 git tag + push 一下" | Hard Gates: 本 skill 只产 readiness pack；tag 是项目维护者动作，不在 skill 范围 |
 | "复用各 feature 的 regression 记录就够了，不用再跑一次" | Hard Gates + §6: release-wide regression scope = union(features)，必须 fresh；拼贴 = 不通过 |
 | "scope ADR 我自己拍就行了，多评审一轮浪费时间" | Author/Reviewer Separation 是 advisory 不是 hard gate，但 Red Flags 指出"作者一手批准"；与 `docs/principles/soul.md` "HF 不替用户验收自己" 立场冲突 |
-| "这次 release 顺便配置一下 staged rollout / 监控 / 回滚" | Hard Gates: 本 skill 不承诺部署 / 监控 / 回滚——那是 v0.5+ planned `hf-shipping-and-launch`（当前尚未实现），项目自承担 |
+| "这次 release 顺便配置一下 staged rollout / 监控 / 回滚" | Hard Gates: 本 skill 不承诺部署 / 监控 / 回滚；这些不在本 skill 范围，由项目自身的 ops 流程承担 |
 | "router 应该把我派过来" / "我应该 handoff 回 router" | When to Use 边界 + ADR-004 D3: `hf-release` 与 router 完全解耦；不进 transition map，不交回 router |
 | "项目没有统一的测试入口，§6 就标 N/A 跳过" | Hard Gates + §6 stop rule: 不替用户拍板降低门禁；缺入口要抛回用户决定（延后发版或临时降级），不能自己跳过 |
 | "task-closeout 的 feature 也算入版吧，反正快做完了" | Hard Gates: 候选必须是 `workflow-closeout`；task-closeout 还有剩余任务未完成 |
@@ -307,4 +307,4 @@ Next Action 规则：
 - [ ] 未自动执行 `git tag` / `git push --tags`
 - [ ] 未自动删除 worktree
 - [ ] Next Action 写为 `null`（已 released）/ 具体阻塞点（未通过）/ `hf-release §<step>`（同 skill 回退）；**不**写回 `hf-workflow-router`
-- [ ] release pack 中已显式标注 v0.5+ planned `hf-shipping-and-launch` 仍为 not implemented，未越权承诺部署 / 监控 / 回滚
+- [ ] release pack 中未越权承诺部署 / 监控 / 回滚（out-of-scope 能力已明确指向"项目自身 ops 流程"，未编造或假设其他 skill 接手）

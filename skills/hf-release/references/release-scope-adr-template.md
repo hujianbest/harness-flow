@@ -122,14 +122,14 @@ X.Y.Z 相对于上一版是 **major / minor / patch** bump。
 
 - <本 ADR 与前一版 ADR 的关系（首次 / 延续 / 撤回 / 校准）>
 - <本版承诺面与不承诺面的清晰对照（防止读者误读）>
-- <forward reference 的状态标注（planned / not implemented）>
+- <forward reference 的状态标注（如本 ADR 引用未来 ADR / 未来版本时，明示其状态）>
 ```
 
 ## 编写约束
 
 - **决策粒度**：每条 Decision 只锁定一件事；不要把"引入新 skill" + "扩展客户端面" 写进同一条。
 - **拒绝叠词**：避免"包括但不限于" / "等" / "诸如此类"；范围必须可枚举。
-- **forward reference 真实性**：引用尚未实现的能力时必须标 `planned` / `not implemented`，不能写成"另一个现成 skill"。
+- **forward reference 真实性**：引用尚未交付的能力或项目自身后续工作时必须明示其状态（草稿 / 已批准 / 待规划 / 等），不能写成"另一个现成能力"。
 - **D11 风格校准**（可选）：如果起草过程中决策被推翻，新增一条 `D-final` 校准段而不是直接改前面的 Decision；保留撤回痕迹给读者。
 - **Tradeoffs 必填**：至少 1 行；表明本版是经过权衡的，不是只有一种走法。
 - **Roadmap 必填**：本版显式延后的项目要写清，给后续 ADR 留落点。

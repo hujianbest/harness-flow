@@ -24,7 +24,7 @@ Steps:
 Hard rules (do not bypass):
 
 - **Standalone, no router coupling.** `hf-release` does not enter the `hf-workflow-router` transition map and does not hand work back to the router. Next Action is `null` / specific blocker / `hf-release §<step>` only.
-- **Engineer-level release only.** No deployment, no staged rollout, no monitoring, no rollback procedures. Those are v0.5+ planned `hf-shipping-and-launch` (not yet implemented).
+- **Engineer-level release only.** No deployment, no staged rollout, no monitoring, no rollback procedures. Those are out of this skill's scope and must be handled by the project's own ops process.
 - **No automatic git tag.** The skill produces a readiness pack; tag operations (`git tag`, `git push --tags`, GitHub Release) are project-maintainer actions.
 - **Candidate features must be workflow-closeout.** `task-closeout` / `blocked` features are rejected at §2.
 - **Release-wide regression must be fresh.** Stitching historical per-feature regression records does not count.
