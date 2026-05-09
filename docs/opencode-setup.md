@@ -1,8 +1,8 @@
 # HarnessFlow on OpenCode
 
-HarnessFlow v0.2.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
+HarnessFlow v0.3.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
 
-> **Scope (v0.2.0 pre-release).** v0.2.0 still officially supports only **Claude Code** and **OpenCode** (ADR-002 D11 revoked the in-flight 7-client expansion). Other clients (Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro) are deferred to v0.3+. The HarnessFlow main chain still ends at `hf-finalize` (engineering-level closeout); v0.2.0 added `hf-browser-testing` as a verify-stage runtime evidence side node, but release pipelines / deployment / monitoring / security hardening / performance gating remain out of scope. See ADR-002 D1 / D11.
+> **Scope (v0.3.0 pre-release).** v0.3.0 officially supports 3 clients: **Claude Code**, **OpenCode**, and **Cursor** (newly added in this release; see `docs/cursor-setup.md`). The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.4+ (ADR-003 D1). The HarnessFlow main chain still ends at `hf-finalize` (engineering-level closeout); v0.3.0 added **no** new `hf-*` skills and **no** personas (ADR-003 D2 / D3), so release pipelines / deployment / monitoring / security hardening / performance gating remain out of scope. See `docs/decisions/ADR-003-release-scope-v0.3.0.md`.
 
 ## How OpenCode discovers HF skills
 
@@ -168,21 +168,23 @@ Natural-language intents also cover side branches and gates:
 
 The `hf-regression-gate`, `hf-doc-freshness-gate`, and `hf-completion-gate` skills are intentionally **pulled** by upstream nodes, not pushed by the user. Asking for "/gate" directly would encourage skipping implementation or review — that is why HarnessFlow ships no `/gate` command, on Claude Code or on OpenCode (ADR-001 D4).
 
-## 7. What is NOT included in v0.2.0
+## 7. What is NOT included in v0.3.0
 
-Per ADR-001 D1 + ADR-002 D1 / D11 (P-Honest, "narrow but hard"):
+Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 (P-Honest, "narrow but hard"):
 
-- 6 of 7 deferred ops/release skills remain out of scope (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`). Only `hf-browser-testing` was added in v0.2.0 (verify-stage runtime evidence side node, ADR-002 D1 / D7).
-- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** and does not block PR merge in maintainer workflows (ADR-002 D5 sub-decision).
-- No 5-client expansion (Cursor / Gemini CLI / Windsurf / GitHub Copilot / Kiro) — ADR-002 D11 revoked the in-flight v0.2.0 expansion; deferred to v0.3+.
-- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; deferred to v0.3+.
-- ADR-001 D11's stance on `Object Contract` (neither mandatory nor recommended in v0.1.0) is preserved in v0.2.0 — only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are now hard rules in `skill-anatomy.md` (ADR-002 D9 / D10).
+- 6 of 7 deferred ops/release skills remain out of scope (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`). Only `hf-browser-testing` was added (in v0.2.0, verify-stage runtime evidence side node, ADR-002 D1 / D7); v0.3.0 added no new `hf-*` skills (ADR-003 D2).
+- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** and does not block PR merge in maintainer workflows (ADR-002 D5 sub-decision; ADR-003 D8 keeps this stance).
+- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — v0.3.0 added Cursor only (ADR-003 D1); the other 4 stay deferred to v0.4+.
+- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 keeps deferred to v0.4+.
+- ADR-001 D11's stance on `Object Contract` (neither mandatory nor recommended in v0.1.0) is preserved — only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are hard rules in `skill-anatomy.md` (ADR-002 D9 / D10; ADR-003 D9 keeps the rest as design reference).
 
-These constraints are intentional. They keep the surface area small enough for the v0.2.0 pre-release to be honest about what it does and does not cover.
+These constraints are intentional. They keep the surface area small enough for the v0.3.0 pre-release to be honest about what it does and does not cover.
 
 ## 8. Cross-references
 
-- ADR-001 (release scope decisions): `docs/decisions/ADR-001-release-scope-v0.1.0.md`
+- ADR-003 (v0.3.0 release scope: Cursor-only client expansion): `docs/decisions/ADR-003-release-scope-v0.3.0.md`
+- ADR-002 (v0.2.0 release scope, with D11 narrowing): `docs/decisions/ADR-002-release-scope-v0.2.0.md`
+- ADR-001 (v0.1.0 release scope): `docs/decisions/ADR-001-release-scope-v0.1.0.md`
 - Repository overview: `README.md` (English) / `README.zh-CN.md` (Chinese)
-- Claude Code setup: `docs/claude-code-setup.md`
+- Other supported client setups: `docs/claude-code-setup.md` / `docs/cursor-setup.md`
 - OpenCode official skills docs: <https://opencode.ai/docs/skills/>
