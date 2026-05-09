@@ -19,6 +19,18 @@ Other anatomy sections (`Object Contract`, `Methodology`, `Hard Gates`,
 `Output Contract`, `Red Flags`, `Common Mistakes`, etc.) remain "author writes
 when needed" and are NOT checked here (ADR-001 D11 + ADR-002 D10 partial scope).
 
+Recognised skill subdirectories (per HF skill anatomy v2, ADR-005 D10 since
+v0.5.0):
+  - `references/`  optional: templates and reference docs
+  - `evals/`       optional: eval cases and READMEs
+  - `scripts/`     optional: skill-OWNED tools that are part of this skill's
+                   hard gate (e.g. `skills/hf-finalize/scripts/render-closeout-html.py`).
+                   Cross-cutting maintainer tools live under repo-root
+                   `scripts/` (this file is one example).
+
+This audit only reads `<skill>/SKILL.md`; subdirectories are not traversed,
+so adding `skills/<name>/scripts/` does not affect audit results.
+
 This script is advisory: it returns a non-zero exit code when any required rule
 fails so CI can surface annotations, but the project policy is to NOT block PR
 merge on it (ADR-002 D5 sub-decision; revisit after v0.2.0 GA).

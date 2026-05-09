@@ -64,8 +64,21 @@ Accessibility (hf-ui-design § 7 + a11y-checklist):
 Usage
 =====
 
-    python3 scripts/render-closeout-html.py <feature-dir>
-    python3 scripts/render-closeout-html.py <feature-dir> --output path.html
+    python3 skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>
+    python3 skills/hf-finalize/scripts/render-closeout-html.py <feature-dir> --output path.html
+
+Note on script location (since v0.5.0):
+
+This script lives under `skills/hf-finalize/scripts/` (the **skill-owned**
+tools convention introduced in ADR-005 D10) rather than the repo-root
+`scripts/` directory. `scripts/` at repo root is reserved for **maintainer
+cross-cutting tools** (e.g. `audit-skill-anatomy.py` which audits ALL skills).
+A tool that is invoked by exactly one skill and is part of that skill's hard
+gate ships physically with the skill, so vendoring `skills/hf-finalize/`
+into a project gives you everything needed to run hf-finalize step 6A —
+including this renderer. This also makes OpenCode `.opencode/skills/`
+softlinks and Cursor `.cursor/rules/` integrations transparently pick the
+script up alongside the skill it belongs to.
 
 Exit codes:
     0 - HTML rendered (closeout.md may be partial; missing fields are tolerated)
