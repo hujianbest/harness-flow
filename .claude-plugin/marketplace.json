@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow skill pack: 23 hf-* skills covering discovery -> spec -> design -> tasks -> TDD -> reviews -> gates -> finalize -> verify (hf-browser-testing, v0.2.0), with evidence-based routing. v0.3.0 adds Cursor as the third officially-supported client (Claude Code + OpenCode + Cursor)."
+      "description": "HarnessFlow skill pack: 24 hf-* skills covering discovery -> spec -> design -> tasks -> TDD -> reviews -> gates -> finalize -> verify (hf-browser-testing, v0.2.0) -> release (hf-release, v0.4.0), with evidence-based routing. v0.3.0 adds Cursor as the third officially-supported client (Claude Code + OpenCode + Cursor); v0.4.0 introduces hf-release as a standalone release-tier skill decoupled from the router (engineer-level release; deployment / staged rollout / monitoring / rollback remain v0.5+ planned hf-shipping-and-launch)."
     }
   ]
 }

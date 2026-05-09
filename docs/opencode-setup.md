@@ -1,8 +1,8 @@
 # HarnessFlow on OpenCode
 
-HarnessFlow v0.3.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
+HarnessFlow v0.4.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
 
-> **Scope (v0.3.0 pre-release).** v0.3.0 officially supports 3 clients: **Claude Code**, **OpenCode**, and **Cursor** (newly added in this release; see `docs/cursor-setup.md`). The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.4+ (ADR-003 D1). The HarnessFlow main chain still ends at `hf-finalize` (engineering-level closeout); v0.3.0 added **no** new `hf-*` skills and **no** personas (ADR-003 D2 / D3), so release pipelines / deployment / monitoring / security hardening / performance gating remain out of scope. See `docs/decisions/ADR-003-release-scope-v0.3.0.md`.
+> **Scope (v0.4.0 pre-release).** v0.4.0 officially supports 3 clients (unchanged from v0.3.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.5+. v0.4.0 introduces **`hf-release`** as a release-tier **standalone** skill (engineer-level release: scope ADR + release-wide regression + docs aggregation + tag readiness pack); it does **not** enter the router transition map and is invoked via natural language ("cut a release / tag a version") through the `using-hf-workflow` entry shell's bias row, which then **direct invokes** `hf-release` without going through `hf-workflow-router` (ADR-004 D3). The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout). The remaining 5 ops/release skills (`hf-shipping-and-launch` / etc.) and personas all stay deferred to v0.5+ (ADR-004 D2 / D3). See `docs/decisions/ADR-004-hf-release-skill.md` for the full v0.4.0 scope decisions.
 
 ## How OpenCode discovers HF skills
 
@@ -90,6 +90,7 @@ You should see at least the following skills listed (23 `hf-*` skills + `using-h
 - `hf-finalize`
 - `hf-hotfix`, `hf-increment`, `hf-experiment`
 - `hf-browser-testing` (new in v0.2.0)
+- `hf-release` (new in v0.4.0; release-tier standalone skill, not in router transition map)
 
 If the list is empty, see [§5 Troubleshooting](#5-troubleshooting).
 
@@ -97,9 +98,9 @@ If the list is empty, see [§5 Troubleshooting](#5-troubleshooting).
 
 OpenCode supports custom slash commands, but HarnessFlow on OpenCode intentionally does **not** ship them — that matches HarnessFlow's own design rule that "commands are bias, on-disk artifacts decide the next node" (ADR-001 D4 rationale). Instead, the agent reads intent from natural language and lets the router pick the leaf skill.
 
-Mapping from natural-language intent to HarnessFlow nodes (the same set that Claude Code's 6 slash commands bias toward):
+Mapping from natural-language intent to HarnessFlow nodes (the same set that Claude Code's 7 slash commands bias toward):
 
-| Natural-language intent | Router selects |
+| Natural-language intent | Selected node |
 |---|---|
 | "I'm not sure where we are, route me." | `using-hf-workflow` -> `hf-workflow-router` (default entry) |
 | "Write / revise the spec for X." | `hf-specify` (after upstream discovery preconditions) |
@@ -107,8 +108,9 @@ Mapping from natural-language intent to HarnessFlow nodes (the same set that Cla
 | "Implement the current active task with TDD." | `hf-test-driven-dev` (only when one `Current Active Task` is locked) |
 | "Review the [spec / design / UI / tasks / tests / code / traceability]." | router dispatches to the matching `hf-*-review` per `skills/hf-workflow-router/references/review-dispatch-protocol.md` |
 | "Close out this task / workflow." | `hf-completion-gate` -> `hf-finalize` (gate decides if finalize can run) |
+| "Cut a release / tag vX.Y.Z / write release notes." | **direct invoke** `hf-release` (does **not** go through `hf-workflow-router`; ADR-004 D3). Engineer-level release only — does **not** deploy or staged-rollout. |
 
-Hard rule: every intent above is a **bias**, not a bypass. The router still inspects on-disk artifacts under the active feature directory and routes to the correct upstream node if preconditions are not met.
+Hard rule: the first 6 intents are **bias**, not bypass — the router still inspects on-disk artifacts under the active feature directory and routes to the correct upstream node if preconditions are not met. The "cut a release" intent is the exception: the entry shell direct-invokes `hf-release`, which has its own internal Hard Gates (candidate features must be `workflow-closeout`, release-wide regression must be fresh, no auto `git tag`).
 
 ## 4. Recommended first prompt
 
@@ -168,23 +170,27 @@ Natural-language intents also cover side branches and gates:
 
 The `hf-regression-gate`, `hf-doc-freshness-gate`, and `hf-completion-gate` skills are intentionally **pulled** by upstream nodes, not pushed by the user. Asking for "/gate" directly would encourage skipping implementation or review — that is why HarnessFlow ships no `/gate` command, on Claude Code or on OpenCode (ADR-001 D4).
 
-## 7. What is NOT included in v0.3.0
+## 7. What is NOT included in v0.4.0
 
-Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 (P-Honest, "narrow but hard"):
+Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Honest, "narrow but hard"):
 
-- 6 of 7 deferred ops/release skills remain out of scope (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`). Only `hf-browser-testing` was added (in v0.2.0, verify-stage runtime evidence side node, ADR-002 D1 / D7); v0.3.0 added no new `hf-*` skills (ADR-003 D2).
-- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** and does not block PR merge in maintainer workflows (ADR-002 D5 sub-decision; ADR-003 D8 keeps this stance).
-- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — v0.3.0 added Cursor only (ADR-003 D1); the other 4 stay deferred to v0.4+.
-- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 keeps deferred to v0.4+.
-- ADR-001 D11's stance on `Object Contract` (neither mandatory nor recommended in v0.1.0) is preserved — only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are hard rules in `skill-anatomy.md` (ADR-002 D9 / D10; ADR-003 D9 keeps the rest as design reference).
+- All 6 originally-deferred ops/release skills (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`) remain out of scope. v0.4.0 added a **new** skill `hf-release` (release-tier engineer-level version cut) — `hf-release` is **not** one of the 6 original deferred skills, and it does **not** replace `hf-shipping-and-launch`; the two are orthogonal (version cut vs. ship to production).
+- `hf-release` does **not** enter the router transition map — it is a release-tier standalone skill, decoupled from the main chain (ADR-004 D3). Asking "where in the workflow is `hf-release`?" — it isn't; it sits beside the workflow.
+- `hf-release` does **not** auto-execute `git tag` or `git push --tags`. The skill produces a readiness pack only; tag operations are project-maintainer actions.
+- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** and does not block PR merge in maintainer workflows (ADR-002 D5 sub-decision; ADR-003 D8 / ADR-004 keep this stance).
+- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — Cursor was added in v0.3.0; the other 4 stay deferred to v0.5+.
+- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 / ADR-004 keep deferred to v0.5+.
+- ADR-001 D11's stance on `Object Contract` (neither mandatory nor recommended in v0.1.0) is preserved — only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are hard rules in `skill-anatomy.md` (ADR-002 D9 / D10; ADR-003 D9 / ADR-004 keep the rest as design reference).
 
-These constraints are intentional. They keep the surface area small enough for the v0.3.0 pre-release to be honest about what it does and does not cover.
+These constraints are intentional. They keep the surface area small enough for the v0.4.0 pre-release to be honest about what it does and does not cover.
 
 ## 8. Cross-references
 
+- ADR-004 (v0.4.0 release scope: hf-release standalone skill + /release command): `docs/decisions/ADR-004-hf-release-skill.md`
 - ADR-003 (v0.3.0 release scope: Cursor-only client expansion): `docs/decisions/ADR-003-release-scope-v0.3.0.md`
 - ADR-002 (v0.2.0 release scope, with D11 narrowing): `docs/decisions/ADR-002-release-scope-v0.2.0.md`
 - ADR-001 (v0.1.0 release scope): `docs/decisions/ADR-001-release-scope-v0.1.0.md`
+- `hf-release` skill: `skills/hf-release/SKILL.md`
 - Repository overview: `README.md` (English) / `README.zh-CN.md` (Chinese)
 - Other supported client setups: `docs/claude-code-setup.md` / `docs/cursor-setup.md`
 - OpenCode official skills docs: <https://opencode.ai/docs/skills/>

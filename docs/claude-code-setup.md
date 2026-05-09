@@ -1,8 +1,8 @@
 # HarnessFlow on Claude Code
 
-HarnessFlow v0.3.0 ships a Claude Code plugin so you can install the skill pack from the marketplace and use 6 short slash commands.
+HarnessFlow v0.4.0 ships a Claude Code plugin so you can install the skill pack from the marketplace and use 7 short slash commands.
 
-> **Scope (v0.3.0 pre-release).** v0.3.0 officially supports 3 clients: **Claude Code**, **OpenCode**, and **Cursor** (newly added in this release; see `docs/cursor-setup.md`). The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.4+ (ADR-003 D1). The HarnessFlow main chain still ends at `hf-finalize` (engineering-level closeout); v0.3.0 added **no** new `hf-*` skills and **no** personas (ADR-003 D2 / D3), so release pipelines / deployment / monitoring / security hardening / performance gating remain out of scope. See `docs/decisions/ADR-003-release-scope-v0.3.0.md`.
+> **Scope (v0.4.0 pre-release).** v0.4.0 officially supports 3 clients (unchanged from v0.3.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.5+. v0.4.0 introduces **`hf-release`** as a release-tier **standalone** skill (engineer-level release: scope ADR + release-wide regression + docs aggregation + tag readiness pack) and a new `/release` slash command. `hf-release` is **decoupled** from `hf-workflow-router` — it does **not** enter the main-chain FSM. The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout). The remaining 5 ops/release skills (`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`) and personas all stay deferred to v0.5+ (ADR-004 D2 / D3). See `docs/decisions/ADR-004-hf-release-skill.md` for the full v0.4.0 scope decisions.
 
 ## 1. Marketplace install (recommended)
 
@@ -15,7 +15,7 @@ Use the **full HTTPS URL** form, not the `owner/repo` shortcut. Claude Code's ma
 
 The install command is `harness-flow@hujianbest-harness-flow`, not `harness-flow@harness-flow`. The format is `<plugin-name>@<marketplace-name>`; HarnessFlow's marketplace is named `hujianbest-harness-flow` (mirroring `addyosmani/agent-skills`'s `addy-agent-skills` pattern) to keep it distinct from the plugin name `harness-flow`. Earlier v0.2.x docs incorrectly used `harness-flow@harness-flow`, which made Claude Code's resolver hit a name-collision bug; v0.2.1 renamed the marketplace to fix this.
 
-After install, the following 6 slash commands become available in Claude Code:
+After install, the following 7 slash commands become available in Claude Code:
 
 | Command | Bias toward | Notes |
 |---|---|---|
@@ -24,9 +24,10 @@ After install, the following 6 slash commands become available in Claude Code:
 | `/plan` | `hf-design` (and `hf-ui-design` when the spec declares a UI surface) or `hf-tasks` | Combined planning command (design + task breakdown). |
 | `/build` | `hf-test-driven-dev` | Only valid when exactly one `Current Active Task` is locked. |
 | `/review` | router dispatches to the correct `hf-*-review` skill | Reviews are independent nodes (Fagan-style separation). |
-| `/ship` | `hf-completion-gate` -> `hf-finalize` | Gate decides whether finalize can actually run. |
+| `/ship` | `hf-completion-gate` -> `hf-finalize` | Gate decides whether finalize can actually run. Single-feature engineering-level closeout — **not** production deployment. |
+| `/release [version]` | **direct invoke** `hf-release` (does **not** route through `hf-workflow-router`) | Cut a vX.Y.Z engineer-level release: aggregate `workflow-closeout` features, draft scope ADR, run release-wide regression, sync CHANGELOG / release notes / ADR statuses, produce tag-ready pack. Does **not** deploy / staged-rollout / monitor / rollback (those remain v0.5+ planned `hf-shipping-and-launch`, **not yet implemented**). ADR-004 D3 / D4. |
 
-Hard rule: every command above is a **bias**, not a bypass. The router decides the actual next node from on-disk artifact evidence under your active feature directory.
+Hard rule: the first 6 commands are **bias**, not bypass — the router validates upstream preconditions from on-disk artifact evidence under your active feature directory. `/release` is the exception: it bypasses the router because `hf-release` is a standalone release-tier skill that reads disk artifacts directly (ADR-004 D3); it has its own internal Hard Gates (candidate features must be `workflow-closeout`, release-wide regression must be fresh, no auto `git tag`).
 
 > **Already hit the SSH error?** If you previously ran `/plugin marketplace add hujianbest/harness-flow` (the shortcut form) and saw `git@github.com: Permission denied (publickey)`, the marketplace entry registered partially but the install clone failed. Recover with:
 >
@@ -62,8 +63,8 @@ Claude Code will read:
 
 - `.claude-plugin/plugin.json` — plugin manifest (name, version, license, commands path).
 - `.claude-plugin/marketplace.json` — marketplace entry used when published.
-- `.claude/commands/*.md` — the 6 slash command definitions.
-- `skills/` — the 23 self-contained `hf-*` skills + `using-hf-workflow` (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*`; v0.3.0 did not change the skill set, ADR-003 D2).
+- `.claude/commands/*.md` — the 7 slash command definitions (v0.4.0 added `release.md`).
+- `skills/` — the 24 self-contained `hf-*` skills + `using-hf-workflow` (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*`; v0.4.0 added `hf-release` as the 24th, ADR-004 D1).
 
 ## 3. Verify the install
 
@@ -82,17 +83,20 @@ Expected behavior:
 
 If the router skips straight into implementation (`hf-test-driven-dev`) without an approved spec / design / tasks chain, that is a **bug** — please open an issue.
 
-## 4. What is NOT included in v0.3.0
+## 4. What is NOT included in v0.4.0
 
-Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 (P-Honest, "narrow but hard"):
+Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Honest, "narrow but hard"):
 
-- 6 of 7 deferred ops/release skills remain out of scope (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`). Only `hf-browser-testing` was added (in v0.2.0, verify-stage runtime evidence side node, ADR-002 D1 / D7); v0.3.0 added no new `hf-*` skills (ADR-003 D2).
+- All 6 originally-deferred ops/release skills (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`) remain out of scope. v0.4.0 added a **new** skill `hf-release` (release-tier engineer-level version cut: scope ADR + release-wide regression + release docs aggregation + tag readiness) — `hf-release` is **not** one of the 6 original deferred skills, and it does **not** replace `hf-shipping-and-launch`; the two are orthogonal (version cut vs. ship to production). `/release` does **not** deploy.
 - No `/hotfix` or `/gate` slash command (use natural language + `/hf` to let the router branch into `hf-hotfix` / `hf-increment`; gates are pulled by the canonical next action, not pushed by the user).
-- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — v0.3.0 added Cursor only (ADR-003 D1); the other 4 stay deferred to v0.4+.
-- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 keeps deferred to v0.4+.
-- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** (does not block PR merge in maintainer workflows; ADR-003 D8 keeps this stance).
+- No `/ship-to-prod` or similar deploy command — deployment is v0.5+ planned `hf-shipping-and-launch`, **not yet implemented**.
+- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — Cursor was added in v0.3.0; the other 4 stay deferred to v0.5+.
+- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-004 D3 keeps deferred to v0.5+ (and ADR-004 explicitly does not introduce personas either).
+- `hf-release` does **not** enter the router transition map — it is a standalone release-tier skill, decoupled from the main chain (ADR-004 D3). The router does not know it exists.
+- `hf-release` does **not** auto-execute `git tag` or `git push --tags`. The skill produces a readiness pack only; tag operations are project-maintainer actions.
+- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is still **advisory** (does not block PR merge in maintainer workflows; ADR-003 D8 / ADR-004 inherits this stance).
 
-These constraints are intentional. They keep the surface area small enough for the v0.3.0 pre-release to be honest about what it does and does not cover.
+These constraints are intentional. They keep the surface area small enough for the v0.4.0 pre-release to be honest about what it does and does not cover.
 
 ## 5. Where to look when something is wrong
 
@@ -106,8 +110,10 @@ These constraints are intentional. They keep the surface area small enough for t
 
 ## 6. Cross-references
 
+- ADR-004 (v0.4.0 release scope: hf-release standalone skill + /release command): `docs/decisions/ADR-004-hf-release-skill.md`
 - ADR-003 (v0.3.0 release scope: Cursor-only client expansion): `docs/decisions/ADR-003-release-scope-v0.3.0.md`
 - ADR-002 (v0.2.0 release scope, with D11 narrowing): `docs/decisions/ADR-002-release-scope-v0.2.0.md`
 - ADR-001 (v0.1.0 release scope): `docs/decisions/ADR-001-release-scope-v0.1.0.md`
+- `hf-release` skill: `skills/hf-release/SKILL.md`
 - Repository overview: `README.md` (English) / `README.zh-CN.md` (Chinese)
 - Other supported client setups: `docs/opencode-setup.md` / `docs/cursor-setup.md`

@@ -4,14 +4,14 @@
 
 **From idea to shipped product: high-quality engineering workflows for AI agents.**
 
-> ## Scope Note (v0.3.0 pre-release)
+> ## Scope Note (v0.4.0 pre-release)
 >
-> - **Version**: `v0.3.0`, marked as a **pre-release** on GitHub Releases. v0.3.0 is a single-client-expansion release: it adds **Cursor** as the third officially-supported client; it does **not** add new `hf-*` skills, does **not** introduce personas, and does **not** change the main chain.
-> - **Officially supported clients**: **Claude Code**, **OpenCode**, and **Cursor** (Cursor newly added in v0.3.0). The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.4+ (ADR-003 D1, mirroring ADR-002 D11's "do one client at a time" stance; HarnessFlow may still run there because it is plain Markdown, but those paths are **not** part of the v0.3.0 commitment).
-> - **Main chain ends at `hf-finalize`** — that is **engineering-level closeout** (state sync, release notes, handoff pack). v0.2.0 added `hf-browser-testing` as a verify-stage runtime evidence side node (DOM + console + network); v0.3.0 added no further main-chain skills (ADR-003 D2 / D4). Release pipelines, deployment, observability, incident response, security hardening, performance gating, debugging-and-error-recovery, and deprecation-and-migration remain v0.4+ roadmap items.
-> - This narrow surface is a deliberate choice (ADR-001 D1 / ADR-002 D1 / ADR-003 D2 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production".
+> - **Version**: `v0.4.0`, marked as a **pre-release** on GitHub Releases. v0.4.0 is the first release that grows the skill set since v0.2.0: it adds **`hf-release`** as a release-tier **standalone** skill (engineer-level release: scope ADR + release-wide regression + docs aggregation + tag readiness pack), plus a new `/release` slash command in Claude Code. `hf-release` is **decoupled** from `hf-workflow-router` — it does **not** enter the main-chain FSM and does **not** participate in the router transition map. Skill set: 23 → **24** `hf-*` + `using-hf-workflow`. Slash commands: 6 → **7**.
+> - **Officially supported clients**: **Claude Code**, **OpenCode**, and **Cursor** (unchanged from v0.3.0). The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.5+.
+> - **Main chain still ends at `hf-finalize`** — that is **engineering-level closeout** for a single feature/workflow. `hf-release` is a release-tier standalone skill that **aggregates** multiple `workflow-closeout` features into a vX.Y.Z release; it is **not** part of the main chain. Release pipelines, deployment, observability, incident response, security hardening, performance gating, debugging-and-error-recovery, and deprecation-and-migration are still **v0.5+ planned `hf-shipping-and-launch` / etc. (not yet implemented)**.
+> - This narrow surface is a deliberate choice (ADR-001 D1 / ADR-002 D1 / ADR-003 D2 / ADR-004 D2 — "P-Honest, narrow but hard"). HarnessFlow refuses to disguise "code merged / engineering closeout" as "shipped to production"; `hf-release` is "version cut + release docs", **not** "ship to production".
 >
-> See `docs/decisions/ADR-003-release-scope-v0.3.0.md` for the full v0.3.0 release scope decisions; `docs/decisions/ADR-002-release-scope-v0.2.0.md` (含 D11 校准说明) and `docs/decisions/ADR-001-release-scope-v0.1.0.md` for lineage.
+> See `docs/decisions/ADR-004-hf-release-skill.md` for the full v0.4.0 release scope decisions; `docs/decisions/ADR-003-release-scope-v0.3.0.md` (Cursor addition), `docs/decisions/ADR-002-release-scope-v0.2.0.md` (含 D11 校准说明) and `docs/decisions/ADR-001-release-scope-v0.1.0.md` for lineage.
 
 HarnessFlow is a skill pack for AI agents that turns the full **idea → insight → architecture → implementation → delivery** arc into structured artifacts, quality discipline, and clear handoffs. Product discovery, specification, architecture design, task breakdown, gated TDD implementation, independent reviews, regression and completion gates, and formal closeout are all first-class stages, so agents move along an explicit "one idea → reviewable direction → reviewable design → executable tasks → shipped product" path instead of relying on ad hoc prompt chains.
 
@@ -201,7 +201,7 @@ Marketplace install (use the explicit HTTPS URL with `.git` suffix to force HTTP
 /plugin install harness-flow@hujianbest-harness-flow
 ```
 
-This installs 6 short slash commands (see [Slash Commands](#slash-commands-claude-code) below).
+This installs 7 short slash commands (see [Slash Commands](#slash-commands-claude-code) below; v0.4.0 added `/release`).
 
 > The install command is `harness-flow@hujianbest-harness-flow` (plugin name `harness-flow` + marketplace name `hujianbest-harness-flow`), not `harness-flow@harness-flow`. v0.2.0 shipped with the marketplace also named `harness-flow`, which caused a name-collision bug in Claude Code's resolver; v0.2.1 renamed the marketplace to fix it. See `docs/claude-code-setup.md` for full setup notes including SSH troubleshooting.
 
@@ -227,7 +227,7 @@ cd harness-flow
 opencode .
 ```
 
-Verify discovery in OpenCode with `/skills` — you should see all 23 `hf-*` skills (including v0.2.0's `hf-browser-testing`) plus `using-hf-workflow`. Then start with:
+Verify discovery in OpenCode with `/skills` — you should see all 24 `hf-*` skills (including v0.2.0's `hf-browser-testing` and v0.4.0's `hf-release`) plus `using-hf-workflow`. Then start with:
 
 ```text
 Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool
@@ -249,9 +249,9 @@ Then send any natural-language intent (e.g. "Use HarnessFlow from this repo. I w
 
 To use HarnessFlow inside another project on Cursor, copy `.cursor/rules/harness-flow.mdc` into that project's `.cursor/rules/` and either keep `skills/` at the project root or symlink it under `.cursor/harness-flow-skills/`. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/cursor-setup.md`.
 
-### Other clients (deferred to v0.4+)
+### Other clients (deferred to v0.5+)
 
-HarnessFlow skills are plain Markdown, so they **may** work with Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.3.0 supported surface** and have no setup doc in this version. ADR-003 D1 keeps them deferred to v0.4+ (mirroring ADR-002 D11's "do one client at a time" stance — Cursor is the first to land in v0.3.0; the others will be evaluated by real-usage feedback before batch-adding).
+HarnessFlow skills are plain Markdown, so they **may** work with Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.4.0 supported surface** and have no setup doc in this version. The 4 client expansions stay deferred to v0.5+ (mirroring ADR-002 D11's "do one client at a time" stance — Cursor was added in v0.3.0; the others will be evaluated by real-usage feedback before batch-adding).
 
 ### Quickstart Demo: WriteOnce
 
@@ -274,7 +274,7 @@ When you vendor HarnessFlow into another workspace, copy `skills/` only. Each `h
 
 ## Slash Commands (Claude Code)
 
-The Claude Code plugin ships 6 short aliases (locked by ADR-001 D4). Every command is a **bias**, not a bypass — the router still validates upstream preconditions from on-disk artifacts.
+The Claude Code plugin ships 7 short aliases (6 locked by ADR-001 D4; `/release` added in ADR-004 D4). Every command is a **bias**, not a bypass — for the 6 router-bound commands the router still validates upstream preconditions from on-disk artifacts. `/release` is the exception: it **direct invokes** `hf-release` and bypasses the router (ADR-004 D3 — `hf-release` is decoupled from the router).
 
 | Command | Bias toward | Notes |
 |---|---|---|
@@ -284,13 +284,15 @@ The Claude Code plugin ships 6 short aliases (locked by ADR-001 D4). Every comma
 | `/build` | `hf-test-driven-dev` | Only valid when exactly one `Current Active Task` is locked. |
 | `/review` | router dispatches to the matching `hf-*-review` | Reviews are independent nodes with author/reviewer separation. |
 | `/ship` | `hf-completion-gate` → `hf-finalize` | The gate decides whether finalize can actually run. Engineering-level closeout only — **not** production deployment. |
+| `/release [version]` | **direct invoke** `hf-release` (does **not** go through the router) | Cut a vX.Y.Z engineer-level release: aggregate `workflow-closeout` features, draft scope ADR, run release-wide regression, sync CHANGELOG / release notes / ADR statuses, produce tag-ready pack. Does **not** deploy / staged-rollout / monitor / rollback (those remain v0.5+ planned `hf-shipping-and-launch`, not yet implemented). |
 
-Intentionally **not** included in v0.1.0:
+Intentionally **not** included in v0.1.0–v0.4.0:
 
 - No `/hotfix` — natural language + `/hf` lets the router branch into `hf-hotfix` / `hf-increment` for production defects or scope changes.
 - No `/gate` — gates are pulled by the canonical next action of the upstream node, not pushed by the user. A `/gate` command would encourage skipping implementation or review.
+- No `/ship-to-prod` (or similar deploy command) — deployment / staged rollout / monitoring / rollback are v0.5+ planned `hf-shipping-and-launch` (not yet implemented).
 
-OpenCode and Cursor do not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow` (ADR-003 D6 keeps Cursor on the same NL + router model as OpenCode rather than replicating Claude Code's 6 short slash commands).
+OpenCode and Cursor do not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow` (ADR-003 D6 keeps Cursor on the same NL + router model as OpenCode rather than replicating Claude Code's short slash commands). The `using-hf-workflow` entry shell § 5 entry bias table includes a row for "cut a release / tag a version" that direct invokes `hf-release` without going through the router (ADR-004 D3).
 
 ## Quick Start
 
@@ -434,9 +436,11 @@ using-hf-workflow
   -> hf-finalize
 ```
 
-> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout). **Release & runtime concerns** (deployment pipelines, observability, incident response, metric feedback, post-launch operations) are **not** first-class stages of the main chain today. This is consistent with the "scope footnote" in `docs/principles/soul.md`—HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production".
+> **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout for **a single feature**). **Release & runtime concerns** are still split into two layers: (1) **release-tier version cut** (multi-feature → vX.Y.Z scope ADR + release-wide regression + release notes / CHANGELOG aggregation + tag readiness) is now covered by the v0.4.0 standalone skill `hf-release`, which is **decoupled** from the main chain (it does not enter this Workflow Shape; it is triggered by `/release` in Claude Code or by the entry shell's bias row in OpenCode / Cursor). (2) **Deployment pipelines, observability, incident response, metric feedback, post-launch operations** remain v0.5+ planned `hf-shipping-and-launch` / `hf-ci-cd-and-automation` / etc. — **not yet implemented**. This is consistent with the "scope footnote" in `docs/principles/soul.md` — HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production"; `hf-release` is "version cut + release docs", **not** "ship to production".
 
 `hf-experiment` is a Phase 0 **conditional insertion inside the discovery / spec stage**: it only kicks in when the draft holds blocking or low-confidence assumptions. After the probe result lands, the flow either returns to the original insertion point (assumption cleared) or falls back to the upstream authoring node (assumption falsified). See `hf-workflow-router/references/profile-node-and-transition-map.md` for activation and flow-back rules.
+
+`hf-release` is a v0.4.0 **release-tier standalone skill** that lives **outside** this Workflow Shape. It is invoked when the user wants to cut a vX.Y.Z release after one or more features have been closed via `hf-finalize` (`workflow-closeout`). It reads each candidate feature's `closeout.md`, internalizes the release-wide regression and sync-on-presence protocols, and produces a tag-ready pack at `features/release-vX.Y.Z/release-pack.md`. It does **not** enter the router transition map, does **not** modify the main-chain FSM, and does **not** auto-execute `git tag` (those remain project-maintainer actions). See `skills/hf-release/SKILL.md` and `docs/decisions/ADR-004-hf-release-skill.md` for the full design.
 
 When the spec declares a UI surface, the router activates `hf-ui-design` as a **conditional peer inside the design stage**. `hf-design` covers architecture, modules, API contracts, data models, and backend NFRs; `hf-ui-design` covers information architecture, user flows, interaction states, visual tokens, Atomic component mapping, and frontend a11y / i18n / responsive concerns. Both drafts go through their own independent review, and a joint `设计真人确认` is only opened after both `hf-design-review` and `hf-ui-review` return `通过`. See `skills/hf-workflow-router/references/ui-surface-activation.md` for the activation rules and Design Execution Modes (`parallel` / `architecture-first` / `ui-first`).
 
