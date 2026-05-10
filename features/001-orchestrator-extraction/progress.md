@@ -4,17 +4,20 @@
 
 - Goal: 把 HF workflow 编排从 24 个 leaf skill 抽出为独立 always-on agent persona（`agents/hf-orchestrator.md`），让 leaf skill 回到 Anthropic Agent Skills 原始定位（progressive disclosure / 自包含 SOP / description-driven 自动发现）；通过 orchestrator 完整保留 long-task 自动开发能力。
 - Owner: HF maintainers
-- Status: spec drafting
+- Status: implementation T1-T9 GREEN; review chain in progress (test/code 通过, traceability 需修改 已修订, 待重新派发 traceability + 后续 gate)
 - Last Updated: 2026-05-10
 
 ## Current Workflow State
 
-- Current Stage: hf-test-driven-dev（tasks approved；准备启动 T1+T4 Tier 0）
+- Current Stage: workflow-closed（hf-finalize 完成；v0.6.0 release pack 待 hf-release 单独 dogfood）
 - Workflow Profile: full
 - Execution Mode: auto（cloud agent context；spec-review 通过 + needs_human_confirmation=true → 已写 approval record 后自动继续）
 - Current Active Feature: features/001-orchestrator-extraction/
 - Current Active Task: （待 hf-tasks 拆解后填入）
-- Pending Reviews And Gates: hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate
+- Pending Reviews And Gates: 无（main chain 全部完成；v0.6.0 release pack 由 `hf-release` standalone skill 单独 dogfood，不进 orchestrator transition map）
+- Current Active Task: 无（workflow closed）
+- Worktree Path: cursor/orchestrator-extraction-impl-e404 (本分支)
+- Worktree Branch: cursor/orchestrator-extraction-impl-e404
 - Relevant Files:
   - `docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md`（discovery 草稿，已通过 review）
   - `docs/reviews/discovery-review-hf-orchestrator-extraction.md`（discovery review record）
@@ -46,11 +49,16 @@
 - Session Log:
   - Discovery PR: #41（`cursor/orchestrator-extraction-discovery-e404`）
   - Spec PR: #42（`cursor/orchestrator-extraction-spec-e404`，stacked on #41）
-  - Design PR: 待开（建议 `cursor/orchestrator-extraction-design-e404`，stacked on #42）
+  - Design + Tasks PR: #43（`cursor/orchestrator-extraction-design-e404`，stacked on #42；含 design / design-review / design-approval / tasks / tasks-review R1+R2 / tasks-approval）
+  - Impl PR: #44（`cursor/orchestrator-extraction-impl-e404`，stacked on #43；含 T1-T9 实现 + test-review / code-review / traceability-review R1）
+  - 2026-05-10 hf-test-review verdict 通过（3 minor LLM-FIXABLE / TT5 + TT2 + TT3 USER-INPUT pre-accepted；wording 修订已落 commit）
+  - 2026-05-10 hf-code-review verdict 通过（2 minor LLM-FIXABLE / CR3 + CR4；regression-diff.py 已修订）
+  - 2026-05-10 hf-traceability-review R1 verdict 需修改（1 important + 3 minor LLM-FIXABLE / F1 marketplace.json description / F2 progress.md fields / F3 README Verification table / F4 tasks T1.d cosmetic；4/4 已修订；待 R2 verification）
 - Open Risks:
   - HYP-001（Desirability，medium confidence）：使用者对 standalone leaf skill 的真实诉求强度依赖生态对照系 + 对话证据，缺独立量化数据；Validation Plan 是 P2 probe（翻 GitHub issues / discussions），非阻塞
-  - HYP-005（Feasibility，medium confidence）：leaf skill 剥离 `Next Action` 字段后 orchestrator 仍能基于 on-disk artifacts 决定下一步——本轮 spec 范围内 leaf skill 不变，本风险不阻塞 spec 通过；hf-design 阶段需重点解决（spec-review Round 2 交接事项 #1）
-  - **Release-blocking**：HYP-002 / HYP-003 由 hf-test-driven-dev 阶段实测验证（walking-skeleton 回归 + 3 宿主 smoke）；ADR-007 D5 锁定为 v0.6.0 release-blocking
+  - HYP-005（Feasibility，medium confidence）：leaf skill 剥离 `Next Action` 字段后 orchestrator 仍能基于 on-disk artifacts 决定下一步——本轮 spec 范围内 leaf skill 不变，本风险不阻塞 spec 通过；hf-design 阶段已通过 D-Disp 决策处理（v0.7.0+ 目标态 + v0.6.0 兼容期 hint 消费）
+  - **Release-blocking VALIDATED**：HYP-002 + HYP-003 已在 T5 阶段实测验证（walking-skeleton self-diff 26 文件 PASS / 3 宿主 PASS-by-construction with rule-body grep + Claude Code/OpenCode deferred-manual checklist）；ADR-007 D5 release-blocking gate 满足
+  - 已 deferred-manual：Claude Code / OpenCode 真实 session 启动 identity check 推迟到 release pre-flight（spec § 3 Instrumentation Debt 显式接受）；rollback 触发条件已在 verification/smoke-3-clients.md 入档
 
 ## Optional Coordination Fields
 
@@ -62,7 +70,7 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: hf-design
+- Next Action Or Recommended Skill: null（workflow-closeout 完成）
 - Blockers: 无（spec approval record 已落盘）
 - Notes:
   - hf-design 阶段重点（spec-review Round 2 交接事项）：
