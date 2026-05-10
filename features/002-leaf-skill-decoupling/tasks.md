@@ -23,7 +23,7 @@ orchestrator persona 升级到**纯 artifact 驱动**——不再依赖 leaf 的
 | **M1: Orchestrator 升级** | T4（orchestrator 主文件 + references 升级到纯 artifact 驱动；保留 v0.6.0 兼容期 fallback 消费 leaf `Next Action` 作为辅助 hint）| `agents/hf-orchestrator.md` + `agents/references/profile-node-and-transition-map.md` + `reviewer-return-contract.md` 描述明确"以 artifact 为权威；leaf `Next Action` 作为 v0.6.x 兼容 hint" |
 | **M2: Tier 1 leaf 解耦** | T5-T14（4 doer + 6 reviewer × Step 2/3/4/5）| 每个 leaf 4 步全做；grep 验证 0 跨 hf-* 硬引用 + Hard Gates 标签齐全 + `Next Action` 字段标 optional |
 | **M3: Tier 1 sub-gate** | T15（Tier 1 grep 验证 + walking-skeleton 局部 smoke）| 10 leaf 全部 GREEN；orchestrator 在不依赖 Next Action 的情况下能正确派发到 Tier 1 leaf |
-| **M4: Tier 2 leaf 解耦** | T16-T29（8 doer + 6 reviewer/gate × Step 2/3/4/5）| 同 M2 但范围 14 leaf |
+| **M4: Tier 2 leaf 解耦** | T16-T29（8 doer + 6 reviewer/gate × Step 2/3/4/5）| 同 M2 但范围 13 leaf |
 | **M5: HYP-005 release-blocking 验证** | T30（walking-skeleton 端到端 v0.7.0 跑一遍；对照 v0.5.1 baseline 运行时等价；HYP-002 升级版 + HYP-005 双验证）| `regression-diff.py` PASS + orchestrator 纯 artifact 驱动决策记录入档 |
 | **M6: Docs sync + version bump** | T31-T35（README × 2 / setup docs × 3 / CHANGELOG 整合 [0.7.0] 删 [0.6.0] / SECURITY / CONTRIBUTING / plugin manifest version）| 全部文档反映 v0.7.0 完整交付 narrative |
 | **M7: Release pack** | T36（hf-release dogfood #5 → release-pack.md + release-regression.md + release-traceability.md + pre-release-checklist.md → ready-for-tag）| v0.7.0 release pack 全 GREEN，maintainer 可执行 git tag |
@@ -54,7 +54,7 @@ orchestrator persona 升级到**纯 artifact 驱动**——不再依赖 leaf 的
 
 ### 显式不动
 
-- 24 leaf SKILL.md 的核心方法论内容（TDD Two Hats / SUT Form / Fagan rubric / DDD / EARS / 等等）
+- 23 leaf SKILL.md 的核心方法论内容（TDD Two Hats / SUT Form / Fagan rubric / DDD / EARS / 等等）
 - closeout pack schema / reviewer return verdict 词表 / hf-release 行为 / audit-skill-anatomy.py / hf-finalize step 6A
 - `using-hf-workflow` / `hf-workflow-router` deprecated alias（D3 Step 6 仍 deferred）
 - features/001-orchestrator-extraction/ 历史工件（v0.6.0 中间产物，不修改历史）
@@ -63,10 +63,10 @@ orchestrator persona 升级到**纯 artifact 驱动**——不再依赖 leaf 的
 
 | 来源 | 本 feature 任务 |
 |---|---|
-| ADR-007 D3 Step 2 | 24 leaf × `Next Action` 字段降级 (T5-T29 各含一项) |
-| ADR-007 D3 Step 3 | 24 leaf × Hard Gates 标签 `[SOP]` / `[Workflow]` (T5-T29 各含一项) |
-| ADR-007 D3 Step 4 | 24 leaf × `[Workflow]` 类 Gate 物理上提 (T5-T29 各含一项；orchestrator side 由 T4 配套支持) |
-| ADR-007 D3 Step 5 | 24 leaf × 跨 hf-* 硬引用清理 (T5-T29 各含一项) |
+| ADR-007 D3 Step 2 | 23 leaf × `Next Action` 字段降级 (T5-T29 各含一项) |
+| ADR-007 D3 Step 3 | 23 leaf × Hard Gates 标签 `[SOP]` / `[Workflow]` (T5-T29 各含一项) |
+| ADR-007 D3 Step 4 | 23 leaf × `[Workflow]` 类 Gate 物理上提 (T5-T29 各含一项；orchestrator side 由 T4 配套支持) |
+| ADR-007 D3 Step 5 | 23 leaf × 跨 hf-* 硬引用清理 (T5-T29 各含一项) |
 | ADR-007 D5 release-blocking HYP-002 | T30 walking-skeleton 端到端 (升级到运行时等价) |
 | ADR-008 D5 release-blocking HYP-005 | T30 orchestrator 纯 artifact 驱动决策验证 |
 | ADR-008 D6 CHANGELOG 整合 | T33 |
@@ -248,13 +248,13 @@ orchestrator persona 升级到**纯 artifact 驱动**——不再依赖 leaf 的
   - 新增 `## [0.7.0] - 2026-05-10 — pre-release` 段，结构：
     - **顶部说明段**：含 "v0.6.0 prepared but not tagged—consolidated into v0.7.0; v0.7.0 is the first HF release that delivers genuinely standalone-usable skills"
     - **Foundation work (originally drafted as v0.6.0)** 子段：迁移原 [0.6.0] 段全部子段（**Added 7 项 / Changed 10 项 / Decided 8 项 / Notes 5 项**）的实质内容；可重组叙述但**不丢条目**
-    - **Standalone Skills (Step 2-5 实施)** 子段：v0.7.0 新增的 leaf 解耦工作；24 leaf 修改 + orchestrator 升级 + HYP-005 release-blocking 验证
+    - **Standalone Skills (Step 2-5 实施)** 子段：v0.7.0 新增的 leaf 解耦工作；23 leaf 修改 + orchestrator 升级 + HYP-005 release-blocking 验证
     - **Decided** 子段：含 ADR-008 D1-D7 + ADR-007 D5 升级（HYP-005 加入 release-blocking）
     - **Notes** 子段：含 ADR-007 D1 Amendment 在 v0.7.0 范围内仍然适用 + v0.8+ Step 6 物理删除路线图
 - **Acceptance**:
   - **(T33.a)** CHANGELOG.md 含 `[0.7.0]` 段 + 不含 `[0.6.0]` 段（grep）
   - **(T33.b 量化迁移)** 原 [0.6.0] 段实质条目数清点：Added 7 / Changed 10 / Decided 8 / Notes 5 = 30 条；新 [0.7.0] § "Foundation work" 子段必须包含**所有 30 条**实质内容（可重组叙述但不丢条目；reviewer 抽样 5 条核验）
-  - **(T33.c)** [0.7.0] § "Standalone Skills" 子段 ≥ 5 条 Added / Changed 实质条目（覆盖 24 leaf 解耦 + orchestrator 升级 + verification/）
+  - **(T33.c)** [0.7.0] § "Standalone Skills" 子段 ≥ 5 条 Added / Changed 实质条目（覆盖 23 leaf 解耦 + orchestrator 升级 + verification/）
   - **(T33.d)** [0.7.0] § Decided 子段含 ADR-008 全 7 决策（D1-D7）+ ADR-007 D5 升级到 HYP-005 release-blocking
   - **(T33.e)** [0.7.0] § Notes 子段含 v0.8+ Step 6 deletion 路线图说明
 - **Verify**: `grep -c "^- " CHANGELOG.md`（针对 [0.7.0] 段范围内）≥ 35（30 foundation + 5 standalone + ADR-008 + Notes）
@@ -308,9 +308,10 @@ T1 → T2 → T3 (tasks-review) →
                 T36 (release pack；M7)
 ```
 
-关键路径长度：**显式枚举 14 步**：
+关键路径长度：**显式枚举 14 步**（feature-level）+ **1 步** release-tier：
 
 ```
+[Feature-level (002-leaf-skill-decoupling) chain]
 T1 (ADR-008) →
 T2 (Feature scaffolding) →
 T3 (hf-tasks-review) →
@@ -321,16 +322,19 @@ T16+T17+T18+T19+T20+T21+T22+T23+T24+T25+T26+T27+T28 (Tier 2 leaf 并行；折算
 T29 (Tier 2 sub-gate) →
 T30 (HYP-002+005 验证) →
 T31+T32+T33+T34+T35 (Docs 同步并行；折算 1 步) →
-T36 (Release pack;hf-release dogfood #5)→
 hf-test-review (final dispatch on T5-T29 + T4 changes)→
 hf-code-review (final dispatch on T4 + T30 scripts)→
 hf-traceability-review (final dispatch全链)→
 hf-regression-gate (with T30 evidence)→
 hf-completion-gate (workflow-closeout 准入)→
 hf-finalize (closeout.md + closeout.html)
+
+[Release-tier (release-v0.7.0) — feature closeout 完成后再做]
+↓
+T36 (hf-release dogfood #5；release pack ready-for-tag)
 ```
 
-并行能压缩到 **14 大步**；其中 review/gate chain 占 6 步（test/code/traceability/regression-gate/completion-gate/finalize）显式列在 T36 之后但 hf-release 之前——**T36 release pack 在 finalize 之后再做**（finalize 是 feature-level，release 是 release-tier）。
+并行可压缩到 **14 大步 feature-level**（含 review/gate + finalize 6 步）+ **1 步 release-tier**（T36 在 hf-finalize 完成后才启动；hf-release 是 standalone skill 不进 orchestrator transition map per ADR-004 D3）。
 
 修订后任务总数：T1-T29 + T30 + T31-T35 + T36 + 6 review/gate = 36 implementation tasks + 6 chain dispatches = 42 总动作。
 
@@ -389,7 +393,7 @@ grep -c "Next Action Or Recommended Skill" skills/<name>/SKILL.md
 
 ## 10. 风险与顺序说明
 
-- **R1**: 24 leaf 批量修改面大（~1200 行 diff）→ Tiered + sub-gate 拦截 + walking-skeleton 端到端验证
+- **R1**: 23 leaf 批量修改面大（~1200 行 diff）→ Tiered + sub-gate 拦截 + walking-skeleton 端到端验证
 - **R2**: orchestrator 升级与 leaf 修改互相依赖（orchestrator pre-check 要兜住 leaf 删除的 `[Workflow]` Gate；leaf 删除前 orchestrator 必须先升级）→ T4 严格在 T5-T14 前
 - **R3**: HYP-005 失败可能性（orchestrator 可能在某些 ambiguous artifact 状态下决策不出唯一 next-skill）→ 保留 v0.6.x 兼容 fallback（leaf 仍可写 `Next Action` 作为 hint，orchestrator 可读但不依赖）；T30 验证若 4 重证据不全 PASS → **HYP-005 release-blocking 失败 → v0.7.0 不打 tag**；触发 hf-hotfix 链重设计 orchestrator 决策协议直到全 4 重证据 PASS 后再发布。R3 不允许"接受降级 release"路径——ADR-008 D5 已锁定 release-blocking 立场
 - **R4**: CHANGELOG [0.6.0] 段删除会让 git history 上 v0.6.0 PR descriptions 失去 CHANGELOG 索引 → 接受；PR descriptions 自身保留作为详细历史
@@ -399,7 +403,7 @@ grep -c "Next Action Or Recommended Skill" skills/<name>/SKILL.md
 
 - 派发 hf-tasks-review 独立 reviewer subagent (T3)
 - reviewer 重点关注:
-  - Tier 1/2 拆分是否合理（10+14 = 24 是否覆盖全部 hf-* leaf）
+  - Tier 1/2 拆分是否合理（10+13 = 23 是否覆盖全部活跃 hf-* leaf）
   - 通用 acceptance 是否覆盖 Step 2-5 全部 4 维（grep 验证 + Hard Gate 标签 + Next Action 限定 + 跨 hf-* 引用清理）
   - HYP-005 验证策略是否充分（不依赖 Next Action 时 orchestrator 还能正确路由）
   - CHANGELOG [0.6.0] 删除是否合规（per ADR-008 D6）

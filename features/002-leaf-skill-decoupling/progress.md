@@ -9,7 +9,7 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-tasks（草拟 tasks.md）
+- Current Stage: hf-test-driven-dev（tasks approved；启动 T4 orchestrator 升级）
 - Workflow Profile: full
 - Execution Mode: auto
 - Current Active Feature: features/002-leaf-skill-decoupling/
