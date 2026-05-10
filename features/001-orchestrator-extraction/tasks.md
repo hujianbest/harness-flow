@@ -8,7 +8,7 @@
 
 ## 1. 概述
 
-把 design § 11 的 14 个模块拆解为 9 个可独立 TDD 推进的任务（含 1 个跨任务 collation task）。任务设计原则：
+把 design § 11 的 14 个模块拆解为 12 个可独立 TDD 推进的任务（T1 / T2.{a,b,c,d} / T3 / T4 / T5 / T6.{a,b} / T7 / T8 实现层）+ **1 个 collation task**（T9，跨任务收口节点；不产出新文件，只校验完整性 + 状态同步）。任务设计原则：
 
 - **每任务对应 design § 11 的一组职责相关模块**，避免单文件 task 过细
 - **acceptance 锚定 spec FR/NFR + design D-X**，可冷读判定
@@ -158,22 +158,24 @@
 
 ### T2.d. 三宿主 identity gate verification
 
-- **目标**: 落盘 `features/001-orchestrator-extraction/verification/smoke-3-clients.md`，记录 3 宿主下的 identity check 实测（人工新启 session 后输入"who are you"，记录响应是否含 orchestrator identity 锚点）
+- **目标**: 落盘 `features/001-orchestrator-extraction/verification/smoke-3-clients.md`（**T2.d 是该文件唯一所有者**；T5 引用但不写），记录 3 宿主下的 identity check 实测（新启 session 后输入"who are you"，记录响应是否含 orchestrator identity 锚点）
 - **Acceptance**:
   - **(T2.d.1)** verification 文件存在
   - **(T2.d.2)** 文件含 3 个 client 段：Cursor / Claude Code / OpenCode
   - **(T2.d.3)** 每段记录：实测时间、宿主版本（如可知）、user message、agent 响应摘要、identity 锚点是否命中（PASS/FAIL）
-  - **(T2.d.4)** 至少 1/3 宿主（Cursor）能够实际验证（cloud agent 当前 session 已经在 Cursor 中运行；其它宿主可标 "deferred to manual verification post-merge"）
+  - **(T2.d.4)** 至少 1/3 宿主（Cursor）能够实际验证（cloud agent 当前 session 已在 Cursor 中运行）；其它 2 宿主标 "deferred to manual verification post-merge" 但段必须存在
 - **依赖**: T2.a / T2.b / T2.c（stub 必须先就位才能验证）
 - **Ready When**: T2.a + T2.b + T2.c 全部 GREEN
 - **初始队列状态**: blocked-by-T2.{a,b,c}
 - **Selection Priority**: P0（HYP-003 release-blocking）
-- **Files / 触碰工件**: `features/001-orchestrator-extraction/verification/smoke-3-clients.md` (新)
+- **Files / 触碰工件**: `features/001-orchestrator-extraction/verification/smoke-3-clients.md` (新；**T2.d 唯一写入者**)
 - **测试设计种子**:
   - 主要行为: 实际 new session 启动 → identity grep PASS
-  - 关键边界: cloud agent 自身只能直接验证 Cursor；其它 2 宿主由开发者本地或后续 manual verify
-- **Verify**: 文件存在 + 3 段齐全 + Cursor 段标 PASS
-- **预期证据**: verification record 文件内容
+  - 关键边界: cloud agent 自身只能直接验证 Cursor；其它 2 宿主由开发者本地或后续 manual verify（接受 deferred 标记）
+  - **fail-first（显式 RED 起点）**: 进入 T2.d 前 `test -f features/001-orchestrator-extraction/verification/smoke-3-clients.md` = false（文件不存在）→ T2.d 完成后 `test -f` = true 且 `grep -c "PASS\|deferred" smoke-3-clients.md` = 3
+  - SUT Form: `naive`（纯文档；无 SUT 代码层）
+- **Verify**: 文件存在 + 3 段齐全 + Cursor 段标 PASS（其它两段 PASS 或 deferred 均合法）
+- **预期证据**: verification record 文件内容 + grep 输出
 - **完成条件**: 4 条 acceptance 通过
 
 ### T3. 旧 skill 转 deprecated alias + references stub
@@ -221,25 +223,28 @@
 - **预期证据**: 测试输出 stdout 摘要
 - **完成条件**: 6 条 acceptance 通过
 
-### T5. Walking-skeleton 实跑 + NFR-001 量化测量
+### T5. Walking-skeleton 实跑 + NFR-001 量化测量 + NFR-004 reviewer 标识检查
 
-- **目标**: 用 T4 脚本对比 v0.5.1 walking-skeleton baseline 与本 commit walking-skeleton（应等价）；同时采集 NFR-001 wall-clock × 1.20 数据
+- **目标**: 用 T4 脚本对比 v0.5.1 walking-skeleton baseline 与本 commit walking-skeleton（应等价）；采集 NFR-001 wall-clock × 1.20 数据；校验 NFR-004 reviewer 分离纪律
+- **INVEST Small 备注**：T5 内部含 3 类异质活动（regression diff / load-timing 测量 / NFR-004 grep），但**共享同一前置条件**（T1+T2+T3+T4 全部 GREEN）+ **共享同一目标**（HYP-002/003 release-blocking 双假设的 fresh evidence 落盘）+ **共享同一可逆点**（任一活动 FAIL → 全 task 回 hf-design）。打包不拆是为了维持 release-blocking 验证的原子性（任一活动 FAIL 都触发同一回滚路径）。如未来发现 hf-test-driven-dev 阶段单独跑某一活动更顺畅，可在 increment ADR 中拆为 T5.a / T5.b / T5.c
 - **Acceptance**:
   - **(T5.a)** 跑 `python3 regression-diff.py --baseline-dir <v0.5.1 checkout 的 examples/writeonce/features/001-walking-skeleton/> --candidate-dir <本 commit 的同位置>` 得 PASS
-  - **(T5.b)** `verification/regression-2026-05-XX.md` 落盘，记录命令 + 输出 + diff 摘要
-  - **(T5.c)** NFR-001 wall-clock 测量：在 Cursor 至少 1 个宿主上做 5 次重复 baseline-vs-candidate 测量，记录 raw + ratio 到 `verification/load-timing-3-clients.md`；3 宿主平均 ratio ≤ 1.20
+  - **(T5.b)** `verification/regression-2026-05-XX.md` 落盘，记录命令 + 输出 + diff 摘要（**T5 是该文件唯一所有者**）
+  - **(T5.c)** NFR-001 wall-clock 测量：在 Cursor 至少 1 个宿主上做 5 次重复 baseline-vs-candidate 测量，记录 raw + ratio **追加到** `verification/load-timing-3-clients.md`；至少已验证宿主的平均 ratio ≤ 1.20（**T5 是该文件唯一所有者**；T2.d 不写此文件）
   - **(T5.d)** 若 ratio > 1.20，立即停 task 回 hf-design 重评 D-Layout（M3 失败 → release-blocking）
-  - **(T5.e)** review record 检查 100% 含 "独立 reviewer subagent" 标识（NFR-004；本 feature 自身的 reviews/ 目录已有 4 个 review record，作为基线快速验证）
+  - **(T5.e)** review record 检查 100% 含 "独立 reviewer subagent" 标识（NFR-004；用本 feature 自身的 reviews/ 目录 4 个 review record 作为基线快速验证）
 - **依赖**: T1 / T2.{a,b,c,d} / T3 / T4
 - **Ready When**: T1 + T2.{a,b,c,d} + T3 + T4 全部 GREEN
 - **初始队列状态**: blocked-by-many
 - **Selection Priority**: P0（HYP-002 + HYP-003 release-blocking）
-- **Files / 触碰工件**: `verification/regression-2026-05-XX.md`、`verification/load-timing-3-clients.md`、`verification/smoke-3-clients.md`（后者可能已 T2.d 完成，本 task 补齐）
+- **Files / 触碰工件**: `verification/regression-2026-05-XX.md` (新；T5 唯一所有者) + `verification/load-timing-3-clients.md` (新；T5 唯一所有者；与 T2.d 的 smoke-3-clients.md 物理分文件以避免所有权重叠)
 - **测试设计种子**:
-  - 主要行为: regression PASS + ratio ≤ 1.20
-  - 关键边界: cloud agent 上下文限制——可能只能跑 Cursor 宿主测量，其它宿主标 "deferred manual"
-- **Verify**: 上述 3 个 verification 文件齐全 + 关键命令输出
-- **预期证据**: regression-diff stdout + ratio 计算 + grep "独立 reviewer subagent"
+  - 主要行为: regression PASS + ratio ≤ 1.20 + 4 个 review record 全部含 "独立 reviewer subagent"
+  - 关键边界: cloud agent 上下文限制——可能只能跑 Cursor 宿主测量，其它宿主标 "deferred manual" 写入 load-timing-3-clients.md
+  - **fail-first（显式 RED 起点）**: 进入 T5 前 `test -f verification/regression-2026-05-XX.md` = false 且 `test -f verification/load-timing-3-clients.md` = false（两文件均不存在）；T5 完成后两文件均存在且 grep "PASS" 命中
+  - SUT Form: `naive`（脚本调用 + 测量记录；无内部抽象）
+- **Verify**: regression-diff stdout PASS + load-timing 文件含 ratio 数值 + `grep -c "独立 reviewer subagent" features/001-orchestrator-extraction/reviews/*.md docs/reviews/discovery-review-hf-orchestrator-extraction.md` ≥ 4
+- **预期证据**: 上述 3 个 verification 文件齐全 + 命令输出 + grep 计数
 - **完成条件**: 5 条 acceptance 通过；HYP-002 / HYP-003 release-blocking 验证完成
 
 ### T6.a. README 中英双语 Scope Note 同步
@@ -301,7 +306,7 @@
 
 ### T8. 项目元数据版本号同步
 
-- **目标**: `SECURITY.md` Supported Versions / `CONTRIBUTING.md` 引言 / `.cursor/rules/harness-flow.mdc` Hard rules 段（与 T2.a 同 commit 即可）的版本号 v0.5.1 → v0.6.0
+- **目标**: `SECURITY.md` Supported Versions / `CONTRIBUTING.md` 引言（`.cursor/rules/harness-flow.mdc` Hard rules 段已在 T2.a 同 commit 处理）的版本号 v0.5.1 → v0.6.0
 - **Acceptance**:
   - **(T8.a)** SECURITY.md 中 v0.5.x 行 latest 改为 v0.6.0；或新增 v0.6.x 行
   - **(T8.b)** CONTRIBUTING.md 引言版本号 v0.5.1 → v0.6.0
@@ -310,23 +315,40 @@
 - **初始队列状态**: ready-after-T7
 - **Selection Priority**: P2
 - **Files / 触碰工件**: `SECURITY.md` / `CONTRIBUTING.md`
-- **Verify**: grep 版本号
+- **测试设计种子**:
+  - 主要行为: 两个文件均含新版本号 v0.6.0
+  - 关键边界: 不破坏 SECURITY.md 整体表格结构 / CONTRIBUTING.md 其它内容
+  - fail-first：`grep -c "v0\.6\.0" SECURITY.md CONTRIBUTING.md` 修改前 = 0；修改后 ≥ 2
+  - SUT Form: `naive`
+- **Verify**: `grep -c "v0\.6\.0" SECURITY.md CONTRIBUTING.md` ≥ 2 + `grep -c "v0\.5\.1" CONTRIBUTING.md` 修改后 = 0（避免遗漏旧版本号引用）
+- **预期证据**: grep 输出 + 两文件 diff
 - **完成条件**: 2 条 acceptance 通过
 
-### T9. Test/Code/Traceability review + Regression gate + Completion gate + Finalize 准入
+### T9. Collation：进入 review/gate chain 前的状态收口
 
+- **任务类型**: **collation task**（不产出新文件；只校验完整性 + 同步状态字段；为 hf-test-review chain 提供干净起点）
 - **目标**: 收口 hf-tasks 阶段，准备进入 hf-test-review chain
 - **Acceptance**:
-  - **(T9.a)** 所有任务 T1-T8 acceptance 通过
-  - **(T9.b)** progress.md / README.md / 各 reviews / verification / approvals 全部就绪
-  - **(T9.c)** Pending Reviews And Gates 序列：hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate → hf-finalize → hf-release
+  - **(T9.a)** 所有任务 T1-T8 acceptance 通过（grep 各任务对应 verification/evidence 文件齐全）
+  - **(T9.b)** progress.md `Current Stage` 已更新为 `hf-test-review`；`Pending Reviews And Gates` 列出后续序列
+  - **(T9.c)** README.md `Status Snapshot` 同步；Reviews & Approvals 表 design-review / design-approval 行已写入 verdict
+  - **(T9.d)** 新分支 `cursor/orchestrator-extraction-impl-e404` 已创建（基于 design 分支 HEAD）；T1-T8 commit 已落到该分支
 - **依赖**: T1-T8
 - **Ready When**: T1-T8 全部 GREEN
 - **初始队列状态**: blocked-by-many
-- **Selection Priority**: P0（gating）
-- **Files / 触碰工件**: `progress.md` 同步
-- **Verify**: 检查 features/ 目录树完整性
-- **完成条件**: 3 条 acceptance 通过
+- **Selection Priority**: P0（release-blocking gate 的前置入口）
+- **Files / 触碰工件**: `progress.md` / `README.md`（仅状态字段同步；不产出新文件）
+- **测试设计种子**:
+  - 主要行为: 状态字段同步无遗漏；目录树完整
+  - 关键边界: 各 verification 文件不为空（每个文件 `wc -l` ≥ 5）；reviews 目录至少含 design-review-2026-05-10.md / spec-review-2026-05-10.md / discovery-review（位于 docs/reviews/）
+  - fail-first：进入 T9 前 progress.md `Current Stage` ≠ `hf-test-review`；T9 完成后 = `hf-test-review`
+  - SUT Form: `naive`（纯文档状态字段更新；无代码）
+- **Verify**:
+  - `grep "Current Stage: hf-test-review" features/001-orchestrator-extraction/progress.md` 返回非空
+  - `ls features/001-orchestrator-extraction/{reviews,approvals,verification,scripts}/` 各目录非空
+  - `wc -l features/001-orchestrator-extraction/verification/*.md` 各文件 ≥ 5 行
+- **预期证据**: 上述 grep / ls / wc 命令输出 + `git log --oneline cursor/orchestrator-extraction-impl-e404` 显示 T1-T8 commit 序列
+- **完成条件**: 4 条 acceptance 通过；后续可立即派发 hf-test-review subagent
 
 ## 6. 依赖与关键路径
 
@@ -357,11 +379,47 @@ T6.b ←─ T1 ────────────────────┘
 
 ## 8. 当前活跃任务选择规则
 
-按 Selection Priority + Ready When 决定：
+### Selection Priority 语义定义
 
-1. P0 + ready 优先于 P1 + ready
+- **P0**: 直接关联 release-blocking 假设（HYP-002 / HYP-003）OR 是 release-blocking task 的硬前置依赖。任一 P0 任务 GREEN 失败 → v0.6.0 不发布
+- **P1**: 必须进入 v0.6.0 范围但不直接关联 release-blocking 假设；任一 P1 任务 GREEN 失败 → 可选择降级到 errata 但不阻塞 release（spec § 3 加分项的工程目标）
+- **P2**: 锦上添花；可推迟到 v0.6.x patch；本轮发布不要求
+
+按以下顺序决定当前活跃任务：
+
+1. P0 + ready 优先于 P1 + ready 优先于 P2 + ready
 2. 同 priority 时按依赖图拓扑序选最早可启动
-3. 当前推荐启动顺序：T1 → T4（P1 但与 T1 并行；可单独并行）→ T2.{a,b,c}（T1 后并行）→ T3（T1 后）→ T2.d（T2.{a,b,c} 后）→ T5 → T6.{a,b}（T1 后即可，与 T5 并行不强求）→ T7 → T8 → T9
+3. 多任务可并行调度时按"最长路径优先"启动（缩短 critical path）
+
+### 推荐启动顺序
+
+```
+Tier 0 (并行起点，无依赖):
+  T1 (P0)  +  T4 (P0; T5 的硬前置；从 P1 提升到 P0)
+
+Tier 1 (T1 GREEN 后并行):
+  T2.a (P0)  +  T2.b (P0)  +  T2.c (P0)  +  T3 (P0)
+  T6.a (P1)  +  T6.b (P1)
+
+Tier 2 (T2.{a,b,c} GREEN 后):
+  T2.d (P0)
+
+Tier 3 (T1 + T2.{a-d} + T3 + T4 GREEN 后):
+  T5 (P0)
+
+Tier 4 (T5 GREEN 后):
+  T7 (P1)
+
+Tier 5 (T7 GREEN 后):
+  T8 (P2)
+
+Tier 6 (T8 GREEN 后):
+  T9 (P0; collation task，gating)
+```
+
+**关于 T4 升 P0 的理由**：T4（regression-diff.py）虽然不直接关联 release-blocking 假设，但它是 T5（release-blocking 验证 task）的硬前置——T4 失败 → T5 无法跑 → HYP-002 验证 evidence 无法落盘 → release 被 hf-completion-gate 阻塞。按上面 P0 定义"是 release-blocking task 的硬前置依赖"自动晋升 P0。
+
+**关于 T6.{a,b} P1 的理由**：README / setup docs 同步是 v0.6.0 范围内的 deliverable（spec FR-006 Should），但即使在 release pre-flight 阶段才补齐也不阻塞 hf-completion-gate；可以与 T5 并行调度提速。
 
 ## 9. 任务队列投影视图
 
@@ -370,7 +428,7 @@ T6.b ←─ T1 ────────────────────┘
 | # | Task ID | 标题 | Priority | Status |
 |---|---|---|---|---|
 | 1 | T1 | orchestrator main + references 迁移 | P0 | ready |
-| 2 | T4 | regression-diff.py + 自测 | P1 | ready |
+| 2 | T4 | regression-diff.py + 自测 | P0（T5 硬前置） | ready |
 | 3 | T2.a | Cursor stub | P0 | blocked-by-T1 |
 | 4 | T2.b | Claude Code stub + plugin | P0 | blocked-by-T1 |
 | 5 | T2.c | OpenCode stub | P0 | blocked-by-T1 |
