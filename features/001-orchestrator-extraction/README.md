@@ -12,7 +12,7 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-tasks-review
+- Current Stage: hf-test-driven-dev (T1+T4 Tier 0)
 - Current Active Task: （tasks 阶段后填入）
 - Pending Reviews And Gates: hf-tasks-review
 - Closeout Type:
@@ -28,7 +28,7 @@
 | UI Design（如适用） | `ui-design.md` | N/A（HF 自架构 feature，无 UI surface） |
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
-| Tasks | `tasks.md` | draft |
+| Tasks | `tasks.md` | approved |
 | Task Board（如适用） | `task-board.md` | （按需） |
 | Progress | `progress.md` | live |
 | Closeout | `closeout.md` | pending |
@@ -42,8 +42,8 @@
 | spec-approval | `approvals/spec-approval-2026-05-10.md` | 已批准（auto mode；router § 8 关键分支） | 2026-05-10 |
 | design-review | `reviews/design-review-2026-05-10.md` | 通过（3 minor LLM-FIXABLE 已在 design commit 内吸收） | 2026-05-10 |
 | design-approval | `approvals/design-approval-2026-05-10.md` | 已批准（auto mode） | 2026-05-10 |
-| tasks-review | `reviews/tasks-review-YYYY-MM-DD.md` | | |
-| tasks-approval | `approvals/tasks-approval-YYYY-MM-DD.md` | | |
+| tasks-review | `reviews/tasks-review-2026-05-10.md` | Round 1 需修改 → Round 2 通过（1 cosmetic 残留 fix in same commit） | 2026-05-10 |
+| tasks-approval | `approvals/tasks-approval-2026-05-10.md` | 已批准（auto mode） | 2026-05-10 |
 | code-review（每任务） | `reviews/code-review-task-NNN.md` | | |
 | test-review（每任务） | `reviews/test-review-task-NNN.md` | | |
 | traceability-review | `reviews/traceability-review.md` | | |

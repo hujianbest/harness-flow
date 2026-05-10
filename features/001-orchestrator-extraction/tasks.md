@@ -212,7 +212,7 @@
 - **依赖**: 无（M2 起点；可与 T1 并行）
 - **Ready When**: design approved
 - **初始队列状态**: ready
-- **Selection Priority**: P1
+- **Selection Priority**: P0（自动晋升：T5 release-blocking 假设的硬前置；详见 § 8 P0 语义定义）
 - **Files / 触碰工件**: `features/001-orchestrator-extraction/scripts/regression-diff.py` + `test_regression_diff.py`
 - **测试设计种子**:
   - 主要行为: 3 个 test case（自一致性 / mutation / 白名单内差异）
