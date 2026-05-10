@@ -1,5 +1,5 @@
 ---
-description: HarnessFlow entry rule — always load the using-hf-workflow shell and route through hf-workflow-router. Skill pack lives under skills/hf-*/SKILL.md.
+description: HarnessFlow entry rule — always load the hf-orchestrator agent persona. Skill pack lives under skills/hf-*/SKILL.md; orchestrator persona lives at agents/hf-orchestrator.md.
 alwaysApply: true
 ---
 
@@ -9,24 +9,25 @@ This Cursor workspace ships HarnessFlow, a skill pack for spec-anchored SDD, gat
 
 ## On every session
 
-1. Load the entry shell: `skills/using-hf-workflow/SKILL.md`.
-2. Hand off to the router: `skills/hf-workflow-router/SKILL.md`.
-3. Let the router pick the canonical next node from on-disk artifacts under the active feature directory (default `features/<active>/`).
+1. **Load the orchestrator agent persona**: `agents/hf-orchestrator.md`. This is the always-on agent that decides Workflow Profile / Execution Mode / Workspace Isolation / canonical next skill / reviewer dispatch.
+2. Act as that persona for the rest of the session. The orchestrator picks the canonical next node from on-disk artifacts under the active feature directory (default `features/<active>/`).
+3. The 24 `hf-*` skills under `skills/hf-*/SKILL.md` are SOPs to be invoked by the orchestrator; they are not routing authorities. The orchestrator's references for FSM transition map / dispatch protocol / reviewer return contract / etc. live at `agents/references/*.md`.
 
 ## Hard rules (do not bypass)
 
-- **One Current Active Task at a time.** Cross-task switches are decided by `hf-workflow-router`, not by you.
+- **One Current Active Task at a time.** Cross-task switches are decided by the orchestrator (`agents/hf-orchestrator.md`), not by you.
 - **Approvals and gates are first-class nodes.** Don't skip `hf-spec-review` / `hf-design-review` / `hf-tasks-review` / `hf-test-review` / `hf-code-review` / `hf-traceability-review` / `hf-regression-gate` / `hf-doc-freshness-gate` / `hf-completion-gate`.
 - **Evidence-based routing.** Recover the next step from on-disk artifacts (spec / design / tasks / progress / verification / reviews), not from chat memory.
 - **Author / reviewer separation (Fagan).** Whoever wrote the artifact under review must NOT also approve it.
-- **No HF slash commands on Cursor in v0.5.0.** Use natural-language intent; the router will pick the leaf skill (see `docs/cursor-setup.md` § 4).
-- **`hf-release` is standalone, not router-coupled.** When the user wants to cut a vX.Y.Z release (multi-feature aggregation + release-wide regression + release docs + tag readiness), `using-hf-workflow` § 5 entry bias table direct-invokes `hf-release`; do NOT route through `hf-workflow-router`. `hf-release` produces a readiness pack only; it does NOT auto-execute `git tag` and does NOT deploy / staged-rollout / monitor / rollback (that's v0.6+ planned `hf-shipping-and-launch`, **not yet implemented**).
+- **No HF slash commands on Cursor in v0.6.0.** Use natural-language intent; the orchestrator will pick the leaf skill (see `docs/cursor-setup.md` § 4).
+- **`hf-release` is standalone, not orchestrator-coupled.** When the user wants to cut a vX.Y.Z release (multi-feature aggregation + release-wide regression + release docs + tag readiness), the orchestrator's entry bias table direct-invokes `hf-release`; do NOT route through the orchestrator's main-chain FSM. `hf-release` produces a readiness pack only; it does NOT auto-execute `git tag` and does NOT deploy / staged-rollout / monitor / rollback (that's v0.6+ planned `hf-shipping-and-launch`, **not yet implemented**).
 - **`hf-finalize` must produce closeout HTML companion (v0.5.0+).** After writing `closeout.md` in step 6, `hf-finalize` MUST also run `python3 skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>` to produce `closeout.html` (step 6A). The HTML is a visual rendering of the closeout pack; it does NOT introduce facts beyond what is already in `closeout.md` + adjacent evidence. Coverage data is consumed sync-on-presence; missing coverage is rendered as "未提供" and does NOT block closeout.
+- **`using-hf-workflow` and `hf-workflow-router` are deprecated aliases (v0.6.0+).** Their content is merged into `agents/hf-orchestrator.md`. The skill files and old reference paths under `skills/hf-workflow-router/references/*.md` remain as redirect stubs through the v0.6.x line; physical deletion is scheduled for v0.7.0+ per ADR-007 D3 Step 6.
 
 ## Scope honesty
 
-HarnessFlow's main chain ends at `hf-finalize` (engineering-level closeout for a single feature/workflow). It is NOT production deployment, observability, incident response, or post-launch ops. v0.3.0 added Cursor as the third officially-supported client (without adding any new `hf-*` skills); v0.4.0 introduced **`hf-release`** as a release-tier **standalone** skill that aggregates `workflow-closeout` features into a vX.Y.Z release — it is **decoupled** from `hf-workflow-router`, does NOT enter the main-chain FSM, and does NOT modify any existing skill; v0.5.0 added a **closeout HTML companion report** to `hf-finalize` (new step 6A + new `skills/hf-finalize/scripts/render-closeout-html.py`, stdlib-only), without growing the skill set (still 24 `hf-*` + `using-hf-workflow`), without adding new slash commands (still 7), and without touching the main-chain FSM or router transition map. v0.5.0 still does NOT introduce personas and does NOT add deployment / monitoring / rollback. The 5 remaining deferred ops/release skills (`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`), the 3 deferred personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`), and the 4 remaining deferred clients (Gemini CLI / Windsurf / GitHub Copilot / Kiro) all stay on the v0.6+ roadmap (ADR-003 D1 / D2 / D3 + ADR-004 D2 / D3 + ADR-005 D5 / D7).
+HarnessFlow's main chain ends at `hf-finalize` (engineering-level closeout for a single feature/workflow). It is NOT production deployment, observability, incident response, or post-launch ops. v0.3.0 added Cursor as the third officially-supported client; v0.4.0 introduced `hf-release` as a release-tier standalone skill; v0.5.0 added the closeout HTML companion report to `hf-finalize`; **v0.6.0 introduces `agents/hf-orchestrator.md` as the always-on agent persona that replaces `using-hf-workflow` + `hf-workflow-router`** (the **HF three-layer architecture invariant** per ADR-007 D1: Doer Skills / Reviewer-Gate Skills / Orchestrator Agent), without growing the leaf skill set (still 24 `hf-*`), without adding new slash commands (still 7), and without changing closeout pack schema / reviewer verdict vocabulary / `hf-release` behavior. v0.6.0 still does NOT introduce specialist personas and does NOT add deployment / monitoring / rollback. The 5 remaining deferred ops/release skills (`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`), the 3 deferred specialist personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`), and the 4 remaining deferred clients (Gemini CLI / Windsurf / GitHub Copilot / Kiro) all stay on the v0.7+ roadmap (ADR-003 D1 / D2 / D3 + ADR-004 D2 / D3 + ADR-005 D5 / D7 + ADR-007 D6 / D7).
 
 ## When in doubt
 
-If you're not sure which node to use, the user's intent is ambiguous, evidence conflicts, or a review/gate just finished — load `using-hf-workflow` and let `hf-workflow-router` decide.
+If you're not sure which node to use, the user's intent is ambiguous, evidence conflicts, or a review/gate just finished — defer to `agents/hf-orchestrator.md` operating loop and let the orchestrator decide.
