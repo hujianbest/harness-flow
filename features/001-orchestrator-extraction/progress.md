@@ -9,12 +9,12 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-specify
+- Current Stage: hf-design（spec 已批准，等待 design 节点接管）
 - Workflow Profile: full
-- Execution Mode: interactive（cloud agent context 按 auto 推进 review/gate 后的 continue）
+- Execution Mode: auto（cloud agent context；spec-review 通过 + needs_human_confirmation=true → 已写 approval record 后自动继续）
 - Current Active Feature: features/001-orchestrator-extraction/
 - Current Active Task: （待 hf-tasks 拆解后填入）
-- Pending Reviews And Gates: hf-spec-review
+- Pending Reviews And Gates: hf-design-review（design 完成后派发）
 - Relevant Files:
   - `docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md`（discovery 草稿，已通过 review）
   - `docs/reviews/discovery-review-hf-orchestrator-extraction.md`（discovery review record）
@@ -31,16 +31,26 @@
 - What Changed:
   - 2026-05-10: discovery 草稿落盘到 `docs/insights/`，full 密度，13 章节 + OST snapshot + 2 条 Jobs Story + 量化 Success Threshold
   - 2026-05-10: discovery-review 独立 reviewer subagent 派发完成，verdict=`通过`，5 维 rubric 均 ≥8/10，3 条 minor LLM-FIXABLE finding 转给 spec 阶段吸收
-  - 2026-05-10: 进入 hf-specify，创建 `features/001-orchestrator-extraction/` 目录骨架
+  - 2026-05-10: 进入 hf-specify，创建 `features/001-orchestrator-extraction/` 目录骨架，落 spec.md（7 FR + 5 NFR with QAS + 7 Key Hypotheses）+ ADR-007 候选
+  - 2026-05-10: hf-spec-review Round 1 verdict=`需修改`（2 important + 4 minor，全部 LLM-FIXABLE）
+  - 2026-05-10: 按 hf-specify 回流修订协议执行定向修订（NFR-001 量化 Acceptance / ADR-007 D1 时间限定 / FR-001 简化 / FR-002+FR-006 打包说明 / FR-003 acceptance 明确化 / § 7 单源声明 / HYP-004 confidence 升级 / NFR-001 verification 落盘路径补齐）
+  - 2026-05-10: hf-spec-review Round 2 verdict=`通过`（6 finding 全部正确修订，0 新 finding，regression 扫描 0 命中）
+  - 2026-05-10: spec approval record 落盘（auto mode；router § 8 关键分支：conclusion=通过 + needs_human_confirmation=true → auto 写 record 继续）
 - Evidence Paths:
   - `docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md`
   - `docs/reviews/discovery-review-hf-orchestrator-extraction.md`
+  - `features/001-orchestrator-extraction/spec.md`
+  - `docs/decisions/ADR-007-orchestrator-extraction-and-skill-decoupling.md`
+  - `features/001-orchestrator-extraction/reviews/spec-review-2026-05-10.md`（Round 1 + Round 2）
+  - `features/001-orchestrator-extraction/approvals/spec-approval-2026-05-10.md`
 - Session Log:
   - Discovery PR: #41（`cursor/orchestrator-extraction-discovery-e404`）
-  - Spec PR: 待开（`cursor/orchestrator-extraction-spec-e404`）
+  - Spec PR: #42（`cursor/orchestrator-extraction-spec-e404`，stacked on #41）
+  - Design PR: 待开（建议 `cursor/orchestrator-extraction-design-e404`，stacked on #42）
 - Open Risks:
   - HYP-001（Desirability，medium confidence）：使用者对 standalone leaf skill 的真实诉求强度依赖生态对照系 + 对话证据，缺独立量化数据；Validation Plan 是 P2 probe（翻 GitHub issues / discussions），非阻塞
-  - HYP-004（Feasibility，medium confidence）：leaf skill 剥离 `Next Action` 字段后 orchestrator 仍能基于 on-disk artifacts 决定下一步——本轮 spec 范围内 leaf skill 不变，本风险不阻塞 spec 通过
+  - HYP-005（Feasibility，medium confidence）：leaf skill 剥离 `Next Action` 字段后 orchestrator 仍能基于 on-disk artifacts 决定下一步——本轮 spec 范围内 leaf skill 不变，本风险不阻塞 spec 通过；hf-design 阶段需重点解决（spec-review Round 2 交接事项 #1）
+  - **Release-blocking**：HYP-002 / HYP-003 由 hf-test-driven-dev 阶段实测验证（walking-skeleton 回归 + 3 宿主 smoke）；ADR-007 D5 锁定为 v0.6.0 release-blocking
 
 ## Optional Coordination Fields
 
@@ -52,8 +62,13 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: hf-spec-review
-- Blockers: 无（spec 起草吸收的 3 条 discovery minor finding 不阻塞 review）
+- Next Action Or Recommended Skill: hf-design
+- Blockers: 无（spec approval record 已落盘）
 - Notes:
-  - hf-spec-review 应 verify Success Metrics / Key Hypotheses 是否承接 discovery 的 Desired Outcome / Success Threshold / OST 假设
-  - 通过后下一节点 `hf-design` 需重点解决 HYP-004（"orchestrator 在没有 leaf 的 Next Action hint 时如何决策"）的具体设计
+  - hf-design 阶段重点（spec-review Round 2 交接事项）：
+    1. **HYP-005 dispatch 协议设计**——v0.7.0+ 目标态：不依赖 leaf 的 `Next Action` hint，纯靠 on-disk artifacts；兼容期允许同时消费 leaf 残留字段作为辅助
+    2. **NFR-001 wall-clock baseline schema**——baseline 与 candidate 测量口径、3 宿主同口径采集方式、`load-timing-3-clients.md` 数据 schema
+    3. **FR-002 / FR-006 sub-ID 拆任务取舍**——在 `hf-tasks` 阶段是按 sub-ID 拆为独立任务还是保留打包；hf-design 阶段给出依据
+    4. **OQ-N-003 regression-diff 脚本归属**——`features/001-orchestrator-extraction/scripts/` vs `skills/hf-finalize/scripts/` 最终决策
+  - 同 PR 同时起草 design.md；完成后派发 `hf-design-review` 独立 reviewer subagent
+  - `agents/hf-orchestrator.md` 与宿主 always-on stub 文件**不在 design 阶段创建**，留给 `hf-test-driven-dev` 阶段（hf-tasks 拆解后的具体实现任务）

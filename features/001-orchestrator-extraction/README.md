@@ -12,9 +12,9 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-specify
+- Current Stage: hf-design（spec-approved，等待 design 接管）
 - Current Active Task: （tasks 阶段后填入）
-- Pending Reviews And Gates: hf-spec-review
+- Pending Reviews And Gates: hf-design-review
 - Closeout Type:
 
 ## Artifacts
@@ -23,7 +23,7 @@
 |---|---|---|
 | Discovery 上游 | `../../docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md` | approved（discovery-review 通过） |
 | Discovery review | `../../docs/reviews/discovery-review-hf-orchestrator-extraction.md` | 通过 |
-| Spec | `spec.md` | draft |
+| Spec | `spec.md` | approved |
 | Design | `design.md` | （待 hf-design） |
 | UI Design（如适用） | `ui-design.md` | N/A（HF 自架构 feature，无 UI surface） |
 | Data Model（如分文件） | `data-model.md` | N/A |
@@ -38,8 +38,8 @@
 | 节点 | 记录路径 | 结论 | 日期 |
 |---|---|---|---|
 | discovery-review | `../../docs/reviews/discovery-review-hf-orchestrator-extraction.md` | 通过（minor LLM-FIXABLE × 3 已在 spec 吸收） | 2026-05-10 |
-| spec-review | `reviews/spec-review-2026-05-10.md` | | |
-| spec-approval | `approvals/spec-approval-2026-05-10.md` | | |
+| spec-review | `reviews/spec-review-2026-05-10.md` | Round 1 需修改 → Round 2 通过（6 finding 全部修订，0 新 finding） | 2026-05-10 |
+| spec-approval | `approvals/spec-approval-2026-05-10.md` | 已批准（auto mode；router § 8 关键分支） | 2026-05-10 |
 | design-review | `reviews/design-review-YYYY-MM-DD.md` | | |
 | design-approval | `approvals/design-approval-YYYY-MM-DD.md` | | |
 | tasks-review | `reviews/tasks-review-YYYY-MM-DD.md` | | |
