@@ -6,16 +6,16 @@
 - Title: 把 workflow 编排从 leaf skill 抽出为 always-on agent persona，让 leaf skill 回到 Anthropic Agent Skills 原始定位
 - Owner: HF maintainers
 - Started: 2026-05-10
-- Closed:
+- Closed: 2026-05-10
 - Workflow Profile: full（架构 invariant 引入；router 最终决定）
 - Execution Mode: interactive（默认；cloud agent 上下文按 auto 推进）
 
 ## Status Snapshot
 
-- Current Stage: hf-test-review (T1-T9 GREEN)
+- Current Stage: workflow-closed (hf-finalize 完成 2026-05-10)
 - Current Active Task: （tasks 阶段后填入）
 - Pending Reviews And Gates: hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate
-- Closeout Type:
+- Closeout Type: workflow-closeout
 
 ## Artifacts
 
@@ -31,7 +31,7 @@
 | Tasks | `tasks.md` | approved |
 | Task Board（如适用） | `task-board.md` | （按需） |
 | Progress | `progress.md` | live |
-| Closeout | `closeout.md` | pending |
+| Closeout | `closeout.md` + `closeout.html` | present (workflow-closeout 2026-05-10) |
 
 ## Reviews & Approvals
 

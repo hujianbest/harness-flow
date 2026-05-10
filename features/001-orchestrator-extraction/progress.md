@@ -9,13 +9,13 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-test-review（T1-T9 GREEN，准备进入 review chain）
+- Current Stage: workflow-closed（hf-finalize 完成；v0.6.0 release pack 待 hf-release 单独 dogfood）
 - Workflow Profile: full
 - Execution Mode: auto（cloud agent context；spec-review 通过 + needs_human_confirmation=true → 已写 approval record 后自动继续）
 - Current Active Feature: features/001-orchestrator-extraction/
 - Current Active Task: （待 hf-tasks 拆解后填入）
-- Pending Reviews And Gates: hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate → hf-finalize → hf-release
-- Current Active Task: T9（已 GREEN；进 review chain）
+- Pending Reviews And Gates: 无（main chain 全部完成；v0.6.0 release pack 由 `hf-release` standalone skill 单独 dogfood，不进 orchestrator transition map）
+- Current Active Task: 无（workflow closed）
 - Worktree Path: cursor/orchestrator-extraction-impl-e404 (本分支)
 - Worktree Branch: cursor/orchestrator-extraction-impl-e404
 - Relevant Files:
@@ -70,7 +70,7 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: hf-traceability-review (Round 2 verification)
+- Next Action Or Recommended Skill: null（workflow-closeout 完成）
 - Blockers: 无（spec approval record 已落盘）
 - Notes:
   - hf-design 阶段重点（spec-review Round 2 交接事项）：
