@@ -59,6 +59,22 @@ HF 的 skill 集合**在概念上**显式分为三层：
 
 **这是 HF 的新架构 invariant，跨版本不可在 runtime 推翻。** 修改本 invariant 必须走新 ADR（如 ADR-009+）。
 
+#### 生效阶段（Architectural Commitment vs Runtime Enforcement）
+
+为消除 D1 与 D3 Step 5 之间的潜在歧义，本 ADR 显式区分 invariant 的两层语义：
+
+- **v0.6.0 范围内**（D3 Step 1 完成后），D1 作为**架构承诺**（architectural commitment）生效：
+  - 引入 `agents/hf-orchestrator.md`（Layer 3 物理存在）后，HF skill 集合在概念上正式分为三层
+  - 新增 leaf skill 必须遵循"互不引用"不变量（即新 leaf 不允许写 `Next Action Or Recommended Skill` 引用其它 hf-* canonical ID）
+  - **现有 24 个 leaf skill 的内容不被修改**——它们当前仍写有 `Next Action Or Recommended Skill` 字段、对其它 hf-* 的硬引用、对 `hf-workflow-router` 的 authority 让渡声明等；这些**保留为兼容期遗产**，不立即触发"违反 invariant"的判定
+- **v0.7.0+ 范围内**（D3 Step 2–5 完成后），D1 升级为**运行时强制**（runtime enforcement）：
+  - leaf 中所有对其它 hf-* 的硬引用被剥离
+  - `Next Action Or Recommended Skill` 字段从必填变为可选再到删除
+  - 此时 Layer 1 / Layer 2 互不引用成为可被审计的物理事实
+- **D3 Step 6 完成后**（建议 v0.8.0+），`skills/using-hf-workflow/` 与 `skills/hf-workflow-router/` 物理删除，Layer 3 unique authoritative
+
+**这意味着**：v0.6.0 范围内做 `hf-design` 的 dispatch 协议设计时，应**按目标态**（runtime enforcement）设计 orchestrator persona 的派发逻辑（不依赖 leaf 的 `Next Action` hint，纯靠 on-disk artifacts），但**实施时**允许在兼容期内同时消费 leaf 残留的 `Next Action` 字段作为辅助 hint（不强制 leaf 提供）。
+
 ### Decision 2 — Single source of truth：`agents/hf-orchestrator.md`；FSM / dispatch protocol 物理迁移到 `agents/references/`
 
 引入新的仓库根目录 `agents/`，作为 agent persona 的 single source of truth。
