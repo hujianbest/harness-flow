@@ -201,3 +201,95 @@ Precheck 通过，进入正式 rubric。
   ]
 }
 ```
+
+---
+
+## 修订验证（Round 2）
+
+- 修订提交：`1ec5cc7` on branch `cursor/orchestrator-extraction-spec-e404`
+- 修订基线：`a8f6c2d`（spec + ADR-007 起草 commit）
+- 验证方法：直接读取当前 HEAD 的 spec.md 与 ADR-007；逐条核验 6 条 finding 的 trigger condition 是否已消除；并扫描 diff 检查是否引入新 finding（regression）。
+- 验证时间：2026-05-10
+- 验证者：同 Round 1 reviewer subagent（与 author 仍分离，符合 Fagan）
+
+### 6 条 finding 修订核验表
+
+| # | Finding (Round 1) | 修订证据 | 是否达标 |
+|---|---|---|---|
+| 1 | `[important][Q2/Q6/A1]` NFR-001 Acceptance 退化为主观判定 | spec § 9 NFR-001：Response Measure 锁定 "≤ baseline × 1.20"（同口径 wall-clock）；Acceptance 改写为两条—— `(Quantitative)` 在 3 宿主分别建立 baseline / candidate 同操作 session 对比，raw timing + ratio 落盘到 `features/001-orchestrator-extraction/verification/load-timing-3-clients.md`；`(Identity gate)` 显式 cross-ref FR-002.d。已彻底脱离"显著""明显变慢"等无量化用词。 | ✓ 达标 |
+| 2 | `[important][ADR1]` ADR-007 D1 缺时间限定，与 D3 Step 5 v0.6.0 不强制冲突 | ADR-007 D1 新增"**生效阶段（Architectural Commitment vs Runtime Enforcement）**"子段：v0.6.0 = 架构承诺（D1 locked / 新 leaf 必须遵循 / 现有 24 leaf 保留兼容期遗产）；v0.7.0+ = runtime enforcement（D3 Step 2–5 完成后剥离硬引用）；v0.8.0+ = D3 Step 6 物理删除旧 skill。**这意味着** 段显式给 `hf-design` 行动指令："按目标态设计 dispatch 协议；实施时允许在兼容期内消费 leaf 残留 `Next Action` 字段作为辅助 hint（不强制 leaf 提供）"。歧义彻底消除。 | ✓ 达标 |
+| 3 | `[minor][A3]` FR-001 Statement 罗列 orchestrator 内部结构（步骤 1-10 / FSM 表 / dispatch / catalog） | spec § 8 FR-001：Statement 改为"在语义上等价于 `using-hf-workflow` + `hf-workflow-router` 当前合并行为的改写（具体子结构……由 `hf-design` 阶段最终锁定）"；Acceptance bullet 3 同步去掉对 operating loop 步骤 1 / 2 / 6 的硬指定，改为引用现有 `hf-workflow-router/references/profile-node-and-transition-map.md` 作为衍生来源——是真实存在的 router references，不再发明步骤号。设计层落点被干净推到 hf-design。 | ✓ 达标 |
+| 4 | `[minor][A2/GS3]` FR-002 / FR-006 打包多宿主多机制，acceptance 已分项但 GS3 口径仍可点出 | spec § 8：FR-002 / FR-006 各自新增"**打包说明**"段，明确 acceptance bullet 独立判定且任一不达标即整条 FR 不达标；FR-002 acceptance bullets 标 `(FR-002.a Cursor)` / `(FR-002.b Claude Code)` / `(FR-002.c OpenCode)` / `(FR-002.d Identity check)`；FR-006 acceptance bullets 标 `(FR-006.a README ×2)` / `(FR-006.b Setup docs ×3)`，且 FR-006.a 显式覆盖 `README.md` + `README.zh-CN.md` 两份、FR-006.b 显式"3 份 setup docs **全部**通过"——把原"任一 setup doc"读作"全集量化"，消除潜在歧义。`hf-tasks` 阶段可直接按 sub-ID 拆任务。 | ✓ 达标 |
+| 5 | `[minor][C1]` FR-003 acceptance bullet 3 含 "或等价" 路径 | spec § 8 FR-003 acceptance bullet 3：删除 "或等价" 模糊表述；改为显式列两条候选路径（`features/001-orchestrator-extraction/scripts/regression-diff.{sh|py}` 或 `skills/hf-finalize/scripts/regression-diff.{sh|py}`），由 OQ-N-003 在 `hf-tasks` 阶段最终决定；新增"**且** 该脚本的最终路径已登记到 `features/001-orchestrator-extraction/verification/regression-2026-05-XX.md` 的 evidence 字段"——使 spec 阶段冷读者可在 verification record 里一意定位。与 OQ-N-003 立场一致。 | ✓ 达标 |
+| 6 | `[minor][Q4]` § 7 仅指向 § 6.2，独立冷读不友好 | spec § 7 重写为"完整 12 条范围外列表见 § 6.2 Out-of-scope（**权威来源**）。本 § 仅作为 spec 模板章节占位，不另列条目，以维持单源；§ 6.2 改动时不需要同步本节。冷读者直接跳至 § 6.2。"——保留单源原则的同时显式给冷读者跳转指引；同时去掉了原"按编号同步维护"这种容易引发双源漂移的 editor 指令。 | ✓ 达标 |
+
+### Bonus 修订核验
+
+| Bonus | 修订证据 | 评价 |
+|---|---|---|
+| HYP-004 confidence 升级 | spec § 4 表格：HYP-004 confidence "中-高" → "高"；Validation Plan 改为"NFR-002 已用字符数（`wc -c × 1.10`）作为 commit-time 验收，等价于把验证从 design 阶段提前到 commit 时刻；`hf-design` 阶段额外评估 references 拆分粒度（行数 ≤ 300 作为 **tentative engineering aim**，不作 NFR 阈值）" | ✓ 合理。NFR-002 已把字符数硬化为 commit-time acceptance，比"design 阶段量化"更早、更硬，confidence 升 high 与 evidence 一致；行数预算在 Validation Plan 内被显式标注为 "tentative engineering aim, 不作 NFR 阈值"，与 § 3 加分项 / § 14 术语 / § 12 假设保持一致，未偷塞回 NFR 通道。 |
+| NFR-001 verification path 显式落盘 | 已在 Finding 1 的修订中含入：`(Quantitative)` Acceptance 显式要求"测量结果（含 raw timing + ratio）必须落盘到 `features/001-orchestrator-extraction/verification/load-timing-3-clients.md`，与 `smoke-3-clients.md` 并列" | ✓ 合理。吸收了 Round 1 "薄弱项 #1"（HYP-002/003 验证证据通道在 spec 层未显式）的核心诉求，给 hf-design / hf-test-driven-dev 一个明确的落盘锚点。 |
+
+### Regression 扫描
+
+逐项检查修订是否破坏 spec / ADR-007 整体一致性：
+
+| 检查 | 结果 |
+|---|---|
+| ADR-007 D1 新子段 vs § 6.2（12 项 out-of-scope）冲突? | ✗ 无冲突。新子段明确"现有 24 leaf 保留为兼容期遗产，不立即触发违反 invariant 判定"，与 § 6.2 #1 "leaf skill 文件不被修改" 一致 |
+| ADR-007 D1 新子段 vs D3 Step 1-6 冲突? | ✗ 无冲突。新子段把 D1 invariant 的生效切片明确映射到 D3 step 1 / step 2-5 / step 6，与 D3 范围归属表完全对齐 |
+| ADR-007 D1 新子段 vs D5 release-blocking 假设清单冲突? | ✗ 无冲突。D5 锁定的是 HYP-002 / HYP-003（运行时等价 + always-on 加载），与 D1 的"互不引用"层级不变量是正交关注点 |
+| FR-001 Statement 简化 vs FR-003 等价性要求冲突? | ✗ 无冲突。FR-001 从"列举内部结构"退到"语义等价"，FR-003 仍承担端到端等价性证明（walking-skeleton 回归），两者关注点更清晰 |
+| FR-001 Acceptance bullet 3 改引 `profile-node-and-transition-map.md` 是否真实存在? | ✓ 经查 `skills/hf-workflow-router/references/` 目录中确实存在该文件（Round 1 已读 router skill 时间接见过 references 目录布局），引用合法 |
+| FR-002 / FR-006 sub-ID 与 Acceptance 数量是否一致? | ✓ FR-002 共 4 条 acceptance（a/b/c/d）；FR-006 共 2 条（a/b），与"打包说明"声明一致 |
+| FR-003 acceptance bullet 3 候选脚本路径与 OQ-N-003 冲突? | ✗ 无冲突。两条候选路径与 OQ-N-003 提出的两条候选完全一致，"hf-tasks 阶段决定"的归属也一致 |
+| HYP-004 升 high vs § 3 加分项"≤ 300 行不阻塞 v0.6.0 release"立场冲突? | ✗ 无冲突。HYP-004 升 high 是基于 NFR-002 字符数已硬化；§ 3 加分项的"行数 ≤ 300"仍是 tentative engineering aim 不阻塞 release——两者并行不冲突 |
+| § 7 重写是否引入"§ 6.2 不需同步本节"导致单源破坏? | ✗ 重写本身就是为单源服务（明确权威来源在 § 6.2，§ 7 只是模板占位） |
+| 新增 verification 文件 `load-timing-3-clients.md` 是否与 `smoke-3-clients.md` 双重定义? | ✗ 两份记录功能正交：smoke = 加载/identity 通过；load-timing = 量化 wall-clock 比对。Acceptance 显式指明"并列" |
+
+**Regression 扫描结果：0 命中**。无新 finding 被引入。
+
+### 残留 finding
+
+无。Round 1 的 6 条 finding 全部正确修订；Round 1 "薄弱或缺失项" 中第 1 条（NFR-001 verification path）+ 第 2 条（HYP-004 confidence 重估）已在 Bonus 修订中吸收；第 3 条（`audit-agent-anatomy.py` 引入）+ 第 4 条（HYP-001 P2 probe 节点）仍按 Round 1 评价"已知薄弱点 / 不阻塞本轮"保留——这两条原本就**不**计入需修订项，本轮维持原状无问题。
+
+### 最终 Verdict
+
+通过
+
+理由：6 条 finding 全部命中合理修订；2 条 bonus 修订（HYP-004 confidence 重估 + NFR-001 verification 落盘路径显式化）合理且自洽；regression 扫描 0 命中——修订未破坏 § 6.2 12 项 out-of-scope、未破坏 ADR-007 D2-D7 立场、未与 ADR 关系表（含 ADR-004 D3 "关键先例"）矛盾、未把行数预算偷塞回 NFR 阈值。spec + ADR-007 现已具备成为 `hf-design` 稳定输入的条件：所有 Must FR / NFR 的 Acceptance 可形成通过/不通过判断，三层架构 invariant 的生效阶段清晰可读，dispatch 协议设计目标态明确，兼容期消费 leaf 残留 hint 的允许度清晰。
+
+### 下一步
+
+- 唯一下一步：`规格真人确认`（spec approval step；由父会话承担，reviewer subagent 不代替执行）
+- approval 通过后再进入：`hf-design`
+- **不**直接进入 `hf-design`——遵守 `skills/hf-spec-review/SKILL.md` Hard Gates "规格通过评审并完成 approval step 前，不得进入 `hf-design`" + "reviewer 不代替父会话完成 approval step，不顺手开始设计"
+- approval 后建议 hf-design 阶段重点解决：
+  1. HYP-005（leaf 剥离 `Next Action` 字段后 orchestrator 仍能基于 on-disk artifacts 决定下一步）的具体决策协议——ADR-007 D1 新子段已锁定"按目标态设计"
+  2. NFR-001 wall-clock baseline 的具体测量协议（如何在 3 宿主中各跑 N 次取均值 / p95 / 置信区间），落到 `verification/load-timing-3-clients.md` 的 schema 定义
+  3. FR-002 / FR-006 sub-ID 是否 `hf-tasks` 阶段拆为独立任务的取舍（spec 阶段已许可拆分）
+  4. OQ-N-003（regression-diff 脚本归属位置）最终决定
+
+### 评审者元数据
+
+- 是否需要人工裁决（needs_human_confirmation）：是（`通过` 触发"规格真人确认"步骤；与 `references/review-record-template.md` 返回规则一致）
+- 是否需要回 router（reroute_via_router）：否
+- USER-INPUT findings：无（本轮修订验证 0 finding）
+
+### 更新后的结构化返回 JSON
+
+```json
+{
+  "conclusion": "通过",
+  "next_action_or_recommended_skill": "hf-design",
+  "record_path": "features/001-orchestrator-extraction/reviews/spec-review-2026-05-10.md",
+  "key_findings": [],
+  "needs_human_confirmation": true,
+  "reroute_via_router": false,
+  "finding_breakdown": [],
+  "round": 2,
+  "round_1_findings_resolved": 6,
+  "round_2_new_findings": 0,
+  "approval_step_required_before_design": true
+}
+```
