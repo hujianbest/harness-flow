@@ -12,9 +12,9 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-design-review（design 草稿已落）
+- Current Stage: hf-tasks-review
 - Current Active Task: （tasks 阶段后填入）
-- Pending Reviews And Gates: hf-design-review
+- Pending Reviews And Gates: hf-tasks-review
 - Closeout Type:
 
 ## Artifacts
@@ -24,11 +24,11 @@
 | Discovery 上游 | `../../docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md` | approved（discovery-review 通过） |
 | Discovery review | `../../docs/reviews/discovery-review-hf-orchestrator-extraction.md` | 通过 |
 | Spec | `spec.md` | approved |
-| Design | `design.md` | draft |
+| Design | `design.md` | approved |
 | UI Design（如适用） | `ui-design.md` | N/A（HF 自架构 feature，无 UI surface） |
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
-| Tasks | `tasks.md` | （待 hf-tasks） |
+| Tasks | `tasks.md` | draft |
 | Task Board（如适用） | `task-board.md` | （按需） |
 | Progress | `progress.md` | live |
 | Closeout | `closeout.md` | pending |
@@ -40,8 +40,8 @@
 | discovery-review | `../../docs/reviews/discovery-review-hf-orchestrator-extraction.md` | 通过（minor LLM-FIXABLE × 3 已在 spec 吸收） | 2026-05-10 |
 | spec-review | `reviews/spec-review-2026-05-10.md` | Round 1 需修改 → Round 2 通过（6 finding 全部修订，0 新 finding） | 2026-05-10 |
 | spec-approval | `approvals/spec-approval-2026-05-10.md` | 已批准（auto mode；router § 8 关键分支） | 2026-05-10 |
-| design-review | `reviews/design-review-YYYY-MM-DD.md` | | |
-| design-approval | `approvals/design-approval-YYYY-MM-DD.md` | | |
+| design-review | `reviews/design-review-2026-05-10.md` | 通过（3 minor LLM-FIXABLE 已在 design commit 内吸收） | 2026-05-10 |
+| design-approval | `approvals/design-approval-2026-05-10.md` | 已批准（auto mode） | 2026-05-10 |
 | tasks-review | `reviews/tasks-review-YYYY-MM-DD.md` | | |
 | tasks-approval | `approvals/tasks-approval-YYYY-MM-DD.md` | | |
 | code-review（每任务） | `reviews/code-review-task-NNN.md` | | |

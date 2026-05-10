@@ -9,12 +9,12 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-design-review（design 草稿已落，等待 reviewer subagent）
+- Current Stage: hf-tasks-review（tasks 草稿已落）
 - Workflow Profile: full
 - Execution Mode: auto（cloud agent context；spec-review 通过 + needs_human_confirmation=true → 已写 approval record 后自动继续）
 - Current Active Feature: features/001-orchestrator-extraction/
 - Current Active Task: （待 hf-tasks 拆解后填入）
-- Pending Reviews And Gates: hf-design-review（design 完成后派发）
+- Pending Reviews And Gates: hf-tasks-review
 - Relevant Files:
   - `docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md`（discovery 草稿，已通过 review）
   - `docs/reviews/discovery-review-hf-orchestrator-extraction.md`（discovery review record）

@@ -100,7 +100,7 @@ orchestrator agent 在每个 user message 发生以下事件序列：
 
 | 维度 | A. 单文件 | B. 主文件 + references | C. 选择性内联 |
 |---|---|---|---|
-| **NFR-002 字符数对比 baseline × 1.10**（核心 release-blocking） | 主文件 ~2156 行 ≈ 80–90KB → 远超 baseline × 1.10（baseline 是合并的 359 行 SKILL.md，约 14KB） | 主文件 ≤300 行 ≈ ≤12KB → 严格优于 baseline（only `using-hf-workflow + hf-workflow-router/SKILL.md` 合并，~14KB），符合 NFR-002 | 主文件 ~600-800 行 ≈ ~30KB → **超出** baseline × 1.10 |
+| **NFR-002 字符数对比 baseline × 1.10**（核心 release-blocking） | 主文件 ~2156 行 ≈ 80–90KB → 远超 baseline × 1.10 | 主文件 ≤300 行 ≈ ≤12KB → 严格优于 baseline × 1.10 = 23,245 bytes（实测 baseline `wc -c skills/{using-hf-workflow,hf-workflow-router}/SKILL.md` = 21,132 bytes；权威值见 § 13.1 动态契约），符合 NFR-002 | 主文件 ~600-800 行 ≈ ~30KB → **超出** baseline × 1.10 |
 | **Token 预算（每 session）** | 高 | **低** | 中 |
 | **Progressive disclosure** | 无 | **有**（reference 按需 read） | 部分 |
 | **物理迁移成本** | 1 个文件 | **9 个 reference + 1 主文件** | 5 内联 + 4 迁出，不一致 |
@@ -422,15 +422,15 @@ References stub（`skills/hf-workflow-router/references/*.md`）：
 
 - 14 个具体模块（§ 11 表格）→ 每个模块对应一个或多个任务
 - 4 个交接事项已落地（D-Disp / D-NFR1-Schema / D-FR2-Tasks / D-RegrLoc）
-- 主要并行度：3 宿主 stub 任务可并行（D-FR2-Tasks）；deprecated alias 与 orchestrator main 之间有先后顺序（main 先建，否则 stub redirect 目标不存在）
-- 关键路径：orchestrator main → 3 宿主 stub（并行）→ deprecated alias（含 references stub）→ regression-diff.py → walking-skeleton 实跑 → docs sync → CHANGELOG → version bump
+- 主要并行度：3 宿主 stub 任务可并行（D-FR2-Tasks）；orchestrator main 与 deprecated alias 可在**同一 commit** 中创建（git 允许；先例：v0.5.1 `render-closeout-html.py` 物理迁移即同 commit 处理新位置 + 旧位置移除）。无强制串行先后约束
+- 关键路径（**逻辑顺序**，可在 hf-tasks 阶段并行调度）：orchestrator main + 3 宿主 stub + deprecated alias（含 references stub）→ regression-diff.py → walking-skeleton 实跑 → docs sync → CHANGELOG → version bump
 
 ## 19. 关键决策记录（ADR 摘要）
 
-本 design 的 12 条 D-X 决策（§ 9.2 表）**不**新建仓库级 ADR（ADR-008+），而是作为 ADR-007 的 design-stage 实施细化记录在本 design.md。理由：
+本 design 的 15 条 D-X 决策（§ 9.2 表，含 D-Skip-DDD / D-Skip-Threat 等显式 skip 决策）**不**新建仓库级 ADR（ADR-008+），而是作为 ADR-007 的 design-stage 实施细化记录在本 design.md。理由：
 
 - 这些决策都是 ADR-007 D1–D7 的物理实施选择，非独立架构决策
-- 新建 ADR-008（含 12 条 D-X）会让 ADR pool 膨胀；HF 的 ADR 节奏是"一个 ADR 锁一个跨版本立场"
+- 新建 ADR-008（含 15 条 D-X）会让 ADR pool 膨胀；HF 的 ADR 节奏是"一个 ADR 锁一个跨版本立场"
 - 若后续 design-review 认为某条 D-X 应升级为独立 ADR（如 D-Disp 的 dispatch 协议规范），可单独立 ADR-008+
 
 仓库级 ADR pool（`docs/decisions/`）本轮**只**新增 ADR-007（已在 spec PR #42 起草）；本 design 不动 ADR pool。
