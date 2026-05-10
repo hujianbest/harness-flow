@@ -1,14 +1,30 @@
 # Profile Node And Transition Map
 
-这份参考文档集中保存 `hf-workflow-router` 的 profile 合法节点集合、canonical route map、结果驱动迁移表与恢复编排协议。
+这份参考文档集中保存 `hf-orchestrator` 的 profile 合法节点集合、canonical route map、结果驱动迁移表与恢复编排协议。
 
-当你已经在 router 主文件（`../SKILL.md`）中确认：
+当你已经在 orchestrator 主文件（`../hf-orchestrator.md`）中确认：
 
 - 当前请求属于 workflow 场景
 - 当前 profile 已确定
 - 需要查合法节点、默认链路或结论后的默认下一步
 
 再来这里读取细节。
+
+## v0.7.0+ Pure-Artifact-Driven Transition
+
+orchestrator 决策**不**消费 leaf 输出的 `Next Action Or Recommended Skill` 字段。本文件的 transition map 是 **(Current Stage + 最新 review verdict + Workflow Profile + Pending Reviews And Gates) → canonical 节点** 的纯函数映射。
+
+输入 source（按权威优先级）：
+
+1. `features/<active>/progress.md` 的 `Current Stage` / `Workflow Profile` / `Execution Mode` / `Pending Reviews And Gates` / `Current Active Task`
+2. `features/<active>/reviews/*.md` 最新结论（`通过` / `需修改` / `阻塞`）+ `needs_human_confirmation` + `reroute_via_orchestrator`
+3. `features/<active>/{spec.md, design.md, tasks.md}` frontmatter 状态（`draft` / `approved`）
+4. `features/<active>/verification/*.md` 已落 fresh evidence
+5. `features/<active>/approvals/*.md` approval record
+
+不读：leaf 输出的 `Next Action Or Recommended Skill` 字段（v0.7.0+ 在 leaf 中已降级为 optional hint per ADR-007 D3 Step 2 + ADR-008 D2；orchestrator 接受 leaf 不写或写错该字段）。
+
+旧名 `hf-workflow-router` 在 v0.6.x 兼容期同义可读，v0.7.0+ canonical 名是 `hf-orchestrator`；旧 `reroute_via_router` 字段同 `reroute_via_orchestrator`。
 
 ## 合法状态集合
 

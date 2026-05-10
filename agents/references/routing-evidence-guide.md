@@ -8,6 +8,28 @@
 2. 什么证据算有效，什么证据不够。
 3. 当证据冲突时，应该保守地退回到哪里。
 
+## v0.7.0+ Pure-Artifact-Driven 决策矩阵
+
+orchestrator 决策的输入只 4 类 on-disk artifact，**不**消费 leaf 输出的 `Next Action Or Recommended Skill` 字段：
+
+| Artifact | 用于回答 |
+|---|---|
+| `features/<active>/progress.md` | 当前在哪个 stage / 哪个 active task / 哪些 review/gate pending |
+| `features/<active>/{spec,design,tasks}.md` frontmatter `状态` | 上游工件是 draft 还是 approved |
+| `features/<active>/reviews/*.md` 最新 record | review 结论（通过/需修改/阻塞）+ needs_human_confirmation + reroute_via_orchestrator |
+| `features/<active>/verification/*.md` + `approvals/*.md` | fresh evidence + approval record |
+
+决策矩阵：
+
+```
+(Current Stage, 最新 review verdict, Workflow Profile)
+    → canonical 节点 (per profile-node-and-transition-map.md FSM)
+```
+
+**Counterfactual invariant** (HYP-005 release-blocking, per features/002-leaf-skill-decoupling/ T30.b)：构造任一 leaf 输出 `Next Action: hf-WRONG`，其它 artifact 一致；orchestrator 必须给出与基线相同的决策（按 artifact 推进，忽略错误 hint）。这是 v0.7.0 pure-artifact-driven 的硬不变量。
+
+`Next Action Or Recommended Skill` 字段在 v0.7.0+ leaf 中已降级为 optional（ADR-007 D3 Step 2 + ADR-008 D2）；orchestrator 接受 leaf 不写或写错。
+
 ## 推荐工件布局
 
 除非项目已有已批准的等价路径，否则默认使用以下布局（与 `workflow-shared-conventions.md` 的 *Default 逻辑工件布局* 对齐）：

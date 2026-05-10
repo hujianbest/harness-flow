@@ -9,14 +9,14 @@
 ```json
 {
   "conclusion": "通过|需修改|阻塞",
-  "next_action_or_recommended_skill": "推荐下一步 canonical 节点",
+  "next_action_or_recommended_skill": "（v0.7.0+ optional hint）推荐下一步 canonical 节点；orchestrator 决策不依赖此字段",
   "record_path": "实际写入的 review 记录路径",
   "key_findings": [
     "关键发现 1",
     "关键发现 2"
   ],
   "needs_human_confirmation": false,
-  "reroute_via_router": false
+  "reroute_via_orchestrator": false
 }
 ```
 
@@ -31,11 +31,11 @@
 | 字段 | 说明 |
 | --- | --- |
 | `conclusion` | 当前 review 的正式结论 |
-| `next_action_or_recommended_skill` | reviewer 基于当前结果建议的下一步 canonical handoff |
+| `next_action_or_recommended_skill` | **(v0.7.0+ optional)** reviewer 建议的下一步 canonical handoff；orchestrator 决策不依赖此字段（缺失或填错都不影响 canonical 节点选择，per HYP-005 counterfactual invariant）|
 | `record_path` | 已写入的 review 记录路径 |
 | `key_findings` | 父会话需要向用户展示或用于回修的关键发现 |
 | `needs_human_confirmation` | 是否必须由父会话继续完成 approval step（字段名保留兼容） |
-| `reroute_via_router` | 若为 `true`，父会话应先回到 `hf-workflow-router` 重编排 |
+| `reroute_via_orchestrator` | （v0.7.0+ canonical 名；旧 `reroute_via_router` 同义可读至 v0.6.x 兼容期）若为 `true`，父会话应先回到 `hf-orchestrator` operating loop 重编排 |
 
 ## 使用规则
 
