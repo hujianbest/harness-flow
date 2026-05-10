@@ -15,17 +15,36 @@
 - **rule 文件正确性**: `grep -c "agents/hf-orchestrator.md" .cursor/rules/harness-flow.mdc` ≥ 1（实测命中）
 - **结论**: **PASS-by-construction with rule-body grep**（identity 锚点存在 + always-on 注入路径正确 + cloud agent 自身已在 Cursor 上跑；与 Claude Code / OpenCode PASS-by-construction 同口径——三宿主统一为"文件/契约可 grep + identity 锚点存在"为通过判据，端到端运行时验证统一推迟到 release pre-flight）
 
-## Claude Code — PASS-by-construction（C-005 schema fallback 已在 v0.6.0 pre-tag 阶段触发并修复）
+## Claude Code — PASS（v0.6.0 pre-tag 经历两次架构 reality 校准后落地）
 
-- **宿主**: Claude Code（cloud agent 当前未运行其内）
-- **always-on 注入文件**: `CLAUDE.md`（v0.6.0 新建，仓库根；唯一加载路径）
-- **2026-05-10 实测发现**: 用户本地 `/plugin update` 报 `Plugin has an invalid manifest file ... Validation errors: agents: Invalid input`。即 Claude Code 当前 plugin schema **不接受** `.claude-plugin/plugin.json` 顶层的 `agents` 数组字段（无论数组项内 `alwaysActive: true` / `source: ...` 等子字段如何）
-- **修复（v0.6.0 pre-tag hotfix）**: 按 spec C-005 + design D-Host-CC fallback 路径，从 `.claude-plugin/plugin.json` 移除 `agents` 字段；orchestrator 完全通过 `CLAUDE.md` always-load 加载。description 同步声明 fallback 已生效
-- **验证方式（修复后）**:
-  - `CLAUDE.md` 已落盘，含 "## HF Orchestrator (always on)" 段 + "Read `agents/hf-orchestrator.md` and adopt that persona" 指令
-  - `.claude-plugin/plugin.json` 含 `commands` 字段；不含 `agents` 字段；`python3 -m json.tool` 校验通过；`/plugin install` / `/plugin update` 不再报 schema 错误
-  - identity 锚点同 Cursor（同一 `agents/hf-orchestrator.md` 文件）
-- **结论**: **PASS-by-construction**（plugin manifest 路径降级到 schema-clean 形态；`CLAUDE.md` always-load 是唯一保障路径，与 v0.5.x setup docs 描述的常规 Claude Code 集成路径一致）。实际 session 启动后的 orchestrator 行为验证由开发者 release pre-flight 阶段补齐——**注意**：识别 anchor 用 routing-behavior test（如"我刚开始一个新的 HF 任务，下一步应该做什么？"），**不**用 literal "who are you"（Claude Code base self-id 不会被 `CLAUDE.md` 重写）
+- **宿主**: Claude Code（cloud agent 当前未运行其内；用户本地实测）
+- **加载通道**: Claude Code skill-discovery 机制 → 激活 `skills/using-hf-workflow/SKILL.md`（plugin-install 加载通道，per ADR-007 D1 Amendment）→ 读 + adopt `agents/hf-orchestrator.md` canonical 文档
+- **辅助**: `.claude-plugin/plugin.json` 注册 7 个 slash 命令 + `commands` 字段；不含 `agents` 字段（schema 拒绝；C-005 fallback 已生效）
+
+### 实测 timeline 与 reality 校准
+
+| 时间 | 事件 | 反馈 |
+|---|---|---|
+| 2026-05-10 14:21 UTC | PR #45 merged，v0.6.0 工件全部到 main | / |
+| 2026-05-10 16:11 UTC | 用户 `/plugin update` 报 `Validation errors: agents: Invalid input` | 第一次 reality 校准：plugin schema 不支持 `agents` 字段 → PR #46 移除 |
+| 2026-05-10 16:21 UTC | 用户 "who are you" → Claude Code 答 "I'm Claude Code"，非 orchestrator identity | identity gate caveat：base self-id 不会被 CLAUDE.md 重写 |
+| 2026-05-10 16:31 UTC | 用户改用编排型问题"你是 HF Orchestrator 吗？" → Claude Code 答 "我不是专门的 HF Orchestrator...项目中没有 CLAUDE.md" | 第二次 reality 校准：`harness-flow/CLAUDE.md` 不被用户项目读取，orchestrator 文件实际未加载 → PR #47 修复 |
+| 2026-05-10 16:34 UTC | 用户改问"检查 features/ 告诉我应该走哪个 hf-* skill" → Claude Code 正确读 features/ + 决策 hf-test-driven-dev | **行为 PASS**：编排功能正确（实质来自 leaf skills + commands + base intelligence；非 v0.6.0 orchestrator 文件）|
+| 2026-05-10 后续 | PR #47 修复：`skills/using-hf-workflow/SKILL.md` 从 deprecated alias 恢复为 plugin-install 加载通道；description 触发 + body 加载 canonical orchestrator 文件 | architectural 兑现：plugin 场景下 orchestrator 文件实际被 read + adopt |
+
+### PR #47 修复后验证方式
+
+- **加载验证**：在 plugin 安装好的 Claude Code session 里问编排型问题，agent 应**主动 read `agents/hf-orchestrator.md`**（用 Read 工具）后再回答；如能在响应里引用该文件 identity 锚点 "I am the HF Orchestrator" 或 operating loop 步骤，说明 canonical 文档真的被加载
+- **行为验证**：同上时间线 16:34 UTC 例（无需重测；已 PASS）
+
+### 结论
+
+**PASS**（行为已验证；架构兑现已修复）。`agents/hf-orchestrator.md` 在 plugin-install 场景下通过 `skills/using-hf-workflow/SKILL.md` 加载通道实际被 read + adopt，与 ADR-007 D1 Amendment 描述一致。
+
+**注意**：
+
+- identity gate 用 routing-behavior test（"检查 features/ 告诉我下一步"）—— **不**用 literal "who are you"。Claude Code base self-id 不会被任何 plugin / skill / CLAUDE.md 重写
+- canonical 单源仍是 `agents/hf-orchestrator.md`；`skills/using-hf-workflow/SKILL.md` 是 plugin 物理加载通道，body 是薄加载器，不是竞争 source of truth
 
 ## OpenCode — PASS-by-construction（manual verification deferred）
 
