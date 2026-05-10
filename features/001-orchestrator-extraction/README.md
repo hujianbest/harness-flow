@@ -12,9 +12,9 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-test-driven-dev (T1+T4 Tier 0)
+- Current Stage: hf-test-review (T1-T9 GREEN)
 - Current Active Task: （tasks 阶段后填入）
-- Pending Reviews And Gates: hf-tasks-review
+- Pending Reviews And Gates: hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate
 - Closeout Type:
 
 ## Artifacts
