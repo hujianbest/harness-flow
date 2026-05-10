@@ -397,3 +397,180 @@ ADR-008 D3 给出"不重做 spec/design"的理由：(1) 架构决策已在 ADR-0
   }
 }
 ```
+
+---
+
+# R2 Verification — 2026-05-10
+
+- 评审者: 同一独立 reviewer subagent（continuation；Author/Reviewer 分离仍成立 — reviewer 未参与 commit `b6c98bf` 的修订工作）
+- 修订 commit: `b6c98bf` on `cursor/v0.7.0-leaf-skill-decoupling-e404`（"tasks: address all 10 hf-tasks-review findings (LLM-FIXABLE)"）
+- 修订面: tasks.md +123/-29、ADR-008 +20/-10
+- R2 任务: 不重跑全套 rubric；仅核验 R1 10 条 finding 是否达标 + 是否引入回归
+
+## R2.1 逐 finding 达标核验
+
+| Finding | 严重度 | 主要修订证据 | 达标? |
+|---|---|---|---|
+| **F-1** TR5/TA6 leaf 计数 24→23 | critical | tasks.md § 1（"23 个活跃 hf-* leaf...12 doer + 11 reviewer/gate = 23"）；§ 1（Tier 1 = 10：4 doer + 6 reviewer；Tier 2 = 13：8 doer + 2 reviewer + 3 gate）；§ 3 修改清单（"23 leaf SKILL.md"+ Tier 1/Tier 2 数）；§ 5 M4 heading（"13 leaf × Step 2-5；不计 T29 sub-gate"）；ADR-008 D4（"23 个活跃 hf-* leaf...10+13 = 23 leaf 全覆盖"+ Tier 2 表头改为 "Doer (8) \| Reviewer (2) \| Gate (3)"，8+2+3=13 sums 正确） | **PASS（结构层面）/ 部分残留**（见 R2.3 r1）|
+| **F-2** TR3/TA4 T30 HYP-005 4 重证据 | critical | T30 acceptance 由原 2 项扩为 5 项 .a-.e（5 决策点全路径 + counterfactual + grep 全检 + ignore-mode 反例 + regression baseline）；Verify 段显式 "缺一重不算 HYP-005 release-blocking VALIDATED"；Files 段列出 2 个独立 verification record；测试设计种子含 fail-first 反例与 fallback 兜底；release-blocking 立场严格守 | **PASS** |
+| **F-3** TR2/TA2 T29 完整合同 | important | T29 由 "(reserved)" 升级为完整任务：类型 / 目标 / 5 acceptance (.a-.e) / 依赖 / Files / 测试设计种子 / Verify / 预期证据 / 完成条件；与 T15 同形且 .e 综合统计 23 leaf | **PASS** |
+| **F-4** TR2/TR5 T33 量化迁移 | important | T33 acceptance 5 sub-bullet (.a-.e)；T33.b 显式 "Added 7 / Changed 10 / Decided 8 / Notes 5 = 30 条；reviewer 抽样 5 条核验"；T33.c "Standalone Skills ≥ 5 条"；T33.d Decided 含 ADR-008 D1-D7 + ADR-007 D5；T33.e Notes 含 v0.8+ Step 6 路线图；Verify "grep -c '^- ' ≥ 35" | **PASS** |
+| **F-5** TR4 关键路径显式枚举 | important | § 6 "**显式枚举 14 步**"；新增 review/gate chain 6 步显式列出（test/code/traceability/regression-gate/completion-gate/finalize）；底部说明 "并行能压缩到 14 大步；其中 review/gate chain 占 6 步"；总动作数 36 implementation + 6 chain = 42 落定 | **PASS（结构枚举层面）/ 内部不一致**（见 R2.3 r2）|
+| **F-6** TR5/TA6 § 3 加 using-hf-workflow + ADR-007 Amendment | important | § 3 修改清单加 3 行：`skills/using-hf-workflow/SKILL.md` 描述同步 + `skills/hf-workflow-router/SKILL.md` 描述微调 + `docs/decisions/ADR-007-...md` D1 Amendment 段版本 sync (T35) | **PASS** |
+| **F-7** TR2/TA3 T31/T32/T35 量化 acceptance | minor | T31 → 4 sub-bullet (.a-.d) + Verify "grep ≥ 3 per file"；T32 → 4 sub-bullet (.a-.d) + Verify "grep ≥ 2 per doc"；T35 → 3 sub-bullet (.a-.c) + Verify "grep ≥ 1" | **PASS** |
+| **F-8** TR4 R3 措辞修正 | minor | § 10 R3 改为："T30 验证若 4 重证据不全 PASS → **HYP-005 release-blocking 失败 → v0.7.0 不打 tag**...R3 不允许'接受降级 release'路径——ADR-008 D5 已锁定 release-blocking 立场" | **PASS** |
+| **F-9** TR2 T34 per-file ≥ 1 | minor | T34 → 6 sub-bullet (.a-.f)；.f 全集量化 "5 文件**每文件**至少 1 处 v0.7.0 hit"；负向 grep "current.*0.6.0\|latest.*0.6.0 在这 5 文件应为 0" | **PASS** |
+| **F-10** TR3 § 7 cross-reference | minor | § 7 末尾新增 "Cross-reference 与 task 条目的对应" 段：T15 / T29 / T30 acceptance 与 § 7 验证策略互引 | **PASS** |
+
+**逐项核验结论**：10/10 finding 在结构层面达标；F-1、F-5 各引入 1 项次生 minor regression（详见 R2.3）。
+
+## R2.2 用户硬否决条件 R2 复检
+
+| 用户硬规则 | R1 状态 | R2 状态 | 处置 |
+|---|---|---|---|
+| Tier 1+2 不覆盖全部 leaf | "24" 数字不准（覆盖功能层面 OK）| **OK** — § 1 / § 3 / ADR-008 D4 主要计数表全部 23 leaf；10+13=23 sum 正确 | **解除** |
+| HYP-005 verification strategy unclear | **命中**（"至少一次"过弱）| **OK** — T30 升级为 4 重证据并联（全路径 + counterfactual + grep 全检 + ignore-mode）；缺一重不算 VALIDATED；release-blocking 立场严格守 | **解除** |
+| ADR-008 D6 CHANGELOG removal 失去 audit trail | 意图层补偿存在 | **OK** — T33.b 显式 30 条实质条目迁移 + reviewer 抽样 5 条核验 + Verify grep ≥ 35 量化 | **解除** |
+| critical path is incomplete | 边缘（"12 步 + 含糊"）| **OK** — § 6 显式枚举 14 大步 + 6 chain dispatch；review/gate chain 6 步逐项列出 | **解除（结构层面）**；存内部 ordering 不一致（R2.3 r2，但不影响 critical path completeness） |
+
+**4 条用户硬否决条件全部解除。**
+
+## R2.3 0 regression 检查
+
+R2 在 commit `b6c98bf` 中引入两项 minor regression（不构成硬否决，但建议 follow-up cleanup）：
+
+### r1 [minor][LLM-FIXABLE][TR5] "24 leaf" / "14 leaf" / "10+14 = 24" 残留文本未全量传播
+
+F-1 在主要计数表（§ 1 概述、§ 3 修改清单、§ 5 M4 heading、ADR-008 D4 表）已全部修正为 23/13。但次生文本引用残留 "24 leaf" / "14 leaf" 共 12 处：
+
+**tasks.md 残留（9 处）**:
+- L26 § 2 里程碑表 M4 行: `T16-T29（8 doer + 6 reviewer/gate × Step 2/3/4/5）| 同 M2 但范围 14 leaf` —— "8 doer + 6 reviewer/gate" + "14 leaf" 与 § 1 "13 leaf：8 doer + 2 reviewer + 3 gate" 矛盾
+- L57 § 3 显式不动: "24 leaf SKILL.md 的核心方法论内容..." —— 应 23
+- L66-69 § 4 追溯表 4 行: "24 leaf × Next Action 字段降级 / Hard Gates 标签 / [Workflow] Gate / 跨 hf-* 引用 (T5-T29 各含一项)" —— 4 行均 24；T5-T29 实际是 "T5-T14 (Tier 1) + T16-T28 (Tier 2 leaf) + T29 (sub-gate)"，含 23 leaf + 1 sub-gate
+- L251 T33 acceptance 描述: "v0.7.0 新增的 leaf 解耦工作；24 leaf 修改"
+- L257 T33.c: "覆盖 24 leaf 解耦"
+- L392 § 10 R1: "24 leaf 批量修改面大"
+- L402 § 11 ReviewHandoff: "Tier 1/2 拆分是否合理（10+14 = 24 是否覆盖全部 hf-* leaf）" —— 应 10+13=23
+
+**ADR-008 残留（5 处）**:
+- L22 § 背景: "24 个 leaf skill 一行没改" —— 历史叙事中可接受（v0.6.0 时点视角）；但语义上若指 active leaf 实为 23
+- L35 D1: "24 leaf skill 解耦修改"
+- L43 D2 Step 2: "24 个 hf-* leaf skill 的 Next Action..."
+- L137 § 不做: "保持 24 个不变" —— 歧义（24 = 23 leaf + 1 deprecated alias hf-workflow-router；可解释为 hf-* prefix 目录数不变；但与 § 决策 4 的 "23 active leaf" 主基调不一致）
+- L148 § R1: "24 leaf 批量修改"
+- L172 § 影响范围: "24 个 hf-* leaf SKILL.md（每个走 Step 2-5 全套）"
+- L182 § 评审与签字 hf-test-driven-dev 行: "24 leaf modifications + orchestrator upgrade"
+
+**评估**：
+- 核心计数表（§ 1 概述、§ 3 修改清单主块、§ 5 M4 heading、ADR-008 D4 Tier 表）已修正为 23/13/8+2+3，主基调正确
+- 次生引用未全量传播；冷读者从 § 2 milestone 表或 § 4 追溯表入手仍会读到 "14 leaf" / "24 leaf"，可能在实施时产生计数歧义
+- **不触发用户硬规则 #1**（功能覆盖全部 23 leaf；不存在 missing leaf）；属文本一致性 cleanup
+- **建议**: tasks.md 全文 sed `s/24 leaf/23 leaf/g; s/14 leaf/13 leaf/g; s/10+14 = 24/10+13 = 23/g`；ADR-008 同款；§ 4 追溯表 "24 leaf × ... (T5-T29 各含一项)" 改为 "23 leaf × ... (T5-T14 Tier 1 + T16-T28 Tier 2 leaf 各含一项；T29 综合 sub-gate)"
+
+### r2 [minor][LLM-FIXABLE][TR4] § 6 关键路径 code block 与底部说明自相矛盾
+
+§ 6 关键路径显式枚举 code block（line 313-331）的 ordering：
+
+```
+... → T30 → T31+...+T35 → T36 (Release pack;hf-release dogfood #5) →
+hf-test-review → hf-code-review → hf-traceability-review →
+hf-regression-gate → hf-completion-gate → hf-finalize
+```
+
+**T36 在 review chain + hf-finalize 之前**。但底部说明（line 333）：
+
+> 并行能压缩到 **14 大步**；其中 review/gate chain 占 6 步（test/code/traceability/regression-gate/completion-gate/finalize）显式列在 T36 之后但 hf-release 之前——**T36 release pack 在 finalize 之后再做**（finalize 是 feature-level，release 是 release-tier）。
+
+底部说明明确 "T36 release pack 在 finalize 之后"。code block 与说明矛盾。
+
+参照 progress.md `Pending Reviews And Gates`: `hf-tasks-review → hf-test-driven-dev → hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate → hf-finalize → hf-release`
+
+正确 ordering：review chain → hf-finalize → T36 (= hf-release dogfood #5)；T36 应是关键路径**最后一步**。
+
+**评估**：
+- 关键路径**枚举 completeness 通过**（review chain 6 步显式列出，不再 "+ 中间 review/gate 步骤" 含糊）
+- ordering 内部不一致是 cleanup 级问题；T36 实际位置由 progress.md + ADR-008 § 评审与签字 表权威定义为最后步骤；底部说明已明示，code block 仅显示瑕疵
+- **不触发用户硬规则 #4**（critical path 已完整列举 14 步；只是 code block 中 1 个节点位置与底部说明矛盾）
+- **建议**: code block 调整顺序为 `... → T30 → T31+...+T35 → hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate → hf-finalize → T36 (Release pack;hf-release dogfood #5)`
+
+## R2.4 R2 评分
+
+| 维度 | R1 分 | R2 分 | 变化原因 |
+|---|---|---|---|
+| TR1 可执行性 | 7 | 8 | T29 完整合同 + T31/32/33/34/35 量化 acceptance |
+| TR2 任务合同完整性 | 6 | 8 | T29 / T31-T35 全部具备 Acceptance / Files / Verify / 测试种子 |
+| TR3 验证与测试设计种子 | **5 (FAIL)** | **8 (PASS)** | T30 4 重证据并联 + § 7 cross-reference |
+| TR4 依赖与顺序正确性 | 7 | 7 | R3 措辞修正 + 关键路径 14 步 vs § 6 code block 内部 ordering 矛盾（净持平）|
+| TR5 追溯覆盖 | 6 | 7 | § 3 加 using-hf-workflow 同步 + ADR-007 Amendment 同步；扣 0.5 因 r1 残留 24/14 stale |
+| TR6 Router 重选就绪度 | 8 | 8 | 不变 |
+
+**关键维度门**：TR3 = 8 ≥ 6 PASS；所有维度 ≥ 6 → **可通过**。
+
+## R2.5 R2 verdict
+
+**通过**
+
+10 条 R1 finding 全部达标；4 条用户硬否决条件全部解除；TR3 由 5 (FAIL) 升至 8 (PASS)；所有维度 ≥ 6。
+
+引入两项 minor regression（r1 stale "24/14 leaf" 文本残留；r2 § 6 code block T36 ordering 内部矛盾），均不构成硬否决，归为 **post-approval cleanup item**——可在 hf-test-driven-dev 实施初期附带修订（不构成 round 3 评审入口；可在 T4 或 T15/T29/T30 实施时同步 fix）。
+
+## R2.6 下一步（R2 终态）
+
+按 SKILL.md Output Contract + reviewer-return-contract.md：
+
+- **next_action_or_recommended_skill**: `任务真人确认`（HF SKILL hard rule: "tasks review 通过并完成 approval step 前，不得进入 hf-test-driven-dev"；通过 verdict 必须经任务真人确认 approval step）
+- **needs_human_confirmation**: `true`
+- **reroute_via_router**: `false`
+- **approval record path**: `features/002-leaf-skill-decoupling/approvals/tasks-approval-2026-05-10.md`（待 approval 节点产出）
+- **下下步（approval 后）**: `hf-test-driven-dev`，从 T4 (orchestrator 升级到纯 artifact 驱动) 启动；followed by Tier 1 (T5-T14) 并行 → T15 sub-gate → Tier 2 (T16-T28) 并行 → T29 sub-gate → T30 HYP-002+005 release-blocking 验证 → ...
+
+**用户预期校准**：用户在 R2 dispatch message 中预期 `next_action = hf-test-driven-dev`。这是 approval 之后的 step，不是 review 通过的直接下一 action。Reviewer 严格按 SKILL contract 设 `任务真人确认` + `needs_human_confirmation=true`；hf-test-driven-dev 在 approval record 落盘后由 router/orchestrator 从 progress.md + approval record 推进，不需 reviewer 在此处 hand-off。
+
+## R2 结构化返回 JSON
+
+```json
+{
+  "round": 2,
+  "conclusion": "通过",
+  "next_action_or_recommended_skill": "任务真人确认",
+  "record_path": "features/002-leaf-skill-decoupling/reviews/tasks-review-2026-05-10.md",
+  "needs_human_confirmation": true,
+  "reroute_via_router": false,
+  "r1_findings_status": {
+    "F-1_critical_TR5_leaf_count": "PASS (structural)；R2.3 r1 minor stale text residue follow-up",
+    "F-2_critical_TR3_HYP-005": "PASS (4-evidence conjunction; release-blocking strict)",
+    "F-3_important_TR2_T29": "PASS",
+    "F-4_important_TR2_T33_changelog": "PASS",
+    "F-5_important_TR4_critical_path": "PASS (structural)；R2.3 r2 minor T36 ordering follow-up",
+    "F-6_important_TR5_using-hf-workflow": "PASS",
+    "F-7_minor_TR2_T31_T32_T35": "PASS",
+    "F-8_minor_TR4_R3_wording": "PASS",
+    "F-9_minor_TR2_T34_per_file": "PASS",
+    "F-10_minor_TR3_section_7_cross_ref": "PASS"
+  },
+  "user_dont_check_r2": {
+    "tier1_2_covers_all_leaves": "解除（10+13=23 全覆盖；ADR-007 D1 12+11=23 一致）",
+    "hyp_005_strategy_clear": "解除（T30 4-evidence 并联；缺一重不算 VALIDATED）",
+    "changelog_audit_trail_compensated": "解除（T33.b 30 条量化 + 抽样 5 条）",
+    "critical_path_complete": "解除（14 大步 + 6 chain dispatch 显式列举）"
+  },
+  "regressions_introduced": [
+    {"id": "r1", "severity": "minor", "rule_id": "TR5", "summary": "12 处 stale '24 leaf' / '14 leaf' / '10+14' 文本未全量传播；功能层面无影响（10+13=23 主基调正确），post-approval cleanup"},
+    {"id": "r2", "severity": "minor", "rule_id": "TR4", "summary": "§ 6 关键路径 code block 中 T36 ordering 与底部说明 'T36 release pack 在 finalize 之后再做' 自相矛盾；post-approval cleanup"}
+  ],
+  "scoring_r2": {
+    "TR1_executable": 8,
+    "TR2_contract": 8,
+    "TR3_test_seed": 8,
+    "TR4_dependency": 7,
+    "TR5_traceability": 7,
+    "TR6_router_readiness": 8,
+    "blocking_dimension": "TR3 = 8 ≥ 6 PASS；所有维度 ≥ 6"
+  },
+  "post_approval_cleanup": [
+    "r1: tasks.md / ADR-008 全文 sed 'stale 24 leaf / 14 leaf / 10+14' 字符串清理（共 12 处；可在 T4 实施时附带 fix，无需 round 3 review）",
+    "r2: tasks.md § 6 关键路径 code block T36 调整到 hf-finalize 之后（最后步骤）"
+  ]
+}
+```
+
