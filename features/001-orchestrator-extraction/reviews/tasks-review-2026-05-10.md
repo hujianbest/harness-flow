@@ -201,3 +201,97 @@ Precheck 通过（progress.md sync gap 列入薄弱项，不阻塞 tasks-review 
   "approval_step_required_after_pass": true
 }
 ```
+
+---
+
+## 修订验证（Round 2）
+
+- 修订提交：`0f5290b` on branch `cursor/orchestrator-extraction-design-e404`
+- 修订基线：`9c56124`（design-approval + tasks 起草 commit）
+- 验证方法：直接读取当前 HEAD 的 tasks.md；逐条核验 Round 1 7 条 finding 的 trigger condition 是否已消除；并扫描 diff 检查是否引入新 finding（regression）；不重跑全套 6 维 rubric / 反模式扫描 / 一致性矩阵——按父会话指令仅做定向修订验证。
+- 验证时间：2026-05-10
+- 验证者：同 Round 1 reviewer subagent（与 author 仍分离，符合 Fagan）
+
+### 7 条 finding 修订核验表
+
+| # | Finding (Round 1) | 修订证据（HEAD = 0f5290b） | 是否达标 |
+|---|---|---|---|
+| 1 | `[important][TR2/TR3/TA4]` T8 / T9 完全缺 "测试设计种子" 与 "预期证据" 段 | **T8** 现含 "测试设计种子"（主要行为 / 关键边界 / fail-first `grep -c "v0\.6\.0" SECURITY.md CONTRIBUTING.md` 修改前 = 0；修改后 ≥ 2 / SUT Form: naive）+ "预期证据"（grep 输出 + 两文件 diff）；Verify 段也扩展为双向 grep（`v0.6.0` ≥ 2 + `v0.5.1` 修改后 = 0 防遗漏）。**T9** 现含 "任务类型: collation task" + acceptance 由 3 条扩到 4 条（T9.a-d）+ "测试设计种子"（主要行为 / 关键边界 / fail-first `Current Stage` 字段切换 / SUT Form: naive）+ "预期证据"（grep / ls / wc 命令输出 + git log 显示 T1-T8 commit 序列）。两任务字段密度与其它 11 任务对齐。 | ✓ 达标 |
+| 2 | `[important][TR4/TR6/TA7]` Selection Priority (P0/P1/P2) 语义未定义；T4 P1 与 release-blocking 硬前置冲突 | § 8 新增 "Selection Priority 语义定义" 段：P0 = release-blocking 假设直接关联 OR release-blocking task 的硬前置依赖；P1 = v0.6.0 范围内 deliverable 但不阻塞 release；P2 = 锦上添花。§ 9 队列投影表 T4 行升级为 "P0（T5 硬前置）"；§ 8 推荐启动顺序 Tier 0 把 T4 与 T1 并列为 P0 起点；并显式给出"T4 升 P0 的理由"（按 P0 定义"是 release-blocking task 的硬前置依赖"自动晋升）。**残留**：§ 5 任务体 T4 行（line 215）仍写 "Selection Priority: P1"，与 § 8 / § 9 / Tier 0 三处 P0 表述不一致——属documentation drift（功能性优先级以 § 9 队列投影为权威，router 不会被误导，但单文件内存在三正一负的 stale label）——见 Round 2 残留 finding R2-1（minor，cosmetic 单行编辑） | ✓ 实质达标（Round 1 important finding 的功能本质已修订；T4 body 残留是 minor cosmetic） |
+| 3 | `[minor][TR6/TA7]` § 8 推荐启动顺序与 "P0 + ready 优先于 P1 + ready" 规则在单任务执行下自相矛盾 | § 8 完全重写为 Tier 0–6 模型：每 Tier 内的任务可并行调度，Tier 间严格 GREEN-gate；同时保留三条排序规则（P0 优先 / 同 priority 拓扑序 / 多任务并行时最长路径优先）。Tier 模型本质上把"并行表述"与"single-task router 选择规则"解耦——并行性表达在 Tier 内的多任务集合，不在跨 Tier 的并行声明里。原矛盾消除。 | ✓ 达标 |
+| 4 | `[minor][TR2/TR4]` T2.d 与 T5 在 smoke-3-clients.md 文件所有权重叠 | **T2.d** 标题段已显式标"**T2.d 是该文件唯一所有者**；T5 引用但不写"；Files 段标"**T2.d 唯一写入者**"。**T5** Acceptance T5.b 标 regression-2026-05-XX.md "**T5 是该文件唯一所有者**"；T5.c 标 load-timing-3-clients.md "**T5 是该文件唯一所有者**；T2.d 不写此文件"；Files 段标"与 T2.d 的 smoke-3-clients.md 物理分文件以避免所有权重叠"。3 个 verification 文件物理分离，所有权清晰。 | ✓ 达标 |
+| 5 | `[minor][TR3/TA4]` T2.d / T5 fail-first 不显式声明 RED 起点 | **T2.d** 测试种子新增 bullet "**fail-first（显式 RED 起点）**: 进入 T2.d 前 `test -f ... smoke-3-clients.md` = false（文件不存在）→ T2.d 完成后 `test -f` = true 且 `grep -c "PASS\\|deferred" smoke-3-clients.md` = 3"。**T5** 测试种子新增 bullet "**fail-first（显式 RED 起点）**: 进入 T5 前 `test -f regression-2026-05-XX.md` = false 且 `test -f load-timing-3-clients.md` = false（两文件均不存在）；T5 完成后两文件均存在且 grep 'PASS' 命中"。RED → GREEN traceable。 | ✓ 达标 |
+| 6 | `[minor][TR1/Independent/Small]` T5 打包 4 类异质验证活动，INVEST Small 边缘 | T5 任务体新增 "INVEST Small 备注" 段（line 229）：(a) 共享前置（T1+T2+T3+T4 全部 GREEN）；(b) 共享目标（HYP-002 / HYP-003 release-blocking 双假设的 fresh evidence 落盘）；(c) 共享可逆点（任一活动 FAIL → 全 task 回 hf-design）。同时给出"如未来发现 hf-test-driven-dev 阶段单独跑某一活动更顺畅，可在 increment ADR 中拆为 T5.a/b/c"的逆向通道。打包合理性显式可冷读。 | ✓ 达标 |
+| 7 | `[minor][TR5/可读性]` § 1 "9 个可独立 TDD 推进的任务（含 1 个跨任务 collation task）" 未显式标 collation task = T9 | § 1 概述重写为 "12 个可独立 TDD 推进的任务（T1 / T2.{a,b,c,d} / T3 / T4 / T5 / T6.{a,b} / T7 / T8 实现层）+ **1 个 collation task**（T9，跨任务收口节点；不产出新文件，只校验完整性 + 状态同步）"。T9 标题前缀加 "Collation：进入 review/gate chain 前的状态收口"；T9 任务体首行加 "**任务类型**: **collation task**" + 行为说明（不产出新文件；只校验完整性 + 同步状态字段）。collation task 标注三处显式（§ 1 / T9 标题 / T9 任务类型字段），冷读友好度大幅提升。 | ✓ 达标 |
+
+### Regression 扫描
+
+逐项检查修订是否破坏 spec / design / ADR-007 整体一致性：
+
+| 检查 | 结果 |
+|---|---|
+| spec § 6.2 12 项 out-of-scope 是否被本轮修订引回？ | ✗ 无破坏。修订仅触动 § 1 narrative / § 5 各任务字段密度 / § 8 Selection Priority 语义 + Tier 模型 / § 9 T4 优先级，与 24 leaf skill 不动 / 不删旧 skill / closeout schema 不变 / verdict 词表不变 / hf-release 不变 / audit-skill-anatomy.py 不变 / hf-finalize 6A 不变 / 不新增 hf-* skill / 不引新 slash 命令 / 不投资第三方独立消费 / agents/ 无 specialist personas / .cursor/rules/ 不引新 mdc 文件等立场全部正交无关 |
+| design D-X 决策是否被本轮修订矛盾？ | ✗ 无矛盾。D-FR2-Tasks (T2 = 4 sub / T6 = 2 sub) 维持；D-Layout / D-Disp / D-Mig / D-Stub / D-Stub-Marker / D-Host-Cursor/CC/OC / D-Identity / D-NFR1-Schema / D-RegrLoc / D-RegrImpl / D-Skip-DDD / D-Skip-Threat 全部保留 |
+| ADR-007 D1-D7 是否被本轮修订冲击？ | ✗ 无冲击。D1 三层架构 invariant + 生效阶段子段 / D2 single source / D3 6 步落地路径 / D4 兼容期 deprecated alias / D5 release-blocking 假设清单 / D6 与 v0.6+ ops/release skill 关系 / D7 personas 不扩张——本轮修订全部正交 |
+| T4 升 P0 后是否引入新依赖循环？ | ✗ 无。T4 本身依赖为空（M2 起点）；P0 仅是优先级 label 升级，不改依赖关系；§ 6 依赖图不变 |
+| Tier 0–6 模型与 § 6 critical path 是否一致？ | ✓ 一致。critical path "T1 → T2.{a,b,c} → T2.d → T5 → T7 → T8 → T9" 沿 Tier 0 (T1) → Tier 1 (T2.a/b/c) → Tier 2 (T2.d) → Tier 3 (T5) → Tier 4 (T7) → Tier 5 (T8) → Tier 6 (T9) 推进，最长串行链 7 步与 Tier 间序数 7 一致 |
+| T2.d / T5 文件所有权分离后，3 个 verification record（regression / smoke / load-timing）是否覆盖完整？ | ✓ 覆盖完整。T2.d → smoke-3-clients.md（identity gate）；T5 → regression-2026-05-XX.md（HYP-002 等价语义）+ load-timing-3-clients.md（HYP-003 wall-clock × 1.20）。design § 11 14 模块表中 verification records 三件套与 spec NFR-001 / NFR-005 / FR-002.d acceptance 一一对应 |
+| T8 fail-first 双向 grep（`v0.6.0` ≥ 2 + `v0.5.1` 修改后 = 0）是否有副作用？ | ✗ 无。`grep -c "v0\\.5\\.1" CONTRIBUTING.md` 修改后 = 0 是正向防遗漏检查（避免 v0.5.1 旧引用残留），不影响 T7 CHANGELOG 中合法的 v0.5.1 历史 release 记录（不在 SECURITY.md / CONTRIBUTING.md 范围内） |
+| T9 collation task 加 "新分支 cursor/orchestrator-extraction-impl-e404 已创建" (T9.d) 是否与 spec / design 冲突？ | ✗ 无冲突。spec / design 未约束实现分支命名；progress.md 也未要求；T9.d 是 author 本轮新增的 housekeeping 步骤，属合理收口；可冷读判定 |
+
+**Regression 扫描结果：0 命中**。无新 finding 被引入，无现有 D-X / spec § 6.2 / ADR-007 D1-D7 立场被破坏。
+
+### Round 2 残留 finding
+
+- **R2-1（minor，LLM-FIXABLE，cosmetic）**：§ 5 T4 任务体 line 215 仍写 "Selection Priority: P1"，与 § 8 Selection Priority 语义定义、§ 8 推荐启动顺序 Tier 0 标 "T4 (P0)"、§ 9 队列投影表 T4 "P0（T5 硬前置）"、以及 § 8 末尾"关于 T4 升 P0 的理由"四处 P0 表述不一致。**功能性影响 = 0**：router 的 canonical 视图是 § 9 队列投影（已 P0）+ § 8 排序规则（已含 P0/P1/P2 语义），不会被 § 5 task body 单行 stale label 误导；此为单文件内 4 正 1 负的 documentation drift。修订建议：单行编辑——把 line 215 从 "**Selection Priority**: P1" 改为 "**Selection Priority**: P0（从 P1 提升；T5 硬前置依赖，按 § 8 P0 定义自动晋升）"。可在 hf-test-driven-dev 阶段 T4 启动前的 RED 步顺手处理，**不阻塞 tasks-review 通过**。
+
+无其它残留 finding。
+
+### 最终 Verdict
+
+**通过**
+
+理由：Round 1 7 条 finding 中 6 条 (Finding 1 / 3 / 4 / 5 / 6 / 7) 完全达标；Finding 2 (Selection Priority 语义 + T4 升 P0) 的功能本质已通过 § 8 新语义段 + § 9 队列投影 P0 + Tier 0 双起点 + § 8 末尾理由说明四处显式表达完成修订，仅残留 § 5 T4 task body line 215 单行 stale "P1" label（R2-1，minor cosmetic），不影响 router canonical 视图；Regression 扫描 0 命中，无新 finding，spec § 6.2 12 项 out-of-scope / design D-X / ADR-007 D1-D7 全部维持。tasks.md 现已具备进入 hf-test-driven-dev 阶段的稳定输入条件：所有关键任务 Acceptance / Files / Verify / 测试设计种子 / 预期证据 / 完成条件齐全；Selection Priority 语义清晰且 P0 任务集合与 release-blocking 假设/硬前置依赖一致；Tier 0–6 启动顺序与 critical path 7 步一致；T2.d / T5 文件所有权分离消除写冲突；T9 collation task 标注三处显式。
+
+### 下一步
+
+- 唯一下一步：**`任务真人确认`**（`needs_human_confirmation = true`，由父会话承担 approval step）
+- approval 通过后再进入 `hf-test-driven-dev`
+- **不**直接进入 `hf-test-driven-dev`：遵守 `hf-tasks-review` Hard Gates "tasks review 通过并完成 approval step 前，不得进入 `hf-test-driven-dev`" + "reviewer 不代替父会话完成 approval step"
+- approval 后建议 hf-test-driven-dev 阶段在 T4 RED 步顺手把 R2-1（line 215 stale "P1" label）改为 P0 一致表述
+- 另建议父会话在 hf-tasks-review approval 之后顺手把 progress.md `Next Action` (`hf-design` → `任务真人确认` 或 `hf-test-driven-dev`) + Session Log (补 design / design-review / design-approval / hf-tasks 起草 / hf-tasks-review R1+R2 事件) 同步——属 Round 1 薄弱项 1 的延伸，本轮维持原判定（不阻塞）
+
+### 评审者元数据
+
+- 是否需要人工裁决（needs_human_confirmation）：**是**（`通过` 触发"任务真人确认"步骤；与 `references/review-record-template.md` 返回规则 + `reviewer-return-contract.md` `hf-tasks-review` 通过 = `true` 一致）
+- 是否需要回 router（reroute_via_router）：**否**（route / stage / evidence 一致，无 workflow blocker）
+- USER-INPUT findings：**无**（R2-1 残留 minor cosmetic 由 hf-test-driven-dev 阶段顺手修订；不需要业务裁决 / 外部阈值 / 真人拍板）
+
+### 更新后的结构化返回 JSON
+
+```json
+{
+  "conclusion": "通过",
+  "next_action_or_recommended_skill": "任务真人确认",
+  "record_path": "features/001-orchestrator-extraction/reviews/tasks-review-2026-05-10.md",
+  "key_findings": [
+    "[minor][LLM-FIXABLE][TR4/cosmetic] § 5 T4 任务体 line 215 仍写 'Selection Priority: P1'，与 § 8 / § 9 / Tier 0 三处 P0 表述不一致（documentation drift；router canonical 视图为 § 9 已 P0；不阻塞，hf-test-driven-dev 阶段 T4 RED 步顺手单行编辑）"
+  ],
+  "needs_human_confirmation": true,
+  "reroute_via_router": false,
+  "finding_breakdown": [
+    {
+      "severity": "minor",
+      "classification": "LLM-FIXABLE",
+      "rule_id": "TR4/cosmetic",
+      "summary": "Round 1 Finding 2 残留：§ 5 T4 task body line 215 'Selection Priority: P1' 是 documentation drift；§ 8 Selection Priority 语义定义 / § 8 Tier 0 / § 9 队列投影表 / § 8 末尾理由说明 4 处均已 P0；功能性 router 视图不受影响；建议 hf-test-driven-dev 阶段 T4 RED 步顺手改为 P0 表述"
+    }
+  ],
+  "round": 2,
+  "round_1_findings_resolved": "6 of 7 fully resolved + 1 (Finding 2) 实质达标但 § 5 task body line 215 残留 cosmetic stale label",
+  "round_2_new_findings": 1,
+  "round_2_new_findings_severity": "minor (cosmetic, non-blocking)",
+  "approval_step_required_before_test_driven_dev": true
+}
+```
+
