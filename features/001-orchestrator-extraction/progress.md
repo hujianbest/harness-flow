@@ -9,12 +9,12 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-design（spec 已批准，等待 design 节点接管）
+- Current Stage: hf-test-driven-dev（tasks approved；准备启动 T1+T4 Tier 0）
 - Workflow Profile: full
 - Execution Mode: auto（cloud agent context；spec-review 通过 + needs_human_confirmation=true → 已写 approval record 后自动继续）
 - Current Active Feature: features/001-orchestrator-extraction/
 - Current Active Task: （待 hf-tasks 拆解后填入）
-- Pending Reviews And Gates: hf-design-review（design 完成后派发）
+- Pending Reviews And Gates: hf-test-review → hf-code-review → hf-traceability-review → hf-regression-gate → hf-completion-gate
 - Relevant Files:
   - `docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md`（discovery 草稿，已通过 review）
   - `docs/reviews/discovery-review-hf-orchestrator-extraction.md`（discovery review record）
