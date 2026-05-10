@@ -1,11 +1,11 @@
 ---
 name: hf-traceability-review
-description: 适用于 code review 通过后判断追溯完整性、用户显式要求追溯评审的场景。不适用于评审代码质量（→ hf-code-review）、评审测试质量（→ hf-test-review）、阶段不清（→ hf-workflow-router）。
+description: 适用于 code review 通过后判断追溯完整性、用户显式要求追溯评审的场景。不适用于评审代码质量、评审测试质量、阶段不清。
 ---
 
 # HF Traceability Review
 
-评审证据链追溯完整性：spec→design→tasks→impl→test/verification→status。防止"代码能跑但不再匹配已批准工件"。运行在 `hf-code-review` 之后，决定是否可进入 `hf-regression-gate`。
+评审证据链追溯完整性：spec→design→tasks→impl→test/verification→status。防止"代码能跑但不再匹配已批准工件"。运行在 代码评审 之后，决定是否可进入 回归门禁。
 
 ## Methodology
 
@@ -24,17 +24,17 @@ description: 适用于 code review 通过后判断追溯完整性、用户显式
 - 用户显式要求追溯评审
 
 不适用 → 改用：
-- 评审代码质量 → `hf-code-review`
-- 评审测试质量 → `hf-test-review`
-- 阶段不清 → `hf-workflow-router`
+- 评审代码质量 → 代码评审
+- 评审测试质量 → 测试评审
+- 阶段不清 → 上游编排者编排者
 
 Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证据链完整性"。
 
 ## Hard Gates
 
-- traceability review 通过前不得进入 regression gate
 - 输入工件不足不得开始评审
 - reviewer 不修代码、不继续实现
+- 每条 finding 必须带 severity / classification / rule_id；缺一不可
 
 ## Workflow
 
@@ -46,8 +46,8 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 
 检查：是否存在稳定可定位的上游工件、实现交接块与上游 review 记录是否一致、route/stage/profile 是否稳定。
 
-- route/stage/证据冲突 → 写最小 blocked precheck record，`reroute_via_router=true`
-- route 明确但缺关键上游工件或稳定实现交接块 → 写最小 blocked record，下一步 `hf-test-driven-dev`
+- route/stage/证据冲突 → 写最小 blocked precheck record，`reroute_via_orchestrator=true`
+- route 明确但缺关键上游工件或稳定实现交接块 → 写最小 blocked record，下一步 `实现层 TDD`
 - precheck 通过 → 继续正式审查
 
 ### 2. 多维评分与挑战式审查
@@ -76,20 +76,20 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 ### 4. 形成 verdict
 
 - `通过`：证据链完整，可进入 regression gate
-- `需修改`：findings 可定向补齐追溯 → `hf-test-driven-dev`
-- `阻塞`：核心链路断裂/工件与代码严重不一致 → `hf-workflow-router`
+- `需修改`：findings 可定向补齐追溯 → 实现层 TDD
+- `阻塞`：核心链路断裂/工件与代码严重不一致 → 上游编排者编排者
 
 ### 4A. Verdict 写回闸门
 
 在返回结论前，必须先把 verdict 收敛成**唯一下一步 + 最小结构化字段**。不要只写自然语言结论。
 
-| 场景 | conclusion | next_action_or_recommended_skill | reroute_via_router | 最少必须写出的字段 |
+| 场景 | conclusion | next_action_or_recommended_skill | reroute_via_orchestrator | 最少必须写出的字段 |
 |---|---|---|---|---|
-| precheck blocked：route / stage / 证据冲突 | `阻塞` | `hf-workflow-router` | `true` | `record_path`、workflow blocker、关键冲突说明 |
-| precheck blocked：缺关键上游工件或稳定实现交接块 | `阻塞` | `hf-test-driven-dev` | `false` | `record_path`、缺失工件、为什么当前无法继续 traceability review |
-| 正式审查后 `需修改` | `需修改` | `hf-test-driven-dev` | `false` | `record_path`、`key_findings`、`finding_breakdown`、需要补齐的 trace anchor / 回写项 |
-| 正式审查后 `通过` | `通过` | `hf-regression-gate` | `false` | `record_path`、链接矩阵、剩余非阻塞提示（若有） |
-| 正式审查后 `阻塞` | `阻塞` | `hf-workflow-router` | `true` | `record_path`、核心断链点、为什么不能定向回修 |
+| precheck blocked：route / stage / 证据冲突 | `阻塞` | 上游编排者 | `true` | `record_path`、workflow blocker、关键冲突说明 |
+| precheck blocked：缺关键上游工件或稳定实现交接块 | `阻塞` | 实现层 TDD | `false` | `record_path`、缺失工件、为什么当前无法继续 traceability review |
+| 正式审查后 `需修改` | `需修改` | 实现层 TDD | `false` | `record_path`、`key_findings`、`finding_breakdown`、需要补齐的 trace anchor / 回写项 |
+| 正式审查后 `通过` | `通过` | 回归门禁 | `false` | `record_path`、链接矩阵、剩余非阻塞提示（若有） |
+| 正式审查后 `阻塞` | `阻塞` | 上游编排者 | `true` | `record_path`、核心断链点、为什么不能定向回修 |
 
 约束：
 - `needs_human_confirmation` 固定为 `false`
@@ -107,7 +107,7 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 - Review 记录（保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`）
 - 链接矩阵（spec→design→tasks→impl→test 映射）
 - 明确 verdict 和唯一下一步
-- workflow blocker 时显式写明 `reroute_via_router=true`
+- workflow blocker 时显式写明 `reroute_via_orchestrator=true`
 
 ## Reference Guide
 
@@ -128,7 +128,7 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 | 借口 | 反驳 / Hard rule |
 |------|-------------------|
 | "spec → code 链路抽样几条就行。" | Hard Gates: 必须全量映射 spec 段 → design 元素 → task → impl → 测试；抽样 → finding。 |
-| "缺一两条 backward link 不影响交付。" | Workflow stop rule: backward traceability 缺失会让 hf-completion-gate 无法判定 DoD 全覆盖。 |
+| "缺一两条 backward link 不影响交付。" | Workflow stop rule: backward traceability 缺失会让 完成门禁无法判定 DoD 全覆盖。 |
 | "我自己补缺失的 traceability 条目。" | Hard Gates (soul.md): 评审者只产出 finding，traceability 条目由作者补。 |
 
 ## Verification
@@ -137,5 +137,5 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 - [ ] 链接矩阵已建立
 - [ ] 给出明确结论、findings 和唯一下一步
 - [ ] findings 已标明 severity / classification / rule_id
-- [ ] precheck blocked 时已写明 workflow blocker 和 reroute_via_router
+- [ ] precheck blocked 时已写明 workflow blocker 和 reroute_via_orchestrator
 - [ ] 结论足以让父会话路由
