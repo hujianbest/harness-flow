@@ -1,6 +1,6 @@
 {
   "name": "harness-flow",
-  "description": "HarnessFlow — From idea to shipped product: high-quality engineering workflows for AI agents. Spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, formal closeout, and v0.6.0+ always-on orchestrator agent persona (agents/hf-orchestrator.md) replacing using-hf-workflow + hf-workflow-router.",
+  "description": "HarnessFlow — From idea to shipped product: high-quality engineering workflows for AI agents. Spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, formal closeout, and v0.6.0+ always-on orchestrator agent persona (agents/hf-orchestrator.md) replacing using-hf-workflow + hf-workflow-router. The orchestrator is auto-loaded via CLAUDE.md always-load (Claude Code plugin schema does not currently support always-active agent registration; per spec C-005 fallback).",
   "version": "0.6.0",
   "author": {
     "name": "hujianbest"
@@ -8,13 +8,5 @@
   "homepage": "https://github.com/hujianbest/harness-flow",
   "repository": "https://github.com/hujianbest/harness-flow",
   "license": "MIT",
-  "commands": "./.claude/commands",
-  "agents": [
-    {
-      "name": "hf-orchestrator",
-      "description": "HarnessFlow always-on orchestrator persona. Decides Workflow Profile, Execution Mode, Workspace Isolation, canonical next skill, reviewer dispatch, recovery, hotfix/increment branching. Loaded automatically per session.",
-      "source": "agents/hf-orchestrator.md",
-      "alwaysActive": true
-    }
-  ]
+  "commands": "./.claude/commands"
 }
