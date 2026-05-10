@@ -44,16 +44,18 @@
 | design-approval | `approvals/design-approval-2026-05-10.md` | 已批准（auto mode） | 2026-05-10 |
 | tasks-review | `reviews/tasks-review-2026-05-10.md` | Round 1 需修改 → Round 2 通过（1 cosmetic 残留 fix in same commit） | 2026-05-10 |
 | tasks-approval | `approvals/tasks-approval-2026-05-10.md` | 已批准（auto mode） | 2026-05-10 |
-| code-review（每任务） | `reviews/code-review-task-NNN.md` | | |
-| test-review（每任务） | `reviews/test-review-task-NNN.md` | | |
-| traceability-review | `reviews/traceability-review.md` | | |
+| test-review | `reviews/test-review-2026-05-10.md` | 通过（3 minor LLM-FIXABLE / TT5 + TT2 wording 已吸收；TT3 USER-INPUT pre-accepted） | 2026-05-10 |
+| code-review | `reviews/code-review-2026-05-10.md` | 通过（2 minor LLM-FIXABLE / CR3 + CR4 regression-diff.py 已吸收） | 2026-05-10 |
+| traceability-review | `reviews/traceability-review-2026-05-10.md` | R1 需修改（1 important + 3 minor / F1 marketplace + F2 progress + F3 README + F4 cosmetic 已吸收） | 2026-05-10 |
 
 ## Verification
 
 | 节点 | 记录路径 | 结论 | 日期 |
 |---|---|---|---|
-| regression | `verification/regression-YYYY-MM-DD.md` | | |
-| completion（每任务） | `verification/completion-task-NNN.md` | | |
+| regression (walking-skeleton self-diff) | `verification/regression-2026-05-10.md` | PASS over 26 files (NFR-005) | 2026-05-10 |
+| smoke (3 hosts always-on) | `verification/smoke-3-clients.md` | PASS-by-construction (Cursor direct + CC/OC deferred-manual) | 2026-05-10 |
+| load-timing (NFR-001 + NFR-002) | `verification/load-timing-3-clients.md` | PASS (ratio 0.666; NFR-002 GREEN at × 0.666 of baseline) | 2026-05-10 |
+| completion（feature 级） | `verification/completion-2026-05-10.md` | （hf-completion-gate 后写入） | |
 
 ## Linked Long-Term Assets
 

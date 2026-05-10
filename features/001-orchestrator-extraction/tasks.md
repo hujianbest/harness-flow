@@ -81,7 +81,7 @@
   - **(T1.a)** `agents/hf-orchestrator.md` 存在，frontmatter 含 `name: hf-orchestrator` + `description` 段
   - **(T1.b)** 文件第 2 段（H1 后第一段）含 grep 锚点 `"I am the HF Orchestrator"` 或等价中文
   - **(T1.c)** `wc -c agents/hf-orchestrator.md` ≤ 23,245 bytes（baseline 21,132 × 1.10；NFR-002）
-  - **(T1.d)** `agents/references/` 含恰好 9 个文件，文件名与 `skills/hf-workflow-router/references/` 一致；`diff agents/references/<x>.md skills/hf-workflow-router/references/<x>.md.bak` 在迁移前应等价（`git mv` 后旧路径已为 stub）
+  - **(T1.d)** `agents/references/` 含恰好 9 个文件，文件名与原 `skills/hf-workflow-router/references/` 一致；用 `git mv` 物理迁移保留 history（迁移后 `git log --follow agents/references/<x>.md` 应能回溯到旧路径），原文件 → redirect stub 的转换在 T3 中合并完成
   - **(T1.e)** orchestrator 主文件中所有 references 引用指向 `agents/references/`，**不**指向旧路径
 - **依赖**: 无（M1 起点）
 - **Ready When**: design approved（已满足）；分支 `cursor/orchestrator-extraction-impl-e404` 创建

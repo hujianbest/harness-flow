@@ -28,6 +28,7 @@ Owners: features/001-orchestrator-extraction (one-shot tool per OQ-N-003 / D-Reg
 from __future__ import annotations
 
 import argparse
+import difflib
 import re
 import sys
 from pathlib import Path
@@ -58,10 +59,11 @@ def collect_files(root: Path) -> list[Path]:
     """Return sorted relative paths of all regular files under root.
 
     Walks recursively. Symlinks are skipped (not part of HF stdlib-only
-    contract).
+    contract). Raises FileNotFoundError if root is not a directory; the
+    caller (main()) translates this into the appropriate exit code.
     """
     if not root.is_dir():
-        raise SystemExit(2)
+        raise FileNotFoundError(f"Not a directory: {root}")
     files: list[Path] = []
     for p in sorted(root.rglob("*")):
         if p.is_file() and not p.is_symlink():
@@ -83,8 +85,6 @@ def diff_two_files(
 
     Empty list = no unallowed diff.
     """
-    import difflib  # local import keeps top imports clean
-
     if not baseline.exists() and candidate.exists():
         return [f"NEW: {rel} appeared only in candidate"]
     if baseline.exists() and not candidate.exists():
@@ -184,7 +184,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         help="Path to v0.6.0 walking-skeleton output dir.",
     )
     args = parser.parse_args(argv)
-    return run(args.baseline_dir, args.candidate_dir)
+    try:
+        return run(args.baseline_dir, args.candidate_dir)
+    except FileNotFoundError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

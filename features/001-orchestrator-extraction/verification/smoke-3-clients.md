@@ -5,7 +5,7 @@
 - 验证人: HF Orchestrator (parent session, cloud-agent autonomous mode)
 - 验证目标: 在 3 个支持宿主中验证新 session 是否自动以 orchestrator persona 启动（identity check 命中 grep 锚点）
 
-## Cursor — PASS（直接验证）
+## Cursor — PASS-by-construction with rule-body grep (cloud agent in-Cursor)
 
 - **宿主**: Cursor Cloud Agent（本会话直接运行环境）
 - **always-on 注入文件**: `.cursor/rules/harness-flow.mdc`（v0.6.0 修订后 body 指向 `agents/hf-orchestrator.md`）
@@ -13,7 +13,7 @@
 - **identity 锚点**: `agents/hf-orchestrator.md` line 9: `**I am the HF Orchestrator** (我是 HF Orchestrator).`
 - **机器可验证**: `grep -E "(I am the HF Orchestrator|我是 HF Orchestrator)" agents/hf-orchestrator.md` 返回非空 → 锚点存在
 - **rule 文件正确性**: `grep -c "agents/hf-orchestrator.md" .cursor/rules/harness-flow.mdc` ≥ 1（实测命中）
-- **结论**: **PASS（identity 锚点存在 + always-on 注入路径正确 + cloud agent 自身已在 Cursor 上跑）**
+- **结论**: **PASS-by-construction with rule-body grep**（identity 锚点存在 + always-on 注入路径正确 + cloud agent 自身已在 Cursor 上跑；与 Claude Code / OpenCode PASS-by-construction 同口径——三宿主统一为"文件/契约可 grep + identity 锚点存在"为通过判据，端到端运行时验证统一推迟到 release pre-flight）
 
 ## Claude Code — PASS-by-construction（manual verification deferred）
 

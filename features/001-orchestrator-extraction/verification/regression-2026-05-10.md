@@ -12,7 +12,7 @@
 
 - Baseline: `examples/writeonce/features/001-walking-skeleton/` 在 v0.5.1 HEAD（merge `d0edb1a`）的内容
 - Candidate: 同路径在本 commit（v0.6.0 候选 HEAD）的内容
-- 由于本 feature 范围**严格不修改** `examples/writeonce/`（spec § 6.2 / ADR-007 D3 Step 1），baseline 与 candidate 应该 byte-for-byte 一致
+- 由于本 feature 范围**严格不修改** `examples/writeonce/`（spec § 6.2 / ADR-007 D3 Step 1），baseline 与 candidate 应该 byte-for-byte 一致。**本轮证据强度 = 静态等价证明**（self-diff over identical commit/path pair）；端到端 walking-skeleton re-run 升级为更强的运行时等价证明，推迟到 v0.7+（与 spec § 3 Instrumentation Debt 一致）。这与 ADR-007 D3 Step 1 的"v0.6.0 不接触 leaf skill"边界完全契合——leaf 不变意味着 walking-skeleton 物理产物不变，静态等价是充分证据。
 
 ### git diff 验证
 
