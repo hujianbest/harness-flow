@@ -59,29 +59,6 @@ HF 的 skill 集合**在概念上**显式分为三层：
 
 **这是 HF 的新架构 invariant，跨版本不可在 runtime 推翻。** 修改本 invariant 必须走新 ADR（如 ADR-009+）。
 
-#### Amendment（v0.6.0 pre-tag, 2026-05-10）— Plugin-Install 加载通道与 Canonical 文档分工
-
-ADR-007 D1 原写"Layer 3 不是 skill；不进 `skills/` 目录、不进 `audit-skill-anatomy.py` 扫描"。这个 invariant 在**直加载宿主**（Cursor: `.cursor/rules/harness-flow.mdc` 通过 `alwaysApply: true` 直读 `agents/hf-orchestrator.md`）下完全成立。
-
-但在**plugin-install 宿主**（Claude Code / OpenCode）下遇到工程现实约束：
-
-1. Claude Code plugin schema 当前不接受顶层 `agents` 数组字段（`/plugin install` 报 `Validation errors: agents: Invalid input`；spec C-005 fallback 触发，详见 v0.6.0 pre-tag PR #46）
-2. `CLAUDE.md` always-load 只读**目标项目根目录**，不读 plugin repo 的 `harness-flow/CLAUDE.md`
-3. 唯一可用的 plugin 加载通道是 Claude Code skill-discovery 机制——按 `skills/<name>/SKILL.md` frontmatter `description` 匹配用户 intent 后激活
-
-为此，**plugin-install 宿主下的 Layer 3 物理加载通道是 `skills/using-hf-workflow/SKILL.md`**——它在 v0.6.0 pre-tag 修复中（PR #47）从"deprecated alias"恢复为有 HF-entry description 的可激活 skill；body 内容是"Read `agents/hf-orchestrator.md` and adopt that persona for this session" 的薄加载器。`agents/hf-orchestrator.md` 仍然是**单源 canonical 文档**，并未被复制——`skills/using-hf-workflow/SKILL.md` 只是触发器与加载指令。
-
-**修订后的 D1 完整立场**：
-
-- **概念层**：HF skill 集合在概念上分 3 层（Doer / Reviewer-Gate / Orchestrator）。Orchestrator 是有状态编排者，不是 SOP。这个分层不变。
-- **Canonical 单源**：`agents/hf-orchestrator.md` 是 Layer 3 的唯一权威文档。所有 Layer 3 的语义修订必须在此文件中进行。
-- **物理加载通道**：因 host 实现差异，Layer 3 的实际加载通道随宿主类型分化：
-  - **直加载宿主（Cursor）**：通过 `.cursor/rules/harness-flow.mdc` always-applied rule 直读 `agents/hf-orchestrator.md`，符合 D1 原描述
-  - **Plugin-install 宿主（Claude Code / OpenCode）**：通过 `skills/using-hf-workflow/SKILL.md` 作为 description-triggered 加载器，激活时读取并 adopt `agents/hf-orchestrator.md`
-  - **`AGENTS.md` always-load 宿主（OpenCode 部分场景 / 通用 cross-tool）**：通过仓库根 `AGENTS.md` 的 stub 段引导加载（与 plugin 通道并存）
-- **审计**：`audit-skill-anatomy.py` 仍不扫 `agents/`（保留 ADR-007 D2 不变）。`skills/using-hf-workflow/SKILL.md` 在 v0.6.0+ 是合法 skill anatomy（`SKILL.md` only），与 ADR-006 D1 4 子目录约定不冲突。
-- **不变量未推翻**：Layer 1 / Layer 2 之间互不引用（D1 architectural commitment phase 已生效），单源原则不变（D2 不变），6 步落地路径不变（D3 不变），release-blocking 假设不变（D5 不变）。本 amendment 只澄清 Layer 3 的**物理加载通道**实现细节，不修改 Layer 3 的概念地位或单源 canonical 文档位置。
-
 #### 生效阶段（Architectural Commitment vs Runtime Enforcement）
 
 为消除 D1 与 D3 Step 5 之间的潜在歧义，本 ADR 显式区分 invariant 的两层语义：
