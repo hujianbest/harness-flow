@@ -6,7 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（无）
+### Documentation
+
+- **`README.md` / `README.zh-CN.md`** —— 在三处 reviewer-facing 介绍面同步补齐 `hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入的 verify-stage conditional side node），与 `hf-experiment` / `hf-ui-design` / `hf-release` 同等待遇：(1) `## Overview` / `## 项目概览` 概述 bullets 加一行 `Browser runtime evidence`；(2) `### Execution and reviews` / `### 执行与评审` 方法论矩阵加 `hf-browser-testing` 一行（Three-layer Runtime Evidence + Walking Skeleton Scenario + Fresh Evidence Principle + Observation-not-Verdict + Author/Reviewer/Gate Separation）；(3) `## Workflow Shape` / `## 工作流形状` 流程图加 `(optional) hf-browser-testing` 行 + 流程图下方加专门的激活与回流说明段（指向 `skills/hf-browser-testing/SKILL.md` 与 `skills/hf-workflow-router/references/profile-node-and-transition-map.md` 的 `hf-browser-testing 激活与回流` 一节）。修复此前 README 仅在 OpenCode 验证段一处提及其存在性、却在三个核心介绍面都漏掉它的不一致；不改 skill 行为、不改 FSM、不改 router transition map、不改 slash 命令面、不改任何 SKILL.md。
 
 ## [0.5.1] - 2026-05-09 — pre-release
 

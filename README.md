@@ -53,6 +53,7 @@ HarnessFlow's primary path covers the full **idea-to-product** arc:
 - **UI design** (activated when the spec declares a UI surface): IA + Atomic Design + Design Tokens + Nielsen + WCAG 2.2 AA + interaction state inventory
 - **Task breakdown**: WBS + INVEST + dependency graph / critical path + Definition of Done
 - **Single-task TDD implementation**: Canon TDD + Walking Skeleton + Two Hats + Clean Architecture conformance + fresh evidence
+- **Browser runtime evidence** (verify-stage conditional side node, activated when the spec declares a UI surface and the active task touches a frontend surface): three-layer fresh evidence (DOM / Console / Network) + Walking Skeleton scenarios + Observation-not-Verdict (produces observations only; downstream gates decide pass/fail)
 - **Independent reviews**: Fagan-style role separation for test / code / traceability / UI / discovery / spec / design / tasks reviews
 - **Regression and completion gates**: impact-based regression + evidence bundle + Definition of Done
 - **Formal closeout**: PMBOK-style task closeout and workflow closeout
@@ -149,6 +150,7 @@ These principles live in the constitution layer (`docs/principles/`) as HF's own
 | `hf-test-review` | Fail-First Validation, Coverage Categories, Risk-Based Testing, Structured Walkthrough |
 | `hf-code-review` | Fagan Code Inspection, Design Conformance Check, Defense-in-Depth Review, Clean Architecture Conformance Check, Two Hats / Refactoring Hygiene Review, Architectural Smells Detection, Separation of Author/Reviewer Roles |
 | `hf-traceability-review` | End-to-End Traceability, Zigzag Validation, Impact Analysis |
+| `hf-browser-testing` (v0.2.0; verify-stage conditional side node) | Three-layer Runtime Evidence (DOM / Console / Network), Walking Skeleton Scenario, Fresh Evidence Principle, Observation-not-Verdict, Author/Reviewer/Gate Separation |
 
 ### Gates and closeout
 
@@ -428,6 +430,7 @@ using-hf-workflow
   -> hf-tasks
   -> hf-tasks-review
   -> hf-test-driven-dev
+  -> (optional) hf-browser-testing  # pulled in by the router when the spec declares a UI surface and the active task touches a frontend surface
   -> hf-test-review
   -> hf-code-review
   -> hf-traceability-review
@@ -440,6 +443,8 @@ using-hf-workflow
 > **Scope note**: the current Workflow Shape terminates at `hf-finalize` (engineering-level closeout for **a single feature**; v0.5.0 added a closeout HTML companion report — every closeout now also produces `closeout.html` alongside `closeout.md`). **Release & runtime concerns** are still split into two layers: (1) **release-tier version cut** (multi-feature → vX.Y.Z scope ADR + release-wide regression + release notes / CHANGELOG aggregation + tag readiness) is covered by the v0.4.0 standalone skill `hf-release`, which is **decoupled** from the main chain (it does not enter this Workflow Shape; it is triggered by `/release` in Claude Code or by the entry shell's bias row in OpenCode / Cursor). (2) **Deployment pipelines, observability, incident response, metric feedback, post-launch operations** remain v0.6+ planned `hf-shipping-and-launch` / `hf-ci-cd-and-automation` / etc. — **not yet implemented**. This is consistent with the "scope footnote" in `docs/principles/soul.md` — HF must surface the gap to the user rather than treat "code merged / engineering closeout" as "shipped to production"; `hf-release` is "version cut + release docs", **not** "ship to production"; the v0.5.0 closeout HTML is a **visual rendering** of the closeout pack, **not** a deployment record.
 
 `hf-experiment` is a Phase 0 **conditional insertion inside the discovery / spec stage**: it only kicks in when the draft holds blocking or low-confidence assumptions. After the probe result lands, the flow either returns to the original insertion point (assumption cleared) or falls back to the upstream authoring node (assumption falsified). See `hf-workflow-router/references/profile-node-and-transition-map.md` for activation and flow-back rules.
+
+`hf-browser-testing` is a v0.2.0 (ADR-002 D1 / D7) **conditional side node inside the verify stage**. After `hf-test-driven-dev` reaches GREEN, the router pulls it in as the next recommended node only when (1) the spec explicitly declares a UI surface (or `hf-ui-design` is approved) and (2) the active task's impact surface touches a frontend / UI surface. It produces a three-layer fresh evidence bundle (DOM / Console / Network) plus an observations list under `features/<active>/verification/browser-evidence/<task-id>/`. It does **not** issue a verdict, does **not** modify implementation or test code, and does **not** alter the main-chain FSM. Flow-back is mechanical, driven by router-side observation severity counting: `0 blocking + 0 major` → `hf-regression-gate`; `≥ 1 blocking` → back to `hf-test-driven-dev` (with finding); `0 blocking + ≥ 1 major` → dispatched to whichever node is the majority `suggested next` in `observations.md` (typically `hf-test-review` or `hf-ui-review`). When any activation condition is unmet the router skips it and the main chain continues under normal transition rules. Full contract: `skills/hf-browser-testing/SKILL.md` and the `hf-browser-testing 激活与回流` section of `skills/hf-workflow-router/references/profile-node-and-transition-map.md`.
 
 `hf-release` is a v0.4.0 **release-tier standalone skill** that lives **outside** this Workflow Shape. It is invoked when the user wants to cut a vX.Y.Z release after one or more features have been closed via `hf-finalize` (`workflow-closeout`). It reads each candidate feature's `closeout.md`, internalizes the release-wide regression and sync-on-presence protocols, and produces a tag-ready pack at `features/release-vX.Y.Z/release-pack.md`. It does **not** enter the router transition map, does **not** modify the main-chain FSM, and does **not** auto-execute `git tag` (those remain project-maintainer actions). See `skills/hf-release/SKILL.md` and `docs/decisions/ADR-004-hf-release-skill.md` for the full design.
 
