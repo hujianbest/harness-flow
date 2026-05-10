@@ -9,7 +9,7 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-design（spec 已批准，等待 design 节点接管）
+- Current Stage: hf-design-review（design 草稿已落，等待 reviewer subagent）
 - Workflow Profile: full
 - Execution Mode: auto（cloud agent context；spec-review 通过 + needs_human_confirmation=true → 已写 approval record 后自动继续）
 - Current Active Feature: features/001-orchestrator-extraction/

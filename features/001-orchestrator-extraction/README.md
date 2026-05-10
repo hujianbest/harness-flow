@@ -12,7 +12,7 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-design（spec-approved，等待 design 接管）
+- Current Stage: hf-design-review（design 草稿已落）
 - Current Active Task: （tasks 阶段后填入）
 - Pending Reviews And Gates: hf-design-review
 - Closeout Type:
@@ -24,7 +24,7 @@
 | Discovery 上游 | `../../docs/insights/2026-05-10-hf-orchestrator-extraction-discovery.md` | approved（discovery-review 通过） |
 | Discovery review | `../../docs/reviews/discovery-review-hf-orchestrator-extraction.md` | 通过 |
 | Spec | `spec.md` | approved |
-| Design | `design.md` | （待 hf-design） |
+| Design | `design.md` | draft |
 | UI Design（如适用） | `ui-design.md` | N/A（HF 自架构 feature，无 UI surface） |
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
