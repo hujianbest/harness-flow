@@ -199,7 +199,7 @@ Phase 0 起必须显式落下以下 **hard anchor** 章节，不可省略：
 - 可评审规格草稿（默认路径 `features/<active>/spec.md`；若 项目声明的覆盖路径，优先遵循）
 - 如适用，deferred backlog（相邻路径，默认 `features/<active>/spec-deferred.md`）
 - feature `README.md` 已更新：Title / Owner / Started / Status Snapshot / Artifacts 表中 Spec 行
-- 若有 feature 进度记录文件，更新当前阶段标识为 `hf-specify`
+- 若有 feature 进度记录文件，更新当前阶段标识为 规格阶段
 
 若草稿未达评审门槛，不伪造 handoff；明确写出仍缺什么。
 
@@ -246,7 +246,7 @@ Phase 0 起必须显式落下以下 **hard anchor** 章节，不可省略：
 
 | 借口 | 反驳 / Hard rule |
 |------|-------------------|
-| "discovery 还没批，但 spec 内容已经清楚了，先开始写。" | Hard Gates: discovery / discovery-review 未通过前 hf-specify 不应启动（Workflow step 1 precondition）。 |
+| "discovery 还没批，但 spec 内容已经清楚了，先开始写。" | Hard Gates: discovery / discovery-review 未通过前 规格阶段 不应启动（Workflow step 1 precondition）。 |
 | "EARS / BDD 太繁琐，写自然语言段落更快。" | Hard Gates: 验收准则必须以 EARS / BDD 形式落地；自然段落不构成可测试 acceptance criteria。 |
 | "NFR / 质量属性以后再补。" | Workflow stop rule: ISO 25010 + Quality Attribute Scenarios 是 spec 必需段；缺位时 规格评审 必判 fail。 |
 | "既然 spec 我写的我也顺便 review 一下。" | Hard Gates (soul.md): 作者不能验收自己；spec verdict 由 规格评审 独立产出。 |

@@ -6,7 +6,7 @@ description: Use when completion gate already allows closeout and the remaining 
 # HF Finalize
 
 正式做 closeout。这个 skill 有两个合法分支：
-- `task closeout`：当前任务已经完成并通过 completion gate，但 workflow 里仍有剩余 approved tasks，需要把状态收口后交回 `hf-workflow-router`
+- `task closeout`：当前任务已经完成并通过 completion gate，但 workflow 里仍有剩余 approved tasks，需要把状态收口后交回 上游编排者
 - `workflow closeout`：当前任务完成后，已无剩余 approved tasks，需要把整个工作周期正式关闭
 
 它不做：新实现、不替代 completion gate、不替代 router 决定下一任务。
@@ -22,14 +22,14 @@ description: Use when completion gate already allows closeout and the remaining 
 ## When to Use
 
 适用：
-- `hf-completion-gate` 已给出支持 closeout 的结论
+- 完成门禁 已给出支持 closeout 的结论
 - 当前剩余工作主要是状态收口、release notes / changelog、handoff pack
 - 用户明确要求“做收尾”“closeout”“整理 release notes / 交付包”
 
 不适用：
-- completion gate 还没通过 → `hf-completion-gate`
-- 还需要新实现或补 fresh evidence → `hf-test-driven-dev` / 上游 gate
-- stage / route / 剩余任务是否存在仍不清楚 → `hf-workflow-router`
+- completion gate 还没通过 → 完成门禁
+- 还需要新实现或补 fresh evidence → 实现层 TDD / 上游 gate
+- stage / route / 剩余任务是否存在仍不清楚 → 上游编排者编排者
 
 ## Hard Gates
 
@@ -37,7 +37,7 @@ description: Use when completion gate already allows closeout and the remaining 
 - 不混入新实现；发现需改动则停止并回上游
 - 必须先判断 closeout 类型：`task closeout` 或 `workflow closeout`
 - 有剩余 approved tasks 时，不得声称 workflow 已结束
-- 无剩余 approved tasks 时，不得把下一步再写回 `hf-workflow-router`
+- 无剩余 approved tasks 时，不得把下一步再写回 上游编排者
 - `workflow closeout` 在 `interactive` 模式下必须先给出 closeout summary，再等真人确认后才把 next action 写成 `null`
 - 必须记录 worktree 最终 disposition
 - 落盘 `closeout.md` 后必须同时产出 `closeout.html` 视觉伴生报告（除非 closeout.md 自身因前置步骤判定不写入）
@@ -48,9 +48,9 @@ description: Use when completion gate already allows closeout and the remaining 
 
 | 条件 | Closeout Type | Next Action |
 |---|---|---|
-| 当前任务完成，但仍有剩余 approved tasks | `task closeout` | `hf-workflow-router` |
+| 当前任务完成，但仍有剩余 approved tasks | `task closeout` | 上游编排者 |
 | 当前任务完成，且已无剩余 approved tasks | `workflow closeout` | `null` / 项目 null 约定 |
-| 剩余任务是否存在不清、或 queue 证据冲突 | `blocked` | `hf-workflow-router` |
+| 剩余任务是否存在不清、或 queue 证据冲突 | `blocked` | 上游编排者 |
 
 ## Workflow
 
@@ -77,7 +77,7 @@ Profile-aware 证据矩阵：
 - 当前 profile 所需的 review / verification 记录要么已落盘，要么能明确写成 `N/A（按 profile 跳过）`
 - “是否还有剩余 approved tasks” 的证据足够稳定，不存在 queue / task board / progress 互相打架
 
-若不满足，不进入 `task closeout` 或 `workflow closeout`，而是明确写成 `blocked`，并把唯一下一步交回 `hf-workflow-router`。
+若不满足，不进入 `task closeout` 或 `workflow closeout`，而是明确写成 `blocked`，并把唯一下一步交回 上游编排者。
 
 ### 2. 判断 closeout 类型
 
@@ -85,7 +85,7 @@ Profile-aware 证据矩阵：
 - 当前是 `task closeout` / `workflow closeout` / `blocked`
 - 判断依据：剩余 approved tasks 是否存在、是否唯一、是否已准备重选
 
-若无法稳定判断，就停止 finalize，交回 `hf-workflow-router`。
+若无法稳定判断，就停止 finalize，交回 上游编排者。
 
 ### 3. 同步状态字段
 
@@ -95,7 +95,7 @@ Profile-aware 证据矩阵：
 - Workspace Isolation / Worktree Path / Worktree Branch 的最终状态
 
 分支规则：
-- `task closeout`：Current Stage 写回 `hf-workflow-router`；Next Action 写 `hf-workflow-router`
+- `task closeout`：Current Stage 写回 上游编排者；Next Action 写 上游编排者
 - `workflow closeout`：Current Stage 标记为 closed / completed；Next Action 写 `null` 或项目 null 约定
 
 ### 3A. 结束工作周期确认点
@@ -106,7 +106,7 @@ Profile-aware 证据矩阵：
 - `interactive`：先展示 closeout summary + evidence matrix + worktree disposition，等待真人确认“正式结束本轮 workflow”
 - `auto`：先写 closeout pack，再按项目 auto 规则把 workflow 视为已关闭
 
-如果用户不同意结束 workflow，或希望保留后续动作，则不要写 `null`，应回到 `hf-workflow-router`。
+如果用户不同意结束 workflow，或希望保留后续动作，则不要写 `null`，应回到 上游编排者。
 
 ### 4. 同步长期资产到 `docs/`，更新 release notes / CHANGELOG
 
@@ -161,14 +161,14 @@ Profile-aware 证据矩阵：
 `closeout.md` 是 canonical 机器可读契约，但对人类 reviewer 不够直观。Finalize 结束前**必须**额外产出一份 HTML 工作总结报告，作为 `closeout.md` 的视觉伴生文件：
 
 - 路径：`features/<active>/closeout.html`（与 `closeout.md` 同目录）
-- 生成方式：调用 `skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>`（纯 Python stdlib，无外部依赖；脚本随 skill 一起 vendor，OpenCode `.opencode/skills/` 软链接 / Cursor `.cursor/rules/` 集成路径都能直接拿到）
+- 生成方式：调用 `skills/收尾归档/scripts/render-closeout-html.py <feature-dir>`（纯 Python stdlib，无外部依赖；脚本随 skill 一起 vendor，OpenCode `.opencode/skills/` 软链接 / Cursor `.cursor/rules/` 集成路径都能直接拿到）
 - 内容：从 `closeout.md` + `evidence/*.log` + `verification/*.md` + `verification/coverage.json`（如存在）解析得到，自包含单文件，含嵌入式 CSS / 极小 JS，离线可读
 - 至少呈现：closeout 类型徽标 + conclusion / workflow trace 时间线 / tests & coverage 面板 / evidence matrix（可搜索可排序）/ state sync / release & docs sync / handoff & limits
 
 执行命令（默认）：
 
 ```bash
-python3 skills/hf-finalize/scripts/render-closeout-html.py features/<active>/
+python3 skills/收尾归档/scripts/render-closeout-html.py features/<active>/
 ```
 
 判 `blocked` 的情况下也要尝试生成（HTML 自身能展示 blocked 徽标 + 缺失证据状态）；只有当 `closeout.md` 因前置步骤判定不写入时才跳过。
@@ -229,9 +229,9 @@ python3 skills/hf-finalize/scripts/render-closeout-html.py features/<active>/
 ```
 
 Closeout type-specific 约束：
-- `task closeout`：`Next Action Or Recommended Skill` 必须是 `hf-workflow-router`
+- `task closeout`：`Next Action Or Recommended Skill` 必须是 上游编排者
 - `workflow closeout`：`Next Action Or Recommended Skill` 必须是 `null` 或项目 null 约定
-- `blocked`：`Next Action Or Recommended Skill` 必须是 `hf-workflow-router`，且不得声称 closeout 已完成
+- `blocked`：`Next Action Or Recommended Skill` 必须是 上游编排者，且不得声称 closeout 已完成
 
 `workflow closeout` 在 `interactive` 模式下追加：
 
@@ -240,7 +240,7 @@ Closeout type-specific 约束：
 
 - Question: 是否确认正式结束本轮 workflow？
 - If confirmed: write `Next Action Or Recommended Skill: null`
-- If not confirmed: return to `hf-workflow-router`
+- If not confirmed: return to 上游编排者
 ```
 
 ## Reference Guide
@@ -248,14 +248,14 @@ Closeout type-specific 约束：
 | 文件 | 用途 |
 |------|------|
 | `references/finalize-closeout-pack-template.md` | closeout pack 模板（含 HTML 伴生报告字段说明） |
-| `scripts/render-closeout-html.py`（本 skill 子目录 `skills/hf-finalize/scripts/`，ADR-006 引入的 skill-owned 工具约定） | 由 `closeout.md` + 旁路工件生成 `closeout.html` 视觉报告，纯 Python stdlib，自包含单文件输出。仓库根 `scripts/` 保留给跨 skill 的维护者工具（如 `audit-skill-anatomy.py`） |
-| `hf-test-driven-dev/references/worktree-isolation.md` | worktree disposition 的收尾语义（不擅自删除；只记录 `kept-for-pr` / `cleaned-per-project-rule` / `in-place`） |
+| `scripts/render-closeout-html.py`（本 skill 子目录 `skills/收尾归档/scripts/`，ADR-006 引入的 skill-owned 工具约定） | 由 `closeout.md` + 旁路工件生成 `closeout.html` 视觉报告，纯 Python stdlib，自包含单文件输出。仓库根 `scripts/` 保留给跨 skill 的维护者工具（如 `audit-skill-anatomy.py`） |
+| `实现层 TDD/references/worktree-isolation.md` | worktree disposition 的收尾语义（不擅自删除；只记录 `kept-for-pr` / `cleaned-per-project-rule` / `in-place`） |
 
 ## Red Flags
 
 - 不区分 `task closeout` 和 `workflow closeout`
 - 有剩余任务却宣称 workflow done
-- 没剩余任务却仍写回 `hf-workflow-router`
+- 没剩余任务却仍写回 上游编排者
 - release notes / CHANGELOG 没更新就声称 closeout 完成
 - 长期资产（已存在的架构概述 / runbooks / SLO / ADR 状态）未同步就宣称 closeout 完成
 - 为项目当前未启用的可选资产（如档 0/1 没有的 `docs/runbooks/` / `docs/slo/`）误判 `blocked`
@@ -276,7 +276,7 @@ Closeout type-specific 约束：
 
 ## Verification
 
-- [ ] precheck 已完成；若证据缺失或 queue 冲突，已返回 `blocked` + `hf-workflow-router`
+- [ ] precheck 已完成；若证据缺失或 queue 冲突，已返回 `blocked` + 上游编排者
 - [ ] 已判断 closeout type
 - [ ] gate 证据已引用
 - [ ] evidence matrix 已落盘
@@ -286,9 +286,9 @@ Closeout type-specific 约束：
 - [ ] feature `README.md` 中 Closed / Closeout Type / Linked Long-Term Assets 等区块已更新
 - [ ] 未为项目当前未启用的可选资产（如档 0/1 没有的 `docs/slo/` / `docs/postmortems/`）误判 `blocked`
 - [ ] closeout pack 已写入 `features/<active>/closeout.md`
-- [ ] HTML 视觉伴生报告已写入 `features/<active>/closeout.html`（由 `python3 skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>` 生成；脚本与 skill 同 vendor）；缺覆盖率数据时 HTML 已显式标注"未提供"，未编造数据
+- [ ] HTML 视觉伴生报告已写入 `features/<active>/closeout.html`（由 `python3 skills/收尾归档/scripts/render-closeout-html.py <feature-dir>` 生成；脚本与 skill 同 vendor）；缺覆盖率数据时 HTML 已显式标注"未提供"，未编造数据
 - [ ] worktree 状态已同步
-- [ ] `task closeout` 时 next action = `hf-workflow-router`
+- [ ] `task closeout` 时 next action = 上游编排者
 - [ ] `workflow closeout` 时 next action = `null` 或项目 null 约定
 - [ ] `workflow closeout` 在 interactive 模式下已显式经过最终确认
 - [ ] feature 目录平铺保留在 `features/`，未被移动到 `features/archived/`

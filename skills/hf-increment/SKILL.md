@@ -1,6 +1,6 @@
 ---
 name: hf-increment
-description: 适用于用户明确要求增删改需求/范围/验收/约束、hf-workflow-router 判定属于 increment 分支的场景。不适用于实现缺陷修复（→ hf-hotfix）、继续实现（→ hf-test-driven-dev）、阶段不清/证据冲突（→ hf-workflow-router）。
+description: 适用于用户明确要求增删改需求/范围/验收/约束、上游编排者 判定属于 increment 分支的场景。不适用于实现缺陷修复、继续实现、阶段不清/证据冲突。
 ---
 
 # HF 增量变更
@@ -31,25 +31,25 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 在这些场景使用：
 
 - 用户明确要求增删改需求、范围、验收标准或约束
-- `hf-workflow-router` 已判定当前属于 increment 分支
+- 上游编排者 已判定当前属于 increment 分支
 - 已批准规格 / 设计 / 任务 / 验证依据发生了实质性变化
 - 当前需要先完成影响分析与工件同步，再决定回到哪个主链节点
 - 当前变化已经稳定到足以形成结构化变更包，而不是直接改实现
 
 不要在这些场景使用：
 
-- 当前问题本质上是“原本应成立的行为没有被正确实现”，改用 `hf-hotfix`
-- 当前已经明确进入实现阶段，需要继续实现，改用 `hf-test-driven-dev`
-- 当前请求只是阶段不清、profile 不稳或证据链冲突，先回到 `hf-workflow-router`
-- 当前变化仍然含糊、无法稳定结构化，先回 `hf-specify` 或 `hf-workflow-router`
+- 当前问题本质上是“原本应成立的行为没有被正确实现”，改用 热修复
+- 当前已经明确进入实现阶段，需要继续实现，改用 `实现层 TDD`
+- 当前请求只是阶段不清、profile 不稳或证据链冲突，先回到 上游编排者
+- 当前变化仍然含糊、无法稳定结构化，先回 规格阶段 或 上游编排者
 
-这个 skill 的职责是把变化重新锚定回正确阶段，而不是自己替代 `hf-specify`、`hf-design`、`hf-tasks` 或 `hf-test-driven-dev`。
+这个 skill 的职责是把变化重新锚定回正确阶段，而不是自己替代 规格阶段、设计阶段、任务规划 或 实现层 TDD。
 
 ## Hard Gates
 
 - 在完成影响分析与失效判断前，不得把当前 increment 直接交给下游实现节点。
 - 如果当前输入工件还不足以判定 stage / route，不直接开始 increment 分析。
-- `hf-increment` 不直接替代规格、设计、任务、实现、review 或 gate 节点；它只负责同步变化并选唯一 re-entry 节点。
+- 增量变更 不直接替代规格、设计、任务、实现、review 或 gate 节点；它只负责同步变化并选唯一 re-entry 节点。
 
 ## Workflow
 
@@ -80,9 +80,9 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 
 若不满足，不继续补脑产出完整影响矩阵，而是写出阻塞原因和唯一下一步：
 
-- 更像实现缺陷：`hf-hotfix`
-- 变化仍需重新收敛需求表达：`hf-specify`
-- route / stage / profile / worktree 仍不清：`hf-workflow-router`
+- 更像实现缺陷：热修复
+- 变化仍需重新收敛需求表达：规格阶段
+- route / stage / profile / worktree 仍不清：上游编排者
 
 ### 2. 形成结构化变更包与影响矩阵
 
@@ -111,9 +111,9 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 
 如果当前变化仍然太含糊，无法稳定写成 `New / Modified / Deprecated`，不要补脑继续：
 
-- 若 blocker 是“本质上这是实现缺陷修复，而不是需求变更”，下一步交回 `hf-hotfix`
-- 若 blocker 是 route / stage / profile 不清，下一步交回 `hf-workflow-router`
-- 若 profile 与当前阶段仍然清楚，但变化本身需要重新收敛需求表达，下一步交回 `hf-specify`
+- 若 blocker 是“本质上这是实现缺陷修复，而不是需求变更”，下一步交回 热修复
+- 若 blocker 是 route / stage / profile 不清，下一步交回 上游编排者
+- 若 profile 与当前阶段仍然清楚，但变化本身需要重新收敛需求表达，下一步交回 规格阶段
 
 ### 3. 更新最小必要工件
 
@@ -127,26 +127,26 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 
 若某个 review 结论因本次变更失效，不要只写“需要重审”；应写出对应 canonical review 节点，例如：
 
-- `hf-spec-review`
-- `hf-design-review`
-- `hf-tasks-review`
-- `hf-test-review`
-- `hf-code-review`
-- `hf-traceability-review`
+- 规格评审
+- 设计评审
+- 任务评审
+- 测试评审
+- 代码评审
+- 追溯评审
 
 ### 4. 决定唯一 re-entry 节点
 
 下一步规则：
 
-- 变化仍然含糊，需要重新收敛需求：`hf-specify`
-- 当前判断其实是实现缺陷修复：`hf-hotfix`
-- 规格发生实质变化，需要重新产出规格：`hf-specify`
-- 规格已同步完成，且下一步是重新规格评审：`hf-spec-review`
-- 设计变化过大，不适合在 increment 中就地同步：`hf-design`
-- 设计已同步完成，且下一步是重新设计评审：`hf-design-review`
-- 任务计划、活动任务、测试设计种子或验证依据需要重新收敛：`hf-tasks`
-- 工件已保持一致、批准仍然有效、当前活动任务仍可执行，且可以继续实现：`hf-test-driven-dev`
-- 若 route / stage / profile 仍不清，或需要重新决定分支：`hf-workflow-router`
+- 变化仍然含糊，需要重新收敛需求：规格阶段
+- 当前判断其实是实现缺陷修复：热修复
+- 规格发生实质变化，需要重新产出规格：规格阶段
+- 规格已同步完成，且下一步是重新规格评审：规格评审
+- 设计变化过大，不适合在 increment 中就地同步：设计阶段
+- 设计已同步完成，且下一步是重新设计评审：设计评审
+- 任务计划、活动任务、测试设计种子或验证依据需要重新收敛：任务规划
+- 工件已保持一致、批准仍然有效、当前活动任务仍可执行，且可以继续实现：`实现层 TDD`
+- 若 route / stage / profile 仍不清，或需要重新决定分支：上游编排者
 
 如果同时有多个失效 review 需要重派发，则：
 
@@ -173,7 +173,7 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 
 若当前 workflow 已存在 `worktree-active`，或上游已将后续实现标记为 `worktree-required`，不要在 increment 状态同步中把这些字段静默清空。
 
-若 `Next Action Or Recommended Skill` 指向 review 节点，其含义是父会话或 `hf-workflow-router` 会按 review dispatch protocol 派发 reviewer subagent，而不是当前 increment 会话直接内联继续评审。
+若 `Next Action Or Recommended Skill` 指向 review 节点，其含义是父会话或 上游编排者 会按 review dispatch protocol 派发 reviewer subagent，而不是当前 increment 会话直接内联继续评审。
 
 ## Output Contract
 
@@ -226,7 +226,7 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 - `Workflow Profile`
 - `Current Active Task`（保留原值或写 `pending reselection`）
 - `Pending Reviews And Gates`
-- `Next Action Or Recommended Skill`: `hf-specify` | `hf-hotfix` | `hf-spec-review` | `hf-design` | `hf-design-review` | `hf-tasks` | `hf-test-driven-dev` | `hf-workflow-router`
+- `Next Action Or Recommended Skill`: 写一个最早应恢复的 canonical 阶段（规格 / 设计 / 任务 / 实现 / 评审 / 上游编排者）
 ```
 
 ## Red Flags
@@ -242,8 +242,8 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 
 | 借口 | 反驳 / Hard rule |
 |------|-------------------|
-| "scope 改一点点，不开 increment 直接改 active task。" | Hard Gates: 已批准 spec / design 的范围改动必须走 hf-increment 的 impact 分析与 re-entry，不能在 active task 内悄悄扩大。 |
-| "影响分析心里过了一遍就行。" | Workflow stop rule: impact analysis 必须落盘，hf-workflow-router 据此重新规划路径。 |
+| "scope 改一点点，不开 increment 直接改 active task。" | Hard Gates: 已批准 spec / design 的范围改动必须走 增量变更 的 impact 分析与 re-entry，不能在 active task 内悄悄扩大。 |
+| "影响分析心里过了一遍就行。" | Workflow stop rule: impact analysis 必须落盘，上游编排者 据此重新规划路径。 |
 | "increment 后跳过 review，直接进 build。" | Hard Gates: re-entry 节点的下游仍按主链 review / gate 流转，不允许跳过。 |
 
 ## Verification
@@ -251,7 +251,7 @@ description: 适用于用户明确要求增删改需求/范围/验收/约束、h
 只有在以下两种情况之一成立时，这个 skill 才算完成：
 
 - [ ] 已形成稳定的变更包，受影响工件与失效项已被同步或显式标记，并写回唯一 canonical `Next Action Or Recommended Skill`
-- [ ] 已明确记录“当前变化仍不足以稳定结构化或已判断为错分支”的阻塞 / 重分类状态、最小必要影响记录与唯一下一步（`hf-specify`、`hf-hotfix` 或 `hf-workflow-router`），且没有伪造更下游的 re-entry handoff
+- [ ] 已明确记录“当前变化仍不足以稳定结构化或已判断为错分支”的阻塞 / 重分类状态、最小必要影响记录与唯一下一步（规格阶段、热修复 或 上游编排者），且没有伪造更下游的 re-entry handoff
 
 无论属于哪种完成路径，还应满足：
 

@@ -1,6 +1,6 @@
 ---
 name: hf-release
-description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z 工程级发版（版本切片 + 全量回归 + 发布文档聚合）。当用户表达"切版本/出 release/打 tag/发版本号"时使用。不适用于单 feature closeout（→ hf-finalize）、上线/部署/监控/回滚（不在本 skill 范围；由项目自身的 ops 流程承担）。
+description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z 工程级发版（版本切片 + 全量回归 + 发布文档聚合）。当用户表达"切版本/出 release/打 tag/发版本号"时使用。不适用于单 feature closeout、上线/部署/监控/回滚（不在本 skill 范围；由项目自身的 ops 流程承担）。
 ---
 
 # HF Release
@@ -19,13 +19,13 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 
 不适用：
 
-- 单 feature closeout（task-closeout 或 workflow-closeout） → `hf-finalize`
+- 单 feature closeout（task-closeout 或 workflow-closeout） → 收尾归档
 - 实际部署 / feature flag rollout / 监控配置 / 回滚演练 → 不在本 skill 范围；由项目自身的 ops 流程承担
-- 需要新实现或补 fresh evidence → 上游 `hf-test-driven-dev` / 各 gate；本 skill **不**写新代码
-- 候选 feature 还没 `workflow-closeout` → 先回到 `hf-finalize` 把它们 close 掉
-- 阶段不清 / 用户意图不是切版本 → `using-hf-workflow` → 由 entry shell 重新分流
+- 需要新实现或补 fresh evidence → 上游编排者 实现层 TDD / 各 gate；本 skill **不**写新代码
+- 候选 feature 还没 `workflow-closeout` → 先回到 收尾归档 把它们 close 掉
+- 阶段不清 / 用户意图不是切版本 → 上游编排者编排者 → 由 entry shell 重新分流
 
-边界：本 skill 与 `hf-workflow-router` 完全解耦——不进 router transition map，不修改主链 FSM，**不依赖** `hf-finalize` / `hf-regression-gate` / `hf-doc-freshness-gate` 在同一 session 跑过。它只读磁盘工件（feature 的 `closeout.md` / `progress.md` / 既有 review / verification 记录）做版本级判断。
+边界：本 skill 与 上游编排者 完全解耦——不进 router transition map，不修改主链 FSM，**不依赖** 收尾归档 / 回归门禁 / 文档新鲜度门禁 在同一 session 跑过。它只读磁盘工件（feature 的 `closeout.md` / `progress.md` / 既有 review / verification 记录）做版本级判断。
 
 ## Hard Gates
 
@@ -46,8 +46,8 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 - **Frontend Input Object**: 候选 feature 的 `closeout.md`（type=workflow-closeout）+ 各 feature 的 verification / reviews 记录 + 项目级版本号约定（若有）
 - **Backend Output Object**: `features/release-vX.Y.Z/release-pack.md` + 仓库根 `CHANGELOG.md` 的 `[vX.Y.Z]` 段 + `docs/decisions/ADR-NNN-release-scope-vX.Y.Z.md` + `docs/release-notes/vX.Y.Z.md`（按存在）+ ADR 状态批量翻转（`proposed → accepted`）
 - **Object Transformation**: 输入是 N 份 `workflow-closeout` 的 closeout pack；输出是 1 份 release pack + 配套发布文档；中间步骤是 scope 决策 + release-wide regression + docs aggregation
-- **Object Boundaries**: 不修改既有 `features/<feature-id>/closeout.md`（只读消费）；不修改 spec/design/tasks 等已批准工件；不替代 `hf-finalize` 写单 feature closeout
-- **Object Invariants**: 所有候选 feature 的 closeout 状态在 `hf-release` 执行前后一致；release pack 一旦写入，scope 已定，再要扩范围必须显式回到 §3 重做 scope 决策
+- **Object Boundaries**: 不修改既有 `features/<feature-id>/closeout.md`（只读消费）；不修改 spec/design/tasks 等已批准工件；不替代 收尾归档 写单 feature closeout
+- **Object Invariants**: 所有候选 feature 的 closeout 状态在 版本发布 执行前后一致；release pack 一旦写入，scope 已定，再要扩范围必须显式回到 §3 重做 scope 决策
 
 ## Methodology
 
@@ -57,9 +57,9 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 | SemVer 2.0.0 + Pre-release Marker | semver.org / ADR-001 D6 / ADR-002 D6 / ADR-003 D5 | §4 |
 | Cross-feature Regression（impact-based 的版本级扩展）| Regression Testing Best Practice | §6 |
 | Cross-feature Traceability Aggregation | Zigzag Validation（向上延伸到版本范围） | §7 |
-| Sync-on-Presence (release tier) | 同 `hf-doc-freshness-gate`（**协议内联**，不引用该 skill）| §8 |
+| Sync-on-Presence (release tier) | 同 文档新鲜度门禁（**协议内联**，不引用该 skill）| §8 |
 | Release Readiness Review | PMBOK release readiness | §9 |
-| Handoff Pack Pattern | 同 `hf-finalize`（结构同源，scope 不同）| §10 |
+| Handoff Pack Pattern | 同 收尾归档（结构同源，scope 不同）| §10 |
 | Standalone / No-Router Coupling | 本 skill 自包含运行原则（ADR-004 D3）| 全流程 |
 | Author / Reviewer Separation (Fagan) | scope ADR 建议由独立人/会话评审 | §3 末尾 advisory |
 
@@ -81,7 +81,7 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 - **Method**: 扫 `features/*/closeout.md`，筛 `Closeout Type: workflow-closeout`
 - **Input**: 仓库 `features/` 目录
 - **Output**: 候选清单（feature-id + closeout 路径 + 关闭日期 + affected modules 摘要）
-- **Stop / continue**: 候选数 = 0 → 抛回用户"无可入版的 closed feature，建议先 `hf-finalize`"；候选数 ≥ 1 → 继续
+- **Stop / continue**: 候选数 = 0 → 抛回用户"无可入版的 closed feature，建议先 收尾归档"；候选数 ≥ 1 → 继续
 
 不要把 `task-closeout` / `blocked` 当成候选——这两类未真正完成单 feature workflow。
 
@@ -132,7 +132,7 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 ### 7. Cross-feature Traceability 摘要
 
 - **Object**: 跨 feature 的 spec ↔ design ↔ tasks ↔ code ↔ tests 链聚合摘要
-- **Method**: 不重做单 feature traceability（那是 `hf-traceability-review` 在 closeout 前已经做过的事）；只做版本级聚合——把各 feature 的 traceability verdict 汇总
+- **Method**: 不重做单 feature traceability（那是 追溯评审 在 closeout 前已经做过的事）；只做版本级聚合——把各 feature 的 traceability verdict 汇总
 - **Input**: 各候选 feature 的 `reviews/traceability-*.md` / `closeout.md` `Evidence Matrix` 段
 - **Output**: `features/release-vX.Y.Z/verification/release-traceability.md`（含每个 feature 的 traceability verdict + 跨 feature 风险（如有 API 变化跨多个 feature））
 - **Stop / continue**: 任一候选 feature 缺 traceability verdict 且 profile 要求 → 抛回用户；profile 跳过的写 `N/A（按 profile 跳过）`
@@ -209,7 +209,7 @@ description: 适用于把多个已 closed 的 feature/iteration 汇总成 vX.Y.Z
 
 ### 11. Final Confirmation（interactive only）
 
-`hf-release` 完成后会让 release scope 正式锁定（ADR 状态翻转 / CHANGELOG 段固化 / tag readiness pack 就位）；这是项目的对外承诺面变化，不能由 skill 自行决定。
+版本发布 完成后会让 release scope 正式锁定（ADR 状态翻转 / CHANGELOG 段固化 / tag readiness pack 就位）；这是项目的对外承诺面变化，不能由 skill 自行决定。
 
 - `interactive`：先展示 Release Summary + Evidence Matrix + Docs Sync 实际路径 + Tag Readiness，等真人确认 "正式锁定 vX.Y.Z 范围"；
 - `auto`：先写完 release pack（`Status: ready-for-tag`），把 Next Action 写成 `null`（实际 `git tag` 由项目维护者执行），不替用户最终拍板。
@@ -244,10 +244,10 @@ docs/release-notes/
 Next Action 规则：
 
 - **Final Confirmation 通过 / Status: released**：`Next Action Or Recommended Skill: null`（tag 操作由项目维护者执行；本 skill 不自动打 tag）
-- **未通过 / 阻塞**：`Next Action Or Recommended Skill: <具体阻塞点描述>`，例如"§6 release-wide regression failed on module X，先回 hf-test-driven-dev 修复对应 feature 的回归"
-- **scope 还未锁定**：`Next Action Or Recommended Skill: hf-release §3`（同 skill 内回退）
+- **未通过 / 阻塞**：`Next Action Or Recommended Skill: <具体阻塞点描述>`，例如"§6 release-wide regression failed on module X，先回 实现层 TDD 修复对应 feature 的回归"
+- **scope 还未锁定**：`Next Action Or Recommended Skill: 版本发布 §3`（同 skill 内回退）
 
-不写回 `hf-workflow-router`（本 skill 与 router 解耦，没有"交回 router"的语义）。
+不写回 上游编排者（本 skill 与 router 解耦，没有"交回 router"的语义）。
 
 ## Red Flags
 
@@ -273,7 +273,7 @@ Next Action 规则：
 | "复用各 feature 的 regression 记录就够了，不用再跑一次" | Hard Gates + §6: release-wide regression scope = union(features)，必须 fresh；拼贴 = 不通过 |
 | "scope ADR 我自己拍就行了，多评审一轮浪费时间" | Author/Reviewer Separation 是 advisory 不是 hard gate，但 Red Flags 指出"作者一手批准"；与 `docs/principles/soul.md` "HF 不替用户验收自己" 立场冲突 |
 | "这次 release 顺便配置一下 staged rollout / 监控 / 回滚" | Hard Gates: 本 skill 不承诺部署 / 监控 / 回滚；这些不在本 skill 范围，由项目自身的 ops 流程承担 |
-| "router 应该把我派过来" / "我应该 handoff 回 router" | When to Use 边界 + ADR-004 D3: `hf-release` 与 router 完全解耦；不进 transition map，不交回 router |
+| "router 应该把我派过来" / "我应该 handoff 回 router" | When to Use 边界 + ADR-004 D3: 版本发布 与 router 完全解耦；不进 transition map，不交回 router |
 | "项目没有统一的测试入口，§6 就标 N/A 跳过" | Hard Gates + §6 stop rule: 不替用户拍板降低门禁；缺入口要抛回用户决定（延后发版或临时降级），不能自己跳过 |
 | "task-closeout 的 feature 也算入版吧，反正快做完了" | Hard Gates: 候选必须是 `workflow-closeout`；task-closeout 还有剩余任务未完成 |
 | "writeonce demo 顺便也 release 一下" | When to Use + ADR-004 D9: writeonce demo 不走 release-tier；强加是空洞同步 |
@@ -284,9 +284,9 @@ Next Action 规则：
 |------|------|
 | `references/release-scope-adr-template.md` | release scope ADR 起草模板（仿 ADR-001/002/003 结构） |
 | `references/pre-release-engineering-checklist.md` | §8 详细 checklist（仅工程级 hygiene；不含 ops 项） |
-| `references/release-pack-template.md` | release pack 主工件模板（schema 与 hf-finalize closeout pack 同源） |
-| `hf-finalize/SKILL.md` | 单 feature closeout（前置依赖：候选 feature 必须先经此 skill 写出 `workflow-closeout` 的 closeout pack） |
-| `hf-test-driven-dev/references/worktree-isolation.md` | worktree disposition 收尾语义（不擅自删除；只记录 `kept-for-pr` / `cleaned-per-project-rule` / `in-place`） |
+| `references/release-pack-template.md` | release pack 主工件模板（schema 与 收尾归档 closeout pack 同源） |
+| `收尾归档/SKILL.md` | 单 feature closeout（前置依赖：候选 feature 必须先经此 skill 写出 `workflow-closeout` 的 closeout pack） |
+| `实现层 TDD/references/worktree-isolation.md` | worktree disposition 收尾语义（不擅自删除；只记录 `kept-for-pr` / `cleaned-per-project-rule` / `in-place`） |
 | `docs/decisions/ADR-001-release-scope-v0.1.0.md` 等 | HF 自身 release scope ADR 实践，可作 scope ADR 起草参考 |
 
 ## Verification
@@ -306,5 +306,5 @@ Next Action 规则：
 - [ ] 所有项目级元数据中的版本号字段已同步
 - [ ] 未自动执行 `git tag` / `git push --tags`
 - [ ] 未自动删除 worktree
-- [ ] Next Action 写为 `null`（已 released）/ 具体阻塞点（未通过）/ `hf-release §<step>`（同 skill 回退）；**不**写回 `hf-workflow-router`
+- [ ] Next Action 写为 `null`（已 released）/ 具体阻塞点（未通过）/ `版本发布 §<step>`（同 skill 回退）；**不**写回 上游编排者
 - [ ] release pack 中未越权承诺部署 / 监控 / 回滚（out-of-scope 能力已明确指向"项目自身 ops 流程"，未编造或假设其他 skill 接手）

@@ -1,13 +1,13 @@
 ---
 name: hf-ui-review
-description: 适用于 UI 设计草稿已完成需要正式 review verdict、或被指定为 reviewer subagent 执行 UI 设计评审的场景。不适用于需继续写或修 UI 设计（→ hf-ui-design）、评审架构/技术设计（→ hf-design-review）、需拆任务或编码（→ hf-tasks）、阶段不清或证据冲突（→ hf-workflow-router）。
+description: 适用于 UI 设计草稿已完成需要正式 review verdict、或被指定为 reviewer subagent 执行 UI 设计评审的场景。不适用于需继续写或修 UI 设计、评审架构/技术设计、需拆任务或编码、阶段不清或证据冲突。
 ---
 
 # HF UI 设计评审
 
-评审 UI 设计文档，判断它是否可以与 `hf-design-review` 一起进入联合 design approval。核心职责是防止过早拆任务——确保 UI 设计真正锚定规格、IA / 用户流 / 状态矩阵完整、视觉决策走 token、可访问性达标、组件边界清楚到足以进入任务规划。
+评审 UI 设计文档，判断它是否可以与 设计评审 一起进入联合 design approval。核心职责是防止过早拆任务——确保 UI 设计真正锚定规格、IA / 用户流 / 状态矩阵完整、视觉决策走 token、可访问性达标、组件边界清楚到足以进入任务规划。
 
-本 skill 与 `hf-design-review` 是 **design stage 内的并行 review peer**：两条 review 都通过后，父会话发起联合 `设计真人确认`；任一未过，对应起草 skill 回流修订，另一条可继续稳定部分。
+本 skill 与 设计评审 是 **design stage 内的并行 review peer**：两条 review 都通过后，父会话发起联合 `设计真人确认`；任一未过，对应起草 skill 回流修订，另一条可继续稳定部分。
 
 ## Methodology
 
@@ -23,24 +23,24 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 使用：
 
-- `hf-ui-design` 已完成 UI 设计草稿，需要正式 review verdict
+- UI 设计 已完成 UI 设计草稿，需要正式 review verdict
 - 用户明确要求"review 这份 UI 设计"
 - reviewer subagent 被父会话派发来执行 UI 设计评审
 
 不使用：
 
-- 需要继续写或修 UI 设计 → `hf-ui-design`
-- 需要评审架构 / 模块 / API 契约 → `hf-design-review`
+- 需要继续写或修 UI 设计 → UI 设计
+- 需要评审架构 / 模块 / API 契约 → 设计评审
 - 需要任务拆解或编码 → 相应下游节点
-- 阶段不清或证据冲突 → `hf-workflow-router`
+- 阶段不清或证据冲突 → 上游编排者编排者
 
 直接调用信号："review 这份 UI 设计"、"UI 设计评审"、"帮我看一下这个界面设计方案"。
 
-前提条件：存在当前 UI 设计草稿、已批准规格、项目相关约定（若项目已声明）、`hf-design` 当前草稿（parallel 模式下 reviewer 需要判断 peer 交接块是否对齐）。缺 UI 设计草稿 → `hf-ui-design`；缺已批准规格或阶段不清 → `hf-workflow-router`。
+前提条件：存在当前 UI 设计草稿、已批准规格、项目相关约定（若项目已声明）、设计阶段 当前草稿（parallel 模式下 reviewer 需要判断 peer 交接块是否对齐）。缺 UI 设计草稿 → UI 设计；缺已批准规格或阶段不清 → 上游编排者编排者。
 
 ## Chain Contract
 
-读取：已批准规格（默认 `features/<active>/spec.md`）、被评审 UI 设计文档（默认 `features/<active>/ui-design.md`）、`hf-design` 当前设计（默认 `features/<active>/design.md`，仅用于验证 peer 交接块一致性，不实际评审其内容）、项目级评审约定（若项目已声明）、feature `progress.md`（默认 `features/<active>/progress.md`）当前状态、最少必要前端上下文。
+读取：已批准规格（默认 `features/<active>/spec.md`）、被评审 UI 设计文档（默认 `features/<active>/ui-design.md`）、设计阶段 当前设计（默认 `features/<active>/design.md`，仅用于验证 peer 交接块一致性，不实际评审其内容）、项目级评审约定（若项目已声明）、feature `progress.md`（默认 `features/<active>/progress.md`）当前状态、最少必要前端上下文。
 
 产出：review 记录正文 + 结构化 reviewer 返回摘要。
 
@@ -49,10 +49,10 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 ## Hard Gates
 
 - UI 设计未通过评审前，不得单独进入 `设计真人确认`
-- `hf-design-review` 与本 skill 任一未过前，不得进入 `hf-tasks`
+- 设计评审 与本 skill 任一未过前，不得进入任务规划
 - 输入工件不足以判定 stage/route 时，不直接开始评审
 - reviewer 不代替父会话完成 approval step，不提前拆任务或写代码
-- reviewer 不跨权评审 `hf-design` 职责范围内的条目（架构、API、数据模型、后端 NFR）；发现 peer 不一致，通过 findings 标注而不是代位评审
+- reviewer 不跨权评审 设计阶段 职责范围内的条目（架构、API、数据模型、后端 NFR）；发现 peer 不一致，通过 findings 标注而不是代位评审
 
 ## Iron Laws
 
@@ -60,7 +60,7 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 2. **不得放过只有 happy path 的 UI** — 每个关键交互的 loading / empty / error 三态必须被识别，缺失 = 设计不完整
 3. **a11y 评估不可跳过** — 可访问性不是可选项；关键页面 WCAG 2.2 AA 关键项未达标 = 阻塞级问题
 4. **视觉决策必须走 token** — 硬编码色值/字号/间距是系统性缺陷，不是局部问题
-5. **peer 交接块不可含糊** — UI 设计与 `hf-design` 的跨界依赖必须显式写出；含糊表述不得通过
+5. **peer 交接块不可含糊** — UI 设计与 设计阶段 的跨界依赖必须显式写出；含糊表述不得通过
 6. **设计上下文缺失 = 阻塞** — 缺既有 Design System / 品牌 / 既有产品视觉语汇且未与用户确认时不得通过；从零起手必然落入 AI 默认审美
 7. **AI 默认审美 slop 视为系统性缺陷** — 紫色默认主色、Inter / Roboto 默认字体、左 4px 彩条 + 圆角卡片单一信息层级范式、千篇一律 dashboard 模板等命中 2 项及以上视为阻塞
 
@@ -68,7 +68,7 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 ### 1. 建立证据基线
 
-读取并固定证据来源：已批准规格（默认 `features/<active>/spec.md`）、当前 UI 设计文档（默认 `features/<active>/ui-design.md`）、`hf-design` 当前草稿（默认 `features/<active>/design.md`，用于 peer 交接块比对）、项目约定、feature `progress.md`（默认 `features/<active>/progress.md`）状态、必要前端上下文（项目已有 Design System、组件库、品牌规范等）。
+读取并固定证据来源：已批准规格（默认 `features/<active>/spec.md`）、当前 UI 设计文档（默认 `features/<active>/ui-design.md`）、设计阶段 当前草稿（默认 `features/<active>/design.md`，用于 peer 交接块比对）、项目约定、feature `progress.md`（默认 `features/<active>/progress.md`）状态、必要前端上下文（项目已有 Design System、组件库、品牌规范等）。
 
 不要只根据会话记忆或零散聊天内容判断"已批准"或"UI 设计已经讲清楚"。
 
@@ -79,13 +79,13 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 - 是否存在稳定可定位的 UI 设计草稿
 - 已批准规格是否可回读，且含 UI surface 声明（未声明则本节点本不应激活，属 route 问题）
 - route/stage/profile 与 approval evidence 是否一致
-- `hf-design` 草稿是否至少进入可供 peer 比对的状态（若 parallel 模式）
+- 设计阶段 草稿是否至少进入可供 peer 比对的状态（若 parallel 模式）
 
 分支：
 
-- route/stage/证据冲突 → 写最小 blocked precheck record，`reroute_via_router=true`
-- route 明确但缺稳定 UI 设计草稿 → 写最小 blocked record，下一步 `hf-ui-design`
-- 规格未声明 UI surface 却进入了本 review → 写 blocked record，`reroute_via_router=true`（说明是激活条件判定错误）
+- route/stage/证据冲突 → 写最小 blocked precheck record，`reroute_via_orchestrator=true`
+- route 明确但缺稳定 UI 设计草稿 → 写最小 blocked record，下一步 UI 设计
+- 规格未声明 UI surface 却进入了本 review → 写 blocked record，`reroute_via_orchestrator=true`（说明是激活条件判定错误）
 - precheck 通过 → 继续正式审查
 
 ### 2. 多维评分与挑战式审查
@@ -111,7 +111,7 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 - **通过**：可追溯规格、UI 决策清晰、IA/流/状态矩阵完整、token 合规、a11y 达标、peer 交接块显式、无阻塞任务规划的 UI 空洞
 - **需修改**：核心可用，局部缺口可通过一轮定向修订补齐
-- **阻塞**：无法支撑规格、存在无法追溯的关键新增 UI、peer 交接块与 `hf-design` 冲突不可协调、或证据链冲突
+- **阻塞**：无法支撑规格、存在无法追溯的关键新增 UI、peer 交接块与 设计阶段 冲突不可协调、或证据链冲突
 
 severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `important`（应修复）> `minor`（建议改进）。
 
@@ -121,10 +121,10 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 
 下一步映射：
 
-- `通过` → `设计真人确认`（`needs_human_confirmation=true`，等待与 `hf-design-review` 汇合）
-- `需修改` → `hf-ui-design`
-- `阻塞`（UI 设计内容） → `hf-ui-design`
-- `阻塞`（需求漂移/规格冲突/激活条件判定错误/peer 不可协调） → `hf-workflow-router`（`reroute_via_router=true`）
+- `通过` → `设计真人确认`（`needs_human_confirmation=true`，等待与 设计评审 汇合）
+- `需修改` → UI 设计
+- `阻塞`（UI 设计内容） → UI 设计
+- `阻塞`（需求漂移/规格冲突/激活条件判定错误/peer 不可协调） → 上游编排者编排者（`reroute_via_orchestrator=true`）
 
 ## Reference Guide
 
@@ -134,10 +134,10 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 |------|-----------|---------|
 | UI 评审检查清单 | `references/ui-review-checklist.md` | 执行 Step 2 多维审查时 |
 | UI 评审记录模板 | `references/ui-review-record-template.md` | 执行 Step 4 写评审记录时 |
-| a11y 检查清单（含最小尺寸表） | `../hf-ui-design/references/a11y-checklist.md` | 评审 U5 可访问性维度时（与 hf-ui-design 共用） |
-| 交互状态清单 | `../hf-ui-design/references/interaction-state-inventory.md` | 评审 U3 交互状态覆盖时（与 hf-ui-design 共用） |
-| 设计上下文获取 | `../hf-ui-design/references/design-context-acquisition.md` | 评审 U9 设计上下文存在性时 |
-| 反 AI slop 设计清单 | `../hf-ui-design/references/anti-slop-checklist.md` | 评审 U9 反 slop 合规与 AU11–AU16 anti-pattern 检测时 |
+| a11y 检查清单（含最小尺寸表） | `../UI 设计/references/a11y-checklist.md` | 评审 U5 可访问性维度时（与 UI 设计 共用） |
+| 交互状态清单 | `../UI 设计/references/interaction-state-inventory.md` | 评审 U3 交互状态覆盖时（与 UI 设计 共用） |
+| 设计上下文获取 | `../UI 设计/references/design-context-acquisition.md` | 评审 U9 设计上下文存在性时 |
+| 反 AI slop 设计清单 | `../UI 设计/references/anti-slop-checklist.md` | 评审 U9 反 slop 合规与 AU11–AU16 anti-pattern 检测时 |
 
 ## Red Flags
 
@@ -148,9 +148,9 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 - 接受"支持键盘"、"对比度达标"这类无证声明
 - 接受硬编码色值/字号/间距，以"实现时会走 token"为由放行
 - 忽略无法追溯到已批准规格的新增 UI surface
-- UI 设计评审刚"通过"就单独进入 `设计真人确认`（未等 `hf-design-review` 汇合）
+- UI 设计评审刚"通过"就单独进入 `设计真人确认`（未等 设计评审 汇合）
 - 文档长度长就认为 UI 设计充分
-- 跨权评审 `hf-design` 的架构/API 决策（应只 flag peer 不一致，不代位评审）
+- 跨权评审 设计阶段 的架构/API 决策（应只 flag peer 不一致，不代位评审）
 - 顺手把任务也列出来"更完整"（reviewer 是 gate，不是拆任务）
 - 缺设计上下文却以"反正实现时会调整"为由放行视觉语汇摘要 / 系统宣言缺失
 - 命中 AI 默认审美 slop（紫色默认 / Inter 默认 / 左 4px 彩条 / dashboard 模板）却以"看上去能用"为由放行
@@ -171,8 +171,8 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 - [ ] 评审记录已落盘
 - [ ] 给出明确结论、发现项、薄弱点和唯一下一步
 - [ ] findings 已标明 severity / classification / rule_id
-- [ ] precheck blocked 时已写明 workflow blocker 和 reroute_via_router
+- [ ] precheck blocked 时已写明 workflow blocker 和 reroute_via_orchestrator
 - [ ] 结构化返回已使用 `next_action_or_recommended_skill`
 - [ ] 若结论为 `通过`，已明确要求进入 `设计真人确认`（等待联合 approval）
-- [ ] 若发现 peer 交接块与 `hf-design` 不一致，已 flag 具体冲突点
+- [ ] 若发现 peer 交接块与 设计阶段 不一致，已 flag 具体冲突点
 - [ ] 若由 reviewer subagent 执行，已完成对父会话的结构化结果回传
