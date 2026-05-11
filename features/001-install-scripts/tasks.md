@@ -9,7 +9,7 @@
 
 ## 1. 概述
 
-本计划承接 design.md §18 给出的 T1–T10 拆分，把每个 task 写实成 INVEST-compliant 单元，每个 task 含 Acceptance / Files / Verify / 完成条件 / 测试设计种子，对齐 design §16 的 12 个 e2e scenario（6 矩阵 + 6 额外）。
+本计划承接 design.md §18 给出的 T1–T10 拆分（hf-tasks-review v2 后 T10 拆为 T10a + T10b，共 11 个 task），把每个 task 写实成 INVEST-compliant 单元，每个 task 含 Acceptance / Files / Verify / 完成条件 / 测试设计种子，对齐 design §16 的 12 个 e2e scenario（6 矩阵 + 6 额外）。
 
 每个 task 完成定义 = 对应 scenario PASS（或 design.md 中明示的更窄判定）。Walking Skeleton 路径 = T1 → T2 走通最薄端到端（opencode copy 单 scenario）。
 
@@ -82,7 +82,7 @@
   - 关键边界 1: 缺 `--target` → exit 1
   - 关键边界 2: `--verbose` 时输出行数 > 24（每个 hf-* skill 顶层至少一行）；不带 `--verbose` 时输出行数 < 10（FR-007 acceptance 直接验证）
   - fail-first 点: 第一个 RED test 是 scenario #8（dry-run 无副作用）
-- Verify: ad-hoc shell 命令（`bash install.sh --dry-run --target opencode --host /tmp/host` + `find /tmp/host`）；T10 落地的 `tests/test_install_scripts.sh --only=8` 跑通后切换为 driver 调用
+- Verify: ad-hoc shell 命令（`bash install.sh --dry-run --target opencode --host /tmp/host` + `find /tmp/host`）；T10a 落地的 `tests/test_install_scripts.sh --only=8` 跑通后切换为 driver 调用
 - 预期证据: 命令输出 + exit code
 - 完成条件: scenario #8 PASS + `--verbose` / 默认两态行数边界验证通过
 
@@ -100,7 +100,7 @@
   - 主行为: SKILL.md 数量 ≥ 24
   - 关键边界: 宿主已有 `.opencode/` → mark_will_create 跳过登记
   - fail-first 点: 用 readonly host 触发 cp 失败 → 验证 trap 触发（部分 NFR-002，完整覆盖在 T8）
-- Verify: `bash tests/test_install_scripts.sh --only=1`（driver 在 T10 才落地；本 task 先用 ad-hoc 命令验证 acceptance：`mktemp -d` + 跑 install + `find ... | wc -l ≥ 24`）
+- Verify: `bash tests/test_install_scripts.sh --only=1`（driver 在 T10a 才落地；本 task 先用 ad-hoc 命令验证 acceptance：`mktemp -d` + 跑 install + `find ... | wc -l ≥ 24`）
 - 完成条件: scenario #1 PASS
 
 ### T3. vendor_cursor (copy)
@@ -292,7 +292,7 @@ graph LR
 
 每个 task 的 DoD = 其 Acceptance 全部 PASS + 对应 scenario PASS（见 Verify 行的 `bash tests/test_install_scripts.sh --only=N`）。
 
-整体验证：T10 完成时 `bash tests/test_install_scripts.sh` 全 12 PASS + grep audit clean。
+整体验证：T10a 完成时 `bash tests/test_install_scripts.sh` 全 12 PASS + grep audit clean；T10b 完成时 doc-freshness gate 通过。
 
 ## 8. 当前活跃任务选择规则
 
@@ -326,5 +326,5 @@ Task Board Path: N/A（任务量小，本 tasks.md 直承）
 
 - **风险 1**：T8 rollback 测试需要模拟 cp 中途失败，跨平台模拟方法不一（macOS / Linux / alpine）。Mitigation：T8 测试用最简单的"父目录只读"触发 mkdir 失败（所有平台行为一致）；更深的 partial cp 失败留作 v0.6+ 加强测试。
 - **风险 2**：T9 的"删 .git 模拟非 git checkout"在测试时需要先 cp -R 整个 HF 仓库到 tmp（避免污染原 HF 仓库），耗时较长（HF skills 总 < 5MB，应 < 2s）。Mitigation：测试 driver 用 trap EXIT 清理 tmp。
-- **风险 3**：T10 docs 同步可能与 main branch 上其他正在进行的文档变更冲突。Mitigation：本 feature 的 doc 改动只针对 install 段，不动其他段；冲突由 git rebase 解决。
+- **风险 3**：T10b docs 同步可能与 main branch 上其他正在进行的文档变更冲突。Mitigation：本 feature 的 doc 改动只针对 install 段，不动其他段；冲突由 git rebase 解决。
 - **顺序刚性**：T1→T2 是 Walking Skeleton，必须先完成；T6 必须早于 T7（manifest 是 uninstall 唯一权威源）；T8 必须晚于 T7（rollback 闭合性需要在已有 vendor 路径基础上验证）。

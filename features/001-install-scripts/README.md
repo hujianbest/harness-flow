@@ -12,9 +12,9 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-tasks
-- Current Active Task:
-- Pending Reviews And Gates: hf-tasks-review
+- Current Stage: hf-test-driven-dev
+- Current Active Task: T1
+- Pending Reviews And Gates: hf-test-review + hf-code-review（每任务）
 - Closeout Type:
 
 ## Artifacts
@@ -27,7 +27,7 @@
 | UI Design（如适用） | `ui-design.md` | N/A（CLI-only，无 UI surface）|
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
-| Tasks | `tasks.md` | draft（待 hf-tasks-review）|
+| Tasks | `tasks.md` | approved（2026-05-11）|
 | Task Board（如适用） | `task-board.md` | N/A（任务量小，由 tasks.md 直承）|
 | Progress | `progress.md` | live |
 | Closeout | `closeout.md` | pending |
@@ -41,8 +41,8 @@
 | design-review | `reviews/design-review-2026-05-11.md` | 通过（Round 2）| 2026-05-11 |
 | ui-review（如适用） | N/A | N/A | N/A（CLI-only）|
 | design-approval | `approvals/design-approval-2026-05-11.md` | APPROVED | 2026-05-11 |
-| tasks-review | `reviews/tasks-review-2026-05-11.md` | | |
-| tasks-approval | `approvals/tasks-approval-2026-05-11.md` | | |
+| tasks-review | `reviews/tasks-review-2026-05-11.md` | 通过（Round 2）| 2026-05-11 |
+| tasks-approval | `approvals/tasks-approval-2026-05-11.md` | APPROVED | 2026-05-11 |
 | code-review（每任务） | `reviews/code-review-task-NNN.md` | | |
 | test-review（每任务） | `reviews/test-review-task-NNN.md` | | |
 | traceability-review | `reviews/traceability-review.md` | | |

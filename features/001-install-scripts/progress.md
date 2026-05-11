@@ -9,12 +9,12 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-tasks
+- Current Stage: hf-test-driven-dev
 - Workflow Profile: full
 - Execution Mode: auto
 - Current Active Feature: features/001-install-scripts/
-- Current Active Task:
-- Pending Reviews And Gates: hf-tasks-review
+- Current Active Task: T1（install.sh 骨架：参数解析 + dry-run + log/err/op）
+- Pending Reviews And Gates: hf-test-review + hf-code-review（每任务）
 - Relevant Files:
   - `docs/cursor-setup.md`（现有 Cursor 集成手册——脚本要替代其中"vendor by copying / symlink"段落的手工步骤）
   - `docs/opencode-setup.md`（现有 OpenCode 集成手册——同上）
@@ -56,7 +56,9 @@
     3) Minor #3-#7：定义 `log()` / `err()`；ADR-007 D5 readme 给 30 行 markdown 样例；编码约束加 `set -E` 说明；`mark_will_create` 跳过 pre-existing dir；test #10 grep 加 `awk '!/^[[:space:]]*#/'` 注释剥离
     派发 reviewer 复审
   - 2026-05-11 18:15Z: hf-design-review Round 2 verdict = `通过`（D1=8 / D2=8 / D3=9 / D4=9 / D5=8 / D6=9）；scenario #7 PASSable + #12 PASS；3 条 R2 minor LLM-FIXABLE 已 polish；auto mode 父会话写 `approvals/design-approval-2026-05-11.md`，ADR-007 状态翻 `accepted`；进入 `hf-tasks`
-  - 2026-05-11 18:30Z: hf-tasks 完成 tasks.md 起草——5 个 milestone / 10 个 task（T1..T10）/ 关键路径图 / 队列投影 / 选择规则；准备派发 hf-tasks-review reviewer subagent
+  - 2026-05-11 18:30Z: hf-tasks 完成 tasks.md 起草——5 个 milestone / 10 个 task（T1..T10）/ 关键路径图 / 队列投影 / 选择规则；派发 hf-tasks-review reviewer subagent
+  - 2026-05-11 18:50Z: hf-tasks-review v1 verdict = `需修改`（1 important + 3 minor）→ 定向回修（T2-T9 verify caveat、T1 verbose 行数边界、T7 uninstall dry-run、T10 拆分 T10a + T10b）→ Round 2 verdict = `通过`（TR1-TR6 全部 ≥ 8）；auto mode 写 `approvals/tasks-approval-2026-05-11.md`；进入 `hf-test-driven-dev`，Current Active Task = T1
+  - 2026-05-11 19:30Z: hf-test-driven-dev 完成 T1..T10a 实现（install.sh 332 行 / uninstall.sh 168 行 / tests/test_install_scripts.sh 286 行）；12/12 e2e scenario PASS；HF 既有 audit + 2 套 python test 全 OK；HYP-002 Blocking + NFR-002 双双通过；准备派发 hf-test-review + hf-code-review reviewer subagent；T10b（doc 同步）由 hf-doc-freshness-gate 节点统一处理
 - Open Risks:
   - vendoring 后宿主仓库 `.cursor/rules/harness-flow.mdc` 中对 `skills/` 路径的相对引用是否仍能解析（这是 ADR-006 D2 修过的同源问题，脚本必须显式处理）—— 已在 spec FR-008 与 NFR-001 covered
 
@@ -70,6 +72,6 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: hf-tasks
+- Next Action Or Recommended Skill: hf-test-driven-dev（Current Active Task = T1）
 - Blockers:
-- Notes: design approved，ADR-007 accepted；进入 tasks 节点（按 design.md §18 给出的 T1–T10 拆分）
+- Notes: tasks approved；按 §8 active task selection rule 选定 T1；进入 TDD（每任务 RED → GREEN → 派发 test-review + code-review subagent）

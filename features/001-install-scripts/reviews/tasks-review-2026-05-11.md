@@ -100,3 +100,56 @@
 - `hf-tasks` 节点接收本 review，按 important finding 1 + 3 条 minor finding 做定向回修；预计回修后 6 维评分 TR4 ≥ 8、TR1 ≥ 9、TR5 ≥ 9，可直接进入下一轮 tasks-review（应能 1 轮通过 → 任务真人确认 approval step）
 - 缺失/薄弱项段落给作者参考，不强制回修
 - 重审范围只看回修点；其余维度本轮已通过
+
+---
+
+## Round 2（2026-05-11）
+
+- Reviewer: 同 Round 1 独立 reviewer subagent
+- 重审范围: Round 1 1 important + 3 minor finding 的定向回修
+- 评审依据: `features/001-install-scripts/tasks.md` 修订版 + 不变的 spec/design/ADR-007 上游证据
+
+### 逐 finding 回修验证
+
+| Round 1 Finding | 回修锚点 | 验证结果 |
+|---|---|---|
+| **[important][TR4]** T2–T9 verify 引用尚未存在的 driver | T2 line 103、T3 line 119、T4 line 137、T5 line 154、T6 line 173、T7 line 193、T8 line 211、T9 line 228 均加上"（driver 未落地前 ad-hoc 验证…）"caveat；T6 / T8 / T9 / T2 还附 ad-hoc 命令样例（`mktemp -d` + find / cat manifest + grep / 父目录设只读 / cp HF 仓库到 tmp + rm -rf .git） | ✅ **已闭合**。Round 1 推荐的 fix A1 + 部分 A3（见 finding 4）均落地。hf-test-driven-dev 进入 T2–T9 时不会再撞 "no such file" |
+| **[minor][TR5]** FR-007 `--verbose` 行数 acceptance 未承接 | T1 测试设计种子新增"关键边界 2"显式验证 verbose > 24 / 默认 < 10；T1 完成条件新增"`--verbose` / 默认两态行数边界验证通过"；§4 trace 表 T1 行追加 `FR-007` | ✅ **已闭合**。FR-007 现在有显式 task acceptance 锚点。**轻量观察**：T1 的 install acceptance 只跑 `--dry-run`，但 design §11 的 `op()` 实现里 `DRY_RUN=1 OR VERBOSE=1` 都会触发逐行打印，所以"--verbose 行数 > 24" 的纯净对比需要 non-dry-run 模式；T1 skeleton 在 vendor_skills_opencode 未实现前 non-dry-run install 只会输出 1–2 行（仅 mkdir）。**不阻塞**：hf-test-driven-dev 在 T1 实现 plan_entries() 时若把"枚举所有 skills"包含进去，dry-run 下行数即可 > 24，与"verbose 是否开"对照可在 T2 完成后回测；写一行注释/说明即可，不影响通过 verdict |
+| **[minor][TR5]** FR-005 `uninstall.sh --dry-run` acceptance 未承接 | T7 acceptance 第 4 条新增 "When `bash uninstall.sh --host /tmp/host --dry-run`，Then 退出码 0；标准输出含每条 entry 的 `[RM]` / `[RMDIR]` 计划行；宿主仓库**实际不动**（manifest / readme / vendor 文件全部仍在）—— FR-005 uninstall 分支验证"；§4 trace T7 行追加 `FR-005（uninstall 分支）` | ✅ **已闭合**。FR-005 install + uninstall 双分支均有 task 锚点 |
+| **[minor][TR1]** T10 单 task 内打包 3 类工作 | T10 拆为 T10a（e2e driver + grep audit，priority 10）+ T10b（5 文件 doc sync，priority 11）；§2 milestones M4 / M5 重排；§4 trace 拆出 T10a / T10b 两行；§6 mermaid 依赖图新增 `T10a → T10b` 边；§9 queue projection 加 T10b 行 | ✅ **已闭合**。T10a / T10b 各自单职责；T10a 的 acceptance 三条（driver + grep + 12/12 PASS）聚合明确；T10b 五文件 doc sync 单一职责清晰 |
+
+### 新增/残留观察（**不**阻塞通过）
+
+- **[minor][TR2 文本一致性]** §1 line 12 仍写 "T1–T10 拆分"、§7 line 295 仍写 "T10 完成时"、§10 风险 3 仍写 "T10 docs 同步"、T1 Verify line 85 / T2 Verify line 103 caveat 内文写 "T10 落地" 与 "在 T10 才落地"——共 5 处残留旧引用未升级到 T10a / T10b。**不影响 router 重选或任何 acceptance 判定**（§9 queue projection 表与 §6 mermaid 是 router 的权威源，已正确升级）；纯属 Round 1 finding 4 拆分后的文本扫尾，归"作者参考的非阻塞细节"。建议在下一次 progress.md 同步前顺手扫一遍 `rg '\bT10\b' features/001-install-scripts/tasks.md` 把以上 5 处升级为 T10a / T10b（视上下文取其一）。
+- **[轻量观察][TR3]** T1 关键边界 2 verbose 行数与 dry-run 模式存在的轻度互斥已在上面 finding 2 行内说明，hf-test-driven-dev 自然能解；不是新 finding。
+
+### Round 2 维度评分增量
+
+| ID | Round 1 | Round 2 | 增量原因 |
+|---|---|---|---|
+| TR1 | 8 | 9 | T10 拆分消除"单 task 三职责"问题 |
+| TR2 | 9 | 9 | 不变（5 处文本残留属轻量、非合同字段） |
+| TR3 | 7 | 8 | T1 verbose 行数边界 + T7 uninstall dry-run acceptance 补强 |
+| TR4 | 6 | 9 | T2–T9 verify caveat 全量补齐，依赖图加 T10a→T10b 边 |
+| TR5 | 7 | 9 | FR-007 / FR-005（uninstall 分支）trace + acceptance 双补齐 |
+| TR6 | 9 | 9 | §9 queue projection 已扩到 T10b，selection rule 仍唯一 |
+
+无维度低于 8/10，亦无新 important / critical finding。
+
+### 结论（Round 2）
+
+**通过**
+
+理由：Round 1 全部 4 条 finding（1 important + 3 minor）在 tasks 层均已定向闭合；6 维评分全部 ≥ 8/10；未引入新 important 或 critical finding；§9 queue projection 与 §6 mermaid 这两个 router 重选的权威源已正确升级到 T10a / T10b 二阶段；§8 active task 选择规则唯一（首个 = T1，priority + 依赖完结二级排序）；12/12 e2e scenario × 全部 Must 级 FR/NFR/ASM 已被 task acceptance 覆盖；Walking Skeleton（M1 = T1+T2，scenario #1 + #8）路径稳定。tasks 计划具备进入"任务真人确认"approval step 的质量。
+
+5 处 "T10" 残留文本是非阻塞的扫尾事项，不影响 hf-workflow-router、hf-test-driven-dev、hf-completion-gate 任何下游决策；建议作者在下一次 progress.md / README.md live update 时顺带刷新。
+
+### 下一步
+
+- `任务真人确认`（needs_human_confirmation=true；reroute_via_router=false）
+
+### 交接说明（Round 2）
+
+- 通过 verdict 触发 approval step；interactive mode 等待真人确认，auto mode 写 approval record（`features/001-install-scripts/approvals/`）
+- 真人确认通过后 hf-workflow-router 会切换到 hf-test-driven-dev 节点，从 T1 开始
+- 5 处 T10 残留文本已记录在"新增/残留观察"段，作者按需顺手清理
