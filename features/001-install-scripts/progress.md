@@ -48,7 +48,13 @@
   - 2026-05-11 17:05Z: hf-spec-review v1 verdict = `需修改`（1 important + 6 minor）；记录在 `reviews/spec-review-2026-05-11.md`
   - 2026-05-11 17:10Z: hf-specify 定向回修——修正 NFR-004 与 NFR-003 阈值对齐、§6 列举 `--host`、§2 bash 兼容口径、FR-002 补 cursor symlink + both symlink acceptance、§3 trace 锚点修正、NFR-002 去 in-memory 实现细节、新增 ASM-001 处理非 git checkout 场景；派发 reviewer 复审
   - 2026-05-11 17:18Z: hf-spec-review Round 2 verdict = `通过`，无新 BLOCKER；auto mode 下父会话写 `approvals/spec-approval-2026-05-11.md`，进入 `hf-design`
-  - 2026-05-11 17:35Z: hf-design 完成 design.md 起草 + ADR-007（5 个 D）；DDD strategic / tactical / STRIDE 显式跳过并附跳过理由（CLI 单脚本无业务概念 / 无安全 NFR）；Event Storming 按 full profile 给 Timeline + Process Modeling；准备派发 hf-design-review reviewer subagent
+  - 2026-05-11 17:35Z: hf-design 完成 design.md 起草 + ADR-007（5 个 D）；DDD strategic / tactical / STRIDE 显式跳过并附跳过理由（CLI 单脚本无业务概念 / 无安全 NFR）；Event Storming 按 full profile 给 Timeline + Process Modeling；派发 hf-design-review reviewer subagent
+  - 2026-05-11 17:50Z: hf-design-review v1 verdict = `需修改`（2 important + 5 minor，全 LLM-FIXABLE）；记录在 `reviews/design-review-2026-05-11.md`
+  - 2026-05-11 18:00Z: hf-design 定向回修——
+    1) **Important #1 (manifest 颗粒度)**: §11 / §13 改 per-skill entries（约 25 条 dir entry），ADR-007 D2 Alternatives A2 rationale 同步说明"必须做 per-skill 颗粒度，否则与 A2 等价"
+    2) **Important #2 (rollback 闭合)**: 新增 `mark_will_create()` 在 `op` 之前预登记 INSTALLED + ENTRIES；rollback 中 dir 类用 `rm -rf` 而非 rmdir-only；编码约束改 `set -Eeuo pipefail`
+    3) Minor #3-#7：定义 `log()` / `err()`；ADR-007 D5 readme 给 30 行 markdown 样例；编码约束加 `set -E` 说明；`mark_will_create` 跳过 pre-existing dir；test #10 grep 加 `awk '!/^[[:space:]]*#/'` 注释剥离
+    准备派发 reviewer 复审
 - Open Risks:
   - vendoring 后宿主仓库 `.cursor/rules/harness-flow.mdc` 中对 `skills/` 路径的相对引用是否仍能解析（这是 ADR-006 D2 修过的同源问题，脚本必须显式处理）—— 已在 spec FR-008 与 NFR-001 covered
 

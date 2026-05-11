@@ -44,7 +44,7 @@ HF 当前 v0.5.1 已经官方支持 3 个客户端（Claude Code / OpenCode / Cu
 
 **Alternatives considered**：
 - A1: SQLite state store（参考 ECC v1.9.0 `scripts/state-store.js`）—— 拒绝：HF 体量显著小，单 feature install 工具不应引入 SQLite 依赖
-- A2: 不写 manifest，uninstall 直接 `rm -rf .opencode/skills .cursor/rules/harness-flow.mdc`—— 拒绝：会误删宿主仓库自己加的 skills（违反 FR-004 acceptance #1）
+- A2: 不写 manifest，uninstall 直接 `rm -rf .opencode/skills .cursor/rules/harness-flow.mdc`—— 拒绝：会误删宿主仓库自己加的 skills（违反 FR-004 acceptance #1）。本 ADR D2 选定的 manifest schema **必须**做到 per-skill 颗粒度（每个 hf-* / using-hf-workflow 在 entries[] 中作为单独 dir entry），uninstall 按 entries[] 列表逐 skill `rm -rf`，宿主自加 skill 不在列表中所以保留——若 schema 退化到只记 `dir:.opencode/skills` 单条粗粒度 entry，本 ADR 与 A2 等价（这是 hf-design-review 2026-05-11 important finding 1 的成因，已在 design.md §13 manifest 颗粒度段 + §11 `vendor_skills_*()` 落地修复）
 - A3: manifest 落到 `.harnessflow/` 子目录而非 dotfile—— 拒绝：dotfile 更接近 `.gitignore` / `.editorconfig` 约定，单文件更易 grep / 检查
 
 **Reversibility**：中（manifest schema 变更需要 migration；本 ADR 把 schema 锁在 `manifest_version: 1`，未来 schema 升级时新增 `manifest_version: 2` 并在 uninstall.sh 中支持 N 个版本同时读）
