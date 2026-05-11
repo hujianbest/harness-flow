@@ -6,16 +6,16 @@
 - Title: 为 HarnessFlow 增加 Cursor / OpenCode 安装脚本
 - Owner: cursor agent（按用户 2026-05-11 委托执行；参考 `affaan-m/everything-claude-code` 的 install/uninstall 拓扑）
 - Started: 2026-05-11
-- Closed:
+- Closed: 2026-05-11
 - Workflow Profile: full
 - Execution Mode: auto
 
 ## Status Snapshot
 
-- Current Stage: hf-test-driven-dev
-- Current Active Task: T1
-- Pending Reviews And Gates: hf-test-review + hf-code-review（每任务）
-- Closeout Type:
+- Current Stage: workflow-closeout
+- Current Active Task: 已清空（11 个 task 全部完成）
+- Pending Reviews And Gates: 无
+- Closeout Type: workflow-closeout
 
 ## Artifacts
 
@@ -30,7 +30,7 @@
 | Tasks | `tasks.md` | approved（2026-05-11）|
 | Task Board（如适用） | `task-board.md` | N/A（任务量小，由 tasks.md 直承）|
 | Progress | `progress.md` | live |
-| Closeout | `closeout.md` | pending |
+| Closeout | `closeout.md` | present（workflow-closeout，2026-05-11）+ `closeout.html` 视觉伴生 |
 
 ## Reviews & Approvals
 
@@ -43,16 +43,18 @@
 | design-approval | `approvals/design-approval-2026-05-11.md` | APPROVED | 2026-05-11 |
 | tasks-review | `reviews/tasks-review-2026-05-11.md` | 通过（Round 2）| 2026-05-11 |
 | tasks-approval | `approvals/tasks-approval-2026-05-11.md` | APPROVED | 2026-05-11 |
-| code-review（每任务） | `reviews/code-review-task-NNN.md` | | |
-| test-review（每任务） | `reviews/test-review-task-NNN.md` | | |
-| traceability-review | `reviews/traceability-review.md` | | |
+| code-review | `reviews/code-review-2026-05-11.md` | 通过 | 2026-05-11 |
+| test-review | `reviews/test-review-2026-05-11.md` | 通过（Round 2）| 2026-05-11 |
+| traceability-review | `reviews/traceability-review.md` | 通过（Round 2）| 2026-05-11 |
 
 ## Verification
 
 | 节点 | 记录路径 | 结论 | 日期 |
 |---|---|---|---|
-| regression | `verification/regression-2026-05-11.md` | | |
-| completion（每任务） | `verification/completion-task-NNN.md` | | |
+| regression | `verification/regression-2026-05-11.md` | PASS | 2026-05-11 |
+| doc-freshness | `verification/doc-freshness-2026-05-11.md` | pass | 2026-05-11 |
+| completion | `verification/completion-2026-05-11.md` | 通过 | 2026-05-11 |
+| e2e | `verification/e2e-install-2026-05-11.md` | 14/14 PASS | 2026-05-11 |
 
 ## Linked Long-Term Assets
 

@@ -9,12 +9,12 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-test-driven-dev
+- Current Stage: workflow-closeout
 - Workflow Profile: full
 - Execution Mode: auto
 - Current Active Feature: features/001-install-scripts/
-- Current Active Task: T1（install.sh 骨架：参数解析 + dry-run + log/err/op）
-- Pending Reviews And Gates: hf-test-review + hf-code-review（每任务）
+- Current Active Task: （已清空——11 个 task 全部完成）
+- Pending Reviews And Gates: 无
 - Relevant Files:
   - `docs/cursor-setup.md`（现有 Cursor 集成手册——脚本要替代其中"vendor by copying / symlink"段落的手工步骤）
   - `docs/opencode-setup.md`（现有 OpenCode 集成手册——同上）
@@ -61,6 +61,11 @@
   - 2026-05-11 19:30Z: hf-test-driven-dev 完成 T1..T10a 实现（install.sh / uninstall.sh / tests/test_install_scripts.sh）；12/12 e2e scenario PASS；HF 既有 audit + 2 套 python test 全 OK；HYP-002 Blocking + NFR-002 双双通过；派发 hf-test-review reviewer subagent
   - 2026-05-11 19:50Z: hf-test-review v1 verdict = `需修改`（5 important + 4 minor，false-positive 风险）→ 定向回修（新增 scenario #13 #14 + 强化 #1 #4 #8 #9 多条断言；修 manifest_has_path 用 grep -F）→ Round 2 verdict = `通过`（TT1-TT6 全部 ≥ 8）；14/14 PASS
   - 2026-05-11 20:05Z: hf-code-review v1 verdict = `通过`（CR1-CR7 全部 ≥ 8；M5 greenfield 不阻塞）；5 minor LLM-FIXABLE polish 中 M1-M4 已修（require_value 函数防止 flag 缺值 silent / glob 替换 ls / install --force --dry-run 不真实 uninstall / design §10 表述与 best-effort rmdir 行为对齐），M5 greenfield 跳过；14/14 PASS 复跑通过
+  - 2026-05-11 20:30Z: hf-traceability-review v1 verdict = `需修改`（important F1: T10b 5 doc 同步未执行）→ T10b 落地（cursor-setup / opencode-setup / README / README.zh-CN / CHANGELOG）→ Round 2 verdict = `通过`（TZ1-TZ6 全部 ≥ 8）
+  - 2026-05-11 20:45Z: hf-regression-gate verdict = PASS（5 项绿：本 feature e2e 14/14 + HF skill anatomy 0 failing + audit 单测 OK + finalize 渲染单测 OK + NFR-004 grep clean）
+  - 2026-05-11 20:50Z: hf-doc-freshness-gate verdict = `pass`（独立 reviewer subagent；5 文档同步完整；O1 line 20 已修；Conventional Commits docs(install) 已用）
+  - 2026-05-11 20:55Z: hf-completion-gate verdict = `通过`；workflow 进入 closeout
+  - 2026-05-11 21:00Z: hf-finalize 完成 closeout pack（`closeout.md` workflow-closeout）+ HTML companion 渲染（`closeout.html` 32KB）；ADR-007 状态翻 accepted（design-approval 阶段已完成）；workflow 正式关闭，Next Action = `null`
 - Open Risks:
   - vendoring 后宿主仓库 `.cursor/rules/harness-flow.mdc` 中对 `skills/` 路径的相对引用是否仍能解析（这是 ADR-006 D2 修过的同源问题，脚本必须显式处理）—— 已在 spec FR-008 与 NFR-001 covered
 
@@ -74,6 +79,6 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: hf-test-driven-dev（Current Active Task = T1）
+- Next Action Or Recommended Skill: null（workflow-closeout）
 - Blockers:
-- Notes: tasks approved；按 §8 active task selection rule 选定 T1；进入 TDD（每任务 RED → GREEN → 派发 test-review + code-review subagent）
+- Notes: workflow 正式关闭；PR #49 待项目维护者 review + merge；下一个 vX.Y.Z release 由 hf-release 在合适时机统一发布

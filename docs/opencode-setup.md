@@ -17,7 +17,7 @@ OpenCode's [`skill` tool](https://opencode.ai/docs/skills/) only loads `SKILL.md
 
 OpenCode walks up from the working directory to the git worktree root and loads any matching `*/SKILL.md` it finds along the way. **Putting a `skills/` folder at the repo root is not sufficient.**
 
-HarnessFlow stores its 23 self-contained skills under the top-level `skills/` directory (so vendor-by-copy works for any client). To make those skills discoverable to OpenCode without duplicating files, the repository ships a symlink:
+HarnessFlow stores its 25 self-contained skills (24 `hf-*` + `using-hf-workflow`) under the top-level `skills/` directory (so vendor-by-copy works for any client). To make those skills discoverable to OpenCode without duplicating files, the repository ships a symlink:
 
 ```text
 .opencode/skills -> ../skills

@@ -227,3 +227,105 @@ design §13 readme 段 + ADR-007 D4 Alternatives A3 明示推迟; install.sh 未
   ]
 }
 ```
+
+---
+
+## Round 2 (2026-05-11) — 复审
+
+- Reviewer: 同 Round 1 (independent subagent, author/reviewer separated)
+- 触发: 作者已就 Round 1 的 F1 (important) + F2 (minor) 做定向回修, F3 接受现状
+- 复审范围: 仅验证 Round 1 三条 finding 的回修证据 + 是否引入新 orphan / drift; 不重复 Round 1 已 ✅ 部分
+
+### 回修验证
+
+#### F1 (T10b 5 文档同步) — ✅ 已闭合
+
+| 文件 | 期望 | grep 实证 | 结论 |
+|---|---|---|---|
+| `docs/cursor-setup.md` | install.sh 推荐路径 + 手动 fallback 保留 + ADR-007 引用 | line 32 提及 install.sh + ADR-007; lines 36/39 install 命令; line 43 manifest + readme 描述; line 46 uninstall.sh; line 51 cursor rule path note | ✅ |
+| `docs/opencode-setup.md` | install.sh 推荐路径 + §2 stale "23 hf-*" → "24" + 手动 fallback 保留 | line 46 install.sh + ADR-007; lines 50/53 install 命令; line 57 manifest + readme; line 60 uninstall.sh; line 63 user-skill 保留行为说明 + ADR-007; line 100 (§2) "24 `hf-*` skills + `using-hf-workflow`"; lines 65-78 manual fallback 保留 | ✅ |
+| `README.md` | OpenCode + Cursor section 各给 install.sh 一条命令入口 | lines 240-250 OpenCode 段含 install.sh + uninstall.sh + 行为说明; lines 263-275 Cursor 段含 install.sh + uninstall.sh + `--target both` + 行为说明 | ✅ |
+| `README.zh-CN.md` | 同上中文同步 | lines 243-272 与 README.md 同步出现 install.sh / uninstall.sh / topology / target 完整入口 | ✅ |
+| `CHANGELOG.md` | `[Unreleased]` Added install.sh / uninstall.sh / ADR-007 / tests; Changed 5 doc 同步 | line 11 install.sh / uninstall.sh + ADR-007 5 个 D + 14/14 PASS 总结; line 12 tests/test_install_scripts.sh; line 13 ADR-007 accepted; line 17 cursor/opencode setup §1.B 替换 + opencode §1.A/§2 stale "23 个 hf-*" → "24"; line 18 README + README.zh-CN 入口同步 | ✅ |
+
+T10b 完成条件 (5 文档 diff + doc-freshness gate 准备就绪) 全部满足。spec §6 关键边界 + spec §3 Lagging Indicator 与 impl 链闭合。
+
+#### F2 (verification record R3 独立条目) — ✅ 已闭合
+
+`features/001-install-scripts/verification/e2e-install-2026-05-11.md` line 8 新增节: `## Round 3 (after hf-code-review M1-M4 polish + T10b doc sync)：14 scenarios — 14/14 PASS`; line 14 旁注 "最终一次 driver 复跑 (doc-freshness gate 之前): 14/14 PASS; HF 既有 `python3 scripts/audit-skill-anatomy.py` 同时跑通 (0 failing, 0 warning)"。R1/R2 历史保留, 无遮盖。实现-验证链 RED/GREEN 写回义务履行完整。
+
+#### F3 (design §10 micro-edit 留痕) — ✅ 接受现状, 无残留风险
+
+作者选择不追加 micro-edit 标注; reviewer 复读 design.md §10 line 216 ("等价于'不强删用户原有 dir, 但允许在干净场景下不留垃圾'") + progress.md 20:05Z 条目 ("design §10 表述与 best-effort rmdir 行为对齐") 即可单点定位决策与回写证据; 无 design drift, 无 ADR 翻案, 无 trace anchor 缺失影响下游评审。F3 在 R1 即标记为非阻塞 minor; R2 reviewer 接受作者决定。
+
+### 是否引入新 orphan / drift
+
+| 维度 | 检查 | 结论 |
+|---|---|---|
+| docs 新增内容 | 5 文档新增段落是否引入超出 spec/design/ADR 的承诺? | ❌ 否; 5 文档表述都局限于 install.sh / uninstall.sh / ADR-007 / manifest / per-skill uninstall 行为, 全部锚定到现有 spec FR/NFR 与 ADR-007 D1..D5 |
+| `CHANGELOG.md [Unreleased]` 描述 | 是否声称未实现的能力? | ❌ 否; 14/14 PASS / HYP-002 Blocking / NFR-002 rollback 闭合 / 5 ADR-D 全部有上游 review + verification 记录支持 |
+| README install.sh 段 | 是否新增超出 install.sh 实际支持的 flag? | ❌ 否; 仅 `--target {opencode\|cursor\|both}` × `--topology {copy\|symlink}` × `--host`, 全部与 install.sh CLI 契约一致 |
+| opencode-setup.md line 20 (`23 self-contained skills`) | 是否为 T10b 引入新 stale? | ❌ 不是 T10b 引入; 这条 stale 早于本 feature 存在 (是 v0.2.0 → v0.4.0 期间累积的 narrative drift; "23 self-contained" 与 "23 个 hf-*" 不同, T10b 仅承诺修后者), 本次 R2 reviewer 仅作 minor 观察项 (见下) |
+| 测试新增 | 是否新增脚本/scenario 未跟随 spec/design? | ❌ 否; 无新测试, 仅 verification record 追加 R3 节 |
+| install.sh / uninstall.sh | 是否被 docs 同步过程间接修改? | ❌ 否; 两脚本未变, code-review 通过的状态被保留 |
+
+### 残余 minor 观察 (非 finding, 非阻塞, 留给 doc-freshness gate / 未来增量)
+
+- **O1 [observation, doc-hygiene]** `docs/opencode-setup.md` line 20 仍写 "23 self-contained skills"。当前实际 = 24 hf-* + 1 using-hf-workflow = 25 self-contained (line 42 与 line 100 都已写 "24 hf-* + using-hf-workflow")。该 stale 文本不在 T10b acceptance 明列范围内 (T10b 只说 §2 verify "23 个 hf-*" → "24 个", 与 line 20 的 "23 self-contained" 不同 wording), 但属于 doc-freshness gate 后续可一并清理的 hygiene 项。不阻塞 traceability 通过。
+
+### 复审多维评分
+
+| ID | 维度 | R1 | R2 | 变化原因 |
+|---|---|---:|---:|---|
+| TZ1 | 规格 → 设计追溯 | 9/10 | 9/10 | 主轴未变 |
+| TZ2 | 设计 → 任务追溯 | 9/10 | 9/10 | 主轴未变 |
+| TZ3 | 任务 → 实现追溯 | 5/10 | **9/10** | T10b 5 文档全落地, 任务-实现链闭合 |
+| TZ4 | 实现 → 验证追溯 | 9/10 | 9/10 | R3 节追加, 但主轴 14/14 已在 R2 闭合 |
+| TZ5 | 漂移与回写义务 | 6/10 | **9/10** | 5 文档回写 + verification R3 + (F3 接受现状有充分单点定位)，仅余 O1 doc-hygiene 观察 |
+| TZ6 | 整体链路闭合 | 6/10 | **9/10** | 主轴 + doc 替换支链均闭合, 可安全进入 hf-regression-gate / hf-doc-freshness-gate |
+
+无任何关键维度 < 6/10; 全部 ≥ 8/10。
+
+### 最终链接矩阵 (R2 后)
+
+主轴 (FR-001..FR-008 / NFR-001..NFR-004 / ASM-001 / HYP-001..HYP-004 / ADR-007 D1..D5) 与 R1 一致, 全部 ✅ 闭合 (此处不重复 14 行表格, 见 R1 节)。
+
+R1 失闭合的支链 R2 后状态:
+
+| 链路 | R1 | R2 |
+|---|---|---|
+| spec §6 + spec §3 Lagging Indicator → design §18 步骤 10 → tasks T10b → impl (5 文档) → verification (doc-freshness gate-ready) | ❌ impl 缺 | ✅ 5 文档 grep 命中 + CHANGELOG `[Unreleased]` 完整 + R3 verification 已记录 |
+| code-review polish (M1-M4) → impl (已落) → verification (R3 独立条目) | ⚠️ R3 节缺 | ✅ verification line 8 R3 节已加 |
+| code-review M1 → design §10 line 216 micro-edit | ⚠️ 痕迹分散 | ✅ 接受现状; design + progress 双锚足以单点定位 |
+
+### 结论 (R2)
+
+**通过** → `next_action_or_recommended_skill = hf-regression-gate`
+
+理由:
+1. R1 唯一 important finding F1 (T10b 5 文档同步) 已完整闭合, 5 文档 + CHANGELOG 全部按 acceptance 落地, 与 install.sh / uninstall.sh / ADR-007 / manifest 行为完全自洽。
+2. R1 minor F2 (verification R3) 已落; F3 (design micro-edit 留痕) 接受现状, 单点定位证据充分。
+3. 主轴 trace 矩阵稳定: spec FR/NFR/ASM/HYP + ADR-007 D1..D5 全部 spec→design→tasks→impl→tests→verification 闭合; HYP-002 Blocking 通过 scenario #7 直接证据满足; DEF-001..DEF-007 全部确认未实现 (无 scope creep)。
+4. R2 doc 同步未引入新 orphan / drift; CHANGELOG `[Unreleased]` 描述与 install.sh 实际能力一致, 无 over-claim; 5 docs 表述与 spec/design/ADR 一致。
+5. 残余 O1 (opencode-setup.md line 20 "23 self-contained skills") 为 pre-existing doc-hygiene 观察项, 不在 T10b 范围内, 留给 hf-doc-freshness-gate 或未来 release-pack 一并清理。
+
+下一步: 进入 `hf-regression-gate`, 验证 install/uninstall + HF 既有 audit + python tests 三方无回归; 之后 `hf-doc-freshness-gate` (期间可顺手吸收 O1) → `hf-completion-gate` → `hf-finalize`。
+
+### R2 结构化返回 JSON
+
+```json
+{
+  "conclusion": "通过",
+  "next_action_or_recommended_skill": "hf-regression-gate",
+  "record_path": "features/001-install-scripts/reviews/traceability-review.md",
+  "key_findings": [
+    "R1 important finding F1 (T10b 5 文档同步) 已完整闭合: docs/cursor-setup.md / docs/opencode-setup.md / README.md / README.zh-CN.md / CHANGELOG.md 5 文件 grep install.sh / harnessflow-install-manifest / ADR-007 全部命中, install.sh CLI 描述与脚本实际契约一致",
+    "R1 minor F2 (verification R3 独立条目) 已落: verification/e2e-install-2026-05-11.md line 8 新增 'Round 3 (after hf-code-review M1-M4 polish + T10b doc sync)：14 scenarios — 14/14 PASS' + 旁注 audit 0 failing 0 warning",
+    "R1 minor F3 (design §10 micro-edit 留痕) 接受现状: design §10 line 216 表述 + progress.md 20:05Z 条目双锚已足以单点定位, 不阻塞",
+    "主轴 trace 在 R2 后稳定闭合 (TZ1..TZ6 全部 ≥ 8/10), 可安全进入 hf-regression-gate; 残余 O1 (opencode-setup.md line 20 '23 self-contained skills') 为 pre-existing doc-hygiene 项, 不在 T10b 范围内, 留给 hf-doc-freshness-gate 处理"
+  ],
+  "needs_human_confirmation": false,
+  "reroute_via_router": false,
+  "finding_breakdown": []
+}
+```
