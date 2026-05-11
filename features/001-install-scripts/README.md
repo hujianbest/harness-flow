@@ -12,18 +12,18 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-specify
+- Current Stage: hf-design
 - Current Active Task:
-- Pending Reviews And Gates: hf-spec-review
+- Pending Reviews And Gates: hf-design-review
 - Closeout Type:
 
 ## Artifacts
 
 | 工件 | 路径 | 状态 |
 |---|---|---|
-| Spec | `spec.md` | draft（待 hf-spec-review）|
+| Spec | `spec.md` | approved（2026-05-11）|
 | Spec Deferred Backlog | `spec-deferred.md` | present |
-| Design | `design.md` | pending |
+| Design | `design.md` | draft（待 hf-design-review）|
 | UI Design（如适用） | `ui-design.md` | N/A（CLI-only，无 UI surface）|
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
@@ -36,8 +36,8 @@
 
 | 节点 | 记录路径 | 结论 | 日期 |
 |---|---|---|---|
-| spec-review | `reviews/spec-review-2026-05-11.md` | | |
-| spec-approval | `approvals/spec-approval-2026-05-11.md` | | |
+| spec-review | `reviews/spec-review-2026-05-11.md` | 通过（Round 2）| 2026-05-11 |
+| spec-approval | `approvals/spec-approval-2026-05-11.md` | APPROVED | 2026-05-11 |
 | design-review | `reviews/design-review-2026-05-11.md` | | |
 | design-approval | `approvals/design-approval-2026-05-11.md` | | |
 | tasks-review | `reviews/tasks-review-2026-05-11.md` | | |
@@ -55,7 +55,7 @@
 
 ## Linked Long-Term Assets
 
-- ADRs: ADR-007（待起草——install scripts 表面与 vendoring 拓扑决策）
+- ADRs: `docs/decisions/ADR-007-install-scripts-topology-and-manifest.md`（proposed）
 - arc42 sections affected: N/A（HF 仓库未启用 arc42）
 - Runbooks updated/created: N/A
 - SLO updated: N/A

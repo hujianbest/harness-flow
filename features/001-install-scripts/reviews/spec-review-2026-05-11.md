@@ -107,7 +107,80 @@ INVEST 抽样（FR-001 / FR-003 / NFR-002 / NFR-004）：
 - 所有 finding 归属 `LLM-FIXABLE`（5 条）+ `USER-INPUT`（1 条，FR-003 `hf_commit` 退化策略需要业务裁决）
 - LLM-FIXABLE finding 不需要让用户回答；USER-INPUT 只有 1 条且粒度小（`hf_commit` 在非 git 环境下：报错 vs 写 `unknown` vs 写 `CHANGELOG` 版本号），父会话可一次性向用户问询
 
-## 结构化返回（供父会话使用）
+---
+
+## Round 2 — 复审（2026-05-11，同日）
+
+- 触发：父会话报告 author 已对 7 条 finding 做了定向回修
+- 复审范围：仅检查 Round 1 7 条 finding 是否在 spec 层面真实落实，并判断回修是否引入新 BLOCKER/MAJOR
+
+### 逐条验证
+
+| Finding | Severity | Status | 落地位置 | 验证结论 |
+|---|---|---|---|---|
+| #1 NFR-004 阈值矛盾 | important | ✅ Fixed | spec.md §9 NFR-004 Response Measure + Acceptance（line 233 / 235-238） | Response Measure 改为 "Linux bash 4.x/5.x 全部 6/6 PASS（与 NFR-003 共享矩阵）；macOS bash 3.2 同样 6/6 PASS（不允许 SKIP）"；Acceptance 拆为 3 条（Linux 6/6 / macOS 6/6 / grep 静态校验）。与 NFR-003 不再矛盾，且对 portability 真实形成硬门槛。Acceptance 第 2 条加入"若发现某 scenario 在 bash 3.2 无法成立，必须回 hf-specify 显式列出 SKIP 与理由"逃逸阀，处理得当。 |
+| #2 §6 缺 `--host` flag | minor | ✅ Fixed | spec.md §6（line 69-70） | install.sh CLI 列举补 `--host <path>`，并显式标注 "省略时默认 cwd `.`"；uninstall.sh 行同样补 `--host`。与 11 处 FR/NFR Acceptance 一致。 |
+| #3 §2 vs NFR-004 bash 口径 | minor | ✅ Fixed | spec.md §2（line 27） | §2 改为 "bash 3.2+ 兼容（覆盖 macOS 默认 bash），主测 bash 4/5（Linux）+ POSIX coreutils...具体兼容口径见 NFR-004"。指针清晰，与 NFR-004 与 §10 接口表三处口径一致。 |
+| #4 FR-002 cursor symlink | minor | ✅ Fixed | spec.md §8 FR-002（line 112 / 116-117） | 需求陈述补一句 "3 target × 2 topology = 6 个组合都必须满足本 FR；cursor / both target 在 symlink topology 下的语义继承自 opencode 同 topology（即 `.cursor/harness-flow-skills` 与 `.cursor/rules/harness-flow.mdc` 均为 symlink），详见 NFR-003 6 组合矩阵"；Acceptance 加 cursor×symlink 与 both×symlink 两条。覆盖完整。 |
+| #5 §3 trace 锚点 | minor | ✅ Fixed | spec.md §3 Leading Indicator 1（line 34） | 改为可执行口径 `find <vendored> -mindepth 2 -maxdepth 2 -name SKILL.md` 输出条数 ≥ 24，并显式注记 "opencode-setup.md §2 的 stale '23 个' 文本由本 feature 的 doc-freshness gate 一并修正"。把追溯责任从 spec 转给 doc-freshness gate，处理得当——这正是 doc-freshness gate 的职责面。 |
+| #6 NFR-002 in-memory 设计泄漏 | minor | ✅ Fixed | spec.md §9 NFR-002 Response（line 200） | 改为 "反向回滚本次 install 的 entries 集合（具体回滚机制——in-memory tracking 还是 staging manifest——由 design 决定）"。语义不变但实现选择回到 design 节点。 |
+| #7 FR-003 hf_commit 非 git 降级 | minor (USER-INPUT) | ✅ Fixed | spec.md §12 新增子段 "运行环境假设（FR-003 衍生）" + ASM-001（line 265-267）；FR-003 陈述 + Acceptance（line 123 / 127） | 新增 ASM-001 显式锁定 "默认 git checkout / 非 git 时 hf_commit = `unknown-non-git-checkout`，hf_version 从 CHANGELOG 顶部 `## [X.Y.Z]` 解析作为补偿锚点"；FR-003 manifest 字段名同步调整为 `manifest_version` / `installed_at` / `hf_commit` / `hf_version` / `target` / `topology` / `entries[]`，并新增 1 条非 git 场景 acceptance。author 在 cloud agent 模式下自主裁决该 USER-INPUT 是合理的——降级策略只影响 manifest 元数据完整性，不改变核心 install/uninstall 行为。 |
+
+### 回修是否引入新问题
+
+逐条检查回修可能引入的新矛盾：
+
+- **HYP-001 statement 仍写 "bash 4+ + POSIX coreutils"**（line 45）：与 §2 / NFR-004 的 "bash 3.2+ 兼容" 字面不一致。但 HYP-001 是技术可行性假设（"shell 层是否足够表达"），bash 4 还是 3.2 都不影响该假设的真假；§12 + NFR-004 已把版本范围说清，HYP-001 原文不更新可接受。**不计入新 finding**（属于无害遗留 wording）。
+- **NFR-001 QAS Environment 仍写 "机器有 bash 4+ 与 POSIX coreutils"**（line 183）：NFR-001 描述的是 "单条命令完成" 的典型 happy path scenario，bash 4+ 是常见环境的默认；macOS bash 3.2 已由 NFR-004 单独形成硬门槛。两条 NFR 描述不同环境，不构成矛盾。**不计入新 finding**。
+- **§2 总体成功标准仍引用 "docs/opencode-setup.md §2 的'列出 24 个 hf-\*'"**（line 25）：§3 Leading Indicator 1 的 fix（#5）已在同一面注记 "opencode-setup §2 残留 v0.2.0 的'23 个' stale 表述，由本 feature 的 doc-freshness gate 一并修正"，§2 的 anchor 在 doc-freshness gate 跑过之后会自动对齐。**不计入新 finding**（已被 #5 fix 涵盖）。
+- **FR-008 Acceptance 仍用 `find <vendored> -name SKILL.md | wc -l ≥ 24`**（不带 `-mindepth/-maxdepth`，line 170）：与 §3 Leading Indicator 1 的严格版略有口径差。但 HF skill 内部并无嵌套 SKILL.md（24 个 hf-* + using-hf-workflow 都是顶层 1 个 SKILL.md），实际计数等价。**不计入新 finding**（无功能影响）。
+- **ASM-001 提到 "顶部最新 `## [X.Y.Z]`"**（line 267）：CHANGELOG.md 实际顶部是 `## [Unreleased]` 段，再下面才是 `## [0.5.1]`。"顶部最新 `## [X.Y.Z]`" 字面是否包含 `Unreleased` 略有歧义。但 ASM-001 同段已说明 "具体降级实现由 design 落到 FR-003 manifest schema"——design 节点会处理 `[Unreleased]` 的解析约定（典型做法是跳过 `[Unreleased]` 取首个 SemVer 节）。**不计入新 BLOCKER/MAJOR**（design-resolvable，不阻塞 spec approval）。
+
+### 新增问题
+
+无新 BLOCKER / MAJOR / important finding。
+
+### 更新后 verdict
+
+**通过**
+
+理由：Round 1 提出的 1 important + 5 minor LLM-FIXABLE + 1 minor USER-INPUT 共 7 条 finding 全部在 spec 层面落实；NFR-004 与 NFR-003 阈值矛盾彻底消除，FR-002 6 组合矩阵在 FR 层 acceptance 完整；FR-003 在 ASM-001 兜底下对 git / 非 git 两个场景都形成可验证 acceptance。回修过程中残留的 wording staleness（HYP-001 / NFR-001 Environment / §2 anchor）均为无害遗留或已被 #5 fix 涵盖，不影响 spec 作为 hf-design 稳定输入的能力。
+
+下一节点：`规格真人确认`（auto 模式下父会话写 approval record）→ `hf-design`。
+
+### Round 2 结构化返回（供父会话使用）
+
+```json
+{
+  "round": 2,
+  "conclusion": "通过",
+  "next_action_or_recommended_skill": "规格真人确认",
+  "record_path": "features/001-install-scripts/reviews/spec-review-2026-05-11.md",
+  "needs_human_confirmation": true,
+  "reroute_via_router": false,
+  "round1_findings_resolution": [
+    {"id": "R1-#1", "severity": "important", "status": "Fixed", "anchor": "spec.md §9 NFR-004"},
+    {"id": "R1-#2", "severity": "minor", "status": "Fixed", "anchor": "spec.md §6"},
+    {"id": "R1-#3", "severity": "minor", "status": "Fixed", "anchor": "spec.md §2"},
+    {"id": "R1-#4", "severity": "minor", "status": "Fixed", "anchor": "spec.md §8 FR-002"},
+    {"id": "R1-#5", "severity": "minor", "status": "Fixed", "anchor": "spec.md §3 Leading Indicator 1"},
+    {"id": "R1-#6", "severity": "minor", "status": "Fixed", "anchor": "spec.md §9 NFR-002 Response"},
+    {"id": "R1-#7", "severity": "minor (USER-INPUT)", "status": "Fixed (author 在 cloud agent 模式下自主裁决降级策略，已显式入档 ASM-001)", "anchor": "spec.md §12 ASM-001 + §8 FR-003"}
+  ],
+  "new_findings_introduced": [],
+  "harmless_residual_wording_noted_but_not_findings": [
+    "HYP-001 statement 仍写 'bash 4+'（不影响假设真假，§12+NFR-004 已说清）",
+    "NFR-001 QAS Environment 仍写 'bash 4+'（描述的是不同 happy-path scenario，不构成矛盾）",
+    "§2 总体成功标准 anchor 仍引 'opencode-setup §2 的 24 个'（已被 #5 fix 的 doc-freshness gate 注记涵盖）",
+    "FR-008 Acceptance 用宽口径 `find ... -name SKILL.md`（实际计数与 §3 严格版等价）",
+    "ASM-001 '顶部最新 [X.Y.Z]' 是否跳过 [Unreleased] 由 design 解析（已显式标 design 决定）"
+  ],
+  "verdict_rationale": "7/7 finding 在 spec 层落实；NFR-003 vs NFR-004 矛盾消除；FR-002 6 组合 acceptance 完整；FR-003 在 ASM-001 兜底下 git / 非 git 两场景均可验证；回修无新 BLOCKER/MAJOR/important 问题。spec 已具备 hf-design 稳定输入条件。",
+  "next_step_for_parent": "auto 模式下父会话写 approval record（features/001-install-scripts/approvals/spec-approved-YYYY-MM-DD.md），同步 progress.md Current Stage = 规格真人确认 → 完成后 = hf-design，Pending Reviews 清掉 hf-spec-review。reviewer subagent 不代替父会话写入 approval。"
+}
+```
+
+## 结构化返回（Round 1 — 供父会话使用，已被 Round 2 取代）
 
 ```json
 {
