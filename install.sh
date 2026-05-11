@@ -277,7 +277,9 @@ vendor_skills_opencode() {
 vendor_cursor() {
     mark_will_create dir "$HOST/.cursor" ""
     op MKDIR "$HOST/.cursor"
-    mark_will_create dir "$HOST/.cursor/rules" ""
+    # .cursor/rules is registered as a parent_dir entry in the manifest so
+    # uninstall can rmdir-only it (preserving any user-added rules under it).
+    mark_will_create dir "$HOST/.cursor/rules" ".cursor/rules"
     op MKDIR "$HOST/.cursor/rules"
 
     local skills_abs="$HOST/.cursor/harness-flow-skills"
