@@ -37,7 +37,9 @@
   - features/001-install-scripts/spec-deferred.md
 - Session Log:
   - 2026-05-11 16:50Z: hf-workflow-router 路由到 hf-specify（full profile / auto / in-place），创建 feature 目录
-  - 2026-05-11 16:55Z: hf-specify 完成 spec.md 起草，准备派发独立 reviewer subagent 执行 hf-spec-review
+  - 2026-05-11 16:55Z: hf-specify 完成 spec.md 起草，派发独立 reviewer subagent 执行 hf-spec-review
+  - 2026-05-11 17:05Z: hf-spec-review v1 verdict = `需修改`（1 important + 6 minor）；记录在 `reviews/spec-review-2026-05-11.md`
+  - 2026-05-11 17:10Z: hf-specify 定向回修——修正 NFR-004 与 NFR-003 阈值对齐、§6 列举 `--host`、§2 bash 兼容口径、FR-002 补 cursor symlink + both symlink acceptance、§3 trace 锚点修正、NFR-002 去 in-memory 实现细节、新增 ASM-001 处理非 git checkout 场景；准备派发 reviewer 复审
 - Open Risks:
   - vendoring 后宿主仓库 `.cursor/rules/harness-flow.mdc` 中对 `skills/` 路径的相对引用是否仍能解析（这是 ADR-006 D2 修过的同源问题，脚本必须显式处理）—— 已在 spec FR-008 与 NFR-001 covered
 
