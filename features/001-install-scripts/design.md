@@ -29,13 +29,13 @@
 | 需求 ID | Statement 摘要 | 设计承接位置 |
 |---|---|---|
 | FR-001 | install.sh `--target` | §11 install.sh `cmd_install()` + §13 CLI 契约 |
-| FR-002 | copy / symlink topology | §11 `vendor_skills()` + `vendor_cursor_rule()` 的 topology 分支 |
+| FR-002 | copy / symlink topology | §11 `vendor_skills_opencode()` + `vendor_cursor()` 的 topology 分支 |
 | FR-003 | manifest 写入 + schema | §11 `write_manifest()` + §13 manifest schema |
 | FR-004 | uninstall.sh | §11 `cmd_uninstall()` + §13 manifest 读取流程 |
 | FR-005 | `--dry-run` | §11 `DRY_RUN` 全局变量 + §12 `op()` 抽象 |
 | FR-006 | `--force` 重复 install 处理 | §11 `cmd_install()` 入口 manifest 探测 |
 | FR-007 | `--verbose` | §11 `VERBOSE` 全局 + `log()` 函数 |
-| FR-008 | 4 类子目录搬运 | §11 `vendor_skills()` 直接 `cp -R skills/` 整树（自然包含 `scripts/`）+ §16 e2e 测试用例 #6 |
+| FR-008 | 4 类子目录搬运 | §11 `vendor_skills_opencode()` / `vendor_cursor()` 中 `op CP "$HF_REPO/skills/$name" ...` 整 skill 子树 cp（自然包含 `scripts/`）+ §16 e2e 测试用例 #6 |
 | NFR-001 | Installability QAS | §10 C4 Container view + §11 主流程 + §16 e2e 测试 |
 | NFR-002 | 失败回滚 | §11 `trap rollback ERR INT TERM` + §17 失败模式表 |
 | NFR-003 | 6 组合 e2e | §16 测试矩阵 |
@@ -195,9 +195,29 @@ uninstall.sh
 ├── parse_args()
 ├── load_manifest()          [grep + sed 提取 entries[]，FR-004]
 ├── plan_removal()           [构建 REMOVAL 计划]
-├── apply_removal()          [反向 rm；遇空目录回收]
+├── apply_removal()          [反向 rm；leaf 用 rm -rf, parent dir 用 rmdir-only]
 └── log() / op() / err()
 ```
+
+**`apply_removal()` parent vs leaf 区分（R2-#1 / R2-#2 clarification）**：
+
+manifest entries 中存在两类 dir entry：
+
+- **leaf vendor dir**：HF 实际 vendor 进来的 skill 子目录，例如 `dir:.opencode/skills/hf-finalize` —— uninstall 用 `rm -rf` 删除（这是 HF 装进来的内容，必须清掉）
+- **parent dir**：HF 为了放置 vendor 内容而创建的父目录，例如 `dir:.opencode/skills`、`dir:.opencode` —— uninstall 用 `rmdir 2>/dev/null || true`（only-if-empty）；只有当宿主仓库没有自己加的内容时才会被回收
+
+判定规则：在 manifest 写入时（§11 `vendor_skills_opencode()` / `vendor_cursor()`），通过 `mark_will_create` 的第 3 个参数 `<host-relative-path>` 区分——
+
+- 第 3 个参数为空 → 仅进 INSTALLED（rollback 用），**不**进 ENTRIES（manifest），uninstall 时不会读到这条
+- 第 3 个参数非空 → 同时进 INSTALLED + ENTRIES
+
+实际使用：
+
+- `mark_will_create dir "$HOST/.opencode" ""` → `.opencode` 父 dir 不进 manifest，uninstall 后**保留**该 dir（这是 design 的有意决策——避免在 uninstall 时与宿主用户的 `.opencode` 自身的 git tracking 状态产生意外耦合；用户后续可手动 `rmdir` 或留作占位）
+- `mark_will_create dir "$skills_root_abs" "$skills_root_rel"` → `.opencode/skills` 进 manifest 作为 parent dir，uninstall `rmdir-only`（用户后加 skill 时非空，自然保留）
+- `mark_will_create dir "$skill_abs" "$skill_rel"` → 每个 hf-* skill 进 manifest 作为 leaf dir，uninstall `rm -rf`
+
+`apply_removal()` 用以下规则分流：path 是 manifest entries 中**第一个出现的 vendor 父 dir**（即 `.opencode/skills` / `.cursor/harness-flow-skills` / `.cursor/rules`）→ rmdir-only；其余 dir → rm -rf。这个判定可以用一个 hardcoded `PARENT_DIRS` 列表实现（共 3 个固定字符串），不引入复杂解析。
 
 ## 11. 模块职责与边界
 

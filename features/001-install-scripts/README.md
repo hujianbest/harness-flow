@@ -12,9 +12,9 @@
 
 ## Status Snapshot
 
-- Current Stage: hf-design
+- Current Stage: hf-tasks
 - Current Active Task:
-- Pending Reviews And Gates: hf-design-review
+- Pending Reviews And Gates: hf-tasks-review
 - Closeout Type:
 
 ## Artifacts
@@ -23,11 +23,11 @@
 |---|---|---|
 | Spec | `spec.md` | approved（2026-05-11）|
 | Spec Deferred Backlog | `spec-deferred.md` | present |
-| Design | `design.md` | draft（待 hf-design-review）|
+| Design | `design.md` | approved（2026-05-11）|
 | UI Design（如适用） | `ui-design.md` | N/A（CLI-only，无 UI surface）|
 | Data Model（如分文件） | `data-model.md` | N/A |
 | API Contracts（草稿） | `contracts/` | N/A |
-| Tasks | `tasks.md` | pending |
+| Tasks | `tasks.md` | draft（待 hf-tasks-review）|
 | Task Board（如适用） | `task-board.md` | N/A（任务量小，由 tasks.md 直承）|
 | Progress | `progress.md` | live |
 | Closeout | `closeout.md` | pending |
@@ -38,8 +38,9 @@
 |---|---|---|---|
 | spec-review | `reviews/spec-review-2026-05-11.md` | 通过（Round 2）| 2026-05-11 |
 | spec-approval | `approvals/spec-approval-2026-05-11.md` | APPROVED | 2026-05-11 |
-| design-review | `reviews/design-review-2026-05-11.md` | | |
-| design-approval | `approvals/design-approval-2026-05-11.md` | | |
+| design-review | `reviews/design-review-2026-05-11.md` | 通过（Round 2）| 2026-05-11 |
+| ui-review（如适用） | N/A | N/A | N/A（CLI-only）|
+| design-approval | `approvals/design-approval-2026-05-11.md` | APPROVED | 2026-05-11 |
 | tasks-review | `reviews/tasks-review-2026-05-11.md` | | |
 | tasks-approval | `approvals/tasks-approval-2026-05-11.md` | | |
 | code-review（每任务） | `reviews/code-review-task-NNN.md` | | |

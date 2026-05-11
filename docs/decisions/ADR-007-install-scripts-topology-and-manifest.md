@@ -1,6 +1,6 @@
 # ADR-007 — Install Scripts: Topology & Manifest
 
-- 状态: proposed
+- 状态: accepted（2026-05-11，design-review Round 2 verdict 通过 + 父会话 auto mode 写入 design approval）
 - 日期: 2026-05-11
 - Feature: `features/001-install-scripts/`
 - Spec: `features/001-install-scripts/spec.md`

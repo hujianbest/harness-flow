@@ -9,12 +9,12 @@
 
 ## Current Workflow State
 
-- Current Stage: hf-design
+- Current Stage: hf-tasks
 - Workflow Profile: full
 - Execution Mode: auto
 - Current Active Feature: features/001-install-scripts/
 - Current Active Task:
-- Pending Reviews And Gates: hf-design-review
+- Pending Reviews And Gates: hf-tasks-review
 - Relevant Files:
   - `docs/cursor-setup.md`（现有 Cursor 集成手册——脚本要替代其中"vendor by copying / symlink"段落的手工步骤）
   - `docs/opencode-setup.md`（现有 OpenCode 集成手册——同上）
@@ -54,7 +54,9 @@
     1) **Important #1 (manifest 颗粒度)**: §11 / §13 改 per-skill entries（约 25 条 dir entry），ADR-007 D2 Alternatives A2 rationale 同步说明"必须做 per-skill 颗粒度，否则与 A2 等价"
     2) **Important #2 (rollback 闭合)**: 新增 `mark_will_create()` 在 `op` 之前预登记 INSTALLED + ENTRIES；rollback 中 dir 类用 `rm -rf` 而非 rmdir-only；编码约束改 `set -Eeuo pipefail`
     3) Minor #3-#7：定义 `log()` / `err()`；ADR-007 D5 readme 给 30 行 markdown 样例；编码约束加 `set -E` 说明；`mark_will_create` 跳过 pre-existing dir；test #10 grep 加 `awk '!/^[[:space:]]*#/'` 注释剥离
-    准备派发 reviewer 复审
+    派发 reviewer 复审
+  - 2026-05-11 18:15Z: hf-design-review Round 2 verdict = `通过`（D1=8 / D2=8 / D3=9 / D4=9 / D5=8 / D6=9）；scenario #7 PASSable + #12 PASS；3 条 R2 minor LLM-FIXABLE 已 polish；auto mode 父会话写 `approvals/design-approval-2026-05-11.md`，ADR-007 状态翻 `accepted`；进入 `hf-tasks`
+  - 2026-05-11 18:30Z: hf-tasks 完成 tasks.md 起草——5 个 milestone / 10 个 task（T1..T10）/ 关键路径图 / 队列投影 / 选择规则；准备派发 hf-tasks-review reviewer subagent
 - Open Risks:
   - vendoring 后宿主仓库 `.cursor/rules/harness-flow.mdc` 中对 `skills/` 路径的相对引用是否仍能解析（这是 ADR-006 D2 修过的同源问题，脚本必须显式处理）—— 已在 spec FR-008 与 NFR-001 covered
 
@@ -68,6 +70,6 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: hf-design
+- Next Action Or Recommended Skill: hf-tasks
 - Blockers:
-- Notes: spec approved，进入 design 节点；conditional ui-design 不激活（CLI-only，无 UI surface）；design 完成后派发独立 reviewer subagent 执行 hf-design-review
+- Notes: design approved，ADR-007 accepted；进入 tasks 节点（按 design.md §18 给出的 T1–T10 拆分）
