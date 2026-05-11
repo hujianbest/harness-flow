@@ -100,7 +100,9 @@ count_skill_md_in() {
 
 manifest_has_path() {
     local manifest="$1" want_path="$2"
-    grep -q "\"path\"[[:space:]]*:[[:space:]]*\"$want_path\"" "$manifest"
+    # Use grep -F (fixed string) to avoid `.` regex pitfalls on paths like
+    # `.cursor/rules/harness-flow.mdc` (F7 fix).
+    grep -F -q "\"path\": \"$want_path\"" "$manifest"
 }
 
 run_scenario() {
@@ -129,7 +131,7 @@ run_scenario() {
 # Scenarios
 # ---------------------------------------------------------------------------
 
-scenario_1() { # opencode copy
+scenario_1() { # opencode copy + git-path manifest fields (F5 fix) + per-skill count (F6 fix)
     local host="$1"
     bash "$INSTALL" --target opencode --host "$host" >/dev/null || return 1
     local n
@@ -137,8 +139,21 @@ scenario_1() { # opencode copy
     assert_ge "$n" 24 "skills count" || return 1
     assert_file "$host/.harnessflow-install-manifest.json" "manifest exists" || return 1
     assert_file "$host/.harnessflow-install-readme.md" "readme exists" || return 1
-    manifest_has_path "$host/.harnessflow-install-manifest.json" ".opencode/skills/hf-finalize" \
+    local mf="$host/.harnessflow-install-manifest.json"
+    manifest_has_path "$mf" ".opencode/skills/hf-finalize" \
         || { printf '  ❌ manifest lacks per-skill entry\n' >&2; return 1; }
+    # F5: git-path manifest fields
+    grep -q '"manifest_version": 1' "$mf" || { printf '  ❌ manifest_version missing\n' >&2; return 1; }
+    grep -qE '"hf_commit"[[:space:]]*:[[:space:]]*"[a-f0-9]{40}"' "$mf" \
+        || { printf '  ❌ hf_commit not a valid git SHA\n' >&2; return 1; }
+    grep -qE '"hf_version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' "$mf" \
+        || { printf '  ❌ hf_version not parsed from CHANGELOG\n' >&2; return 1; }
+    grep -q '"target": "opencode"' "$mf" || { printf '  ❌ target field wrong\n' >&2; return 1; }
+    grep -q '"topology": "copy"' "$mf" || { printf '  ❌ topology field wrong\n' >&2; return 1; }
+    # F6: per-skill entries should be ≥ 25 (24 hf-* + using-hf-workflow)
+    local entry_count
+    entry_count=$(grep -cE '"path"[[:space:]]*:[[:space:]]*"\.opencode/skills/[^"]+"' "$mf")
+    assert_ge "$entry_count" 25 "per-skill manifest entries" || return 1
 }
 
 scenario_2() { # opencode symlink
@@ -158,11 +173,18 @@ scenario_3() { # cursor copy
     manifest_has_path "$host/.harnessflow-install-manifest.json" ".cursor/rules/harness-flow.mdc" || return 1
 }
 
-scenario_4() { # cursor symlink
+scenario_4() { # cursor symlink (+ F8 manifest entries verification)
     local host="$1"
     bash "$INSTALL" --target cursor --topology symlink --host "$host" >/dev/null || return 1
     assert_symlink_to "$host/.cursor/harness-flow-skills" "$HF_REPO/skills" "cursor skills symlink" || return 1
     assert_symlink_to "$host/.cursor/rules/harness-flow.mdc" "$HF_REPO/.cursor/rules/harness-flow.mdc" "cursor rule symlink" || return 1
+    local mf="$host/.harnessflow-install-manifest.json"
+    grep -q '"target": "cursor"' "$mf" || { printf '  ❌ target field wrong\n' >&2; return 1; }
+    grep -q '"topology": "symlink"' "$mf" || { printf '  ❌ topology field wrong\n' >&2; return 1; }
+    grep -q '"kind": "symlink", "path": ".cursor/harness-flow-skills"' "$mf" \
+        || { printf '  ❌ skills symlink entry missing\n' >&2; return 1; }
+    grep -q '"kind": "symlink", "path": ".cursor/rules/harness-flow.mdc"' "$mf" \
+        || { printf '  ❌ rule symlink entry missing\n' >&2; return 1; }
 }
 
 scenario_5() { # both copy
@@ -198,7 +220,7 @@ scenario_7() { # HYP-002 Blocking: user-skill survives uninstall
     fi
 }
 
-scenario_8() { # dry-run no side effects
+scenario_8() { # dry-run no side effects + FR-007 verbose vs default (F4 fix)
     local host="$1"
     local before
     before=$(find "$host" 2>/dev/null | wc -l | tr -d ' ')
@@ -210,40 +232,61 @@ scenario_8() { # dry-run no side effects
         printf '  ❌ dry-run created artifacts\n' >&2
         return 1
     fi
-    # Verbose vs default line counts (FR-007 acceptance):
-    local default_lines verbose_lines
-    default_lines=$(bash "$INSTALL" --target opencode --dry-run --host "$host" 2>&1 | wc -l | tr -d ' ')
-    verbose_lines=$(bash "$INSTALL" --target opencode --dry-run --verbose --host "$host" 2>&1 | wc -l | tr -d ' ')
+    # FR-007: independently test verbose vs default in *non-dry-run* mode (F4 fix).
+    # In real install mode op() only prints when VERBOSE=1, so the line counts
+    # truly distinguish the two modes (fixes false-positive risk).
+    local fresh_default fresh_verbose
+    fresh_default="$(mk_host)"
+    local default_lines
+    default_lines=$(bash "$INSTALL" --target opencode --host "$fresh_default" 2>&1 | wc -l | tr -d ' ')
+    rm -rf "$fresh_default"
     if [ "$default_lines" -ge 10 ]; then
-        # In dry-run mode op() prints; tighten check by comparing verbose vs non-verbose,
-        # since dry-run forces verbose-like output. Use non-dry default mode for default check.
-        :
-    fi
-    if [ "$verbose_lines" -le 24 ]; then
-        printf '  ❌ verbose output too short: %s lines (expected > 24)\n' "$verbose_lines" >&2
+        printf '  ❌ default install output too verbose: %s lines (expected < 10)\n' "$default_lines" >&2
         return 1
     fi
-    # Default banner-only mode (no dry-run, no verbose) on a fresh host:
-    local fresh
-    fresh="$(mk_host)"
-    local plain_lines
-    plain_lines=$(bash "$INSTALL" --target opencode --host "$fresh" 2>&1 | wc -l | tr -d ' ')
-    rm -rf "$fresh"
-    if [ "$plain_lines" -ge 10 ]; then
-        printf '  ❌ default output too verbose: %s lines (expected < 10)\n' "$plain_lines" >&2
+    fresh_verbose="$(mk_host)"
+    local verbose_lines
+    verbose_lines=$(bash "$INSTALL" --target opencode --verbose --host "$fresh_verbose" 2>&1 | wc -l | tr -d ' ')
+    rm -rf "$fresh_verbose"
+    if [ "$verbose_lines" -le 24 ]; then
+        printf '  ❌ verbose install output too short: %s lines (expected > 24)\n' "$verbose_lines" >&2
+        return 1
+    fi
+    # Sanity: verbose >> default
+    if [ "$verbose_lines" -le "$((default_lines + 14))" ]; then
+        printf '  ❌ verbose did not produce significantly more output than default (default=%s verbose=%s)\n' \
+            "$default_lines" "$verbose_lines" >&2
         return 1
     fi
 }
 
-scenario_9() { # force re-install
+scenario_9() { # force re-install (F3 fix: verify --force真的清理了上次 install)
     local host="$1"
     bash "$INSTALL" --target opencode --host "$host" >/dev/null || return 1
     if bash "$INSTALL" --target opencode --host "$host" >/dev/null 2>&1; then
         printf '  ❌ second install without --force should have failed\n' >&2
         return 1
     fi
+    # F3: drop a sentinel inside an HF skill subtree. --force should delete it
+    # (because the skill subtree gets rm -rf'd) but NOT a sibling user-skill (#7 already
+    # covers that for uninstall; here we focus on --force's own cleanup).
+    printf 'sentinel-from-first-install\n' > "$host/.opencode/skills/hf-finalize/SENTINEL.txt"
+    # Capture old manifest installed_at for ordering check.
+    local old_at
+    old_at=$(grep '"installed_at"' "$host/.harnessflow-install-manifest.json" | head -n1)
+    sleep 1  # ensure new installed_at is strictly later
     bash "$INSTALL" --target opencode --host "$host" --force >/dev/null || return 1
     assert_file "$host/.harnessflow-install-manifest.json" "manifest after --force" || return 1
+    if [ -f "$host/.opencode/skills/hf-finalize/SENTINEL.txt" ]; then
+        printf '  ❌ --force did not actually re-vendor (sentinel survived)\n' >&2
+        return 1
+    fi
+    local new_at
+    new_at=$(grep '"installed_at"' "$host/.harnessflow-install-manifest.json" | head -n1)
+    if [ "$old_at" = "$new_at" ]; then
+        printf '  ❌ --force did not write a new manifest (installed_at unchanged)\n' >&2
+        return 1
+    fi
     # uninstall.sh dry-run leaves files (FR-005 acceptance for uninstall branch):
     local files_before
     files_before=$(find "$host" 2>/dev/null | wc -l | tr -d ' ')
@@ -313,11 +356,39 @@ scenario_12() { # NFR-002 mid-failure rollback
     fi
 }
 
+scenario_13() { # F1 fix: install.sh missing --target → exit 1 + usage
+    local host="$1"
+    if bash "$INSTALL" --host "$host" >/dev/null 2>&1; then
+        printf '  ❌ install without --target should have failed\n' >&2
+        return 1
+    fi
+    local out
+    out=$(bash "$INSTALL" --host "$host" 2>&1 || true)
+    if ! printf '%s' "$out" | grep -q -- '--target'; then
+        printf '  ❌ usage text missing --target hint\n' >&2
+        return 1
+    fi
+}
+
+scenario_14() { # F2 fix: uninstall.sh with no manifest → exit 1 + 明确提示
+    local host="$1"
+    if bash "$UNINSTALL" --host "$host" >/dev/null 2>&1; then
+        printf '  ❌ uninstall without manifest should have failed\n' >&2
+        return 1
+    fi
+    local out
+    out=$(bash "$UNINSTALL" --host "$host" 2>&1 || true)
+    if ! printf '%s' "$out" | grep -qi 'no manifest'; then
+        printf '  ❌ error message did not mention missing manifest\n' >&2
+        return 1
+    fi
+}
+
 # ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
-run_scenario 1  "opencode copy"                      scenario_1
+run_scenario 1  "opencode copy + git-path manifest fields"  scenario_1
 run_scenario 2  "opencode symlink"                   scenario_2
 run_scenario 3  "cursor copy"                        scenario_3
 run_scenario 4  "cursor symlink"                     scenario_4
@@ -329,6 +400,8 @@ run_scenario 9  "force re-install + uninstall dry-run" scenario_9
 run_scenario 10 "NFR-004 grep audit"                 scenario_10
 run_scenario 11 "ASM-001 non-git checkout fallback"  scenario_11
 run_scenario 12 "NFR-002 mid-failure rollback"       scenario_12
+run_scenario 13 "FR-001 missing --target → exit 1"   scenario_13
+run_scenario 14 "FR-004 no manifest → exit 1"        scenario_14
 
 printf '\nResult: %s passed, %s failed\n' "$PASS_COUNT" "$FAIL_COUNT"
 if [ "$FAIL_COUNT" -gt 0 ]; then
