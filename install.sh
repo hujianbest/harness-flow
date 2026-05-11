@@ -139,14 +139,22 @@ rollback() {
     exit "$rc"
 }
 
+require_value() {
+    if [ $# -lt 2 ] || [ -z "${2:-}" ] || [[ "${2:-}" == --* ]]; then
+        err "$1 requires a value"
+        usage >&2
+        exit 1
+    fi
+}
+
 parse_args() {
     while [ $# -gt 0 ]; do
         case "$1" in
-            --target)    TARGET="${2:-}"; shift 2 ;;
+            --target)    require_value "$1" "${2:-}"; TARGET="$2"; shift 2 ;;
             --target=*)  TARGET="${1#*=}"; shift ;;
-            --topology)  TOPOLOGY="${2:-}"; shift 2 ;;
+            --topology)  require_value "$1" "${2:-}"; TOPOLOGY="$2"; shift 2 ;;
             --topology=*) TOPOLOGY="${1#*=}"; shift ;;
-            --host)      HOST_RAW="${2:-}"; shift 2 ;;
+            --host)      require_value "$1" "${2:-}"; HOST_RAW="$2"; shift 2 ;;
             --host=*)    HOST_RAW="${1#*=}"; shift ;;
             --dry-run)   DRY_RUN=1; shift ;;
             --verbose)   VERBOSE=1; shift ;;
@@ -196,9 +204,15 @@ detect_existing_manifest() {
     local manifest="$HOST/.harnessflow-install-manifest.json"
     if [ -f "$manifest" ]; then
         if [ "$FORCE" = 1 ]; then
+            if [ "$DRY_RUN" = 1 ]; then
+                # FR-005 strict reading: dry-run must not actually mutate the host.
+                # In --force --dry-run mode we describe what we would do but skip
+                # the real uninstall invocation.
+                log "[dry-run] would invoke uninstall.sh --host $HOST before re-install (--force)"
+                return 0
+            fi
             log "existing manifest found; --force given, removing previous install before re-install"
-            local script_dir="$HF_REPO"
-            local uninstall="$script_dir/uninstall.sh"
+            local uninstall="$HF_REPO/uninstall.sh"
             if [ -x "$uninstall" ]; then
                 bash "$uninstall" --host "$HOST" || {
                     err "previous uninstall failed; aborting"
@@ -247,12 +261,15 @@ vendor_skills_opencode() {
     else
         mark_will_create dir "$skills_root_abs" "$skills_root_rel"
         op MKDIR "$skills_root_abs"
-        local name
-        for name in $(ls "$HF_REPO/skills"); do
+        local skill_path name
+        # Use glob (not `for x in $(ls)`) to handle names with spaces/newlines safely.
+        for skill_path in "$HF_REPO/skills"/*; do
+            [ -d "$skill_path" ] || continue
+            name="${skill_path##*/}"
             local skill_abs="$skills_root_abs/$name"
             local skill_rel="$skills_root_rel/$name"
             mark_will_create dir "$skill_abs" "$skill_rel"
-            op CP "$HF_REPO/skills/$name" "$skill_abs"
+            op CP "$skill_path" "$skill_abs"
         done
     fi
 }
@@ -276,12 +293,14 @@ vendor_cursor() {
     else
         mark_will_create dir "$skills_abs" "$skills_rel"
         op MKDIR "$skills_abs"
-        local name
-        for name in $(ls "$HF_REPO/skills"); do
+        local skill_path name
+        for skill_path in "$HF_REPO/skills"/*; do
+            [ -d "$skill_path" ] || continue
+            name="${skill_path##*/}"
             local skill_abs="$skills_abs/$name"
             local skill_rel="$skills_rel/$name"
             mark_will_create dir "$skill_abs" "$skill_rel"
-            op CP "$HF_REPO/skills/$name" "$skill_abs"
+            op CP "$skill_path" "$skill_abs"
         done
         mark_will_create file "$rule_abs" "$rule_rel"
         op CP "$HF_REPO/.cursor/rules/harness-flow.mdc" "$rule_abs"

@@ -58,10 +58,18 @@ is_parent_dir() {
     return 1
 }
 
+require_value() {
+    if [ $# -lt 2 ] || [ -z "${2:-}" ] || [[ "${2:-}" == --* ]]; then
+        err "$1 requires a value"
+        usage >&2
+        exit 1
+    fi
+}
+
 parse_args() {
     while [ $# -gt 0 ]; do
         case "$1" in
-            --host)     HOST_RAW="${2:-}"; shift 2 ;;
+            --host)     require_value "$1" "${2:-}"; HOST_RAW="$2"; shift 2 ;;
             --host=*)   HOST_RAW="${1#*=}"; shift ;;
             --dry-run)  DRY_RUN=1; shift ;;
             -h|--help)  usage; exit 0 ;;

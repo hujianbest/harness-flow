@@ -58,7 +58,9 @@
   - 2026-05-11 18:15Z: hf-design-review Round 2 verdict = `通过`（D1=8 / D2=8 / D3=9 / D4=9 / D5=8 / D6=9）；scenario #7 PASSable + #12 PASS；3 条 R2 minor LLM-FIXABLE 已 polish；auto mode 父会话写 `approvals/design-approval-2026-05-11.md`，ADR-007 状态翻 `accepted`；进入 `hf-tasks`
   - 2026-05-11 18:30Z: hf-tasks 完成 tasks.md 起草——5 个 milestone / 10 个 task（T1..T10）/ 关键路径图 / 队列投影 / 选择规则；派发 hf-tasks-review reviewer subagent
   - 2026-05-11 18:50Z: hf-tasks-review v1 verdict = `需修改`（1 important + 3 minor）→ 定向回修（T2-T9 verify caveat、T1 verbose 行数边界、T7 uninstall dry-run、T10 拆分 T10a + T10b）→ Round 2 verdict = `通过`（TR1-TR6 全部 ≥ 8）；auto mode 写 `approvals/tasks-approval-2026-05-11.md`；进入 `hf-test-driven-dev`，Current Active Task = T1
-  - 2026-05-11 19:30Z: hf-test-driven-dev 完成 T1..T10a 实现（install.sh 332 行 / uninstall.sh 168 行 / tests/test_install_scripts.sh 286 行）；12/12 e2e scenario PASS；HF 既有 audit + 2 套 python test 全 OK；HYP-002 Blocking + NFR-002 双双通过；准备派发 hf-test-review + hf-code-review reviewer subagent；T10b（doc 同步）由 hf-doc-freshness-gate 节点统一处理
+  - 2026-05-11 19:30Z: hf-test-driven-dev 完成 T1..T10a 实现（install.sh / uninstall.sh / tests/test_install_scripts.sh）；12/12 e2e scenario PASS；HF 既有 audit + 2 套 python test 全 OK；HYP-002 Blocking + NFR-002 双双通过；派发 hf-test-review reviewer subagent
+  - 2026-05-11 19:50Z: hf-test-review v1 verdict = `需修改`（5 important + 4 minor，false-positive 风险）→ 定向回修（新增 scenario #13 #14 + 强化 #1 #4 #8 #9 多条断言；修 manifest_has_path 用 grep -F）→ Round 2 verdict = `通过`（TT1-TT6 全部 ≥ 8）；14/14 PASS
+  - 2026-05-11 20:05Z: hf-code-review v1 verdict = `通过`（CR1-CR7 全部 ≥ 8；M5 greenfield 不阻塞）；5 minor LLM-FIXABLE polish 中 M1-M4 已修（require_value 函数防止 flag 缺值 silent / glob 替换 ls / install --force --dry-run 不真实 uninstall / design §10 表述与 best-effort rmdir 行为对齐），M5 greenfield 跳过；14/14 PASS 复跑通过
 - Open Risks:
   - vendoring 后宿主仓库 `.cursor/rules/harness-flow.mdc` 中对 `skills/` 路径的相对引用是否仍能解析（这是 ADR-006 D2 修过的同源问题，脚本必须显式处理）—— 已在 spec FR-008 与 NFR-001 covered
 

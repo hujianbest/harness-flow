@@ -213,7 +213,7 @@ manifest entries 中存在两类 dir entry：
 
 实际使用：
 
-- `mark_will_create dir "$HOST/.opencode" ""` → `.opencode` 父 dir 不进 manifest，uninstall 后**保留**该 dir（这是 design 的有意决策——避免在 uninstall 时与宿主用户的 `.opencode` 自身的 git tracking 状态产生意外耦合；用户后续可手动 `rmdir` 或留作占位）
+- `mark_will_create dir "$HOST/.opencode" ""` → `.opencode` 父 dir 不进 manifest（不进 INSTALLED 也不进 ENTRIES）；uninstall.sh 末尾以 best-effort `rmdir <host>/.opencode 2>/dev/null || true` 收尾——若用户后加了内容（任何非 HF 子目录或文件），该 rmdir 静默失败，dir 保留；若 HF 是该目录的唯一占用者，dir 与 HF 内容一并清理。这等价于"不强删用户原有 dir，但允许在干净场景下不留垃圾"
 - `mark_will_create dir "$skills_root_abs" "$skills_root_rel"` → `.opencode/skills` 进 manifest 作为 parent dir，uninstall `rmdir-only`（用户后加 skill 时非空，自然保留）
 - `mark_will_create dir "$skill_abs" "$skill_rel"` → 每个 hf-* skill 进 manifest 作为 leaf dir，uninstall `rm -rf`
 
