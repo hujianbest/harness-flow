@@ -237,7 +237,17 @@ Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool
 and route me through the correct HF workflow.
 ```
 
-To use HarnessFlow inside another project, copy or symlink the `skills/` directory into that project's `.opencode/skills/` (or install globally under `~/.config/opencode/skills/`). Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md`.
+To use HarnessFlow inside another project on OpenCode, the easiest path is the bundled install script (added in feature 001-install-scripts, ADR-007):
+
+```bash
+bash /path/to/harness-flow/install.sh --target opencode --host /path/to/your/project
+# or symlink topology
+bash /path/to/harness-flow/install.sh --target opencode --topology symlink --host /path/to/your/project
+# uninstall later
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
+```
+
+The script writes `.opencode/skills/` plus `.harnessflow-install-manifest.json` (per-skill entries, so your own skills under `.opencode/skills/` survive uninstall) and a `.harnessflow-install-readme.md` with quick-verify commands. Manual `cp -R` / `ln -s` and global install topologies still work. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md`.
 
 ### Cursor (new in v0.3.0)
 
@@ -250,7 +260,19 @@ cursor harness-flow
 
 Then send any natural-language intent (e.g. "Use HarnessFlow from this repo. I want to add rate limiting to our notifications API. Do not jump straight to code."). The router will pick the canonical next node from on-disk evidence — same NL + router model as OpenCode (ADR-003 D6).
 
-To use HarnessFlow inside another project on Cursor, copy `.cursor/rules/harness-flow.mdc` into that project's `.cursor/rules/` and either keep `skills/` at the project root or symlink it under `.cursor/harness-flow-skills/`. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/cursor-setup.md`.
+To use HarnessFlow inside another project on Cursor, the easiest path is the bundled install script:
+
+```bash
+bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/project
+# or symlink topology
+bash /path/to/harness-flow/install.sh --target cursor --topology symlink --host /path/to/your/project
+# both Cursor and OpenCode at once
+bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
+# uninstall later
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
+```
+
+The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/` and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`, plus writes a manifest + post-install readme. Manual fallback (copy `.cursor/rules/harness-flow.mdc` + symlink `skills/`) still works. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/cursor-setup.md`.
 
 ### Other clients (deferred to v0.6+)
 

@@ -237,7 +237,17 @@ opencode .
 再把我路由到正确的 HF 节点。
 ```
 
-如果要在其他项目中使用 HarnessFlow，把本仓库的 `skills/` 目录复制或软链接到目标项目的 `.opencode/skills/`（或者全局安装到 `~/.config/opencode/skills/`）。完整的安装拓扑、「自然语言意图 → 节点」映射、验证步骤与故障排查见 `docs/opencode-setup.md`。
+如果要在其他项目中使用 HarnessFlow（OpenCode），最简单的路径是用本仓库自带的 install 脚本（feature 001-install-scripts 引入，详见 ADR-007）：
+
+```bash
+bash /path/to/harness-flow/install.sh --target opencode --host /path/to/your/project
+# 或 symlink 拓扑（跟随上游更新）
+bash /path/to/harness-flow/install.sh --target opencode --topology symlink --host /path/to/your/project
+# 卸载
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
+```
+
+脚本会写 `.opencode/skills/`、`.harnessflow-install-manifest.json`（per-skill entries，宿主自加 skill uninstall 时不会被误删）以及 `.harnessflow-install-readme.md`（含 4 条快速验证命令 + 卸载提示）。手工 `cp -R` / `ln -s` 与全局安装拓扑仍然可用。完整的安装拓扑、「自然语言意图 → 节点」映射、验证步骤与故障排查见 `docs/opencode-setup.md`。
 
 ### Cursor（v0.3.0 新增）
 
@@ -250,7 +260,19 @@ cursor harness-flow
 
 之后用任何自然语言意图发起请求（例如："Use HarnessFlow from this repo. 我想给 notifications API 加 rate limiting，别直接写代码。"），router 会按磁盘工件证据选择正确的下一个节点——与 OpenCode 一致的 NL + router 模型（ADR-003 D6）。
 
-如果要在其他项目中使用 Cursor 集成，把 `.cursor/rules/harness-flow.mdc` 复制到目标项目的 `.cursor/rules/`，并保证 `skills/` 在项目根目录可达（或软链接到 `.cursor/harness-flow-skills/`）。完整的安装拓扑、「自然语言意图 → 节点」映射、验证步骤与故障排查见 `docs/cursor-setup.md`。
+如果要在其他项目中使用 Cursor 集成，最简单的路径是用本仓库自带的 install 脚本：
+
+```bash
+bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/project
+# 或 symlink 拓扑
+bash /path/to/harness-flow/install.sh --target cursor --topology symlink --host /path/to/your/project
+# Cursor + OpenCode 同时安装
+bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
+# 卸载
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
+```
+
+脚本把 `skills/` 落到 `<host>/.cursor/harness-flow-skills/`，把 `harness-flow.mdc` 拷贝（或 symlink）到 `<host>/.cursor/rules/`，并写入 manifest + 安装后 README。原有手工拷贝路径仍然可用。完整的安装拓扑、「自然语言意图 → 节点」映射、验证步骤与故障排查见 `docs/cursor-setup.md`。
 
 ### 其他客户端（v0.6+ 再支持）
 

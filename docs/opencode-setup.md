@@ -39,11 +39,32 @@ cd harness-flow
 opencode .
 ```
 
-The shipped `.opencode/skills` symlink makes all 23 `hf-*` skills + `using-hf-workflow` immediately discoverable (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*` skill). No further setup.
+The shipped `.opencode/skills` symlink makes all 24 `hf-*` skills + `using-hf-workflow` immediately discoverable (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*` skill; v0.4.0 added `hf-release` as the 24th). No further setup.
 
-### B. Vendor HarnessFlow skills into your own project
+### B. Vendor HarnessFlow skills into your own project (recommended: install script)
 
-If you want HarnessFlow to be available inside another repository you are working on, copy (or symlink) the `skills/` directory into that project's `.opencode/skills/`:
+If you want HarnessFlow to be available inside another repository you are working on, the easiest path is the bundled install script (added in feature 001-install-scripts; see ADR-007):
+
+```bash
+# From the harness-flow repository, target your host repo:
+bash /path/to/harness-flow/install.sh --target opencode --host /path/to/your/project
+
+# Or symlink topology to track HF upstream automatically:
+bash /path/to/harness-flow/install.sh --target opencode --topology symlink \
+     --host /path/to/your/project
+```
+
+The script writes `.opencode/skills/` plus a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
+
+```bash
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
+```
+
+User-added skills under `.opencode/skills/` survive uninstall (manifest is tracked per-skill). See `features/001-install-scripts/spec.md` and `ADR-007` for behavior details.
+
+#### Manual fallback (advanced users)
+
+If you prefer to vendor by hand:
 
 ```bash
 # From inside your project root, with harness-flow cloned alongside:
@@ -54,7 +75,7 @@ cp -R ../harness-flow/skills .opencode/skills
 ln -s ../../harness-flow/skills .opencode/skills
 ```
 
-Each `hf-*` skill is self-contained (its `SKILL.md`, `references/`, and `evals/` ship together in the skill folder), so a plain `cp -R` is enough — there is nothing else to vendor.
+Each `hf-*` skill is self-contained (its `SKILL.md`, `references/`, `evals/`, and `scripts/` ship together in the skill folder), so a plain `cp -R` is enough — there is nothing else to vendor. The install script does the same thing plus produces a manifest for clean uninstall.
 
 ### C. Install HarnessFlow globally for every OpenCode session
 
@@ -76,7 +97,7 @@ After opening OpenCode in any of the three topologies above, run:
 /skills
 ```
 
-You should see at least the following skills listed (23 `hf-*` skills + `using-hf-workflow`; v0.2.0 added `hf-browser-testing` as the 23rd):
+You should see at least the following skills listed (24 `hf-*` skills + `using-hf-workflow`; v0.2.0 added `hf-browser-testing` as the 23rd; v0.4.0 added `hf-release` as the 24th):
 
 - `using-hf-workflow`
 - `hf-workflow-router`

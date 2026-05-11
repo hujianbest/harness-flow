@@ -27,9 +27,32 @@ cursor harness-flow
 
 The repository ships `.cursor/rules/harness-flow.mdc` (added in v0.3.0). Opening the repo in Cursor is enough — the rule auto-loads on every session because of `alwaysApply: true`.
 
-### B. Vendor HarnessFlow into your own project
+### B. Vendor HarnessFlow into your own project (recommended: install script)
 
-If you want HarnessFlow available inside another repository:
+If you want HarnessFlow available inside another repository, the easiest path is the bundled install script (added in feature 001-install-scripts; see ADR-007):
+
+```bash
+# From the harness-flow repository, target your host repo:
+bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/project
+
+# Or symlink topology to track HF upstream automatically:
+bash /path/to/harness-flow/install.sh --target cursor --topology symlink \
+     --host /path/to/your/project
+```
+
+The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/` and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`. It also writes a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
+
+```bash
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
+```
+
+If you want both Cursor and OpenCode integrations at once, use `--target both`.
+
+> **Cursor rule path note**: `harness-flow.mdc` references `skills/using-hf-workflow/SKILL.md` relatively. After vendoring, the correct path is `.cursor/harness-flow-skills/using-hf-workflow/SKILL.md`. The post-install README in your host repo reminds you of this; v0.6+ may rewrite paths automatically (ADR-007 D4 Alternatives A3, deferred).
+
+#### Manual fallback (advanced users)
+
+If you prefer to vendor by hand:
 
 ```bash
 # From inside your project root, with harness-flow cloned alongside:
@@ -40,7 +63,7 @@ cp ../harness-flow/.cursor/rules/harness-flow.mdc .cursor/rules/
 ln -s ../harness-flow/skills .cursor/harness-flow-skills
 ```
 
-Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root).
+Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root). The install script automates this and also writes a manifest for clean uninstall.
 
 ## 2. The shipped rule
 
