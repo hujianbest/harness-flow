@@ -242,6 +242,22 @@ What the script writes into your project:
 
 Manual fallback (`cp -R` or `ln -s`) and global-install topologies still work. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md` and `docs/cursor-setup.md`.
 
+#### Windows
+
+`install.sh` / `uninstall.sh` are bash scripts. On Windows you have three options:
+
+1. **Git Bash** (recommended; bundled with [Git for Windows](https://git-scm.com/download/win)). Open Git Bash and run the same `bash /path/to/harness-flow/install.sh ...` commands shown above.
+2. **PowerShell wrappers**. The repo also ships `install.ps1` / `uninstall.ps1`, which locate bash (Git Bash → `bash` on `PATH` → WSL) and forward all arguments, including translating Windows-style `--host C:\path\to\proj` to a POSIX path:
+
+   ```powershell
+   pwsh -File C:\path\to\harness-flow\install.ps1 --target both --host C:\src\my-project
+   pwsh -File C:\path\to\harness-flow\uninstall.ps1 --host C:\src\my-project
+   ```
+
+3. **WSL**. Run the bash scripts inside your WSL distro the same way you would on Linux.
+
+Caveat: `--topology symlink` on Windows requires Developer Mode enabled (Settings → Privacy & security → For developers) or running the shell elevated. Without that, `ln -s` under Git Bash silently degrades to a copy. Default `--topology copy` works without any of that.
+
 After install, in your project send any natural-language intent and the router will pick the canonical next node from on-disk evidence:
 
 ```text

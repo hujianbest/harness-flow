@@ -242,6 +242,22 @@ bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
 
 手工 `cp -R` / `ln -s` 拓扑与全局安装拓扑仍然可用。完整的安装拓扑、「自然语言意图 → 节点」映射、验证步骤与故障排查见 `docs/opencode-setup.md` 与 `docs/cursor-setup.md`。
 
+#### Windows
+
+`install.sh` / `uninstall.sh` 是 bash 脚本。Windows 上有三条路径：
+
+1. **Git Bash**（推荐；随 [Git for Windows](https://git-scm.com/download/win) 一起装）。打开 Git Bash 直接跑上面的 `bash /path/to/harness-flow/install.sh ...` 命令即可。
+2. **PowerShell 包装**。仓库同时附带 `install.ps1` / `uninstall.ps1`，会自动定位 bash（Git Bash → `PATH` 上的 `bash` → WSL）并转发所有参数，包括把 Windows 风格的 `--host C:\path\to\proj` 翻译成 POSIX 路径：
+
+   ```powershell
+   pwsh -File C:\path\to\harness-flow\install.ps1 --target both --host C:\src\my-project
+   pwsh -File C:\path\to\harness-flow\uninstall.ps1 --host C:\src\my-project
+   ```
+
+3. **WSL**。在你的 WSL 发行版里像 Linux 一样直接跑 bash 脚本。
+
+注意事项：Windows 上 `--topology symlink` 需要开启「开发者模式」（设置 → 隐私和安全性 → 开发者选项）或以管理员身份运行 shell；否则 Git Bash 会把 `ln -s` 静默降级成拷贝。默认的 `--topology copy` 没有这个限制。
+
 安装后，在你的项目里发任何自然语言意图，router 会按磁盘工件证据选择正确的下一个节点：
 
 ```text
