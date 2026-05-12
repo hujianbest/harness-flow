@@ -193,94 +193,85 @@ HF does not assign methods arbitrarily. Each skill gets the methods that best ma
 
 ## Installation
 
-HarnessFlow v0.3.0 officially supports **Claude Code**, **OpenCode**, and **Cursor**. All three paths read the same `skills/` directory; the difference is only in how each client discovers HF (Claude Code: marketplace plugin + 6 slash commands; OpenCode: `.opencode/skills` symlink + NL routing; Cursor: `.cursor/rules/harness-flow.mdc` alwaysApply rule + NL routing).
+HarnessFlow officially supports **Claude Code**, **OpenCode**, and **Cursor**. This section is about installing HarnessFlow into **your own project** so an AI agent can use it there. All three clients read the same `skills/` tree; they differ only in how they discover it (Claude Code: marketplace plugin + slash commands; OpenCode: `.opencode/skills/` discovery + NL routing; Cursor: `.cursor/rules/harness-flow.mdc` alwaysApply rule + NL routing).
 
-### Claude Code (recommended)
+> If you want to develop or contribute to HarnessFlow itself, see [`CONTRIBUTING.md`](CONTRIBUTING.md) — it covers cloning the repo and pointing your client at the working tree.
 
-Marketplace install (use the explicit HTTPS URL with `.git` suffix to force HTTPS cloning; the `owner/repo` shortcut form would default to SSH and fail without GitHub SSH keys):
+### Claude Code
+
+Install via marketplace. Use the explicit HTTPS URL with the `.git` suffix to force HTTPS cloning; the `owner/repo` shortcut form would default to SSH and fail without GitHub SSH keys.
 
 ```text
 /plugin marketplace add https://github.com/hujianbest/harness-flow.git
 /plugin install harness-flow@hujianbest-harness-flow
 ```
 
-This installs 7 short slash commands (see [Slash Commands](#slash-commands-claude-code) below; v0.4.0 added `/release`).
+This registers the slash commands listed under [Slash Commands](#slash-commands-claude-code).
 
-> The install command is `harness-flow@hujianbest-harness-flow` (plugin name `harness-flow` + marketplace name `hujianbest-harness-flow`), not `harness-flow@harness-flow`. v0.2.0 shipped with the marketplace also named `harness-flow`, which caused a name-collision bug in Claude Code's resolver; v0.2.1 renamed the marketplace to fix it. See `docs/claude-code-setup.md` for full setup notes including SSH troubleshooting.
+> The install command is `harness-flow@hujianbest-harness-flow` (plugin name `harness-flow` + marketplace name `hujianbest-harness-flow`), **not** `harness-flow@harness-flow`. Full setup notes including SSH troubleshooting: `docs/claude-code-setup.md`.
 
-Local / development install (when iterating on HarnessFlow itself):
+### OpenCode and Cursor (install script)
 
-```bash
-git clone https://github.com/hujianbest/harness-flow.git
-cd harness-flow
-claude --plugin-dir "$PWD"
-```
-
-Full setup notes, troubleshooting, and the SSH/HTTPS fallback for marketplace fetches: `docs/claude-code-setup.md`.
-
-### OpenCode
-
-OpenCode integration is intentionally **agent-driven** with **no `AGENTS.md` sidecar** and no slash command files (PR #21 made every `hf-*` skill self-contained; ADR-001 D3 confirmed no sidecar is needed). The agent uses natural language and the `skill` tool over the HF skills under `skills/` to route every request.
-
-OpenCode's [`skill` tool](https://opencode.ai/docs/skills/) only auto-discovers skills under `.opencode/skills/`, `.claude/skills/`, `.agents/skills/` (project-local) or their `~/.config/opencode/`, `~/.claude/`, `~/.agents/` global counterparts. A bare `skills/` folder at the repo root is **not** picked up. To make HarnessFlow work without duplicating files, this repository ships a symlink `.opencode/skills -> ../skills`, so cloning and opening it is enough:
+For OpenCode and Cursor, vendor HarnessFlow into your project with the bundled install script. First clone the HarnessFlow repo to any local path, then point the script at your project:
 
 ```bash
-git clone https://github.com/hujianbest/harness-flow.git
-cd harness-flow
-opencode .
+git clone https://github.com/hujianbest/harness-flow.git /path/to/harness-flow
+
+# OpenCode
+bash /path/to/harness-flow/install.sh --target opencode --host /path/to/your/project
+
+# Cursor
+bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/project
+
+# Both at once
+bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
+
+# Symlink topology (follow upstream updates instead of copying)
+bash /path/to/harness-flow/install.sh --target both --topology symlink --host /path/to/your/project
+
+# Uninstall later
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
 ```
 
-Verify discovery in OpenCode with `/skills` — you should see all 24 `hf-*` skills (including v0.2.0's `hf-browser-testing` and v0.4.0's `hf-release`) plus `using-hf-workflow`. Then start with:
+What the script writes into your project:
+
+- `--target opencode` → `<host>/.opencode/skills/` (so OpenCode's `skill` tool can auto-discover HF; a bare `skills/` at the repo root is **not** picked up by OpenCode).
+- `--target cursor` → `<host>/.cursor/harness-flow-skills/` plus `<host>/.cursor/rules/harness-flow.mdc` (an alwaysApply rule that loads `using-hf-workflow` on every Cursor session).
+- `<host>/.harnessflow-install-manifest.json` — per-skill manifest so your own skills under `.opencode/skills/` or `.cursor/` survive uninstall.
+- `<host>/.harnessflow-install-readme.md` — quick-verify commands and uninstall hints.
+
+Manual fallback (`cp -R` or `ln -s`) and global-install topologies still work. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md` and `docs/cursor-setup.md`.
+
+#### Windows
+
+`install.sh` / `uninstall.sh` are bash scripts. On Windows you have three options:
+
+1. **Git Bash** (recommended; bundled with [Git for Windows](https://git-scm.com/download/win)). Open Git Bash and run the same `bash /path/to/harness-flow/install.sh ...` commands shown above.
+2. **PowerShell wrappers**. The repo also ships `install.ps1` / `uninstall.ps1`, which locate bash (Git Bash → `bash` on `PATH` → WSL) and forward all arguments, including translating Windows-style `--host C:\path\to\proj` to a POSIX path:
+
+   ```powershell
+   pwsh -File C:\path\to\harness-flow\install.ps1 --target both --host C:\src\my-project
+   pwsh -File C:\path\to\harness-flow\uninstall.ps1 --host C:\src\my-project
+   ```
+
+3. **WSL**. Run the bash scripts inside your WSL distro the same way you would on Linux.
+
+Caveat: `--topology symlink` on Windows requires Developer Mode enabled (Settings → Privacy & security → For developers) or running the shell elevated. Without that, `ln -s` under Git Bash silently degrades to a copy. Default `--topology copy` works without any of that.
+
+After install, in your project send any natural-language intent and the router will pick the canonical next node from on-disk evidence:
 
 ```text
-Use HarnessFlow from this repo. Load `using-hf-workflow` via the skill tool
-and route me through the correct HF workflow.
+Use HarnessFlow. I want to add rate limiting to our notifications API.
+Do not jump straight to code.
 ```
 
-To use HarnessFlow inside another project on OpenCode, the easiest path is the bundled install script (added in feature 001-install-scripts, ADR-007):
+### Other clients
 
-```bash
-bash /path/to/harness-flow/install.sh --target opencode --host /path/to/your/project
-# or symlink topology
-bash /path/to/harness-flow/install.sh --target opencode --topology symlink --host /path/to/your/project
-# uninstall later
-bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
-```
-
-The script writes `.opencode/skills/` plus `.harnessflow-install-manifest.json` (per-skill entries, so your own skills under `.opencode/skills/` survive uninstall) and a `.harnessflow-install-readme.md` with quick-verify commands. Manual `cp -R` / `ln -s` and global install topologies still work. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/opencode-setup.md`.
-
-### Cursor (new in v0.3.0)
-
-Cursor integration uses Cursor's **rules** mechanism (no plugin, no slash commands). The repository ships `.cursor/rules/harness-flow.mdc` with `alwaysApply: true` frontmatter, which on every Cursor session loads `skills/using-hf-workflow/SKILL.md` as the entry shell and hands off to `skills/hf-workflow-router/SKILL.md`.
-
-```bash
-git clone https://github.com/hujianbest/harness-flow.git
-cursor harness-flow
-```
-
-Then send any natural-language intent (e.g. "Use HarnessFlow from this repo. I want to add rate limiting to our notifications API. Do not jump straight to code."). The router will pick the canonical next node from on-disk evidence — same NL + router model as OpenCode (ADR-003 D6).
-
-To use HarnessFlow inside another project on Cursor, the easiest path is the bundled install script:
-
-```bash
-bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/project
-# or symlink topology
-bash /path/to/harness-flow/install.sh --target cursor --topology symlink --host /path/to/your/project
-# both Cursor and OpenCode at once
-bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
-# uninstall later
-bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
-```
-
-The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/` and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`, plus writes a manifest + post-install readme. Manual fallback (copy `.cursor/rules/harness-flow.mdc` + symlink `skills/`) still works. Full install topologies, intent → node mapping, verification, and troubleshooting: `docs/cursor-setup.md`.
-
-### Other clients (deferred to v0.6+)
-
-HarnessFlow skills are plain Markdown, so they **may** work with Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are **not part of the v0.5.0 supported surface** and have no setup doc in this version. The 4 client expansions stay deferred to v0.6+ (mirroring ADR-002 D11's "do one client at a time" stance — Cursor was added in v0.3.0; the others will be evaluated by real-usage feedback before batch-adding).
+HarnessFlow skills are plain Markdown, so they may also work with Gemini CLI / Windsurf / GitHub Copilot / Kiro / Codex by referencing `skills/` as instruction files. Those paths are not part of the supported surface and have no setup doc.
 
 ### Quickstart Demo: WriteOnce
 
-`examples/writeonce/` is the v0.1.0 quickstart demo: a CLI that publishes a Markdown file to Medium (with Zhihu / WeChat MP declared as extension points but not implemented). The demo's deliverable is **the trail of HarnessFlow main-chain artifacts** — every node from `hf-product-discovery` through `hf-finalize` produced a reviewable artifact you can read in `examples/writeonce/`. The walking-skeleton implementation under `examples/writeonce/src/` ships with 23 passing tests (offline, < 400 ms).
+`examples/writeonce/` is the quickstart demo: a CLI that publishes a Markdown file to Medium (with Zhihu / WeChat MP declared as extension points but not implemented). The demo's deliverable is **the trail of HarnessFlow main-chain artifacts** — every node from `hf-product-discovery` through `hf-finalize` produced a reviewable artifact you can read in `examples/writeonce/`. The walking-skeleton implementation under `examples/writeonce/src/` ships with 23 passing tests (offline, < 400 ms).
 
 Read order:
 
@@ -293,31 +284,31 @@ Read order:
 
 When you vendor HarnessFlow into another workspace, copy `skills/` only. Each `hf-*` skill is **self-contained**: its `SKILL.md`, `references/` (templates, rubrics, dispatch protocols, worktree guides) and `evals/` ship together inside the skill folder. There is no top-level `skills/docs/`, `skills/templates/` or `skills/principles/` you also need to keep around.
 
-`docs/principles/` belongs to **the HarnessFlow repository itself** (HF's own design reference per ADR-001 D11; not a runtime dependency, not a release gate, not a SKILL.md compliance baseline). You do **not** need to copy `docs/principles/` when vendoring.
+`docs/principles/` belongs to **the HarnessFlow repository itself** — HF's own design reference, not a runtime dependency, not a release gate, not a SKILL.md compliance baseline. You do **not** need to copy `docs/principles/` when vendoring.
 
 > **Project conventions**: HF skills work with sensible defaults out of the box. If your project needs to override paths, templates, profile rules, execution mode, coverage thresholds or other policies, declare them wherever your repository already keeps such conventions (e.g. a project-level guidelines file, a `CONTRIBUTING.md`, or a host-tool config). Each `hf-*` skill points to "project-level convention (if declared)" — it does not require any particular sidecar file.
 
 ## Slash Commands (Claude Code)
 
-The Claude Code plugin ships 7 short aliases (6 locked by ADR-001 D4; `/release` added in ADR-004 D4). Every command is a **bias**, not a bypass — for the 6 router-bound commands the router still validates upstream preconditions from on-disk artifacts. `/release` is the exception: it **direct invokes** `hf-release` and bypasses the router (ADR-004 D3 — `hf-release` is decoupled from the router).
+The Claude Code plugin ships 7 short aliases. Every command is a **bias**, not a bypass — for the 6 router-bound commands the router still validates upstream preconditions from on-disk artifacts. `/release` is the exception: it **direct invokes** `hf-release` and bypasses the router (`hf-release` is decoupled from the router).
 
 | Command | Bias toward | Notes |
 |---|---|---|
 | `/hf` | `using-hf-workflow` → `hf-workflow-router` | Default. Use this when you are not sure which node should run next. |
 | `/spec` | `hf-specify` | Spec authoring / revision. |
-| `/plan` | `hf-design` (and `hf-ui-design` when the spec declares a UI surface) or `hf-tasks` | Combined planning command — design + task breakdown are intentionally one command (ADR-001 D4 rationale). |
+| `/plan` | `hf-design` (and `hf-ui-design` when the spec declares a UI surface) or `hf-tasks` | Combined planning command — design + task breakdown are intentionally one command. |
 | `/build` | `hf-test-driven-dev` | Only valid when exactly one `Current Active Task` is locked. |
 | `/review` | router dispatches to the matching `hf-*-review` | Reviews are independent nodes with author/reviewer separation. |
 | `/ship` | `hf-completion-gate` → `hf-finalize` | The gate decides whether finalize can actually run. Engineering-level closeout only — **not** production deployment. |
-| `/release [version]` | **direct invoke** `hf-release` (does **not** go through the router) | Cut a vX.Y.Z engineer-level release: aggregate `workflow-closeout` features, draft scope ADR, run release-wide regression, sync CHANGELOG / release notes / ADR statuses, produce tag-ready pack. Does **not** deploy / staged-rollout / monitor / rollback (those remain v0.6+ planned `hf-shipping-and-launch`, not yet implemented). |
+| `/release [version]` | **direct invoke** `hf-release` (does **not** go through the router) | Cut a vX.Y.Z engineer-level release: aggregate `workflow-closeout` features, draft scope ADR, run release-wide regression, sync CHANGELOG / release notes / ADR statuses, produce tag-ready pack. Does **not** deploy / staged-rollout / monitor / rollback (those remain planned `hf-shipping-and-launch`, not yet implemented). |
 
-Intentionally **not** included in v0.1.0–v0.5.0:
+Intentionally **not** included:
 
 - No `/hotfix` — natural language + `/hf` lets the router branch into `hf-hotfix` / `hf-increment` for production defects or scope changes.
 - No `/gate` — gates are pulled by the canonical next action of the upstream node, not pushed by the user. A `/gate` command would encourage skipping implementation or review.
-- No `/ship-to-prod` (or similar deploy command) — deployment / staged rollout / monitoring / rollback are v0.6+ planned `hf-shipping-and-launch` (not yet implemented).
+- No `/ship-to-prod` (or similar deploy command) — deployment / staged rollout / monitoring / rollback are planned `hf-shipping-and-launch` (not yet implemented).
 
-OpenCode and Cursor do not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow` (ADR-003 D6 keeps Cursor on the same NL + router model as OpenCode rather than replicating Claude Code's short slash commands). The `using-hf-workflow` entry shell § 5 entry bias table includes a row for "cut a release / tag a version" that direct invokes `hf-release` without going through the router (ADR-004 D3).
+OpenCode and Cursor do not ship any slash command files; the same intents are reached via natural language + `using-hf-workflow`. The `using-hf-workflow` entry shell's entry bias table includes a row for "cut a release / tag a version" that direct invokes `hf-release` without going through the router.
 
 ## Quick Start
 

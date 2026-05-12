@@ -45,6 +45,15 @@ Manifest is written to host/.harnessflow-install-manifest.json.
 A README is written to host/.harnessflow-install-readme.md.
 
 Use uninstall.sh to reverse based on the manifest.
+
+Windows:
+  This is a bash 3.2+ script. On Windows run it via Git Bash (bundled with
+  Git for Windows: https://git-scm.com/download/win), WSL, or MSYS2 — not
+  PowerShell or cmd. A PowerShell wrapper (install.ps1) is also provided that
+  locates bash and forwards arguments. Note: --topology symlink on Windows
+  needs Developer Mode enabled or an elevated shell; otherwise Git Bash
+  silently degrades 'ln -s' to a copy. Default --topology copy works without
+  any of that.
 EOF
 }
 

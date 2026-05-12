@@ -38,6 +38,12 @@ are removed last.
 Exit codes:
   0  success
   1  invalid args / no manifest found / partial removal failure
+
+Windows:
+  This is a bash 3.2+ script. On Windows run it via Git Bash (bundled with
+  Git for Windows: https://git-scm.com/download/win), WSL, or MSYS2 — not
+  PowerShell or cmd. A PowerShell wrapper (uninstall.ps1) is also provided
+  that locates bash and forwards arguments.
 EOF
 }
 
