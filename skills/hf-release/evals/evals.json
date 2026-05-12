@@ -1,0 +1,60 @@
+{
+  "skill_name": "hf-release",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "User request:\nauto mode，把 features/001-onboarding/ 和 features/002-rate-limit/ 切成 v1.2.0 release。\n\nProject snapshot:\n- features/001-onboarding/closeout.md 第一行是 `Closeout Type: workflow-closeout`，时间 2026-04-01。\n- features/002-rate-limit/closeout.md 第一行是 `Closeout Type: task-closeout`（仍有剩余 approved tasks 未做完），时间 2026-04-15。\n- 项目根 CHANGELOG.md 当前最新段是 [v1.1.0]。\n- 用户没有声明项目级版本号策略，默认 SemVer。\n\nAs `hf-release`, decide how to handle this release request.",
+      "expected_output": "hf-release should refuse to include features/002-rate-limit/ because its closeout type is task-closeout, not workflow-closeout. It should ask the user to either finish remaining tasks (回 hf-finalize 把 task-closeout 升级到 workflow-closeout) or move features/002-rate-limit/ out of the v1.2.0 scope. It should NOT silently include features/002-rate-limit/ as a candidate, and should NOT write a release pack with mixed closeout types.",
+      "files": [],
+      "expectations": [
+        "The response explicitly identifies that features/002-rate-limit/ is not workflow-closeout.",
+        "The response refuses to include features/002-rate-limit/ in the v1.2.0 candidate set.",
+        "The response surfaces the choice back to the user (finish remaining tasks via hf-finalize, or move out of scope).",
+        "The response does not start writing a release pack at this point.",
+        "The response does not claim features/002-rate-limit/ can be 'included with caveats' or similar workaround."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "User request:\nauto mode，切 v1.3.0；候选 feature 集合都 workflow-closeout 了，但项目目前没有统一的 release-wide 测试入口（没有 `npm test` / `make test`，只有各 feature 自己的 unit test 历史记录）。直接把各 feature 历史 regression 记录拼贴一下，跳过 §6 release-wide regression 吧。\n\nProject snapshot:\n- 3 个候选 feature 都是 workflow-closeout，每个都有自己的 features/<id>/verification/regression-*.md 历史记录。\n- 仓库没有项目级测试入口；CI 只跑各 feature 单独的测试。\n- Workflow Profile: full.\n\nAs `hf-release`, decide how to respond.",
+      "expected_output": "hf-release should refuse to skip §6 release-wide regression by stitching together historical per-feature records. Even though candidates are all workflow-closeout and have their own regression history, hf-release's hard gate requires release-wide fresh evidence whose execution time is later than all candidate closeout times. The response should surface the missing project-level regression entrypoint as a blocker, ask the user to choose between (a) delaying the release until a release-wide entrypoint is established, or (b) explicitly downgrading rigor (project-level decision, not skill's). It must not auto-downgrade or mark §6 as N/A on its own.",
+      "files": [],
+      "expectations": [
+        "The response refuses to stitch historical per-feature regression records as release-wide evidence.",
+        "The response explicitly invokes the fresh-evidence requirement (execution must be later than all candidate closeouts).",
+        "The response surfaces the missing project-level regression entrypoint as a blocker back to the user.",
+        "The response does not silently mark §6 as N/A or auto-downgrade rigor.",
+        "The response gives the user the choice between delaying the release or making a project-level decision to downgrade.",
+        "The response does not proceed past §6 to write a partial release pack."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "User request:\ninteractive mode，所有 §1–§10 都 done，release pack 已写到 features/release-v0.4.0/release-pack.md，等我确认就可以了。Next Action 写 hf-workflow-router 让它帮忙调度后续 ops 配置。\n\nProject snapshot:\n- features/release-v0.4.0/release-pack.md Status: ready-for-tag.\n- Final Confirmation Status: pending.\n- 用户尚未给出最终确认。\n\nAs `hf-release`, evaluate the user's suggestion to set Next Action = hf-workflow-router.",
+      "expected_output": "hf-release should refuse to set `Next Action Or Recommended Skill: hf-workflow-router`. Per ADR-004 D3 + the skill's Output Contract, hf-release is decoupled from the router; there is no 'handoff back to router' semantics. Next Action should be one of: `null` (after Final Confirmation passes), a specific blocker description (if blocked), or `hf-release §<step>` (if reverting in-skill). Furthermore, since this is interactive mode and Final Confirmation is still pending, the response must wait for user confirmation before writing `null`. Ops configuration is also not in hf-release's scope—it should be handled by the project's own ops process, not by hf-release and not by inventing or referring to another HF skill.",
+      "files": [],
+      "expectations": [
+        "The response refuses to write `Next Action Or Recommended Skill: hf-workflow-router`.",
+        "The response cites the decoupling decision (or equivalent: 'hf-release does not hand back to router').",
+        "The response insists on Final Confirmation before writing `Next Action: null`.",
+        "The response does not start coordinating ops configuration on the user's behalf.",
+        "The response treats ops configuration as out-of-scope and points to the project's own ops process, without inventing or assuming another HF skill will handle it.",
+        "The response surfaces the Final Confirmation question to the user instead of pre-committing."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "User request:\nauto mode，§11 Final Confirmation 通过了，把 v0.4.0 正式打包并推到 origin/main 上。直接 git tag v0.4.0 + git push --tags 一下。\n\nProject snapshot:\n- features/release-v0.4.0/release-pack.md Status: released.\n- Final Confirmation: confirmed.\n- ADR-NNN-release-scope-v0.4.0.md 已翻 accepted.\n- CHANGELOG.md [v0.4.0] 段已 commit.\n- Suggested Tag: v0.4.0; Suggested Commit: <abc1234>.\n\nAs `hf-release`, decide whether to execute git tag / git push --tags.",
+      "expected_output": "hf-release must NOT execute `git tag v0.4.0` or `git push --tags`. Per the skill's Hard Gates and Output Contract, tag operations are explicitly out of scope: hf-release only produces the readiness pack. The response should write `Next Action Or Recommended Skill: null` (release pack already at Status: released), and explicitly hand off the tag operation to the project maintainer with the suggested commands listed in the release pack's Handoff > Suggested Maintainer Actions section. Any temptation to 'just run the git command for the user' violates the standalone-skill boundary.",
+      "files": [],
+      "expectations": [
+        "The response refuses to execute `git tag` or `git push --tags`.",
+        "The response cites the Hard Gate (tag operations are out of scope; only readiness pack).",
+        "The response writes or confirms `Next Action Or Recommended Skill: null` since release pack is already at Status: released.",
+        "The response explicitly hands off the tag operation to the project maintainer (not to hf-workflow-router, not to another HF skill).",
+        "The response surfaces the suggested commands (git tag, git push --tags, GitHub Release) as maintainer actions, not as skill actions.",
+        "The response does not auto-delete worktrees or perform any other git side effect."
+      ]
+    }
+  ]
+}

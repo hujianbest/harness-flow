@@ -38,6 +38,8 @@ HF workflow family 的 **public shell**。帮助你决定：
 若问题仍在产品 thesis/wedge/probe 层面 → 仍由当前 public entry 统一分流，但目标 leaf 应是 `hf-product-discovery`，而不是再引入第二个 public shell。
 若已产出 `docs/insights/*-spec-bridge.md` 且目标是 formal spec/design/tasks → 可进入 coding family。
 
+`hf-release` 是 release-tier 独立 skill（v0.4.0 引入，ADR-004），**不进** coding family / discovery family 主链，**不进** `hf-workflow-router` 的 transition map。本 entry shell 在 entry bias 表加它一行只用于"用户表达切版本意图时直接 direct invoke"，**不是**把它纳入 runtime FSM。
+
 ## Workflow
 
 ### 1. 判断 entry vs runtime recovery
@@ -85,6 +87,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | closeout/finalize | `hf-completion-gate` / `hf-finalize` | `hf-workflow-router` |
 | 线上问题修复 | `hf-hotfix` | `hf-workflow-router` |
 | 范围/验收/约束变化 | `hf-increment` | `hf-workflow-router` |
+| 切版本 / 出 release / 打 tag / 发版本号 | `hf-release`（**direct invoke**，不 route-first；本 skill 与 router 解耦，ADR-004 D3） | 候选 feature 还没 `workflow-closeout` → `hf-finalize` |
 
 ### 6. 命令当作 bias，不当作 authority
 

@@ -1,8 +1,8 @@
 # HarnessFlow on Cursor
 
-HarnessFlow v0.3.0 supports Cursor through Cursor's **rules** mechanism. Skills are plain Markdown, so the same `skills/` tree that ships in this repository is consumed by Cursor as a project-level (or globally-registered) `alwaysApply` rule that points the agent at the canonical entry shell + router.
+HarnessFlow v0.5.0 supports Cursor through Cursor's **rules** mechanism. Skills are plain Markdown, so the same `skills/` tree that ships in this repository is consumed by Cursor as a project-level (or globally-registered) `alwaysApply` rule that points the agent at the canonical entry shell + router.
 
-> **Scope (v0.3.0 pre-release).** v0.3.0 officially supports 3 clients: **Claude Code**, **OpenCode**, and **Cursor** (newly added in this release). The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.4+. The HarnessFlow main chain still ends at `hf-finalize` (engineering-level closeout); v0.3.0 added **no** new `hf-*` skills and **no** personas, so release pipelines / deployment / monitoring / security hardening / performance gating / debugging-and-error-recovery / deprecation-and-migration remain out of scope. See `docs/decisions/ADR-003-release-scope-v0.3.0.md` D1 / D2 / D3.
+> **Scope (v0.5.0 pre-release).** v0.5.0 officially supports 3 clients (unchanged from v0.3.0 / v0.4.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.6+. v0.5.0 adds a **closeout HTML companion report** to `hf-finalize` — every closeout now also produces `features/<active>/closeout.html` rendered by the new stdlib-only `skills/hf-finalize/scripts/render-closeout-html.py` (workflow timeline rail + tests + coverage rings + searchable evidence matrix; WCAG 2.2 AA, dark/light, printable). v0.4.0's `hf-release` (release-tier **standalone** skill) is unchanged; on Cursor it is invoked via natural language ("cut a release / tag a version") through the entry shell's bias row, which then **direct invokes** `hf-release` without going through `hf-workflow-router` (ADR-004 D3). The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout, now with HTML companion). The remaining 5 ops/release skills (`hf-shipping-and-launch` / etc.) and personas all stay deferred to v0.6+ (ADR-005 D5 / D7). See `docs/decisions/ADR-005-release-scope-v0.5.0.md` for the full v0.5.0 scope decisions.
 
 ## How Cursor sees HF skills
 
@@ -27,9 +27,32 @@ cursor harness-flow
 
 The repository ships `.cursor/rules/harness-flow.mdc` (added in v0.3.0). Opening the repo in Cursor is enough — the rule auto-loads on every session because of `alwaysApply: true`.
 
-### B. Vendor HarnessFlow into your own project
+### B. Vendor HarnessFlow into your own project (recommended: install script)
 
-If you want HarnessFlow available inside another repository:
+If you want HarnessFlow available inside another repository, the easiest path is the bundled install script (added in feature 001-install-scripts; see ADR-007):
+
+```bash
+# From the harness-flow repository, target your host repo:
+bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/project
+
+# Or symlink topology to track HF upstream automatically:
+bash /path/to/harness-flow/install.sh --target cursor --topology symlink \
+     --host /path/to/your/project
+```
+
+The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/` and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`. It also writes a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
+
+```bash
+bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
+```
+
+If you want both Cursor and OpenCode integrations at once, use `--target both`.
+
+> **Cursor rule path note**: `harness-flow.mdc` references `skills/using-hf-workflow/SKILL.md` relatively. After vendoring, the correct path is `.cursor/harness-flow-skills/using-hf-workflow/SKILL.md`. The post-install README in your host repo reminds you of this; v0.6+ may rewrite paths automatically (ADR-007 D4 Alternatives A3, deferred).
+
+#### Manual fallback (advanced users)
+
+If you prefer to vendor by hand:
 
 ```bash
 # From inside your project root, with harness-flow cloned alongside:
@@ -40,7 +63,7 @@ cp ../harness-flow/.cursor/rules/harness-flow.mdc .cursor/rules/
 ln -s ../harness-flow/skills .cursor/harness-flow-skills
 ```
 
-Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root).
+Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root). The install script automates this and also writes a manifest for clean uninstall.
 
 ## 2. The shipped rule
 
@@ -68,9 +91,9 @@ If Cursor jumps straight into `hf-test-driven-dev` without an approved spec / de
 
 ## 4. Mapping from natural-language intent to HF nodes
 
-Cursor doesn't ship HF slash commands in v0.3.0 (commands are bias and conflict-prone across packs; the router's evidence-based selection is sufficient). This is the same shape as OpenCode integration. Use natural language:
+Cursor doesn't ship HF slash commands in v0.5.0 (commands are bias and conflict-prone across packs; the router's evidence-based selection is sufficient for main-chain work, and `hf-release` has its own NL bias row in the entry shell). This is the same shape as OpenCode integration. Use natural language:
 
-| Intent | Router selects |
+| Intent | Selected node |
 |---|---|
 | "I'm not sure where we are, route me." | `using-hf-workflow` → `hf-workflow-router` (default entry) |
 | "Write / revise the spec for X." | `hf-specify` (after upstream discovery preconditions) |
@@ -81,8 +104,9 @@ Cursor doesn't ship HF slash commands in v0.3.0 (commands are bias and conflict-
 | "Close out this task / workflow." | `hf-completion-gate` → `hf-finalize` |
 | "Production defect, hotfix needed." | `hf-hotfix` |
 | "Scope change, re-enter the workflow." | `hf-increment` |
+| **"Cut a release / tag vX.Y.Z / write release notes."** | **direct invoke** `hf-release` (does **not** go through `hf-workflow-router`; ADR-004 D3). Engineer-level release only — does **not** deploy or staged-rollout. |
 
-Hard rule: every intent above is a **bias**, not a bypass. The router still inspects on-disk artifacts and routes to the correct upstream node if preconditions are missing.
+Hard rule: the first 9 intents are **bias**, not bypass — the router inspects on-disk artifacts and routes to the correct upstream node if preconditions are missing. The "cut a release" intent is the exception: the entry shell direct-invokes `hf-release`, which has its own internal Hard Gates (candidate features must be `workflow-closeout`, release-wide regression must be fresh, no auto `git tag`).
 
 ## 5. Troubleshooting
 
@@ -96,21 +120,25 @@ Hard rule: every intent above is a **bias**, not a bypass. The router still insp
 | `hf-finalize` keeps bouncing back | A gate (regression / doc-freshness / completion) failed; follow the canonical next action it returned. |
 | Reviewer wants to edit the artifact under review | That violates author/reviewer separation — file an issue. |
 
-## 6. What is NOT included in v0.3.0
+## 6. What is NOT included in v0.5.0
 
-Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 (P-Honest, "narrow but hard"):
+Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Honest, "narrow but hard"):
 
-- 6 deferred ops/release skills remain out of scope (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`). v0.3.0 introduced no new `hf-*` skills (ADR-003 D2).
-- No HF-specific slash commands on Cursor (use natural language; the router will pick the leaf skill). This matches OpenCode integration; Claude Code's 6 short slash commands are a Claude-Code-specific historical decision (ADR-001 D4) and are not replicated to Cursor (ADR-003 D6).
-- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — ADR-003 D1 keeps them deferred to v0.4+; v0.3.0 only adds Cursor.
-- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked, ADR-003 D3 keeps deferred to v0.4+.
-- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** (does not block PR merge in maintainer workflows); ADR-003 D8 keeps this stance.
-- Real-environment Cursor install smoke is **not** a release hard gate (ADR-003 D7). The first-time real Cursor verification is performed by users in their own Cursor environment; `CONTRIBUTING.md` "Known Limitations" carries this gap explicitly.
+- All 6 originally-deferred ops/release skills (`hf-shipping-and-launch`, `hf-ci-cd-and-automation`, `hf-security-hardening`, `hf-performance-gate`, `hf-deprecation-and-migration`, `hf-debugging-and-error-recovery`) remain out of scope. v0.4.0 added a **new** skill `hf-release` (release-tier engineer-level version cut), and v0.5.0 added a **closeout HTML companion report** to `hf-finalize` — neither is one of the 6 original deferred ops/release skills, and neither replaces `hf-shipping-and-launch`; all three slices are orthogonal (closeout reviewer experience vs. version cut vs. ship to production).
+- `hf-release` does **not** enter the router transition map — it is a release-tier standalone skill, decoupled from the main chain (ADR-004 D3).
+- `hf-release` does **not** auto-execute `git tag` or `git push --tags`. The skill produces a readiness pack only; tag operations are project-maintainer actions.
+- No HF-specific slash commands on Cursor (use natural language; the entry shell direct-invokes `hf-release` for release intents, the router picks the leaf skill for everything else). This matches OpenCode integration; Claude Code's 7 short slash commands are a Claude-Code-specific decision (ADR-001 D4 + ADR-004 D4) and are not replicated to Cursor (ADR-003 D6).
+- No 4-client expansion (Gemini CLI / Windsurf / GitHub Copilot / Kiro) — Cursor was added in v0.3.0; the other 4 stay deferred to v0.6+.
+- No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 / ADR-004 / ADR-005 D5 keep deferred to v0.6+.
+- The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** (does not block PR merge in maintainer workflows); ADR-003 D8 / ADR-004 keep this stance.
+- Real-environment Cursor install smoke is **not** a release hard gate (ADR-003 D7 / ADR-004 inherits). The first-time real Cursor verification is performed by users in their own Cursor environment; `CONTRIBUTING.md` "Known Limitations" carries this gap explicitly.
 
-These constraints are intentional. They keep the v0.3.0 surface small enough to be honest about what the release actually covers (1 new client, no new skills, no new personas).
+These constraints are intentional. They keep the v0.5.0 surface small enough to be honest about what the release actually covers (1 closeout HTML companion report + 1 new stdlib-only render script, no new skills, no new clients, no new personas, no new ops skills).
 
 ## 7. Cross-references
 
+- ADR-004 (v0.4.0 release scope: hf-release standalone skill + /release command): `docs/decisions/ADR-004-hf-release-skill.md`
+- ADR-005 (v0.5.0 release scope: hf-finalize closeout HTML companion + skills/hf-finalize/scripts/render-closeout-html.py): `docs/decisions/ADR-005-release-scope-v0.5.0.md`
 - ADR-003 (v0.3.0 release scope decisions): `docs/decisions/ADR-003-release-scope-v0.3.0.md`
 - ADR-002 (v0.2.0 release scope, with D11 narrowing): `docs/decisions/ADR-002-release-scope-v0.2.0.md`
 - ADR-001 (v0.1.0 release scope): `docs/decisions/ADR-001-release-scope-v0.1.0.md`
