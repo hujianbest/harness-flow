@@ -52,6 +52,19 @@
         "Does not claim workflow completion",
         "Does not write `Next Action Or Recommended Skill: null` in this conflicted scenario"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "User request:\nauto mode，正式收尾这个 frontend workflow。\n\nProject snapshot:\n- Completion and regression records exist.\n- The only verification commands are `npm test -- --run` in happy-dom and `npm run build`.\n- Browser runtime evidence is missing, API contract evidence is missing, and the completion record lists these as uncovered.\n- The draft closeout says `Frontend production-ready, critical bugs 0`.\n\nAs `hf-finalize`, decide how the closeout wording should be handled.",
+      "expected_output": "Finalize must not keep the `production-ready` claim. It should require a narrower readiness label such as `unit-tested` or `runtime verification incomplete`, preserve the missing runtime/contract evidence as a limitation, and avoid claiming critical runtime bugs are zero.",
+      "files": [],
+      "expectations": [
+        "Rejects or revises the `production-ready` wording",
+        "Uses a narrower readiness label based on available evidence",
+        "Mentions missing browser-runtime and API contract evidence",
+        "Does not claim critical runtime bugs are zero",
+        "Keeps the limitation in the closeout evidence matrix or notes"
+      ]
     }
   ]
 }

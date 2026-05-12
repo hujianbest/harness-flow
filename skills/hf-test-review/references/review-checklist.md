@@ -62,3 +62,18 @@
 | `TA3` | mock overreach | 大量断言 mock 调用而非行为结果 | 仅在真实边界使用 mock |
 | `TA4` | no acceptance link | 测试存在，但无法回指到任务 acceptance | 补 trace anchor 或验收映射 |
 | `TA5` | stale evidence | 用旧绿测或口头结果替代当次输出 | 使用当前会话 fresh evidence |
+| `TA6` | provider mock hides app wiring | 测试 mock 了 UI provider / composable（如 message、dialog、router、store），但没有真实 App/provider 装配测试 | 至少补一个 App mount 或真实 provider 组合测试 |
+| `TA7` | child component overmock | 页面测试 mock 掉关键子组件，导致真实组件 contract、props、运行时异常无法暴露 | 对关键页面补真实子组件集成测试，或在风险清单中要求 browser runtime evidence |
+| `TA8` | mocked fetch hides API contract | fetch / HTTP client 全 mock，未验证 base URL、proxy、method、status、DTO 字段 | 补 API contract 测试或 full-stack smoke；mock fetch 只能证明 lower-tier 行为 |
+| `TA9` | fixture contract drift | 测试 fixture 字段与后端 DTO / 真实 fallback 数据不一致，例如测试总有 `content`，真实数据只有 `excerpt` | 从 API contract / schema / fixture factory 生成或校验测试数据 |
+| `TA10` | simulated DOM mislabeled as browser | 把 happy-dom / jsdom / Vue Test Utils 结果写成 Chrome/Edge/Safari 已验证 | 明确标为 simulated DOM；真实浏览器证据必须来自 browser runtime tier |
+
+## Runtime / Contract Review Addendum
+
+当当前任务触碰 UI surface、前端 API client、HTTP API、auth/session、dev-server/proxy/env、browser storage 或 full-stack flow 时，测试评审还必须检查：
+
+- 是否存在至少一个不 mock 关键 provider 的 App / page 级测试，覆盖根组件、router、store、UI library provider 装配。
+- 是否存在能发现 API base URL / proxy / DTO 漂移的证据；仅 mock `fetch` 不足以通过 `TT3` 风险覆盖。
+- 页面级测试是否保留关键子组件真实渲染；如果为了隔离而 mock 子组件，必须另有集成或 browser runtime evidence 覆盖真实组合。
+- fixture 是否与后端契约或项目声明的 response shape 对齐；若无契约来源，测试评审应把 contract drift 记为 finding。
+- 评审记录不得把 simulated DOM 环境写成真实浏览器兼容性证明。

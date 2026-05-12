@@ -40,6 +40,23 @@ Profile-aware 回归范围：
 - `standard`：直接相关模块
 - `lightweight`：最小 build/test 入口
 
+Evidence-tier 回归范围（按当前 task / traceability 影响面叠加，不被 profile 降级覆盖）：
+
+| Evidence Tier | 可证明什么 | 不能证明什么 |
+|---|---|---|
+| `mocked-unit` | 纯逻辑、局部函数、隔离组件行为 | 真实浏览器、真实 API、App 根配置、跨组件集成 |
+| `component-integration` | 真实子组件组合、provider / router / store 配置 | 真实浏览器网络栈、后端契约 |
+| `api-contract` | 前后端路径、method、status、DTO 字段、base URL / proxy 一致 | 浏览器渲染和用户交互 |
+| `browser-runtime` | DOM / Console / Network 三层真实浏览器行为 | 后端持久化完整性、非浏览器服务间流程 |
+| `full-stack-smoke` | 启动服务、健康检查、关键端到端用户流 | 大规模性能、全量业务覆盖 |
+
+触发规则：
+- 触碰 UI route、App 根组件、UI provider、浏览器存储、表单、前端 API client、Vite proxy/env → 至少需要 `browser-runtime`；若有后端交互，同时需要 `api-contract` 或 `full-stack-smoke`
+- 触碰 HTTP controller / API DTO / auth / CORS / base URL / proxy → 至少需要 `api-contract`
+- 触碰跨前后端用户流 → 需要 `full-stack-smoke`
+- `happy-dom` / jsdom / mock fetch / mocked provider 只能归为 `mocked-unit` 或 `component-integration`，不得写成 `browser-runtime` 或 `api-contract`
+- 若任务 DoD 或项目级 runtime-smoke profile 要求某 tier，缺失该 tier 即为强制验证未完成
+
 ### 1.5 Precheck：能否合法进入 gate
 
 检查：上游 review / traceability 记录是否齐全、实现交接块是否稳定、worktree 状态与当前验证位置是否一致。
@@ -68,6 +85,8 @@ Profile-aware 回归范围：
 |---|---|---|---|
 | build / typecheck / lint 失败 | 失败命令、退出码、关键报错摘录 | `需修改` | `hf-test-driven-dev` |
 | 测试通过但覆盖率低于 项目级覆盖率门槛或当前任务门槛 | 覆盖率命令、实际结果、门槛来源 | `需修改` | `hf-test-driven-dev` |
+| UI / API / full-stack 影响面缺少对应 evidence tier | 影响面、缺失 tier、已有 weaker evidence、DoD / 项目约定来源 | `需修改`；若工具链 / 环境不可用且无降级许可 → `阻塞` | `hf-test-driven-dev` 或 `hf-regression-gate` |
+| 记录把 happy-dom / jsdom / mock fetch 称作真实浏览器或真实 API 集成 | 测试环境、mock 边界、错误分类的证据摘录 | `需修改` | `hf-test-driven-dev` |
 | `lightweight` 且仅文档 / 配置类变更 | 最小相关验证（如 docs build、lint、config parse）+ 明确未覆盖区域 | 结果驱动 | 通过时 `hf-completion-gate`，否则 `hf-test-driven-dev` |
 | 强制集成 / e2e 验证因环境不可用而未跑 | 项目约定 / DoD 是否允许降级；若允许，给出替代验证结果；若不允许，写明阻塞原因 | 无降级许可 → `阻塞`；有许可则按结果判断 | 无降级许可 → `hf-regression-gate` |
 | `worktree-active` 但证据来自其他目录或旧代码状态 | 当前 `Worktree Path`、证据来源路径 / 时间锚点 | `阻塞` | `hf-regression-gate` |
@@ -87,6 +106,7 @@ Profile-aware 回归范围：
 - `Metadata`：`Verification Type=regression-gate`、Scope、Record Path、Worktree Path / Branch（若适用）
 - `Upstream Evidence Consumed`：已消费的 traceability / review / handoff / task-progress 记录
 - `Verification Scope`：Included Coverage、Uncovered Areas
+- `Evidence Tier Coverage`：列出 mocked-unit / component-integration / api-contract / browser-runtime / full-stack-smoke 的 required / provided / N/A 状态
 - `Commands And Results`：命令、退出码、Summary、Notable Output
 - `Freshness Anchor`：为什么这些结果锚定当前代码状态
 - `Conclusion`：`通过` / `需修改` / `阻塞` + 唯一 `Next Action Or Recommended Skill`
@@ -105,6 +125,7 @@ Profile-aware 回归范围：
 最少应包含：
 - 已消费的上游证据（至少写清 implementation handoff、traceability review、相关 review/gate records）
 - 回归面定义、Included Coverage 与 Uncovered Areas
+- evidence tier 覆盖矩阵；若存在 UI / API / full-stack 影响面，必须写出 runtime / contract / smoke 是否已覆盖
 - 命令、退出码、结果摘要、关键失败/警告摘录
 - 新鲜度锚点与 worktree 锚点（若适用）
 - 若使用 coverage / docs build / config parse / integration fallback，必须写出依据来源（项目约定 / DoD）
@@ -115,6 +136,7 @@ Profile-aware 回归范围：
 | 文件 | 用途 |
 |------|------|
 | `references/verification-record-template.md` | regression verification record 模板（与 `hf-completion-gate` 同形态） |
+| `references/runtime-smoke-profile.md` | 项目侧 runtime smoke / health check / API contract / browser routes 声明模板 |
 
 ## Red Flags
 

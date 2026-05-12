@@ -20,12 +20,26 @@
 - Based On Completion Record:
 - Based On Regression Record:
 
+### Claim Wording Guardrail
+
+- Allowed Readiness Label: `unit-tested` | `component-tested` | `runtime-verified` | `full-stack-smoke-verified` | `release-ready` | `blocked`
+- Runtime / Contract Evidence Basis:
+- Do not write `production-ready` unless release / deployment readiness gates and required runtime / contract evidence are present. If evidence is limited to unit tests, simulated DOM, mocked fetch, or component tests, use a narrower label such as `unit-tested`, `frontend-only complete`, or `runtime verification incomplete`.
+
 ## Evidence Matrix
 
 - Artifact:
 - Record Path:
 - Status: `present` | `N/A (profile skipped)` | `missing`
 - Notes:
+
+## Runtime / Contract Evidence Matrix
+
+| Evidence Tier | Record / Artifact Path | Status | Notes |
+|---|---|---|---|
+| api-contract |  | `present` |  |
+| browser-runtime |  | `present` |  |
+| full-stack-smoke |  | `present` |  |
 
 ## State Sync
 

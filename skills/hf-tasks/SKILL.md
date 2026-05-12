@@ -80,6 +80,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 - `Acceptance` 写任务完成后什么行为/接口/状态必须为真；不要写“实现某模块”“完成某功能”
 - `Verify` 优先继承项目级约定中的真实命令、顺序与强制验证步骤；不要用泛化默认值覆盖项目规则
+- 若任务触碰 UI surface、前端 API client、后端 HTTP API、dev-server/proxy/env、认证/session、浏览器存储或 full-stack flow，`Verify` / DoD 必须声明 runtime evidence tier：mocked unit、component integration、API contract、browser runtime、full-stack smoke 中哪些是强制，哪些允许 N/A；不能只写“单测通过”
 - `测试设计种子` 至少覆盖：主行为、1 个关键边界、1 个适合 fail-first 的点
 - 代码型任务优先拆成可直接支撑 `hf-test-driven-dev` 的最小闭环：`fail-first test -> 确认失败 -> 最小实现 -> verify green`
 - 数据库 / 迁移 / 状态切换类任务，除 `Verify` 外还要写明回滚 / 恢复说明，或显式引用项目中的等价字段
@@ -113,6 +114,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 交 `hf-tasks-review` 前确认：
 - 不存在大到无法单任务推进的任务
 - 关键任务有 Acceptance、Files、Verify、完成条件
+- UI / API / full-stack 任务的 Verify 已写清 runtime evidence tier、启动/健康检查入口、API base URL 或明确引用项目级 runtime-smoke profile
 - 关键任务能追溯回规格/设计
 - 风险区域已体现在顺序或验证中
 - 已给出唯一 Current Active Task 选择规则
