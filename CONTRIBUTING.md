@@ -2,7 +2,7 @@
 
 Thanks for your interest in HarnessFlow.
 
-This document is intentionally short. HarnessFlow is currently a **single-maintainer** pre-release (`v0.5.1`). The goal of this guide is to make small, well-scoped contributions easy to land and to keep larger changes from blocking on review forever.
+This document is intentionally short. HarnessFlow is currently a **single-maintainer** pre-release (`v0.6.0`). The goal of this guide is to make small, well-scoped contributions easy to land and to keep larger changes from blocking on review forever.
 
 ## Before You Start
 
