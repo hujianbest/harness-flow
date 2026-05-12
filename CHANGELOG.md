@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- **`install.sh` / `uninstall.sh`** —— 仓库根新增 bash 安装脚本，覆盖 Cursor / OpenCode / both 三个 target × copy / symlink 两个 topology = 6 个组合；纯 bash 3.2+ 兼容（不引入 jq / python / node / npm 任何运行时依赖）；ADR-007 锁 5 个关键决策（D1 纯 shell / D2 manifest 唯一权威 / D3 不依赖 jq / D4 cursor vendor 路径 / D5 post-install readme）。`features/001-install-scripts/` 走完整 SDD 主链（spec → spec-review × 2 → design + ADR-007 → design-review × 2 → tasks → tasks-review × 2 → TDD → test-review × 2 + code-review → traceability-review → regression-gate → doc-freshness-gate → completion-gate → finalize），feature 内 14 个 e2e scenario 全 PASS（含 HYP-002 Blocking "用户自加 skill uninstall 时不被误删" 的直接验证 + NFR-002 中途失败 rollback 闭合性验证）。
+- **`tests/test_install_scripts.sh`** —— 仓库根新增 `tests/` 目录承载 install/uninstall 端到端测试 driver，14 scenario 统一入口，支持 `--only=N1,N2,...` 跑子集；与 HF 既有 `scripts/audit-skill-anatomy.py` + `skills/hf-finalize/scripts/test_render_closeout_html.py` 共存，相互独立。
+- **`docs/decisions/ADR-007-install-scripts-topology-and-manifest.md`** —— accepted；记录 install scripts 5 个关键决策与 alternatives + reversibility。
+
+### Changed
+
+- **`docs/cursor-setup.md` §1.B / `docs/opencode-setup.md` §1.B** —— vendor 段落以 `install.sh` 为推荐路径，原"手工 `mkdir / cp -R / ln -s`"作为高级用户 fallback 保留；`docs/opencode-setup.md` §1.A / §2 中 stale "23 个 hf-*" 文本统一更新为 "24 个"（与 v0.4.0 起 `hf-release` 加入后的真实数量一致）。
+- **`README.md` / `README.zh-CN.md`** —— OpenCode 与 Cursor 安装段都给出 install.sh 一条命令的入口，原"复制或软链接"作为补充说明保留。
+
 ### Documentation
 
 - **`README.md` / `README.zh-CN.md`** —— 在三处 reviewer-facing 介绍面同步补齐 `hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入的 verify-stage conditional side node），与 `hf-experiment` / `hf-ui-design` / `hf-release` 同等待遇：(1) `## Overview` / `## 项目概览` 概述 bullets 加一行 `Browser runtime evidence`；(2) `### Execution and reviews` / `### 执行与评审` 方法论矩阵加 `hf-browser-testing` 一行（Three-layer Runtime Evidence + Walking Skeleton Scenario + Fresh Evidence Principle + Observation-not-Verdict + Author/Reviewer/Gate Separation）；(3) `## Workflow Shape` / `## 工作流形状` 流程图加 `(optional) hf-browser-testing` 行 + 流程图下方加专门的激活与回流说明段（指向 `skills/hf-browser-testing/SKILL.md` 与 `skills/hf-workflow-router/references/profile-node-and-transition-map.md` 的 `hf-browser-testing 激活与回流` 一节）。修复此前 README 仅在 OpenCode 验证段一处提及其存在性、却在三个核心介绍面都漏掉它的不一致；不改 skill 行为、不改 FSM、不改 router transition map、不改 slash 命令面、不改任何 SKILL.md。
