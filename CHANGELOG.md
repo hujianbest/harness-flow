@@ -6,20 +6,62 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+_(no changes yet)_
+
+## [0.6.0] - 2026-05-12 — pre-release
+
+> **Minor release on top of v0.5.1.** Marked as a **pre-release** on GitHub Releases.
+>
+> v0.6.0 是 HF 自身第四次 dogfood `hf-release`（v0.4.0 / v0.5.0 / v0.5.1 是前三次），第一个真正用 SDD 主链 6 周次完整产出 + hf-release 收尾的 minor release。本版引入仓库根 **`install.sh`** + **`uninstall.sh`** + **`tests/test_install_scripts.sh`**，让 OpenCode 与 Cursor 的"vendor 进自己仓库"从原来的"手工 `mkdir + cp -R + ln -s` 三步"压缩成"一条命令完成 + manifest-based 卸载 + 6 个 target × topology 组合 + 2 个 negative-path scenario = 14/14 e2e PASS"。
+>
+> 完整范围决策见 [`docs/decisions/ADR-008-release-scope-v0.6.0.md`](docs/decisions/ADR-008-release-scope-v0.6.0.md)（8 项决策）；install scripts 工程层决策见 [`docs/decisions/ADR-007-install-scripts-topology-and-manifest.md`](docs/decisions/ADR-007-install-scripts-topology-and-manifest.md)（5 项决策 D1-D5）。release pack 落到 [`features/release-v0.6.0/release-pack.md`](features/release-v0.6.0/release-pack.md)。
+>
+> **不**改 closeout pack schema、**不**改 closeout HTML 输出语义、**不**触动 24 个 hf-* skill 的任何 SKILL.md、**不**改 HF skill anatomy v2、**不**新增 hf-* skill、**不**新增 slash 命令、**不**触动主链 FSM 或 router transition map。install scripts 是仓库级入口，**不是** hf-* skill（按 ADR-008 D2 / D8 决策落仓库根而非 `skills/<name>/scripts/`）。
+
 ### Added
 
-- **`install.sh` / `uninstall.sh`** —— 仓库根新增 bash 安装脚本，覆盖 Cursor / OpenCode / both 三个 target × copy / symlink 两个 topology = 6 个组合；纯 bash 3.2+ 兼容（不引入 jq / python / node / npm 任何运行时依赖）；ADR-007 锁 5 个关键决策（D1 纯 shell / D2 manifest 唯一权威 / D3 不依赖 jq / D4 cursor vendor 路径 / D5 post-install readme）。`features/001-install-scripts/` 走完整 SDD 主链（spec → spec-review × 2 → design + ADR-007 → design-review × 2 → tasks → tasks-review × 2 → TDD → test-review × 2 + code-review → traceability-review → regression-gate → doc-freshness-gate → completion-gate → finalize），feature 内 14 个 e2e scenario 全 PASS（含 HYP-002 Blocking "用户自加 skill uninstall 时不被误删" 的直接验证 + NFR-002 中途失败 rollback 闭合性验证）。
-- **`tests/test_install_scripts.sh`** —— 仓库根新增 `tests/` 目录承载 install/uninstall 端到端测试 driver，14 scenario 统一入口，支持 `--only=N1,N2,...` 跑子集；与 HF 既有 `scripts/audit-skill-anatomy.py` + `skills/hf-finalize/scripts/test_render_closeout_html.py` 共存，相互独立。
-- **`docs/decisions/ADR-007-install-scripts-topology-and-manifest.md`** —— accepted；记录 install scripts 5 个关键决策与 alternatives + reversibility。
+- **`install.sh` / `uninstall.sh`**（ADR-007 + ADR-008 D1）—— 仓库根新增 bash 安装脚本，覆盖 Cursor / OpenCode / both 三个 target × copy / symlink 两个 topology = 6 个组合；纯 bash 3.2+ 兼容（不引入 jq / python / node / npm 任何运行时依赖；NFR-004 锁定）；ADR-007 锁 5 个关键决策（D1 纯 shell / D2 manifest 唯一权威 + per-skill entries 颗粒度 / D3 不依赖 jq / D4 cursor vendor 路径 = `.cursor/harness-flow-skills` + `.cursor/rules/harness-flow.mdc` / D5 post-install `.harnessflow-install-readme.md` 30 行 markdown 提示）。manifest-based uninstall 保留用户自加的 skill（HYP-002 Blocking "用户自加 `.opencode/skills/my-own-skill` 在 uninstall 后必须仍存在" 经 scenario #7 直接验证通过）；中途失败 rollback 闭合（NFR-002 经 scenario #12 验证通过：`set -Eeuo pipefail` 让 ERR trap 跨函数继承 + `mark_will_create()` 在 op 之前预登记 + dir 类用 `rm -rf` 而非 rmdir-only）。`features/001-install-scripts/` 走完整 SDD 主链：spec → spec-review × 2 → spec-approval → design + ADR-007 → design-review × 2 → design-approval → tasks → tasks-review × 2 → tasks-approval → TDD（T1..T10b 11 个 task）→ test-review × 2 + code-review + traceability-review × 2 → regression-gate → doc-freshness-gate → completion-gate → finalize（含 closeout HTML companion，2026-05-11）。
+- **`tests/test_install_scripts.sh`**（ADR-008 D6）—— 仓库根新增 `tests/` 目录承载 install/uninstall 端到端测试 driver，14 scenario 统一入口（6 e2e 矩阵 + 6 额外 + 2 negative-path）；支持 `--only=N1,N2,...` 跑子集；与 HF 既有 `scripts/audit-skill-anatomy.py` + `scripts/test_audit_skill_anatomy.py` + `skills/hf-finalize/scripts/test_render_closeout_html.py` 共存，相互独立。
+- **`docs/decisions/ADR-007-install-scripts-topology-and-manifest.md`** —— accepted（在 v0.6.0 §11 Final Confirmation 通过时翻 accepted）；记录 install scripts 5 个关键决策与 alternatives + reversibility。
+- **`docs/decisions/ADR-008-release-scope-v0.6.0.md`** —— accepted（在 v0.6.0 §11 Final Confirmation 通过时翻 accepted）；记录 v0.6.0 范围 8 项决策（D1 引入 install scripts / D2 不扩 skill 集合 / D3 sustained pre-release / D4 minor bump / D5 v0.7+ deferred 维持 / D6 release-wide regression 范围 / D7 cross-feature traceability 单候选聚合 / D8 install scripts 不进 hf-skill anatomy 4 类子目录约定边界澄清）。
 
 ### Changed
 
-- **`docs/cursor-setup.md` §1.B / `docs/opencode-setup.md` §1.B** —— vendor 段落以 `install.sh` 为推荐路径，原"手工 `mkdir / cp -R / ln -s`"作为高级用户 fallback 保留；`docs/opencode-setup.md` §1.A / §2 中 stale "23 个 hf-*" 文本统一更新为 "24 个"（与 v0.4.0 起 `hf-release` 加入后的真实数量一致）。
-- **`README.md` / `README.zh-CN.md`** —— OpenCode 与 Cursor 安装段都给出 install.sh 一条命令的入口，原"复制或软链接"作为补充说明保留。
+- **`docs/cursor-setup.md` §1.B / `docs/opencode-setup.md` §1.B**（feature 001-install-scripts T10b）—— vendor 段落以 `install.sh` 为推荐路径；原"手工 `mkdir / cp -R / ln -s`"作为 advanced users fallback 段保留。`docs/opencode-setup.md` §1.A / §2 中 stale "23 个 hf-*" 文本同步更新为 "24 个"（与 v0.4.0 起 `hf-release` 加入后的真实数量一致）；line 20 "23 self-contained skills" → "25 self-contained skills (24 hf-* + using-hf-workflow)"。
+- **`README.md` / `README.zh-CN.md`**（feature 001-install-scripts T10b + 本 release 顶部 Scope Note 同步）—— OpenCode 与 Cursor 安装段都给出 install.sh 一条命令入口；顶部 Scope Note 由"v0.5.1 pre-release" 升级为 "v0.6.0 pre-release"，含 install scripts 表面 + ADR-007 / ADR-008 引用 + v0.7+ deferred 项更新。
+- **`docs/cursor-setup.md` / `docs/opencode-setup.md` / `docs/claude-code-setup.md`** 顶部 Scope 句子 —— 由 v0.5.0 升级为 v0.6.0；deferred 项从 "v0.6+" 重新指向 "v0.7+"（与 ADR-008 D5 v0.7+ Roadmap 一致）。
+- **`SECURITY.md` Supported Versions 表**（ADR-008 R3）—— 新增 `0.6.x`（current pre-release，latest `0.6.0`）行，原 `0.5.x` 行降级为 best-effort security-only；`0.4.x` / `0.3.x` / `0.2.x` / `0.1.x` 行 "encouraged to upgrade" 目标更新为 `0.6.x`。Scope 段新增 v0.6.0 install/uninstall scripts security surface 说明。
+- **`CONTRIBUTING.md` 引言**（ADR-008 R3）—— 版本号 `v0.5.1` → `v0.6.0`。
+- **`.cursor/rules/harness-flow.mdc` Hard rules 段** —— 新增 v0.6.0 install scripts 规则行（说明它们不是 hf-* skill / 落仓库根 / 受众是用户 / 不破坏 anatomy v2）；Scope honesty 段同步加入 v0.6.0 范围说明 + deferred 项 v0.7+ Roadmap。
+- **`.claude-plugin/plugin.json`**（ADR-008 R3）—— `version`: `0.5.1` → `0.6.0`。
+- **`.claude-plugin/marketplace.json`**（ADR-008 R3）—— 描述追加 v0.6.0 install scripts 摘要。
 
-### Documentation
+### Decided
 
-- **`README.md` / `README.zh-CN.md`** —— 在三处 reviewer-facing 介绍面同步补齐 `hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入的 verify-stage conditional side node），与 `hf-experiment` / `hf-ui-design` / `hf-release` 同等待遇：(1) `## Overview` / `## 项目概览` 概述 bullets 加一行 `Browser runtime evidence`；(2) `### Execution and reviews` / `### 执行与评审` 方法论矩阵加 `hf-browser-testing` 一行（Three-layer Runtime Evidence + Walking Skeleton Scenario + Fresh Evidence Principle + Observation-not-Verdict + Author/Reviewer/Gate Separation）；(3) `## Workflow Shape` / `## 工作流形状` 流程图加 `(optional) hf-browser-testing` 行 + 流程图下方加专门的激活与回流说明段（指向 `skills/hf-browser-testing/SKILL.md` 与 `skills/hf-workflow-router/references/profile-node-and-transition-map.md` 的 `hf-browser-testing 激活与回流` 一节）。修复此前 README 仅在 OpenCode 验证段一处提及其存在性、却在三个核心介绍面都漏掉它的不一致；不改 skill 行为、不改 FSM、不改 router transition map、不改 slash 命令面、不改任何 SKILL.md。
+- **D1 引入 install scripts**（ADR-008 D1）—— v0.6.0 把 `features/001-install-scripts/` 工程交付物正式纳入对外发布。
+- **D2 skill 集合稳定**（ADR-008 D2）—— 不新增 / 不修改 / 不移除任何 `hf-*` skill；install scripts 不被建模为 hf-* skill。
+- **D3 sustained pre-release**（ADR-008 D3）—— GitHub Releases 仍勾选 pre-release（沿用 ADR-001 D6 / ADR-002 D6 / ADR-003 D5 / ADR-004 D6 / ADR-005 D8 / ADR-006 D3 立场）。
+- **D4 minor bump**（ADR-008 D4）—— SemVer 2.0.0 决策表：含 backward-compatible 新功能（无 breaking）→ minor bump，从 v0.5.1 切到 v0.6.0 跨 minor 段。
+- **D5 v0.7+ deferred 维持**（ADR-008 D5）—— 5 个 ops/release skills + 4 个剩余客户端 + 3 个 personas + install scripts 7 项 deferred + ADR-007 D4 alt A3 + writeonce demo trail 重跑全部继续 deferred；明示而非编造其交付承诺。
+- **D6 release-wide regression 范围**（ADR-008 D6）—— `union(候选 feature affected modules)` = install scripts + 5 个 doc 文件 + HF skill anatomy；5 类入口（feature e2e + audit + audit 单测 + finalize 渲染单测 + NFR-004 grep）于 2026-05-12T13:22:54Z fresh 执行，**5/5 PASS**。
+- **D7 cross-feature traceability 单候选聚合**（ADR-008 D7）—— 单 candidate feature 时不重做单 feature traceability；直接复用 features/001-install-scripts/reviews/traceability-review.md Round 2 verdict 作为 release-tier 锚点。
+- **D8 anatomy 边界澄清**（ADR-008 D8）—— install scripts 落仓库根而非 `skills/<name>/scripts/`；ADR-006 D1 锁定的 4 类子目录约定**针对 skill-owned 工具**，install scripts 是**仓库级入口**不属于此类。
+
+### Deferred (continued from prior versions)
+
+- **5 个 ops/release skills**（ADR-001 / ADR-002 / ADR-003 / ADR-004 / ADR-005 / ADR-008 D5）：`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery` 继续 deferred 到 v0.7+。
+- **4 家剩余客户端**（同上）：Gemini CLI / Windsurf / GitHub Copilot / Kiro 继续 deferred 到 v0.7+。
+- **3 个 personas**（ADR-002 D11 / ADR-008 D5）：`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor` 继续 deferred 到 v0.7+。
+- **install scripts 7 项 deferred**（features/001-install-scripts/spec-deferred.md DEF-001..DEF-007 / ADR-008 D5）：Windows PowerShell `install.ps1` / Claude Code install 脚本（marketplace 已覆盖）/ `npx hf-install` Node 包 / global 多版本共存 / install 对 `AGENTS.md` merge / install telemetry / install 调起 audit 集成。
+- **ADR-007 D4 Alt A3**（cursor rule 路径自动重写）：post-install README 已提供 in-place 提示作为过渡方案，自动重写延后到 v0.7+。
+- **writeonce demo evidence trail 重跑**（ADR-005 D7 / ADR-008 D5）：维持 deferred。
+
+### Notes
+
+- **dogfood 第四次**：v0.6.0 是 HF 自身第四次 dogfood `hf-release` skill（前三次为 v0.4.0 minor / v0.5.0 minor / v0.5.1 patch）。本版第一个真正"主线 SDD 完整 6 周次产出 + hf-release 收尾"的 minor release，验证 spec → spec-review×2 → design + ADR → design-review×2 → tasks → tasks-review×2 → TDD → test-review×2 + code-review + traceability-review×2 → 4 gate（regression + doc-freshness + completion）→ finalize（含 closeout HTML）→ release（含 release-wide regression + cross-feature traceability + scope ADR + pre-release-checklist + release pack）的端到端可执行性。
+- **HF skill anatomy v2 立场不动**：本版不修改 ADR-006 D1 锁定的 4 类子目录约定（`SKILL.md` + `references/` + `evals/` + `scripts/`）；仅 ADR-008 D8 澄清 install scripts 不在该约定内（属仓库级入口）。
+- **out-of-scope 能力承担方明确**：本版不承诺部署 / staged rollout / 监控 / 回滚 / SLO / health check / staged rollout / feature flag 等任何 ops 类能力——这些**由项目自身的 ops 流程承担**，不在本 skill 集合范围内。`hf-release` 不自动执行 `git tag` / `git push --tags`——tag 操作由项目维护者执行（与 ADR-005 D9 / ADR-006 D4 / ADR-004 D7 同向）。
+- **author/reviewer separation (Fagan)**：本 release scope ADR（ADR-008）由 cursor cloud agent 单进程起草；按 hf-release `Author/Reviewer Separation (advisory)` 立场，建议项目维护者在 PR review 时独立评审本 ADR draft 后再 merge。
 
 ## [0.5.1] - 2026-05-09 — pre-release
 
@@ -413,7 +455,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.6.0
 [0.5.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.1
 [0.5.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.0
 [0.4.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.4.0

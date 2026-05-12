@@ -8,21 +8,23 @@ HarnessFlow is a Markdown-based skill pack for AI coding agents. It does **not**
 - Setup paths described under `docs/claude-code-setup.md`, `docs/opencode-setup.md`, and `docs/cursor-setup.md`
 - The `.claude-plugin/` plugin manifest registered with Claude Code's marketplace
 - The `.cursor/rules/harness-flow.mdc` rule (v0.3.0; refreshed in v0.4.0 / v0.5.0) loaded by Cursor's rules system
+- The repo-root `install.sh` / `uninstall.sh` (v0.6.0) and `tests/test_install_scripts.sh` (v0.6.0) — bash entrypoints that vendor HF into a host repository; they only touch the host's `.opencode/` / `.cursor/` and write `.harnessflow-install-manifest.json` + `.harnessflow-install-readme.md`; no network calls, no telemetry
 - The `examples/writeonce/` quickstart demo (a self-contained Node.js project under that directory)
 
 Runtime behavior of any agent (Claude Code, OpenCode, Cursor, etc.) that loads HarnessFlow is **out of scope** for this policy — please report runtime issues to the agent vendor instead.
 
 ## Supported Versions
 
-HarnessFlow follows SemVer. `v0.5.1` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
+HarnessFlow follows SemVer. `v0.6.0` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 | Version | Supported for security fixes |
 |---|---|
-| `0.5.x` (current pre-release; latest `0.5.1`) | Best-effort; fixes shipped via patch releases on the `main` branch |
-| `0.4.x` (previous pre-release; latest `0.4.0`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
-| `0.3.x` (older pre-release; latest `0.3.0`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
-| `0.2.x` (older pre-release; latest `0.2.1`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
-| `0.1.x` (older pre-release) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
+| `0.6.x` (current pre-release; latest `0.6.0`) | Best-effort; fixes shipped via patch releases on the `main` branch |
+| `0.5.x` (previous pre-release; latest `0.5.1`) | Best-effort, security-only; users encouraged to upgrade to `0.6.x` |
+| `0.4.x` (older pre-release; latest `0.4.0`) | Best-effort, security-only; users encouraged to upgrade to `0.6.x` |
+| `0.3.x` (older pre-release; latest `0.3.0`) | Best-effort, security-only; users encouraged to upgrade to `0.6.x` |
+| `0.2.x` (older pre-release; latest `0.2.1`) | Best-effort, security-only; users encouraged to upgrade to `0.6.x` |
+| `0.1.x` (older pre-release) | Best-effort, security-only; users encouraged to upgrade to `0.6.x` |
 | `< 0.1.0` | Not applicable (no prior public release) |
 
 When `v1.0.0` ships, this table will be updated with a formal support window.
