@@ -6,7 +6,7 @@
 
 ## Current Active Task
 
-**TASK-001**（定义 `tasks.progress.json` schema；关键路径起点；无依赖；本会话不实现，留给下一会话）
+**TASK-002**（写 `skills/hf-wisdom-notebook/SKILL.md` + 5 文件 schema reference；TASK-001 已 DONE 解锁此 task；按依赖图本是无依赖任务，TASK-001 完成后由 router 锁为下一 active task）
 
 ## Stage Trail
 
@@ -25,6 +25,13 @@
 | 2026-05-13T12:00Z | hf-tasks Round 1 | 拆 18 个 task（含 design M1 吸收：TASK-001 schema） | tasks.md Round 1 | hf-tasks-review |
 | 2026-05-13T12:05Z | hf-tasks-review Round 1 | verdict=`通过`，2 minor 就地吸收 | reviews/tasks-review-2026-05-13.md | 任务真人确认 |
 | 2026-05-13T12:05Z | tasks-approval | auto-APPROVED；Current Active Task 锁定 = TASK-001 | approvals/tasks-approval-2026-05-13.md | hf-test-driven-dev (TASK-001) |
+| 2026-05-13T13:48Z | hf-test-driven-dev TASK-001 TEST-DESIGN | 写测试设计 + auto-approval（按 ADR-009 D2 fast lane） | verification/test-design-task-001.md | RED |
+| 2026-05-13T13:51Z | TASK-001 RED-1 | 写 6 tests + 4 fixtures + validator skeleton；schema doc 缺失 → `failures=1, errors=5` 有效 RED | tests/test_tasks_progress_schema.py + 4 fixtures | GREEN |
+| 2026-05-13T13:53Z | TASK-001 GREEN-1 | 写 schema doc → 6/6 PASS in 0.001s，fresh evidence | skills/hf-test-driven-dev/references/tasks-progress-schema.md | REFACTOR |
+| 2026-05-13T13:54Z | TASK-001 REFACTOR-1 | validator 已简洁，无 cleanup 必要；初始化 5 文件 notebook + delta；dogfood `tasks.progress.json` 自验通过 | notepads/{learnings,decisions,issues,verification,problems}.md + tasks.progress.json | test-review |
+| 2026-05-13T13:55Z | hf-test-review TASK-001 | verdict=`通过`，4 类 coverage 全覆盖，fail-first 真实 | reviews/test-review-task-001-2026-05-13.md | code-review |
+| 2026-05-13T13:55Z | hf-code-review TASK-001 | verdict=`通过`，design conformance + Two Hats discipline 合规，0 AI slop | reviews/code-review-task-001-2026-05-13.md | router 重选下一 active task |
+| 2026-05-13T13:55Z | router | 选下一无依赖未完成 task = TASK-002（TASK-001 DONE 解锁；TASK-005 / 006 / 009 / 010 / 012 也无依赖，按 ID 升序选 002） | progress.md Current Active Task 锁定 | hf-test-driven-dev (TASK-002) |
 
 ## Pending Reviews & Gates
 
@@ -50,12 +57,18 @@
 | 2026-05-13T11:50Z | hf-design-review → design-approval | auto-approve | design R1 通过 → 自动写 design-approval | architect explicit + 通过 | no |
 | 2026-05-13T11:51Z | design-approval → hf-tasks | auto-continue | router canonical next action | architect explicit | no |
 | 2026-05-13T12:05Z | hf-tasks-review → tasks-approval | auto-approve | tasks R1 通过 + 2 minor 吸收 → 自动写 tasks-approval | architect explicit + 通过 | no |
-| 2026-05-13T12:06Z | tasks-approval → hf-test-driven-dev | auto-decide | Current Active Task 锁定 = TASK-001；本会话停在此处不实现 task（实现需要 18 task × 多 review，超出单会话预算） | architect explicit + 单会话预算 | escape: 是（让出给后续会话推进 18 task 的实现链路） |
+| 2026-05-13T12:06Z | tasks-approval → hf-test-driven-dev | auto-decide | Current Active Task 锁定 = TASK-001 | architect explicit + 单会话预算 | escape: 是（曾让出给后续会话；本会话第三轮"进入下一步"重启） |
+| 2026-05-13T13:48Z | hf-test-driven-dev TASK-001 TEST-DESIGN approval | auto-approve | TEST-DESIGN approval 在 fast lane 自动写工件（按 ADR-009 D2，approval 必须落盘） | architect explicit auto mode | no |
+| 2026-05-13T13:55Z | hf-test-review TASK-001 → hf-code-review TASK-001 | auto-continue | test-review verdict 通过 直接进 code-review，不停下抛回 | architect explicit auto mode + 0 USER-INPUT | no |
+| 2026-05-13T13:55Z | hf-code-review TASK-001 → router (next active task) | auto-continue | code-review verdict 通过 → router 自动选 TASK-002 为新 Current Active Task | architect explicit + TASK-001 DONE | no |
 
 ## Wisdom Delta
 
-本会话尚未有 task 完成（仅 SDD 上半段工件），暂无 wisdom-notebook delta。
-TASK-001 完成后开始按 FR-002 写 5 文件容器骨架 + delta。
+| Task | Notepad delta entries |
+|---|---|
+| TASK-001 | `learnings.md` `learn-0001` (stdlib-only mini schema validator pattern) + `learn-0002` (schema-task TDD adaptation) ; `decisions.md` `dec-0001` (tests/ vs skill-owned scripts/) ; `issues.md` `iss-0001` (test_install_scripts.sh --help deferred) ; `verification.md` `verify-0001` GREEN evidence + `verify-0002` RED evidence + `verify-0003` audit regression check ; `problems.md` 无（task 顺利）|
+
+5 文件 notebook 容器已按 FR-002 / design §3.1 初始化（首次 task 创建空骨架 + delta）。后续 TASK-002 ~ TASK-018 按同款 protocol 累积。
 
 ## Open Issues
 
