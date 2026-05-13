@@ -6,7 +6,7 @@
 
 ## Current Active Task
 
-**TASK-002**（写 `skills/hf-wisdom-notebook/SKILL.md` + 5 文件 schema reference；TASK-001 已 DONE 解锁此 task；按依赖图本是无依赖任务，TASK-001 完成后由 router 锁为下一 active task）
+**TASK-005**（hf-gap-analyzer SKILL.md；无依赖；TASK-002 完成后 router 按 ID 升序选 TASK-005，TASK-006 / 009 / 010 / 012 / 013 也无依赖排队中）
 
 ## Stage Trail
 
@@ -32,6 +32,14 @@
 | 2026-05-13T13:55Z | hf-test-review TASK-001 | verdict=`通过`，4 类 coverage 全覆盖，fail-first 真实 | reviews/test-review-task-001-2026-05-13.md | code-review |
 | 2026-05-13T13:55Z | hf-code-review TASK-001 | verdict=`通过`，design conformance + Two Hats discipline 合规，0 AI slop | reviews/code-review-task-001-2026-05-13.md | router 重选下一 active task |
 | 2026-05-13T13:55Z | router | 选下一无依赖未完成 task = TASK-002（TASK-001 DONE 解锁；TASK-005 / 006 / 009 / 010 / 012 也无依赖，按 ID 升序选 002） | progress.md Current Active Task 锁定 | hf-test-driven-dev (TASK-002) |
+| 2026-05-13T14:00Z | hf-test-driven-dev TASK-002 TEST-DESIGN | 写测试设计 + auto-approval | verification/test-design-task-002.md | RED |
+| 2026-05-13T14:03Z | TASK-002 RED-1 | 写 9 structural assertions test (file existence × 3 + audit subprocess + 5 文件名 grep + Workflow steps + Common Rationalizations rows + Object Contract + size budget)；SKILL.md / 2 references 全缺 → 4 fail + 5 error 有效 RED | tests/test_wisdom_notebook_skill.py | GREEN |
+| 2026-05-13T14:08Z | TASK-002 GREEN-1 | 写 SKILL.md + 2 references；8/9 PASS（test_object_contract_present false negative 因 RegEx MULTILINE 缺失） | skills/hf-wisdom-notebook/{SKILL.md,references/notebook-schema.md,references/notebook-update-protocol.md} | GREEN-2 |
+| 2026-05-13T14:10Z | TASK-002 GREEN-2 | 修 test 的 RegEx flag → 9/9 PASS in 43ms；audit OK 含 hf-wisdom-notebook | tests/test_wisdom_notebook_skill.py | REFACTOR |
+| 2026-05-13T14:12Z | TASK-002 REFACTOR-1 | SKILL.md / references 已合规无 cleanup 必要；wisdom delta 写入 5 文件 + tasks.progress.json bump | notepads/{learnings,decisions,verification}.md + tasks.progress.json | test-review |
+| 2026-05-13T14:13Z | hf-test-review TASK-002 | verdict=`通过` | reviews/test-review-task-002-2026-05-13.md | code-review |
+| 2026-05-13T14:14Z | hf-code-review TASK-002 | verdict=`通过`；anatomy v2 完全合规 | reviews/code-review-task-002-2026-05-13.md | router 重选 |
+| 2026-05-13T14:15Z | router | 选 TASK-005 为新 Current Active Task | progress.md | hf-test-driven-dev (TASK-005) |
 
 ## Pending Reviews & Gates
 
@@ -61,12 +69,16 @@
 | 2026-05-13T13:48Z | hf-test-driven-dev TASK-001 TEST-DESIGN approval | auto-approve | TEST-DESIGN approval 在 fast lane 自动写工件（按 ADR-009 D2，approval 必须落盘） | architect explicit auto mode | no |
 | 2026-05-13T13:55Z | hf-test-review TASK-001 → hf-code-review TASK-001 | auto-continue | test-review verdict 通过 直接进 code-review，不停下抛回 | architect explicit auto mode + 0 USER-INPUT | no |
 | 2026-05-13T13:55Z | hf-code-review TASK-001 → router (next active task) | auto-continue | code-review verdict 通过 → router 自动选 TASK-002 为新 Current Active Task | architect explicit + TASK-001 DONE | no |
+| 2026-05-13T14:00Z | hf-test-driven-dev TASK-002 TEST-DESIGN approval | auto-approve | TEST-DESIGN approval auto write | architect explicit | no |
+| 2026-05-13T14:14Z | hf-test-review TASK-002 → hf-code-review | auto-continue | test-review pass → code-review without prompt | architect explicit + 0 USER-INPUT | no |
+| 2026-05-13T14:15Z | hf-code-review TASK-002 → router | auto-continue | code-review pass → router auto-pick TASK-005 | architect explicit + TASK-002 DONE | no |
 
 ## Wisdom Delta
 
 | Task | Notepad delta entries |
 |---|---|
 | TASK-001 | `learnings.md` `learn-0001` (stdlib-only mini schema validator pattern) + `learn-0002` (schema-task TDD adaptation) ; `decisions.md` `dec-0001` (tests/ vs skill-owned scripts/) ; `issues.md` `iss-0001` (test_install_scripts.sh --help deferred) ; `verification.md` `verify-0001` GREEN evidence + `verify-0002` RED evidence + `verify-0003` audit regression check ; `problems.md` 无（task 顺利）|
+| TASK-002 | `learnings.md` `learn-0003` (structural-grep test pattern for SKILL.md tasks) + `learn-0004` (schema reference 必须含 dogfood 指针) ; `decisions.md` `dec-0002` (tests/ 归属 hf-wisdom-notebook 校验脚本) ; `verification.md` `verify-0004` GREEN + `verify-0005` RED + `verify-0006` regression + `verify-0007` size budget ; `problems.md` 无 |
 
 5 文件 notebook 容器已按 FR-002 / design §3.1 初始化（首次 task 创建空骨架 + delta）。后续 TASK-002 ~ TASK-018 按同款 protocol 累积。
 
