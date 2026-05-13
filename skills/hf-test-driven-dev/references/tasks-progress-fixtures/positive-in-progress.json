@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "current_task": "TASK-003",
+  "current_step": "GREEN-2",
+  "last_updated": "2026-05-13T13:50:00Z",
+  "step_history": [
+    {"step": "TEST-DESIGN", "timestamp": "2026-05-13T13:30:00Z", "outcome": "approved"},
+    {"step": "RED-1",       "timestamp": "2026-05-13T13:35:00Z", "outcome": "failed-as-expected"},
+    {"step": "GREEN-1",     "timestamp": "2026-05-13T13:42:00Z", "outcome": "passed"},
+    {"step": "RED-2",       "timestamp": "2026-05-13T13:46:00Z", "outcome": "failed-as-expected"}
+  ]
+}
