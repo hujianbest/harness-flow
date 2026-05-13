@@ -51,6 +51,19 @@
         "给出 `需修改` 结论",
         "下一步指向 `hf-test-driven-dev`"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "这是一个测试评审场景：\n- 当前任务修改了登录页、注册页和 App 根组件。\n- 测试全部通过。\n- `src/__tests__/setup.ts` mock 了 Naive UI 的 `useMessage()`。\n- 登录/注册页面测试没有真实挂载 App.vue，也没有验证 `n-message-provider`。\n- 文章列表页面测试 mock 掉了 ArticlePreview 子组件，ArticlePreview 自己的 fixture 总是包含 `content`，但真实 fallback 数据只有 `excerpt`。\n- fetch 全部被 mock，没有 API base URL / DTO 契约验证。\n\n请作为 `hf-test-review` 给出结论和下一步。",
+      "expected_output": "应返回需修改；测试存在 provider mock、child component overmock、fixture contract drift、mock fetch hiding API contract。需要补真实 provider/App mount、真实子组件页面集成、DTO/fixture contract 或 browser runtime evidence。",
+      "files": [],
+      "expectations": [
+        "识别 provider mock 掩盖 App wiring",
+        "识别子组件过度 mock 掩盖真实组件崩溃",
+        "识别 fixture 与真实 DTO/fallback 数据不一致",
+        "识别 mock fetch 掩盖 API base URL / contract",
+        "给出 `需修改` 并指向 `hf-test-driven-dev`"
+      ]
     }
   ]
 }

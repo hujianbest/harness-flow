@@ -126,6 +126,19 @@
         "若需新抽象层则给阻塞，下一步指向 hf-workflow-router 升级到 hf-increment / hf-design",
         "不因 '看起来更 clean' 或 '测试全绿' 就放过 over-abstraction"
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "评审一个 Vue 首页实现。ui-design.md 的 UI Implementation Contract 写明：Home hero 使用橙色 primary token，禁止 blue/purple gradient，卡片使用 elevation-1，截图需要对照 contract。实现里写了 `class=\"bg-gradient-to-br from-blue-600 to-purple-600 text-white\"`，文章卡片继续用 Tailwind 默认 gray/blue hover，测试全绿且只断言文案存在。请按 hf-code-review 判断。",
+      "expected_output": "应识别 UI visual drift 和 token bypass：实现违反 UI contract 的主色和禁用渐变，测试全绿不能证明设计落地。CR8 不达标，结论应为需修改，下一步指向 hf-test-driven-dev，要求按 token/contract 修正或先回 UI design 更新设计。",
+      "files": [],
+      "expectations": [
+        "识别 blue/purple gradient 违反 UI contract",
+        "识别 hardcoded Tailwind 色彩属于 token bypass",
+        "不因测试全绿或文案存在就通过",
+        "使用 CR8、CA11 或 CA12 给 finding",
+        "结论为需修改"
+      ]
     }
   ]
 }

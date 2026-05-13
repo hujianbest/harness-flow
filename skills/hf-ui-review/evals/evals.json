@@ -1,0 +1,29 @@
+{
+  "skill_name": "hf-ui-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "评审一份 UI 设计：文档顶部写用户确认主色为橙色系，选定方案写“单色主色、无渐变”，但系统宣言和 wireframe 示例里又多处使用蓝色/浅蓝灰，Home hero 还写了蓝紫渐变背景；文档有 IA、状态矩阵、token 表和 Atomic 组件映射。请按 hf-ui-review 判断。",
+      "expected_output": "不能因为章节齐全就通过；应识别主色、禁用渐变、系统宣言和 wireframe 互相冲突，属于 U10/AU17 内部设计一致性问题，至少需修改；若影响核心首页，应提升为 critical 或 important，并要求回 hf-ui-design 收敛单一视觉语言。",
+      "files": [],
+      "expectations": [
+        "识别橙色主色与蓝色/蓝紫渐变冲突",
+        "不因 IA、token 表、wireframe 齐全就通过",
+        "使用 U10 或 AU17 判断内部设计一致性问题",
+        "结论为需修改或阻塞，下一步指向 hf-ui-design"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "评审一份博客 UI 设计：它选择“内容优先极简风”，但首页只有通用欢迎 hero、白色卡片网格、灰色背景；没有页面节奏、内容策略、视觉不变量，也没有 UI Implementation Contract。作者说极简就是少装饰。请按 hf-ui-review 判断。",
+      "expected_output": "应识别低设计完成度伪装成极简，属于 U11/AU18/AU19；极简必须落到排版节奏、留白、内容编排和 visual invariants。缺 UI Implementation Contract 不能进入任务拆解，应给需修改或阻塞。",
+      "files": [],
+      "expectations": [
+        "识别极简不是少设计",
+        "要求视觉主张、页面节奏和 visual invariants",
+        "识别 UI Implementation Contract 缺失",
+        "不返回通过结论"
+      ]
+    }
+  ]
+}

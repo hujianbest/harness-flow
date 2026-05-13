@@ -34,16 +34,17 @@
 ## 8. 关键页面 wireframe（缺资源处用 `{{ image:... }}` / `{{ icon:... }}` / `{{ copy:... }}` 占位）
 ## 9. Atomic 组件映射（Atoms / Molecules / Organisms / Templates / Pages）
 ## 10. 交互状态矩阵（关键交互 × 状态集合）
-## 11. 可访问性（WCAG 2.2 AA 声明，含触控/移动端 hit target ≥ 44×44px）
-## 12. 响应式与多端（若规格含要求）
-## 13. i18n / 国际化（若规格含要求）
-## 14. 前端性能预算（若规格含要求）
-## 15. Microcopy 与语气（占位与定稿用 `{{ copy:... }}` 标记）
-## 16. 与 hf-design 的 peer 依赖交接
-## 17. 任务规划准备度（task planning readiness）
-## 18. 明确排除与延后项
-## 19. 风险与开放问题（区分阻塞 / 非阻塞）
-## 20. 反 AI slop 自检记录（按 anti-slop-checklist.md 第 5 节冷读 5 项）
+## 11. UI Implementation Contract（页面/组件 visual invariants、token mapping、forbidden drift、截图/DOM/网络证据目标）
+## 12. 可访问性（WCAG 2.2 AA 声明，含触控/移动端 hit target ≥ 44×44px）
+## 13. 响应式与多端（若规格含要求）
+## 14. i18n / 国际化（若规格含要求）
+## 15. 前端性能预算（若规格含要求）
+## 16. Microcopy 与语气（占位与定稿用 `{{ copy:... }}` 标记）
+## 17. 与 hf-design 的 peer 依赖交接
+## 18. 任务规划准备度（task planning readiness）
+## 19. 明确排除与延后项
+## 20. 风险与开放问题（区分阻塞 / 非阻塞）
+## 21. 反 AI slop 自检记录（按 anti-slop-checklist.md 第 5 节冷读 5 项）
 ```
 
 `## 0. 视觉语汇摘要` 与 `## 6.5 系统宣言` 是结构化锚点；前者由 `references/design-context-acquisition.md` 第 3 节产出，后者由本 skill 步骤 4 末尾 vocalize the system 阶段产出。两者缺失即视为 reviewer 阻塞项。
@@ -56,6 +57,7 @@
 - 每个关键交互至少覆盖 loading / empty / error 三态
 - 关键页面至少给一份可冷读的 wireframe（Mermaid / ASCII / 文字布局 / 外链图均可）
 - 提供足够支撑任务拆解的组件粒度与状态矩阵，但不要写成前端源码
+- 关键页面/组件必须填写 UI Implementation Contract；没有 visual invariants、token mapping、forbidden drift、evidence targets 的 UI surface 不能进入任务拆解
 
 ## 候选方向最小对比视图
 
@@ -95,6 +97,23 @@
 - 对比度满足 WCAG AA（正文 ≥ 4.5:1，大字号 ≥ 3:1，非文本 UI 组件与状态指示 ≥ 3:1）
 - 亮 / 暗主题一致（或显式声明只支持其中之一）
 - 语义 token（success / warning / danger / info）单独列出，不让语义色复用主色
+
+## UI Implementation Contract 最小声明
+
+`## 11. UI Implementation Contract` 应按 `references/ui-implementation-contract.md` 为每个关键页面/组件写出：
+
+```markdown
+| Surface | Visual Invariants | Token Mapping | Forbidden Drift | Evidence Targets |
+|---|---|---|---|---|
+| Home hero | 主色仅使用 color.primary；无大面积未批准渐变 | bg=surface.default, cta=color.primary | 禁止 blue/purple gradient、禁止额外 shadow tier | `/`, desktop+mobile screenshot, `#app`, console/network clean |
+```
+
+确认：
+
+- visual invariants 能冷读出该页面的视觉骨架和页面节奏
+- token mapping 能让实现者知道 Tailwind / 组件库 utility 与设计 token 的等价关系
+- forbidden drift 明确列出本设计最容易被实现阶段破坏的禁用模式
+- evidence targets 能让 regression/completion gate 收集截图、DOM、console、network 证据
 
 ## 保存路径
 

@@ -31,6 +31,43 @@
 - Included Coverage:
 - Uncovered Areas:
 
+## Evidence Tier Coverage
+
+| Tier | Required? | Evidence Provided | Status | Notes |
+|---|---|---|---|---|
+| mocked-unit |  |  | `covered` \| `N/A` \| `missing` |  |
+| component-integration |  |  | `covered` \| `N/A` \| `missing` |  |
+| api-contract |  |  | `covered` \| `N/A` \| `missing` |  |
+| browser-runtime |  |  | `covered` \| `N/A` \| `missing` |  |
+| full-stack-smoke |  |  | `covered` \| `N/A` \| `missing` |  |
+
+## Runtime Evidence Consumed
+
+- Browser Evidence:
+- Console / Network Evidence:
+- Health Check / Service Startup Evidence:
+
+## UI Conformance Evidence（若适用）
+
+- UI Contract Anchors:
+- Screenshot Artifacts:
+- Viewports Covered:
+- DOM Anchors:
+- Console / Network Assertions:
+- Visual Drift / Token Bypass Check:
+- Known UI Conformance Gaps:
+
+## Contract Evidence Consumed
+
+- API Contract / Schema:
+- DTO / Fixture Alignment:
+- API Base URL / Proxy / Env:
+
+## Known Runtime Gaps
+
+- Gaps:
+- Downgrade Permission Source（若适用）:
+
 ## Commands And Results
 
 ```text

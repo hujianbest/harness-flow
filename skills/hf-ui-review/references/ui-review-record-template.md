@@ -24,6 +24,12 @@
 
 - 条目
 
+## 内部一致性与视觉质量
+
+- 设计语言一致性（主色 / 字体 / token / wireframe / contract）:
+- 视觉质量底线（视觉主张 / 页面节奏 / 差异化锚点）:
+- UI Implementation Contract 覆盖:
+
 ## 与 hf-design 的 peer 交接一致性
 
 - 已对齐：条目
@@ -154,7 +160,7 @@ reviewer subagent 不代替父会话写入批准结论。
 
 ## 结论判定规则
 
-- **通过**：可追溯已批准规格、UI 决策清晰、IA/流/状态矩阵完整、Design Token 合规、a11y 达标、peer 交接块显式、无阻塞任务规划的 UI 空洞
+- **通过**：可追溯已批准规格、UI 决策清晰、IA/流/状态矩阵完整、Design Token 合规、a11y 达标、peer 交接块显式、无阻塞任务规划的 UI 空洞；同时文档内部视觉语言一致、关键 UI surface 有可执行的 UI Implementation Contract、核心页面不低于视觉质量底线
 - **需修改**：核心 UI 设计可用，但有局部缺口、决策说明不足、状态覆盖偏弱、a11y 声明不全、peer 交接块含糊，可通过一轮定向修订补齐
 - **阻塞**：UI 设计无法清晰支撑规格、存在无法追溯的关键新增 UI surface、关键 a11y 项系统性未达标、peer 交接块与 `hf-design` 不可协调、激活条件判定错误、或 route / stage / 证据链冲突
 
@@ -167,4 +173,4 @@ reviewer subagent 不代替父会话写入批准结论。
 ## Finding 分类
 
 - `USER-INPUT`：品牌/视觉方向需真人拍板、目标设备/语种未确认、关键 UX trade-off 仍需业务侧裁决、规格未批准却引入关键新增 UI 能力
-- `LLM-FIXABLE`：候选方向对比不足、状态矩阵不全、a11y 声明含糊、Design Token 映射缺失、组件映射缺来源/依赖、peer 交接块含糊
+- `LLM-FIXABLE`：候选方向对比不足、状态矩阵不全、a11y 声明含糊、Design Token 映射缺失、组件映射缺来源/依赖、peer 交接块含糊、内部视觉矛盾、低设计完成度、UI Implementation Contract 缺失或不可执行
