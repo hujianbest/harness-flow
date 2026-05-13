@@ -1,6 +1,6 @@
 # HF v0.6 — Author-side Discipline 升级 + Execution Mode Fast Lane 需求规格说明
 
-- 状态: 草稿（2026-05-13；架构师本会话拍板 D1~D7 + 删除 v0.8 + auto mode 推进）
+- 状态: 草稿 Round 2（2026-05-13；架构师本会话拍板 D1~D7 + 删除 v0.8 + auto mode 推进；Round 1 spec-review 8 条 finding 已全部回修）
 - 主题: 为 HarnessFlow 引入 7 项 author-side / wisdom-accumulation 改造（纯 markdown，三客户端通吃）+ 1 项 explicit opt-in 的 fast lane 节点（`hf-ultrawork`），把 OMO 在 *方法论层* 已验证的机制吃进 HF
 - 范围锚点: ADR-008 D2
 
@@ -28,8 +28,8 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 
 **总体成功标准口径**：
 
-- HF skill 数从 24 → **28**（新增 `hf-wisdom-notebook` / `hf-gap-analyzer` / `hf-context-mesh` / `hf-ultrawork`），加 `using-hf-workflow` 不变
-- 现有 24 个 skill 中只允许修改 4 个（`hf-tasks-review` / `hf-specify` / `hf-workflow-router` / `hf-code-review`），其它 20 个 skill 在本 feature 不动
+- HF skill 数从 24 → **28**（新增 `hf-wisdom-notebook` / `hf-gap-analyzer` / `hf-context-mesh` / `hf-ultrawork`），`using-hf-workflow` skill 数不变（但 SKILL.md 内部修改一行，见下）
+- 现有 25 个 SKILL.md（24 hf-* + `using-hf-workflow`）中允许修改 **7 个**：4 个主升级（`hf-tasks-review` / `hf-specify` / `hf-workflow-router` / `hf-code-review`）+ 3 个集成点修改（`using-hf-workflow` 步骤 5 entry bias 加一行 / `hf-test-driven-dev` Output Contract 引用 wisdom-notebook / `hf-completion-gate` 校验 wisdom-notebook delta）；其它 18 个 skill 在本 feature 不动
 - 全部新增 / 修改的 skill 通过 `scripts/audit-skill-anatomy.py` 检查（v0.2.0 起的 anatomy 合规基线：必含 `## Common Rationalizations`、不含独立 `## 和其他 Skill 的区别`）
 - `hf-ultrawork` 的 fast lane 行为在以下场景被 dogfood 验证：本 feature 自己作为第一个 dogfood 案例，从 `hf-spec-review` 一路推到 `hf-finalize`，全程 `Execution Mode: auto`，`progress.md` 必须含完整 Fast Lane Decisions audit trail
 - 三客户端集成路径（Cursor / OpenCode / Claude Code）在 v0.6 install 后均能识别 4 个新 skill 与 4 个修改后的 skill；`install.sh` / `uninstall.sh` 不需修改（v0.6 是 skill 内增量，install topology 不变）
@@ -39,7 +39,7 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 
 | 指标 | 阈值 | 测量方法 |
 |---|---|---|
-| Outcome Metric: v0.6 范围 8 个 skill 改动 100% 落地 | 4 新 + 4 改 = 8 个 SKILL.md 文件全部存在并通过 `audit-skill-anatomy.py` | `find skills/{hf-wisdom-notebook,hf-gap-analyzer,hf-context-mesh,hf-ultrawork} -name SKILL.md` 必须 4 条；`git diff --name-only main..HEAD skills/{hf-tasks-review,hf-specify,hf-workflow-router,hf-code-review}/SKILL.md` 必须 4 条；`python3 scripts/audit-skill-anatomy.py skills/` 必须 PASS |
+| Outcome Metric: v0.6 范围 11 个 skill 改动 100% 落地 | 4 新 + 7 改 = 11 个 SKILL.md 文件全部存在并通过 `audit-skill-anatomy.py` | `find skills/{hf-wisdom-notebook,hf-gap-analyzer,hf-context-mesh,hf-ultrawork} -name SKILL.md` 必须 4 条；`git diff --name-only main..HEAD skills/{hf-tasks-review,hf-specify,hf-workflow-router,hf-code-review,using-hf-workflow,hf-test-driven-dev,hf-completion-gate}/SKILL.md` 必须 7 条；`python3 scripts/audit-skill-anatomy.py --skills-dir skills` 必须 PASS |
 | Leading Indicator 1: wisdom-notebook 5 文件强 schema 校验通过 | 新增 `scripts/validate-wisdom-notebook.py` 在本 feature 的 `notepads/` 上跑过 PASS（包括 `learnings.md` / `decisions.md` / `issues.md` / `verification.md` / `problems.md` 5 文件齐全且 schema 合规） | TDD 阶段写 fixture + script，CI / hf-completion-gate 调用 |
 | Leading Indicator 2: tasks-review momus rubric 在本 feature 自己的 `tasks-review` 跑过 | 本 feature 自己的 `reviews/tasks-review-*.md` 必须含 4 维评分（Clarity / Verification / Context / Big Picture）+ 阈值判断 | reviewer 在 review record 中按 `references/momus-rubric.md` 给分 |
 | Leading Indicator 3: fast lane audit trail 完整 | `progress.md` 的 Fast Lane Decisions 段在本 feature 全流程结束时，必须包含**所有**自动决策行（spec/design/tasks 的 auto-approve 各 1 行 + router 的 canonical next action 自动推进若干行 + 任意 boulder loop 触发记录） | `grep -c '^|' features/002-omo-inspired-v0.6/progress.md` 在 Fast Lane Decisions 段中行数 ≥ 5 |
@@ -54,7 +54,7 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 | ID | Statement | Type | Impact If False | Confidence | Validation Plan | Blocking? |
 |---|---|---|---|---|---|---|
 | HYP-001 | wisdom-notebook 的 5 文件强 schema（D7 = A）足以承载跨 task 知识沉淀，不需要数据库 / SQLite | Design | 必须重做 schema（按 OMO Atlas 是单 markdown 文件，但实际上 OMO 也是 5 文件——所以 confidence 高） | High | TDD 阶段在本 feature 自己的 notepads/ 上跑通跨 task 知识传递，至少包含 3 个 task 的累积 | 否 |
-| HYP-002 | `hf-ultrawork` skill + `using-hf-workflow` 关键词识别（已有）+ progress.md Fast Lane Decisions 段足以承载 fast lane 全部行为，**不需要 v0.7 runtime** | Design | fast lane 在 markdown-only 路径下精度严重下降（idle 检测不可靠 / boulder loop 无法触发），需要把 fast lane 推到 v0.7 | Medium-High（OMO 的 fast lane 严重依赖 runtime hook；HF 在 markdown-only 路径下能做到的是"宣告式"fast lane——告诉 host agent "这个 mode 下要这样做"，由 host 自觉遵守） | TDD 阶段在 Cursor / Claude Code（无 runtime）上跑本 feature 自己的 fast lane，验证全程不需要架构师手动确认即可推到 hf-finalize | **是**（如果 markdown-only fast lane 不可用，必须把 `hf-ultrawork` 改为"runtime 不可用时降级为提示用户开 standard mode"） |
+| HYP-002 | 在不引入 v0.7 runtime 的前提下，markdown 包内已有的 Execution Mode preference 机制 + 可被 host agent 读取的 progress 工件，足以承载 fast lane 的全部行为（具体机制由 hf-design 阶段决定） | Design | fast lane 在 markdown-only 路径下精度严重下降（idle 检测不可靠 / boulder loop 无法触发），需要把 fast lane 推到 v0.7 | Medium-High（OMO 的 fast lane 严重依赖 runtime hook；HF 在 markdown-only 路径下能做到的是"宣告式"fast lane——告诉 host agent "这个 mode 下要这样做"，由 host 自觉遵守） | TDD 阶段在 Cursor / OpenCode / Claude Code（三客户端无 runtime）上**横向**跑本 feature 自己的 fast lane（hf-design 拆出独立跨客户端 verification task），验证全程不需要架构师手动确认即可推到 hf-finalize | **是**（如果 markdown-only fast lane 不可用，必须把 `hf-ultrawork` 改为"runtime 不可用时降级为提示用户开 standard mode"） |
 | HYP-003 | `hf-gap-analyzer` 作为 author-side self-check（D6 = A），不破坏 8 个 Fagan review 节点拓扑 | Design | 必须升格为第 9 个 review 节点，工作流复杂度上升 | High（gap analysis 的输出 `<artifact>.gap-notes.md` 是辅助上下文，作者吸收后仍走标准 review；这与 OMO Metis 的角色一致——Metis 不是 reviewer） | TDD 阶段在本 feature 自己的 spec.md 上跑一次 gap-analyzer，验证 gap-notes 被 spec 作者吸收后仍由 hf-spec-review 给出 verdict | 否 |
 | HYP-004 | v0.6 范围 8 个 skill 改动可在不修改 `install.sh` / `uninstall.sh` / `.cursor/rules/harness-flow.mdc` 的情况下被三客户端正确加载 | Feasibility | 必须修改 install topology，feature 范围扩大 | High（install.sh 是按 `skills/<name>/SKILL.md` 通配符复制的，新增 skill 自动覆盖；mdc rule 不依赖具体 skill 列表） | TDD 阶段在干净宿主仓库 install 后 ls 验证 | 否 |
 | HYP-005 | `hf-context-mesh` 生成的层次化 `AGENTS.md` 在 Cursor / OpenCode / Claude Code 三客户端下都能被正确读取（host 各自的 AGENTS.md 加载语义） | Compatibility | hf-context-mesh 在某些客户端上无效 | Medium（OpenCode 通过 `directoryAgentsInjector` hook 加载；Cursor 通过 `.cursor/rules/` 加载；Claude Code 通过 `CLAUDE.md` 加载——三者语义不完全相同） | TDD 阶段在三客户端各自跑一次 hf-context-mesh，验证生成的 AGENTS.md 被加载 | 否（即便部分客户端不完美支持，hf-context-mesh 仍是 markdown 文件，agent 显式 Read 也能读取） |
@@ -89,21 +89,31 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 - `skills/hf-context-mesh/SKILL.md` + `references/agents-md-template.md`
 - `skills/hf-ultrawork/SKILL.md` + `references/fast-lane-escape-conditions.md`
 
-修改 4 个 skill：
+修改 7 个 skill —— 4 个主升级 + 3 个集成点修改：
+
+**主升级 4 个**：
 - `skills/hf-tasks-review/SKILL.md` + 新增 `references/momus-rubric.md`：引入 4 维 rubric + N=3 rewrite loop + `verdict: rejected-rewrite`
 - `skills/hf-specify/SKILL.md` + 新增 `references/interview-fsm.md` + `references/spec-intake-template.md`：引入 5 状态 Interview FSM + `spec.intake.md` schema
-- `skills/hf-workflow-router/SKILL.md` + 修改 `references/profile-node-and-transition-map.md`：引入 step-level recovery + `category_hint` handoff 字段
+- `skills/hf-workflow-router/SKILL.md` + 修改 `references/profile-node-and-transition-map.md` + 修改 `references/workflow-shared-conventions.md`：引入 step-level recovery + `category_hint` handoff 字段 + progress.md schema 新增 Fast Lane Decisions 段
 - `skills/hf-code-review/SKILL.md` + 新增 `references/ai-slop-rubric.md`：把 AI slop 检查升级为可执行 rubric（基于 OMO comment-checker 已验证模式）
 
+**集成点修改 3 个**：
+- `skills/using-hf-workflow/SKILL.md`：步骤 5 entry bias 表新增一行 `Execution Mode = auto 且当前不在 review/gate 节点 → direct invoke hf-ultrawork`；**步骤 3 现有 Execution Mode preference 解析逻辑保持不变**；步骤 6 命令 bias 表保持不变（不引入 `/ultrawork` 命令）
+- `skills/hf-test-driven-dev/SKILL.md`：Output Contract 段引用 `hf-wisdom-notebook`，要求 task 完成时按 FR-002 schema 写 notebook delta
+- `skills/hf-completion-gate/SKILL.md`：closeout 前调用 `scripts/validate-wisdom-notebook.py` 校验 wisdom-notebook delta 完整性
+
+**4 个新 skill 全部按 ADR-006 D1 anatomy v2 创建**（`SKILL.md` + `references/` + `evals/` + `scripts/` 四子目录约定）：
+- `hf-wisdom-notebook` 与 `hf-ultrawork` 必须含 `evals/` 目录（高风险 skill：分别承载工件 schema 强约束 / fast lane 决策权）
+- `hf-gap-analyzer` 与 `hf-context-mesh` `evals/` 可选（中风险 skill；hf-design 阶段决定是否落 evals）
+- `hf-wisdom-notebook` 是否需要 `scripts/`（schema validator 可能放该 skill 内而非 repo-root `scripts/`）由 hf-design 阶段决定
+
 新增 1 个 stdlib python 工具：
-- `scripts/validate-wisdom-notebook.py`（与 `scripts/audit-skill-anatomy.py` 同等地位，stdlib-only，CI / hf-completion-gate 可调用）
+- `scripts/validate-wisdom-notebook.py`（与 `scripts/audit-skill-anatomy.py` 同等地位，stdlib-only，CI / hf-completion-gate 可调用）；**或**经 hf-design 决定后落到 `skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py`（per ADR-006 D1 / D2 skill-owned tooling 优先于 repo-root tooling）
 
-修改 progress.md schema：
-- 新增 `## Fast Lane Decisions` 段（按 ADR-009 D4 schema），所有 feature 的 `progress.md` 在 fast lane 触发后必须包含此段；非 fast lane feature 此段可省略
-
-修改 `using-hf-workflow/SKILL.md`：
-- 步骤 5 entry bias 表新增一行：`Execution Mode = auto 且当前不在 review/gate 节点 → direct invoke hf-ultrawork`
-- 步骤 6 命令 bias 表不变（不引入 `/ultrawork` 命令）
+文档刷新：
+- `README.md` / `README.zh-CN.md` / `docs/principles/soul.md` 中"v0.6+ 计划 `hf-shipping-and-launch` / `hf-ci-cd-and-automation` / etc."的"未来计划"措辞改为"显式 out-of-scope（参 ADR-008 D1）"
+- `README.md` / `README.zh-CN.md` 的 skill 总数从 24 → 28；`hf-finalize` 的 closeout HTML 渲染脚本不变
+- `CHANGELOG.md` Unreleased 段新增"v0.6 author-side + fast lane scope"条目
 
 文档刷新：
 - `README.md` / `README.zh-CN.md` / `docs/principles/soul.md` 中"v0.6+ 计划 `hf-shipping-and-launch` / `hf-ci-cd-and-automation` / etc."的"未来计划"措辞改为"显式 out-of-scope（参 ADR-008 D1）"
@@ -112,7 +122,7 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 
 **关键边界**：
 
-- **不**修改 24 个现有 skill 中除 4 个升级目标外的 20 个 skill
+- **不**修改 25 个现有 SKILL.md 中除 4 主升级 + 3 集成点修改外的 18 个 skill
 - **不**新增 / 修改任何 slash 命令（v0.6 仍是 7 个 slash 命令）
 - **不**修改 `install.sh` / `uninstall.sh` / `.cursor/rules/harness-flow.mdc` / `.claude-plugin/marketplace.json`（HYP-004）
 - **不**引入任何 runtime 依赖；本 feature 全程纯 markdown + stdlib python 工具
@@ -128,20 +138,20 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 | FR ID | 描述 | 优先级 | Acceptance |
 |---|---|---|---|
 | **FR-001** | 新增 `hf-wisdom-notebook` skill 承载跨 task 知识沉淀 | MUST | (1) `skills/hf-wisdom-notebook/SKILL.md` 存在并通过 audit-skill-anatomy.py；(2) 文件含 5 文件 schema 引用（learnings/decisions/issues/verification/problems.md）；(3) 含 `When to Use` / `Object Contract` / `Workflow` / `Common Rationalizations` 各段 |
-| **FR-002** | `hf-test-driven-dev` 完成一个 task 后 **必须** 写 wisdom notebook delta（至少 learnings.md / verification.md 任一） | MUST | (1) `hf-test-driven-dev/SKILL.md` 的 Output Contract 段引用 wisdom-notebook；(2) `hf-completion-gate` 在 closeout 前校验 notebook delta 存在 |
+| **FR-002** | `hf-test-driven-dev` 完成一个 task 后 **必须** 写 wisdom notebook delta | MUST | (1) `hf-test-driven-dev/SKILL.md` 的 Output Contract 段要求 task 完成时：(a) 5 个 notebook 文件作为容器**必须存在**（`learnings.md` / `decisions.md` / `issues.md` / `verification.md` / `problems.md`；首次 task 创建空骨架，validate 时只检查文件存在性）；(b) 每个 task **至少**在 `learnings.md` / `verification.md` 任一中追加 delta 段（其它 3 个文件按需）；(2) `hf-completion-gate` 在 closeout 前调用 `validate-wisdom-notebook.py` 校验 5 文件容器齐全 + 每 task 至少有 learnings/verification delta |
 | **FR-003** | `hf-workflow-router` 选下一个 Current Active Task 时 **必须** 把 notebook 摘要注入 handoff | MUST | router transition map 含 "wisdom notebook 摘要注入" 步骤；handoff schema 含 `wisdom_summary` 字段 |
 | **FR-004** | 新增 `hf-gap-analyzer` skill 作为 author-side self-check | MUST | (1) `skills/hf-gap-analyzer/SKILL.md` 存在并通过 audit；(2) 输出 `<artifact>.gap-notes.md`；(3) 不是 Fagan review 节点 |
 | **FR-005** | `hf-tasks-review` 引入 Momus 4 维 rubric + N=3 rewrite loop | MUST | (1) `skills/hf-tasks-review/references/momus-rubric.md` 存在；(2) SKILL.md 含 `verdict: rejected-rewrite` + 3 次循环上限；(3) 第 4 次仍未通过 → `verdict: 阻塞` 升级到架构师 |
 | **FR-006** | `hf-specify` 引入 5 状态 Interview FSM 与 `spec.intake.md` schema | MUST | (1) `skills/hf-specify/references/interview-fsm.md` 存在；(2) `references/spec-intake-template.md` 存在；(3) SKILL.md Workflow 段引用 FSM |
 | **FR-007** | 新增 `hf-context-mesh` skill 一键生成宿主项目层次化 AGENTS.md | MUST | (1) `skills/hf-context-mesh/SKILL.md` 存在并通过 audit；(2) `references/agents-md-template.md` 含项目根 / 中层目录 / 叶子目录三种模板 |
-| **FR-008** | 新增 `hf-ultrawork` skill 承载 explicit opt-in fast lane | MUST | (1) `skills/hf-ultrawork/SKILL.md` 存在并通过 audit；(2) 含 fast lane 边界（按 ADR-009 D2 不可压缩项）；(3) 含 escape conditions 引用 |
-| **FR-009** | `using-hf-workflow` step 5 entry bias 新增 fast lane 一行 | MUST | SKILL.md 步骤 5 表格新增 `Execution Mode = auto 且当前不在 review/gate → direct invoke hf-ultrawork` 行 |
+| **FR-008** | 新增 `hf-ultrawork` skill 承载 explicit opt-in fast lane | MUST | (1) `skills/hf-ultrawork/SKILL.md` 存在并通过 audit；(2) SKILL.md `Hard Gates` 段直接 enumerate 不可压缩的 5 类项（8 个 Fagan review / 3 个 gate / closeout pack 完整性 / spec-design-tasks approval 工件落盘 / 任何 Hard Gates 命中"方向 / 取舍 / 标准不清"必须停下抛回——具体见 ADR-009 D2 表格），**不允许**只写"按 ADR-009 D2 执行"；(3) 含 escape conditions 引用 `references/fast-lane-escape-conditions.md`（按 ADR-009 D3 第 4 项的 6 个 escape 信号 enumerate） |
+| **FR-009** | `using-hf-workflow` step 5 entry bias 新增 fast lane 一行 | MUST | (1) SKILL.md 步骤 5 表格新增 `Execution Mode = auto 且当前不在 review/gate → direct invoke hf-ultrawork` 行；(2) **步骤 3 现有 Execution Mode preference 解析逻辑保持不变**；(3) 步骤 6 命令 bias 表保持不变（不引入 `/ultrawork` 命令）；(4) FR-009 仅在步骤 5 entry bias 表新增一行，不动其它步骤 |
 | **FR-010** | `progress.md` schema 新增 Fast Lane Decisions 段 | MUST | (1) `hf-workflow-router/references/workflow-shared-conventions.md` 中新增 progress.md schema 段；(2) 本 feature 自己 `progress.md` 含此段且有完整 audit trail |
 | **FR-011** | `hf-code-review` AI slop 检查升级为可执行 rubric | MUST | `skills/hf-code-review/references/ai-slop-rubric.md` 存在，含禁用模式列表（`simply` / `obviously` / `clearly` / em-dash 等），可被 host grep 调用 |
 | **FR-012** | 新增 `scripts/validate-wisdom-notebook.py`（stdlib-only） | MUST | (1) 文件存在；(2) 跑本 feature `notepads/` 通过 PASS；(3) `--help` 自描述清晰 |
 | **FR-013** | `README.md` / `README.zh-CN.md` / `docs/principles/soul.md` 中 v0.6+ 计划末段措辞统一改为"显式 out-of-scope（参 ADR-008 D1）" | MUST | doc-freshness gate 时 grep `hf-shipping-and-launch` 仅出现在"已删除"语境 |
 | **FR-014** | `CHANGELOG.md` Unreleased 段新增 v0.6 scope 条目 | MUST | grep `v0.6` 找到对应条目 |
-| **FR-015** | `hf-workflow-router` handoff schema 新增 `category_hint` 字段（不强制下游消费） | SHOULD | transition map 中 handoff 示例含 category_hint；下游 skill 不消费时直接忽略不报错 |
+| **FR-015** | `hf-workflow-router` handoff schema 新增 `category_hint` 字段（不强制下游消费） | SHOULD | (1) transition map 中 handoff 示例含 `category_hint`；(2) 下游 skill 不消费时直接忽略不报错；(3) **SHOULD 失败处理**：FR-015 不达标时 `hf-completion-gate` **不阻塞** closeout，但需在 closeout pack 的 deferred backlog 段记录"FR-015 deferred to v0.6.x"以便后续 increment |
 
 ## 8. 非功能需求（NFR）
 
@@ -150,7 +160,7 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 | **NFR-001** | 全部新增 / 修改 SKILL.md 通过 `scripts/audit-skill-anatomy.py`（v0.2.0 anatomy 合规基线：必含 `Common Rationalizations`、不含独立 `和其他 Skill 的区别`） | CI / regression-gate 调用 audit |
 | **NFR-002** | 新增 4 个 SKILL.md 主文件正文 < 500 行 / < 5000 tokens（skill-anatomy.md 第 9 条预算） | wc -l + token 估算 |
 | **NFR-003** | 不修改 `install.sh` / `uninstall.sh` / `.cursor/rules/harness-flow.mdc` / `.claude-plugin/marketplace.json` | git diff 校验 |
-| **NFR-004** | 三客户端 install 后 4 个新 skill 与 4 个修改后 skill 全部可识别 | 端到端测试在 Cursor / OpenCode 各装一次后 ls 验证 |
+| **NFR-004** | **三**客户端 install 后 4 个新 skill 与 7 个修改后 skill 全部可识别 | 端到端测试在 Cursor / OpenCode / **Claude Code** 三客户端各装一次后验证：Cursor 检查 `.cursor/harness-flow-skills/` 内 4 个新 skill 目录存在 + 7 个改 SKILL.md 含本 feature 修改痕迹；OpenCode 检查 `.opencode/skills/` 同上；Claude Code 通过 `/plugin install` 后检查 `~/.claude/plugins/<plugin>/skills/`（依赖 install topology 拷贝 `skills/` 全树的语义，本 feature 不动 `.claude-plugin/marketplace.json`，HYP-004） |
 | **NFR-005** | `validate-wisdom-notebook.py` 仅依赖 python3 stdlib（与 `audit-skill-anatomy.py` 同等约束） | grep `^import` 仅出现 stdlib 模块 |
 | **NFR-006** | fast lane 在 markdown-only 路径下（无 v0.7 runtime）的精度足以让 dogfood 全程不需要架构师手动确认即可推到 hf-finalize | HYP-002 验证 |
 | **NFR-007** | 本 feature 自身的 SDD 主链 dogfood：spec → spec-review × N → design → design-review × N → tasks → tasks-review × N → TDD × M tasks → 各 review × N → gates → finalize 全部走完，且 `progress.md` 含完整 Fast Lane Decisions audit trail | hf-finalize closeout pack 检查 |
@@ -163,7 +173,7 @@ ADR-008 D2 把这 7 个空白 + `hf-ultrawork` 锁成 v0.6 的范围。本 spec 
 - OMO Hephaestus 等价物（autonomous deep worker 跳过 review/gate）→ ADR-009 D2 拒绝
 - 任何修改 `docs/principles/soul.md` / `docs/principles/methodology-coherence.md` / `docs/principles/skill-anatomy.md` 的改动（宪法层不变）
 - 任何新增 slash 命令的改动（v0.6 仍是 7 个 slash 命令）
-- 任何 `hf-product-discovery` / `hf-experiment` / `hf-discovery-review` / `hf-design` / `hf-ui-design` / `hf-ui-review` / `hf-spec-review` / `hf-design-review` / `hf-tasks` / `hf-test-driven-dev` / `hf-test-review` / `hf-traceability-review` / `hf-regression-gate` / `hf-doc-freshness-gate` / `hf-completion-gate` / `hf-finalize` / `hf-hotfix` / `hf-increment` / `hf-release` / `hf-browser-testing` 的改动（20 个未升级 skill 在本 feature 不动）
+- 任何 `hf-product-discovery` / `hf-experiment` / `hf-discovery-review` / `hf-design` / `hf-ui-design` / `hf-ui-review` / `hf-spec-review` / `hf-design-review` / `hf-tasks` / `hf-test-review` / `hf-traceability-review` / `hf-regression-gate` / `hf-doc-freshness-gate` / `hf-finalize` / `hf-hotfix` / `hf-increment` / `hf-release` / `hf-browser-testing` 的改动（18 个未升级 skill 在本 feature 不动；`hf-test-driven-dev` 与 `hf-completion-gate` 不在此列——它们属于 §6 列出的 3 个集成点修改 skill，由 FR-002 触发）
 
 ## 10. Open Questions（spec-review 时需澄清）
 
@@ -204,3 +214,10 @@ reviewer 必须验证：
 - [ ] 与 `docs/principles/soul.md` 第 1 ~ 5 条硬纪律的对照：fast lane 引入是否破坏 soul（按 ADR-009 D2 验证）
 - [ ] 是否漏掉对 `hf-finalize` 的影响（应该没有：v0.6 不修改 hf-finalize）
 - [ ] doc-freshness 范围（FR-013 / FR-014）的 grep 验证可执行
+
+## 13. 修订历史
+
+| Round | 日期 | 变更摘要 |
+|---|---|---|
+| Round 1 | 2026-05-13 | 初稿；15 FR + 7 NFR + 5 HYP + 7 OQ + 12 review checklist 项 |
+| Round 2 | 2026-05-13 | 按 `reviews/spec-review-2026-05-13.md` Round 1 verdict（需修改）回修 8 条 finding（important × 2 + minor × 6）：<br>- §2 / §3 / §6 / §9 统一口径"修改 7 个 skill"（4 主升级 + 3 集成点）<br>- NFR-004 验证补 Claude Code 三客户端横向口径<br>- FR-002 Acceptance 明确 5 文件容器齐全 + delta 至少落 learnings/verification 任一<br>- FR-008 Acceptance 要求 SKILL.md `Hard Gates` 段直接 enumerate 5 类不可压缩项<br>- §6 显式声明 4 新 skill 走 anatomy v2 四子目录；hf-wisdom-notebook / hf-ultrawork 必含 evals/<br>- FR-009 补 4 子项明确步骤 3 / 步骤 6 不变<br>- FR-015 SHOULD 补失败处理（不阻塞 + 记入 deferred backlog）<br>- HYP-002 去设计泄漏 wording；Validation Plan 加三客户端横向 verification |
