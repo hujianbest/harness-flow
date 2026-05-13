@@ -97,6 +97,19 @@
         "要求补 browser-runtime 或 component-integration evidence",
         "不返回通过"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "首页 UI 任务能 completion 吗？\n- review 都已通过，Vitest 也通过。\n- completion claim 写“首页 UI 设计已有效落地”。\n- ui-design.md contract 要求橙色 primary、禁止蓝紫渐变、截图对照、DOM anchors 和 console/network clean。\n- completion record 没有截图、viewport、DOM anchors、console/network，也没有 UI contract 对照结论。\n\n请按 `hf-completion-gate` 判断。",
+      "expected_output": "不能通过。UI 设计落地 claim 需要 UI conformance evidence；review 和单测通过不能替代截图/DOM/console-network 与 contract 对照。应返回需修改，要求补 screenshot/viewport、DOM anchors、console/network 和 visual drift/token bypass 检查。",
+      "files": [],
+      "expectations": [
+        "识别 UI 设计落地 claim 需要 UI conformance evidence",
+        "不把 review 或 Vitest 当作完成充分证据",
+        "要求截图、viewport、DOM anchors 和 console/network",
+        "要求对照 UI Implementation Contract",
+        "不返回通过"
+      ]
     }
   ]
 }

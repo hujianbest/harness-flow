@@ -12,8 +12,8 @@
 | ID | 维度 | Pass Condition |
 |---|---|---|
 | `TR1` | 可执行性 | 关键任务可冷启动推进，不存在“实现某模块”式大任务 |
-| `TR2` | 任务合同完整性 | 关键任务具备 `Acceptance`、`Files`、`Verify`、完成条件 |
-| `TR3` | 验证与测试设计种子 | 测试设计种子足够支持后续 fail-first 实现；UI / API / full-stack 任务声明 runtime evidence tier |
+| `TR2` | 任务合同完整性 | 关键任务具备 `Acceptance`、`Files`、`Verify`、完成条件；UI 任务承接 UI Implementation Contract |
+| `TR3` | 验证与测试设计种子 | 测试设计种子足够支持后续 fail-first 实现；UI / API / full-stack 任务声明 runtime evidence tier 与 UI conformance evidence |
 | `TR4` | 依赖与顺序正确性 | 依赖链、关键路径和执行顺序合理，无循环依赖 |
 | `TR5` | 追溯覆盖 | 关键任务可回指到已批准规格与设计，不存在 orphan task |
 | `TR6` | Router 重选就绪度 | `Current Active Task` 选择规则唯一，queue projection 稳定可回读 |
@@ -30,6 +30,8 @@
 - 是否写出 `Files / 触碰工件`？
 - 是否写出 `Verify` 与完成条件？
 - reviewer 能否冷读出“完成时什么必须为真”？
+- UI 任务的 `Acceptance` 是否锚定具体 UI Implementation Contract（visual invariants、token mapping、forbidden drift、interaction states）？
+- 是否存在只写“有 Hero / 有卡片 / 有按钮 / 简洁页面”而没有设计约束的低分辨率验收条件？
 
 ### `TR3` 验证与测试设计种子
 
@@ -38,6 +40,8 @@
 - 是否只写了“补测试”“自行验证”这类空泛表述？
 - UI / API / full-stack 任务是否写清 required evidence tier：component-integration、api-contract、browser-runtime、full-stack-smoke？
 - 是否写清服务启动、health check、API base URL、smoke routes 或引用项目 runtime-smoke profile？
+- UI 任务是否写清 UI conformance evidence：截图路由/viewport、DOM anchors、console/network assertions、token/visual drift checks？
+- 测试设计种子是否覆盖“元素存在”和“符合设计不变量”两类断言，而不是只断言文案存在？
 
 ### `TR4` 依赖与顺序正确性
 
@@ -71,3 +75,6 @@
 | `TA7` | unstable active task | 多个候选任务都像“当前活跃任务” | 显式写唯一选择规则 |
 | `TA8` | missing runtime tier | UI/API/full-stack 任务只写单测或 build，不写 browser/API/contract/smoke 证据 | 在 Verify/DoD 中补 required tier 和允许降级条件 |
 | `TA9` | runtime entry unspecified | 任务要求运行时验证，但未写服务启动、健康检查、API base URL 或 smoke route | 引用 runtime-smoke profile 或在任务中写明入口 |
+| `TA10` | UI contract not consumed | UI 任务没有引用 UI Implementation Contract，Acceptance 只写元素存在 | 在任务中补 visual invariants、token mapping、forbidden drift、state matrix anchor |
+| `TA11` | low-resolution UI acceptance | 验收只断言“有 Hero / 有卡片 / 有按钮”或测试只查文案 | 补设计约束断言和 screenshot/DOM evidence targets |
+| `TA12` | missing UI conformance evidence | UI 任务未要求截图/viewport、DOM anchors、console/network 或 token drift 检查 | 在 Verify/DoD 中补 UI conformance evidence 或引用项目降级许可 |

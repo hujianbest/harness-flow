@@ -31,6 +31,16 @@
 - Included Coverage:
 - Uncovered Areas:
 
+## UI Conformance Evidence（若适用）
+
+- UI Contract Anchors:
+- Screenshot Artifacts:
+- Viewports Covered:
+- DOM Anchors:
+- Console / Network Assertions:
+- Visual Drift / Token Bypass Check:
+- Known UI Conformance Gaps:
+
 ## Commands And Results
 
 ```text

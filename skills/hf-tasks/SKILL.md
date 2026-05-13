@@ -45,7 +45,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 阅读：已批准规格、已批准设计（默认 `features/<active>/spec.md` / `design.md`）、项目上下文、项目级路径约定（若项目已声明）、feature `progress.md`（默认 `features/<active>/progress.md`）。
 
-**若 UI surface 被激活**（存在 `hf-ui-design` 的已批准文档）：除技术设计外，也需读取 UI 设计文档，提取组件粒度、关键页面 wireframe、交互状态矩阵、Design Token 映射；前端任务拆解必须承接 Atomic 分层与状态矩阵，避免把"实现某页面"当作单任务。
+**若 UI surface 被激活**（存在 `hf-ui-design` 的已批准文档）：除技术设计外，也需读取 UI 设计文档，提取组件粒度、关键页面 wireframe、交互状态矩阵、Design Token 映射和 UI Implementation Contract；前端任务拆解必须承接 Atomic 分层、状态矩阵与页面/组件 visual invariants，避免把"实现某页面"当作单任务。
 
 至少提取：主要工作流、依赖与顺序、测试影响、风险区域、关键需求/设计锚点（含 UI 设计锚点，若存在）。
 
@@ -79,8 +79,10 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 不是把设计拆成几个“大任务标题”就结束。对每个会触碰代码、配置、数据或状态工件的关键任务，必须把任务级合同写实：
 
 - `Acceptance` 写任务完成后什么行为/接口/状态必须为真；不要写“实现某模块”“完成某功能”
+- UI 任务的 `Acceptance` 必须锚定 UI Implementation Contract：写明需满足的 visual invariants、token mapping、forbidden drift、interaction states 和 screenshot/DOM evidence；不得只写“有 Hero / 有卡片 / 有按钮”
 - `Verify` 优先继承项目级约定中的真实命令、顺序与强制验证步骤；不要用泛化默认值覆盖项目规则
 - 若任务触碰 UI surface、前端 API client、后端 HTTP API、dev-server/proxy/env、认证/session、浏览器存储或 full-stack flow，`Verify` / DoD 必须声明 runtime evidence tier：mocked unit、component integration、API contract、browser runtime、full-stack smoke 中哪些是强制，哪些允许 N/A；不能只写“单测通过”
+- 若任务触碰 UI surface，`Verify` / DoD 必须声明 UI conformance evidence：截图路由 / viewport、DOM anchors、console/network 断言、token/visual drift 检查；若项目暂不要求截图，必须引用明确降级许可
 - `测试设计种子` 至少覆盖：主行为、1 个关键边界、1 个适合 fail-first 的点
 - 代码型任务优先拆成可直接支撑 `hf-test-driven-dev` 的最小闭环：`fail-first test -> 确认失败 -> 最小实现 -> verify green`
 - 数据库 / 迁移 / 状态切换类任务，除 `Verify` 外还要写明回滚 / 恢复说明，或显式引用项目中的等价字段
@@ -115,6 +117,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 - 不存在大到无法单任务推进的任务
 - 关键任务有 Acceptance、Files、Verify、完成条件
 - UI / API / full-stack 任务的 Verify 已写清 runtime evidence tier、启动/健康检查入口、API base URL 或明确引用项目级 runtime-smoke profile
+- UI 任务的 Acceptance/Verify 已承接 UI Implementation Contract，包含 visual invariants、token mapping、forbidden drift 和 screenshot/DOM evidence targets
 - 关键任务能追溯回规格/设计
 - 风险区域已体现在顺序或验证中
 - 已给出唯一 Current Active Task 选择规则

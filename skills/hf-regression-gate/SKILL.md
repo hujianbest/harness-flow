@@ -52,6 +52,7 @@ Evidence-tier 回归范围（按当前 task / traceability 影响面叠加，不
 
 触发规则：
 - 触碰 UI route、App 根组件、UI provider、浏览器存储、表单、前端 API client、Vite proxy/env → 至少需要 `browser-runtime`；若有后端交互，同时需要 `api-contract` 或 `full-stack-smoke`
+- 触碰 UI surface / visual token / layout / component library usage → `browser-runtime` 必须包含 UI conformance evidence：截图路由+viewport、DOM anchors、console/network 记录、与 UI Implementation Contract 的匹配结论
 - 触碰 HTTP controller / API DTO / auth / CORS / base URL / proxy → 至少需要 `api-contract`
 - 触碰跨前后端用户流 → 需要 `full-stack-smoke`
 - `happy-dom` / jsdom / mock fetch / mocked provider 只能归为 `mocked-unit` 或 `component-integration`，不得写成 `browser-runtime` 或 `api-contract`
@@ -86,6 +87,7 @@ Evidence-tier 回归范围（按当前 task / traceability 影响面叠加，不
 | build / typecheck / lint 失败 | 失败命令、退出码、关键报错摘录 | `需修改` | `hf-test-driven-dev` |
 | 测试通过但覆盖率低于 项目级覆盖率门槛或当前任务门槛 | 覆盖率命令、实际结果、门槛来源 | `需修改` | `hf-test-driven-dev` |
 | UI / API / full-stack 影响面缺少对应 evidence tier | 影响面、缺失 tier、已有 weaker evidence、DoD / 项目约定来源 | `需修改`；若工具链 / 环境不可用且无降级许可 → `阻塞` | `hf-test-driven-dev` 或 `hf-regression-gate` |
+| UI conformance claim 缺少截图 / DOM anchors / console-network evidence，或截图未对照 UI Implementation Contract | UI surface、缺失证据、contract anchor、已有 weaker evidence | `需修改`；若环境不可用且无降级许可 → `阻塞` | `hf-test-driven-dev` 或 `hf-regression-gate` |
 | 记录把 happy-dom / jsdom / mock fetch 称作真实浏览器或真实 API 集成 | 测试环境、mock 边界、错误分类的证据摘录 | `需修改` | `hf-test-driven-dev` |
 | `lightweight` 且仅文档 / 配置类变更 | 最小相关验证（如 docs build、lint、config parse）+ 明确未覆盖区域 | 结果驱动 | 通过时 `hf-completion-gate`，否则 `hf-test-driven-dev` |
 | 强制集成 / e2e 验证因环境不可用而未跑 | 项目约定 / DoD 是否允许降级；若允许，给出替代验证结果；若不允许，写明阻塞原因 | 无降级许可 → `阻塞`；有许可则按结果判断 | 无降级许可 → `hf-regression-gate` |
@@ -107,6 +109,7 @@ Evidence-tier 回归范围（按当前 task / traceability 影响面叠加，不
 - `Upstream Evidence Consumed`：已消费的 traceability / review / handoff / task-progress 记录
 - `Verification Scope`：Included Coverage、Uncovered Areas
 - `Evidence Tier Coverage`：列出 mocked-unit / component-integration / api-contract / browser-runtime / full-stack-smoke 的 required / provided / N/A 状态
+- `UI Conformance Evidence`：列出 screenshots、viewports、DOM anchors、console/network assertions、UI contract anchors、visual drift / token bypass 检查结果
 - `Commands And Results`：命令、退出码、Summary、Notable Output
 - `Freshness Anchor`：为什么这些结果锚定当前代码状态
 - `Conclusion`：`通过` / `需修改` / `阻塞` + 唯一 `Next Action Or Recommended Skill`
@@ -126,6 +129,7 @@ Evidence-tier 回归范围（按当前 task / traceability 影响面叠加，不
 - 已消费的上游证据（至少写清 implementation handoff、traceability review、相关 review/gate records）
 - 回归面定义、Included Coverage 与 Uncovered Areas
 - evidence tier 覆盖矩阵；若存在 UI / API / full-stack 影响面，必须写出 runtime / contract / smoke 是否已覆盖
+- 若存在 UI surface / visual token / layout 影响面，必须写出 UI conformance evidence：截图路径、viewport、DOM anchors、console/network 摘要、UI Implementation Contract 对照结论
 - 命令、退出码、结果摘要、关键失败/警告摘录
 - 新鲜度锚点与 worktree 锚点（若适用）
 - 若使用 coverage / docs build / config parse / integration fallback，必须写出依据来源（项目约定 / DoD）
@@ -137,6 +141,7 @@ Evidence-tier 回归范围（按当前 task / traceability 影响面叠加，不
 |------|------|
 | `references/verification-record-template.md` | regression verification record 模板（与 `hf-completion-gate` 同形态） |
 | `references/runtime-smoke-profile.md` | 项目侧 runtime smoke / health check / API contract / browser routes 声明模板 |
+| `references/ui-conformance-evidence-profile.md` | UI 截图、viewport、DOM/console/network 与 design contract 对照声明模板 |
 
 ## Red Flags
 

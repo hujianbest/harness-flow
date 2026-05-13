@@ -98,6 +98,19 @@
         "返回需修改或阻塞",
         "不把组件测试通过当作 API 集成通过"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "这是一个 UI 回归门禁场景：\n- 当前任务改了首页视觉和 ArticlePreview 卡片样式。\n- ui-design.md contract 要求橙色 primary、禁止蓝紫渐变、desktop/mobile screenshot、DOM anchor `main h1`、console/network clean。\n- 验证只跑了 Vitest，断言文案和组件存在。\n- 没有截图、viewport、DOM anchor、console/network log，也没有说明是否匹配 UI contract。\n\n请按 `hf-regression-gate` 判断。",
+      "expected_output": "应拒绝通过；UI conformance claim 需要 browser-runtime screenshot/DOM/console-network evidence，并对照 UI Implementation Contract。Vitest 文案断言只能证明 lower-tier 行为，不能证明视觉落地。应返回需修改或阻塞，要求补 UI conformance evidence。",
+      "files": [],
+      "expectations": [
+        "要求截图和 viewport evidence",
+        "要求 DOM anchors 与 console/network 记录",
+        "要求对照 UI Implementation Contract",
+        "不把组件测试当作 UI conformance",
+        "不返回通过"
+      ]
     }
   ]
 }
