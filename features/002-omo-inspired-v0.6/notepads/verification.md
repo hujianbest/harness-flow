@@ -2,6 +2,85 @@
 
 > 跨 task 累积，按 task 时间倒序追加。每 task 至少一条（或在 learnings.md 至少一条）。
 
+## TASK-007 — 2026-05-14T02:50Z — hf-ultrawork verifier GREEN
+
+- entry-id: `verify-0014`
+- author: cursor cloud agent (hf-test-driven-dev TASK-007)
+- test-name: `tests/test_ultrawork_skill.py`
+- result: **pass** (10/10 in 43ms)
+- evidence-path: shell 输出 `Ran 10 tests in 0.045s OK`；含关键 test_hard_gates_enumerates_5_noncompressibles 通过 + test_keyword_set_present 三类 (启用/停下/恢复) 通过 + test_escape_conditions_six 在 reference 含 6 条通过
+
+## TASK-007 — 2026-05-14T02:50Z — hf-ultrawork RED
+
+- entry-id: `verify-0015`
+- author: cursor cloud agent
+- test-name: `tests/test_ultrawork_skill.py` (pre-GREEN)
+- result: **fail-as-expected** (3 fail + 7 error)
+- evidence-path: SKILL.md / reference 缺时 10/10 fail/error
+
+## TASK-007 — 2026-05-14T02:50Z — hf-ultrawork size
+
+- entry-id: `verify-0016`
+- author: cursor cloud agent
+- test-name: wc -l + wc -w
+- result: **pass**
+- evidence-path: 165 行 / 1297 word × 1.3 ≈ 1686 token（≤ 5000）
+
+## TASK-006 — 2026-05-14T02:40Z — hf-context-mesh verifier GREEN
+
+- entry-id: `verify-0011`
+- author: cursor cloud agent (hf-test-driven-dev TASK-006)
+- test-name: `tests/test_context_mesh_skill.py`
+- result: **pass** (10/10 in 39ms)
+- evidence-path: shell 输出 `Ran 10 tests in 0.042s OK`；含 3 客户端段 + 3 层模板各 ≥ 3 次出现 + Hard Gates "不替架构师写约定" 显式 disclaim 通过
+
+## TASK-006 — 2026-05-14T02:40Z — hf-context-mesh RED
+
+- entry-id: `verify-0012`
+- author: cursor cloud agent
+- test-name: `tests/test_context_mesh_skill.py` (pre-GREEN)
+- result: **fail-as-expected** (3 fail + 7 error)
+- evidence-path: SKILL.md / reference 缺时 10/10 fail/error
+
+## TASK-006 — 2026-05-14T02:40Z — hf-context-mesh size
+
+- entry-id: `verify-0013`
+- author: cursor cloud agent
+- test-name: wc -l + wc -w
+- result: **pass**
+- evidence-path: 140 行 / 764 word × 1.3 ≈ 993 token
+
+## TASK-005 — 2026-05-14T02:35Z — hf-gap-analyzer verifier GREEN
+
+- entry-id: `verify-0008`
+- author: cursor cloud agent (hf-test-driven-dev TASK-005)
+- test-name: `tests/test_gap_analyzer_skill.py`
+- result: **pass** (9/9 in 43ms)
+- evidence-path: shell 输出 `Ran 9 tests in 0.043s OK`；含 6 维 rubric 全提及 + "不是 Fagan review" 显式 disclaim 通过
+
+## TASK-005 — 2026-05-14T02:35Z — hf-gap-analyzer RED
+
+- entry-id: `verify-0009`
+- author: cursor cloud agent
+- test-name: `tests/test_gap_analyzer_skill.py` (pre-GREEN)
+- result: **fail-as-expected** (3 fail + 6 error)
+
+## TASK-005 — 2026-05-14T02:35Z — hf-gap-analyzer size
+
+- entry-id: `verify-0010`
+- author: cursor cloud agent
+- test-name: wc -l + wc -w
+- result: **pass**
+- evidence-path: 133 行 / 840 word × 1.3 ≈ 1092 token
+
+## TASK-005/006/007 — 2026-05-14T02:55Z — Regression sanity 全套测试
+
+- entry-id: `verify-0017`
+- author: cursor cloud agent
+- test-name: 全 5 测试 + audit
+- result: **pass**
+- evidence-path: 6 + 9 + 9 + 10 + 10 = **44 tests PASS** + audit `Summary: 0 failing skill(s), 0 warning(s)` 含 hf-wisdom-notebook / hf-gap-analyzer / hf-context-mesh / hf-ultrawork 各 OK 行；4 个 v0.6 新 skill 全部 anatomy v2 合规
+
 ## TASK-002 — 2026-05-13T14:10Z — hf-wisdom-notebook SKILL.md verifier GREEN
 
 - entry-id: `verify-0004`

@@ -2,6 +2,30 @@
 
 > 跨 task 累积，按 task 时间倒序追加。Schema 见 `skills/hf-wisdom-notebook/references/notebook-schema.md`（TASK-002 起正式承接）。
 
+## TASK-007 — 2026-05-14T02:50Z — hf-ultrawork SKILL.md + escape conditions 落地
+
+- entry-id: `learn-0009`
+- author: cursor cloud agent (hf-test-driven-dev TASK-007)
+- pattern: "FR-008 强制 5-keyword enumeration"——对带"必须本地 enumerate" 类要求的 SKILL.md，verifier 用 5 个独立 regex 分别扫每一类必含项；任一缺失即失败，避免作者用"按 ADR-XXX D2 执行"一句话糊弄过 audit
+- applies-to: 后续任何 SKILL.md 含"必须本地 enumerate"类 FR 时（如 v0.7 hf-runtime hashline-edit hard limits）
+- evidence-anchor: `tests/test_ultrawork_skill.py::test_hard_gates_enumerates_5_noncompressibles`；regex 5 类含 Fagan / gate / closeout / approval 落盘 / 标准不清抛回；本 task SKILL.md 165 行全部 5 类 enumerated 通过
+
+## TASK-006 — 2026-05-14T02:40Z — hf-context-mesh 三客户端模板共存约定
+
+- entry-id: `learn-0008`
+- author: cursor cloud agent (hf-test-driven-dev TASK-006)
+- pattern: "三客户端共存时主版本 + 引用版本"——同目录可同时存在 OpenCode AGENTS.md / Cursor .mdc / Claude Code CLAUDE.md，但架构师只写 1 份完整 conventions（主版本），其它 2 份用 `> 见 ./AGENTS.md` 引用避免重复维护
+- applies-to: vendor HF 的项目 + 任何需要跨多客户端给 AI agent 提供上下文的项目
+- evidence-anchor: `skills/hf-context-mesh/references/agents-md-template.md` 末段"三客户端共存场景"
+
+## TASK-005 — 2026-05-14T02:35Z — hf-gap-analyzer 是 author-side 而非 review 节点
+
+- entry-id: `learn-0007`
+- author: cursor cloud agent (hf-test-driven-dev TASK-005)
+- pattern: "author-side self-check skill 必须显式 disclaim"——SKILL.md 必须在 frontmatter description + Hard Gates 第 1 条 + Object Boundaries + Workflow 末尾"作者吸收"四处冗余声明"不写 verdict / 不替代 Fagan review"，否则容易被误用为 review 替代品
+- applies-to: 后续任何 author-side / pre-review 类 skill（如未来可能引入的 hf-design-self-check 等）
+- evidence-anchor: `tests/test_gap_analyzer_skill.py::test_explicitly_not_fagan_review`；强制 SKILL.md 含"不是 Fagan review / 不写 verdict / not a Fagan review / does not produce verdict"任一表述
+
 ## TASK-002 — 2026-05-13T14:10Z — hf-wisdom-notebook SKILL.md + 2 references 落地
 
 - entry-id: `learn-0003`

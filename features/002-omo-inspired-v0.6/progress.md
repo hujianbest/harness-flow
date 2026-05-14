@@ -6,7 +6,7 @@
 
 ## Current Active Task
 
-**TASK-005**（hf-gap-analyzer SKILL.md；无依赖；TASK-002 完成后 router 按 ID 升序选 TASK-005，TASK-006 / 009 / 010 / 012 / 013 也无依赖排队中）
+**TASK-003**（写 `skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py`；TASK-002 已完成解锁此 task；按依赖图 TASK-003 依赖 TASK-002 ✅；按 router "无依赖未完成 task 中按 ID 升序" 现 TASK-003 / 004 / 008 / 009 / 010 / 011 / 012 / 013 均无未满足依赖 → TASK-003 ID 最小）
 
 ## Stage Trail
 
@@ -40,6 +40,19 @@
 | 2026-05-13T14:13Z | hf-test-review TASK-002 | verdict=`通过` | reviews/test-review-task-002-2026-05-13.md | code-review |
 | 2026-05-13T14:14Z | hf-code-review TASK-002 | verdict=`通过`；anatomy v2 完全合规 | reviews/code-review-task-002-2026-05-13.md | router 重选 |
 | 2026-05-13T14:15Z | router | 选 TASK-005 为新 Current Active Task | progress.md | hf-test-driven-dev (TASK-005) |
+| 2026-05-14T02:30Z | hf-test-driven-dev TASK-005 TEST-DESIGN | 写测试设计 + auto-approval | verification/test-design-task-005.md | RED |
+| 2026-05-14T02:33Z | TASK-005 RED-1 | 9 tests 写完，3 fail + 6 error 有效 RED | tests/test_gap_analyzer_skill.py | GREEN |
+| 2026-05-14T02:35Z | TASK-005 GREEN-1 | 写 SKILL.md (133 行) + references/gap-rubric.md（6 维 rubric + 中英双语 AI slop 模式）→ 9/9 PASS | skills/hf-gap-analyzer/{SKILL.md,references/gap-rubric.md} | TASK-006 起步 |
+| 2026-05-14T02:36Z | hf-test-driven-dev TASK-006 TEST-DESIGN | 写测试设计 | verification/test-design-task-006.md | RED |
+| 2026-05-14T02:37Z | TASK-006 RED-1 | 10 tests，3 fail + 7 error 有效 RED | tests/test_context_mesh_skill.py | GREEN |
+| 2026-05-14T02:40Z | TASK-006 GREEN-1 | 写 SKILL.md (140 行) + references/agents-md-template.md（3 客户端 × 3 层模板）→ 10/10 PASS | skills/hf-context-mesh/{SKILL.md,references/agents-md-template.md} | TASK-007 起步 |
+| 2026-05-14T02:42Z | hf-test-driven-dev TASK-007 TEST-DESIGN | 写测试设计（含 FR-008 强制 5-keyword Hard Gates 校验） | verification/test-design-task-007.md | RED |
+| 2026-05-14T02:45Z | TASK-007 RED-1 | 10 tests 含最严格 test_hard_gates_enumerates_5_noncompressibles，3 fail + 7 error 有效 RED | tests/test_ultrawork_skill.py | GREEN |
+| 2026-05-14T02:50Z | TASK-007 GREEN-1 | 写 SKILL.md (165 行) 含 5 类不可压缩本地 enumerate + 关键词集合 + Workflow 5 步 + Common Rationalizations 4 + references/fast-lane-escape-conditions.md（6 escape）→ 10/10 PASS | skills/hf-ultrawork/{SKILL.md,references/fast-lane-escape-conditions.md} | REFACTOR + 全量 regression |
+| 2026-05-14T02:55Z | TASK-005/006/007 REFACTOR-1 + Regression sanity | wisdom delta + tasks.progress.json bump + 全 5 测试 (44 tests) + audit OK 含 4 新 skill 全 OK | notepads/{learnings,decisions,verification}.md + tasks.progress.json | test-review (batched 3 task) |
+| 2026-05-14T02:57Z | hf-test-review TASK-005/006/007 (batched) | 3/3 verdict=`通过` | reviews/test-review-task-005-006-007-2026-05-14.md | code-review (batched) |
+| 2026-05-14T02:58Z | hf-code-review TASK-005/006/007 (batched) | 3/3 verdict=`通过`；4 个 v0.6 新 skill 全部 anatomy v2 + 0 AI slop + design conformance | reviews/code-review-task-005-006-007-2026-05-14.md | router 重选 |
+| 2026-05-14T02:59Z | router | 按依赖图 + ID 升序选 TASK-003（TASK-002 已完成解锁；ID 最小） | progress.md | hf-test-driven-dev (TASK-003) |
 
 ## Pending Reviews & Gates
 
@@ -72,6 +85,9 @@
 | 2026-05-13T14:00Z | hf-test-driven-dev TASK-002 TEST-DESIGN approval | auto-approve | TEST-DESIGN approval auto write | architect explicit | no |
 | 2026-05-13T14:14Z | hf-test-review TASK-002 → hf-code-review | auto-continue | test-review pass → code-review without prompt | architect explicit + 0 USER-INPUT | no |
 | 2026-05-13T14:15Z | hf-code-review TASK-002 → router | auto-continue | code-review pass → router auto-pick TASK-005 | architect explicit + TASK-002 DONE | no |
+| 2026-05-14T02:30Z | TASK-005 / 006 / 007 串联推进 | auto-continue × 3 | 3 个 SKILL.md task 同款 TDD 模板批量推进；每 GREEN 后立即起下一 task；TASK-007 GREEN 后 batched test-review + code-review 一次性给 3 task verdict | architect explicit auto mode + 0 USER-INPUT + 0 escape 命中 | no |
+| 2026-05-14T02:55Z | TASK-005 / 006 / 007 全 GREEN → batched reviews | auto-batch | 3 task 在同款 verifier 模板下行为高度一致（learn-0003 sealed pattern）→ 单一 review record 覆盖 3 task；每 task 独立 verdict | architect explicit + 同款模板 sealed pattern | no |
+| 2026-05-14T02:58Z | hf-code-review batched → router | auto-continue | 3/3 通过 → router 按依赖图 + ID 升序选 TASK-003 | architect explicit + 3 task DONE | no |
 
 ## Wisdom Delta
 
@@ -79,6 +95,9 @@
 |---|---|
 | TASK-001 | `learnings.md` `learn-0001` (stdlib-only mini schema validator pattern) + `learn-0002` (schema-task TDD adaptation) ; `decisions.md` `dec-0001` (tests/ vs skill-owned scripts/) ; `issues.md` `iss-0001` (test_install_scripts.sh --help deferred) ; `verification.md` `verify-0001` GREEN evidence + `verify-0002` RED evidence + `verify-0003` audit regression check ; `problems.md` 无（task 顺利）|
 | TASK-002 | `learnings.md` `learn-0003` (structural-grep test pattern for SKILL.md tasks) + `learn-0004` (schema reference 必须含 dogfood 指针) ; `decisions.md` `dec-0002` (tests/ 归属 hf-wisdom-notebook 校验脚本) ; `verification.md` `verify-0004` GREEN + `verify-0005` RED + `verify-0006` regression + `verify-0007` size budget ; `problems.md` 无 |
+| TASK-005 | `learnings.md` `learn-0007` (author-side self-check skill 必须显式 disclaim) ; `verification.md` `verify-0008` GREEN + `verify-0009` RED + `verify-0010` size ; `problems.md` 无 |
+| TASK-006 | `learnings.md` `learn-0008` (三客户端模板共存约定主版本 + 引用版本) ; `decisions.md` `dec-0004` (Cursor `.mdc` 集中 vs OpenCode/Claude Code 散落) ; `verification.md` `verify-0011` GREEN + `verify-0012` RED + `verify-0013` size ; `problems.md` 无 |
+| TASK-007 | `learnings.md` `learn-0009` (FR-008 强制 5-keyword enumeration verifier pattern) ; `decisions.md` `dec-0005` (fast lane 关键词集合冻结 OQ-003) ; `verification.md` `verify-0014` GREEN + `verify-0015` RED + `verify-0016` size + `verify-0017` 全 5 测试 44 tests regression ; `problems.md` 无 |
 
 5 文件 notebook 容器已按 FR-002 / design §3.1 初始化（首次 task 创建空骨架 + delta）。后续 TASK-002 ~ TASK-018 按同款 protocol 累积。
 

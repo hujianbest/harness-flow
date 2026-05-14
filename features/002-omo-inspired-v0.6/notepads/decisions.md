@@ -2,6 +2,31 @@
 
 > 跨 task 累积，按 task 时间倒序追加。轻量 ADR（不替代 `docs/decisions/` 仓库级 ADR）。
 
+## TASK-007 — 2026-05-14T02:50Z — fast lane 关键词集合冻结（OQ-003 收口）
+
+- entry-id: `dec-0005`
+- author: cursor cloud agent (hf-test-driven-dev TASK-007)
+- decision: fast lane 关键词集合按 spec OQ-003 + design §3.4 收口的 3 类（启用 / 停下 / 恢复 standard）冻结到 hf-ultrawork SKILL.md 与 references/fast-lane-escape-conditions.md
+- alternatives-considered:
+  1. 只支持英文关键词 — 拒绝：架构师可能中英混说
+  2. 用 NL classifier 而非关键词列表 — 拒绝：HF 是 markdown 包，无 runtime classifier；关键词列表 host 可直接 grep
+  3. 关键词列表写入 ADR-009 而非 SKILL.md — 拒绝：FR-008 + skill-anatomy 第 3 条要求 SKILL.md 是本地 contract
+- rationale: 关键词集合是 fast lane 触发 / 让出的 boolean 判断面，必须可冷读 + host 可 grep；冻结后避免后续 fast lane 误触发
+- reversibility: 高（增删关键词只需改 SKILL.md + reference）
+- related-adr: ADR-009 D3 / D5
+
+## TASK-006 — 2026-05-14T02:40Z — Cursor `.mdc` 集中 vs OpenCode/Claude Code 散落
+
+- entry-id: `dec-0004`
+- author: cursor cloud agent
+- decision: Cursor `.mdc` 全部集中 `.cursor/rules/` 下，文件名按目录 slug 区分（如 `src-components.mdc`）；OpenCode `AGENTS.md` 与 Claude Code `CLAUDE.md` 散落到对应目录
+- alternatives-considered:
+  1. Cursor `.mdc` 也散落到对应目录 — 拒绝：违反 Cursor 客户端规约（`.cursor/rules/` 是 alwaysApply rule 的官方位置）
+  2. OpenCode `AGENTS.md` 也集中 — 拒绝：OpenCode `directoryAgentsInjector` hook 期望按目录读
+- rationale: 三客户端各自的客户端规约不同；hf-context-mesh 必须按各自规约生成
+- reversibility: 中（改回需要架构师从所有目录删 .mdc 并迁回 .cursor/rules/）
+- related-adr: ADR-008 D1（三客户端可移植性）
+
 ## TASK-002 — 2026-05-13T14:10Z — `tests/` 目录归属 `test_wisdom_notebook_skill.py`
 
 - entry-id: `dec-0002`
