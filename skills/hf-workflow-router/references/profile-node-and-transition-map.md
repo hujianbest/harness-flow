@@ -17,7 +17,7 @@
 - `hf-product-discovery`（conditional：当会话从模糊产品 idea 起步、或已存在 discovery 草稿时激活）
 - `hf-discovery-review`（conditional：`hf-product-discovery` 被激活后存在）
 - `hf-experiment`（conditional：discovery / spec 中存在 Blocking 或低 confidence 关键假设时，作为上游 stage 的 **conditional insertion**）
-- `hf-browser-testing`（conditional：`hf-test-driven-dev` GREEN 之后，仅当 spec 声明 UI surface 且当前 active task 触碰前端表面时激活，作为 verify 阶段的 runtime evidence side node；激活判定见本文件的 `hf-browser-testing 激活与回流` 一节）
+- `hf-browser-testing`（conditional：`hf-test-driven-dev` GREEN 之后，当 spec / ui-design 声明 UI surface，或当前 active task / 代码影响面触碰前端运行面时激活，作为 verify 阶段的 runtime evidence side node；激活判定见本文件的 `hf-browser-testing 激活与回流` 一节）
 - `hf-specify`
 - `hf-spec-review`
 - `规格真人确认`
@@ -42,9 +42,9 @@
 
 - `hf-ui-design` / `hf-ui-review` 属于 **design stage 内部的 conditional peer**，不是 side-line。激活判定见 `ui-surface-activation.md`
 - `hf-experiment` 属于 **discovery / spec stage 内部的 conditional insertion**（Phase 0 引入）：在 discovery 或 spec 中发现 Blocking / 低 confidence 关键假设时临时插入，完成后回到插入点（`hf-product-discovery` / `hf-discovery-review` / `hf-specify` / `hf-spec-review`）；激活判定见本文件的 `hf-experiment 激活与回流` 一节
-- `hf-browser-testing` 属于 **verify stage 内部的 conditional side node**（v0.2.0 / ADR-002 D1 / D7 引入）：在 `hf-test-driven-dev` GREEN 之后，仅当 spec 声明 UI surface 且当前 active task 触碰前端表面时由 router 拐点拉入；产出 runtime evidence bundle（DOM / Console / Network 三层），不签发 verdict，不修改主链 FSM 主路径；完成后回到下游 gate（`hf-regression-gate` / `hf-completion-gate`）。激活判定见本文件的 `hf-browser-testing 激活与回流` 一节
+- `hf-browser-testing` 属于 **verify stage 内部的 conditional side node**（v0.2.0 / ADR-002 D1 / D7 引入）：在 `hf-test-driven-dev` GREEN 之后，当 task 或代码影响面触碰前端运行面时由 router 拐点拉入；产出 runtime evidence bundle（DOM / Console / Network 三层），不签发 verdict，不修改主链 FSM 主路径；完成后回到下游 gate（`hf-regression-gate` / `hf-completion-gate`）。若代码事实显示触碰 UI / API client / dev-server 配置，但 spec / tasks 未声明对应 runtime surface，router 必须回上游补工件，不得静默跳过。激活判定见本文件的 `hf-browser-testing 激活与回流` 一节
 - `standard` / `lightweight` profile 不加入 `hf-ui-design` / `hf-ui-review` / `hf-product-discovery` / `hf-experiment` 作为主链节点；若新 iteration 需要补 discovery 或假设验证，应升级到 `full`
-- `hf-browser-testing` 不依赖 profile，全 profile 共享同一激活规则（spec UI surface 声明 + 当前 task 触碰前端）
+- `hf-browser-testing` 不依赖 profile，全 profile 共享同一激活规则（runtime surface 声明或代码事实 + 当前 task 触碰前端 / API client / dev-server 配置）
 
 ### standard profile 主链推荐节点
 
@@ -353,13 +353,17 @@ branches:
 
 ## `hf-browser-testing` 激活与回流
 
-`hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入）是 verify 阶段的 conditional side node，**不修改主链 FSM 主路径**。router 在以下条件全部满足时把它作为 `hf-test-driven-dev` 的下一推荐节点：
+`hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入）是 verify 阶段的 conditional side node，**不修改主链 FSM 主路径**。router 在以下条件满足时把它作为 `hf-test-driven-dev` 的下一推荐节点：
 
 1. `hf-test-driven-dev` 已完成当前 active task 的 GREEN（progress.md 中存在 GREEN 交接块且单元 fresh evidence 可读）。
-2. spec 显式声明 UI surface（`features/<active>/spec.md` 中存在 UI surface 段，或 `hf-ui-design` 已批准）。
-3. 当前 active task 影响面触碰前端 / UI 表面（依据 `tasks.md` 中该 task 的 module 标签或 design 工件中的影响面声明）。
+2. runtime surface 已被工件声明：`features/<active>/spec.md` 中存在 UI surface / API client / runtime surface 段，或 `hf-ui-design` 已批准，或 `tasks.md` 的当前 task 明确列出 browser smoke / API contract / full-stack smoke 证据。
+3. 当前 active task 影响面触碰前端运行面，依据 `tasks.md`、design 工件、实现交接块或变更文件判断。触发信号包括：可见页面 / route / App 根组件、UI library provider、表单交互、前端 API client / fetch / auth store、Vite proxy / env / dev-server 配置、浏览器存储、网络错误处理。
 
-任一条件不满足 → router 跳过 `hf-browser-testing`，直接把 `hf-test-driven-dev` 的下一推荐节点收敛为下游正常迁移（典型为 `hf-test-review` / `hf-code-review` 二者并行 → `hf-regression-gate`）。
+处理规则：
+
+- 条件 1 不满足 → 回 `hf-test-driven-dev` 补 GREEN evidence。
+- 条件 2 不满足但条件 3 明确满足 → 工件与代码事实冲突；回 `hf-specify` / `hf-tasks`（按缺失层级）补 runtime surface / DoD，而不是跳过浏览器证据。
+- 条件 3 不满足 → router 跳过 `hf-browser-testing`，直接把 `hf-test-driven-dev` 的下一推荐节点收敛为下游正常迁移（典型为 `hf-test-review` / `hf-code-review` 二者并行 → `hf-regression-gate`）。
 
 回流（`hf-browser-testing` 完成后）：
 

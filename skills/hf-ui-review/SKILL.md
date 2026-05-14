@@ -90,7 +90,7 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 ### 2. 多维评分与挑战式审查
 
-对 9 个维度做内部评分（`0-10`）：需求覆盖与追溯、IA 与用户流完整性、交互状态覆盖、视觉一致性与 Design Token 合规、可访问性、响应式/i18n/性能预算适配、决策质量与 trade-offs、任务规划准备度、设计上下文与反 AI slop 合规。
+对 11 个维度做内部评分（`0-10`）：需求覆盖与追溯、IA 与用户流完整性、交互状态覆盖、视觉一致性与 Design Token 合规、可访问性、响应式/i18n/性能预算适配、决策质量与 trade-offs、任务规划准备度、设计上下文与反 AI slop 合规、内部设计一致性、视觉质量底线与实现合同。
 
 评分辅助区分：轻微缺口 vs 需修改 vs 阻塞。按 `references/ui-review-checklist.md` 逐项审查。
 
@@ -104,12 +104,14 @@ description: 适用于 UI 设计草稿已完成需要正式 review verdict、或
 
 - `USER-INPUT`：品牌/语气/视觉方向需真人拍板、规格未确认的目标设备/语种、关键 UX trade-off 仍需业务侧裁决、缺少既有 Design System / 品牌资产 / 既有产品视觉语汇等 P0 + P1 设计上下文
 - `LLM-FIXABLE`：缺少候选方向对比、状态矩阵不全、a11y 声明只写"达成"、组件映射缺来源/token 依赖、peer 交接块缺失或含糊、视觉语汇摘要缺失但 P0+P1 已存在、系统宣言缺失、命中 AI 默认审美 slop（紫色默认 / Inter 默认 / 左 4px 彩条 / dashboard 模板等）、规格之外的填充式 section、LLM 自补图标 / 文案 / 色值而非用 placeholder
+- `LLM-FIXABLE`：UI 文档内主色/字体/token/wireframe/contract 自相矛盾、视觉主张无法执行、把默认模板误称为极简、UI Implementation Contract 缺失或没有 forbidden drift / evidence targets
 
 ### 3. 形成结论、severity 与下一步
 
 判定规则（详见 `references/ui-review-record-template.md`）：
 
 - **通过**：可追溯规格、UI 决策清晰、IA/流/状态矩阵完整、token 合规、a11y 达标、peer 交接块显式、无阻塞任务规划的 UI 空洞
+- **通过** 还要求：文档内部视觉语言一致，关键页面/组件有 UI Implementation Contract，且设计质量足以让下游判断截图/实现是否符合设计；不能只靠章节齐全通过
 - **需修改**：核心可用，局部缺口可通过一轮定向修订补齐
 - **阻塞**：无法支撑规格、存在无法追溯的关键新增 UI、peer 交接块与 `hf-design` 冲突不可协调、或证据链冲突
 
@@ -155,6 +157,9 @@ severity：`critical`（阻塞任务规划或引入 a11y/安全隐患）> `impor
 - 缺设计上下文却以"反正实现时会调整"为由放行视觉语汇摘要 / 系统宣言缺失
 - 命中 AI 默认审美 slop（紫色默认 / Inter 默认 / 左 4px 彩条 / dashboard 模板）却以"看上去能用"为由放行
 - 接受"自画 SVG 插画"、"自编 hero copy"、"自造品牌色"等 LLM 自补行为，未要求换为 placeholder
+- 因 IA、token 表和 wireframe 都存在就通过，而没有检查主色/系统宣言/contract 是否互相一致
+- 把"极简"当作默认模板的豁免理由，未要求页面节奏、内容策略和 visual invariants
+- UI Implementation Contract 缺失却认为 `hf-tasks` 可以自行理解设计意图
 
 ## Common Rationalizations
 

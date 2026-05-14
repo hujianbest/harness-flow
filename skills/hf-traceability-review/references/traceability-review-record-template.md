@@ -33,6 +33,13 @@
 - Tasks -> Impl:
 - Impl -> Test / Verification:
 
+## UI 设计一致性矩阵（若适用）
+
+- UI Contract -> Task Acceptance:
+- Task Acceptance -> Implementation:
+- Implementation -> Screenshot / DOM / Console / Network Evidence:
+- Visual Drift / Token Bypass Findings:
+
 ## 追溯缺口
 
 - 缺口

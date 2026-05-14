@@ -84,6 +84,32 @@
         "不错误进入 hf-finalize",
         "给出阻塞结论并指向 hf-workflow-router"
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "这个前端登录/注册任务能 completion 吗？\n- test-review、code-review、traceability-review 都过了。\n- `npm test -- --run` 通过，环境是 happy-dom。\n- 测试 setup mock 了 `useMessage()`，没有真实挂载 App.vue，也没有 n-message-provider 的 runtime evidence。\n- 没有浏览器截图、console log、network trace。\n- completion claim 写的是“登录/注册页面可在浏览器中使用”。",
+      "expected_output": "不能通过。该 claim 需要 browser-runtime / provider 装配证据；happy-dom 与 mocked useMessage 只能证明 lower-tier 行为。应返回需修改，要求补 App/provider 集成或浏览器 runtime evidence。",
+      "files": [],
+      "expectations": [
+        "识别 claim 需要真实浏览器或 provider 装配证据",
+        "说明 mocked useMessage 不能支持浏览器可用结论",
+        "不把 review 通过或单测通过当作 completion 充分证据",
+        "要求补 browser-runtime 或 component-integration evidence",
+        "不返回通过"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "首页 UI 任务能 completion 吗？\n- review 都已通过，Vitest 也通过。\n- completion claim 写“首页 UI 设计已有效落地”。\n- ui-design.md contract 要求橙色 primary、禁止蓝紫渐变、截图对照、DOM anchors 和 console/network clean。\n- completion record 没有截图、viewport、DOM anchors、console/network，也没有 UI contract 对照结论。\n\n请按 `hf-completion-gate` 判断。",
+      "expected_output": "不能通过。UI 设计落地 claim 需要 UI conformance evidence；review 和单测通过不能替代截图/DOM/console-network 与 contract 对照。应返回需修改，要求补 screenshot/viewport、DOM anchors、console/network 和 visual drift/token bypass 检查。",
+      "files": [],
+      "expectations": [
+        "识别 UI 设计落地 claim 需要 UI conformance evidence",
+        "不把 review 或 Vitest 当作完成充分证据",
+        "要求截图、viewport、DOM anchors 和 console/network",
+        "要求对照 UI Implementation Contract",
+        "不返回通过"
+      ]
     }
   ]
 }

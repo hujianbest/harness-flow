@@ -5,7 +5,7 @@ description: 适用于 code review 通过后判断追溯完整性、用户显式
 
 # HF Traceability Review
 
-评审证据链追溯完整性：spec→design→tasks→impl→test/verification→status。防止"代码能跑但不再匹配已批准工件"。运行在 `hf-code-review` 之后，决定是否可进入 `hf-regression-gate`。
+评审证据链追溯完整性：spec→design→tasks→impl→test/verification→status。防止"代码能跑但不再匹配已批准工件"。UI surface 还要追溯 `ui-design.md` 的 visual invariants / token / contract 到实现与截图证据，防止只证明"元素存在"。运行在 `hf-code-review` 之后，决定是否可进入 `hf-regression-gate`。
 
 ## Methodology
 
@@ -52,7 +52,7 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 
 ### 2. 多维评分与挑战式审查
 
-6 维度 0-10 评分：规格-设计追溯、设计-任务追溯、任务-实现追溯、实现-验证追溯、漂移与回写义务、整体证据链闭合度。任一关键维度 < 6 不得通过。
+7 维度 0-10 评分：规格-设计追溯、设计-任务追溯、任务-实现追溯、实现-验证追溯、漂移与回写义务、整体证据链闭合度、UI 设计一致性追溯。任一关键维度 < 6 不得通过。
 
 按 `references/review-checklist.md` 做正式审查。
 
@@ -72,6 +72,7 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 3.3 **任务-实现链**：实现是否完成任务的完成条件？触碰工件是否一致？
 3.4 **实现-验证链**：验证证据是否锚定到当前实现？RED/GREEN 是否可追溯？
 3.5 **整体闭合**：有没有断链？approved 工件与当前代码是否仍然一致？
+3.6 **UI 设计一致性追溯**：若触碰 UI surface，是否从 `ui-design.md` 的 UI Implementation Contract 追到 tasks、实现文件、测试/浏览器截图证据？是否只证明元素存在而没有证明符合 visual invariants / token / forbidden drift？
 
 ### 4. 形成 verdict
 

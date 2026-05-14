@@ -1,6 +1,6 @@
 # UI 设计评审检查清单
 
-评审 UI 设计文档时，至少对以下 9 个维度逐项审查。每个维度内部评分 `0-10`，评分帮助区分轻微缺口与阻塞问题。
+评审 UI 设计文档时，至少对以下 11 个维度逐项审查。每个维度内部评分 `0-10`，评分帮助区分轻微缺口与阻塞问题。
 
 ## 评分辅助规则
 
@@ -21,6 +21,8 @@
 | `U7` | 决策质量与 trade-offs | 至少比较两个视觉/交互方向（含至少 1 条沿用既有视觉语汇 + 至少 1 条有意识偏离），选型理由与代价可冷读；关键决策有 ADR |
 | `U8` | 任务规划准备度与 peer 交接 | 组件粒度、状态矩阵、a11y 实现边界足以支撑 `hf-tasks`；与 `hf-design` 的 peer 依赖交接块显式 |
 | `U9` | 设计上下文与反 AI slop 合规 | 设计上下文（既有 DS / 品牌 / 既有产品视觉语汇摘要）已取或显式标注与用户确认；系统宣言（vocalize the system）已写出；按 `../hf-ui-design/references/anti-slop-checklist.md` 不命中 AI 默认审美与填充式内容反模式 |
+| `U10` | 内部设计一致性 | 主色、字体、系统宣言、wireframe、token、UI Implementation Contract 之间没有自相矛盾；变更过的用户确认项已同步到全文 |
+| `U11` | 视觉质量底线与实现合同 | 设计有可冷读的视觉主张、页面节奏和差异化锚点；UI Implementation Contract 足以阻止默认模板化实现与静默漂移 |
 
 ### `U1` 需求覆盖与追溯
 
@@ -123,6 +125,27 @@
 
 任一关键项失败（设计上下文缺失、系统宣言缺失、命中两个及以上 slop 反模式）→ 通常 `important` 起；若同时与无障碍达标冲突 → `critical`。
 
+### `U10` 内部设计一致性
+
+- 文档顶部用户确认项是否与候选方向、选定方案、token、wireframe、实现合同一致？
+- 选定方向是否与后续页面 wireframe 和 visual invariants 一致？例如"无渐变"后续不得出现大面积渐变 hero。
+- 主色、语义色、背景色和组件状态色是否被同一 token 体系表达？是否存在"文档说橙色，示例/实现合同写蓝色"这类漂移？
+- 系统宣言是否能预测关键页面视觉骨架？若 wireframe 与宣言不一致，必须给 finding。
+- 设计文档内的待确认项是否被错误地当成已确认项推进？
+
+任何会让实现者无法判断应遵循哪套视觉语言的矛盾 → `important`；若矛盾影响主色、布局范式、核心页面或任务拆解 → `critical`。
+
+### `U11` 视觉质量底线与实现合同
+
+- 设计是否有明确视觉主张，而不是"现代、简洁、专业"这类空泛形容词？
+- "极简"是否被落实为字体层级、留白节奏、内容编排、卡片比例、阅读路径等可执行规则？不能把"少设计"当作"极简设计"。
+- 首页 / 核心入口是否有产品气质与内容策略，还是通用 welcome hero + card grid？
+- UI Implementation Contract 是否覆盖关键页面/组件，并写出 visual invariants、token mapping、forbidden drift、screenshot/DOM/network evidence targets？
+- Contract 是否明确禁止最可能发生的实现漂移，例如未批准渐变、未批准主色、默认 dashboard/card 模板、额外 shadow tier、hardcoded utility bypass？
+- 设计是否足以让 reviewer 在没有作者解释的情况下判断实现截图是否符合设计？
+
+若设计只能证明"页面元素存在"而不能约束视觉质量和实现落地 → `important` 起；若关键页面缺 contract 或视觉主张无法执行 → `critical`。
+
 ## Anti-Pattern 检测
 
 评审时主动检测以下常见反模式：
@@ -145,6 +168,9 @@
 | `AU14` | 填充式内容 / 数据 slop | 规格之外擅自加 Testimonials / Features grid / FAQ；仪表盘塞满"+12.4%"等无业务定义数字 | 按 `anti-slop-checklist.md` C1–C5；规格未要求的 section 先问用户而非先加 |
 | `AU15` | LLM 自补缺失资源 | 自画"科技感" SVG 插画 / 自编正文 / 自造品牌色 | 用 `{{ image:... }}` / `{{ copy:... }}` / `{{ icon:... }}` 占位；扩展色板用 OKLCH 在既有色域内推导 |
 | `AU16` | 候选方向无沿用 vs 偏离对照 | 3 条候选方向都是"全新视觉"或都是同维度微调（只换主色 hue） | 至少 1 条沿用既有视觉语汇 + 至少 1 条有意识偏离；3 条之间至少 2 个维度有显著差异 |
+| `AU17` | 文档内视觉矛盾 | 用户确认主色/字体/禁用模式与 token、wireframe、contract 互相冲突 | 回 `hf-ui-design` 收敛单一视觉语言，更新所有锚点 |
+| `AU18` | 低设计完成度伪装成极简 | 只有默认 hero、白卡、灰背景、普通 grid，没有页面节奏和差异化锚点 | 补视觉主张、内容策略、排版节奏、页面级 visual invariants |
+| `AU19` | UI contract 缺失 | 设计只有 wireframe 和 token 表，没有页面/组件 visual invariants、forbidden drift、evidence targets | 补 `UI Implementation Contract`，否则不得进入任务拆解 |
 
 ## Finding 写法对比
 

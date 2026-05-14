@@ -4,14 +4,14 @@ description: 适用于 test review 通过后评审代码质量、用户要求 co
 ---
 # HF Code Review
 
-评审实现代码质量。判断正确性、设计一致性、状态/错误/安全、可读性、下游追溯就绪度，以及**架构健康与重构纪律（CR7）**。运行在 `hf-test-review` 之后，决定是否可进入 `hf-traceability-review`。
+评审实现代码质量。判断正确性、设计一致性、状态/错误/安全、可读性、下游追溯就绪度，**架构健康与重构纪律（CR7）**，以及 UI surface 的实现一致性（CR8）。运行在 `hf-test-review` 之后，决定是否可进入 `hf-traceability-review`。
 
 ## Methodology
 
 本 skill 融合以下已验证方法：
 
 - **Fagan Code Inspection (adapted)**: 结构化检查正确性、设计一致性、状态安全、可读性、架构健康五个维度，而非自由形式代码阅读。
-- **Design Conformance Check**: 实现必须遵循已批准设计，偏离需有理由且可追溯——防止实现与设计漂移。
+- **Design Conformance Check**: 实现必须遵循已批准设计，偏离需有理由且可追溯——防止实现与设计漂移。UI surface 还必须遵循 `ui-design.md` 的 UI Implementation Contract。
 - **Defense-in-Depth Review**: 错误处理、状态转换、安全性逐层检查，确保不因"测试通过"掩盖实现隐患。
 - **Clean Architecture Conformance Check**: 评审实现是否遵循 `hf-design` 中声明的依赖方向、模块边界、接口契约；不重新论证架构决策，只做 conformance（Robert C. Martin, *Clean Architecture*）。
 - **Two Hats / Refactoring Hygiene Review**: 评审实现节点是否守住 Two Hats（Kent Beck / Fowler），是否完成应做的 Boy Scout cleanup（Robert C. Martin），Refactor Note 是否完整可信。
@@ -49,7 +49,7 @@ description: 适用于 test review 通过后评审代码质量、用户要求 co
 
 ### 2. 多维评分与挑战式审查
 
-7 维度 0-10 评分：正确性、设计一致性、状态/错误/安全、可读性、范围守卫、下游追溯就绪度、**架构健康与重构纪律**。任一关键维度 < 6 不得通过。
+8 维度 0-10 评分：正确性、设计一致性、状态/错误/安全、可读性、范围守卫、下游追溯就绪度、**架构健康与重构纪律**、**UI 实现一致性**。任一关键维度 < 6 不得通过。
 
 按 `references/review-checklist.md` 做正式审查。CR7（Architectural Health & Refactoring Hygiene）的子维度与判别细则按 `references/clean-architecture-guardrails.md`。
 
@@ -77,10 +77,16 @@ description: 适用于 test review 通过后评审代码质量、用户要求 co
 - **CR7.3 Architectural Conformance**：实现是否仍遵循 `hf-design` 中的依赖方向、模块边界、接口契约、ADR 决策；是否引入设计未声明的新依赖 / 新跨层调用 / 新抽象层
 - **CR7.4 Architectural Smells Detection**：触碰范围内是否有可见 smells（god-class / cyclic-dep / hub-like-dep / unstable-dep / layering-violation / leaky-abstraction / feature-envy-cross-module / over-abstraction）；识别到的是否被正确分类（in-task / debt / escalation）；触发 escalation 边界的是否被错误地"顺手"在 task 内修了（CA8 escalation-bypass）
 - **CR7.5 Boy Scout Compliance**：触碰文件离开时 clean code 健康度是否未退化；触碰范围内是否仍有明显 magic number / 死代码 / 长函数 / 命名不清 / 嵌套 ≥3 层未处理
+3.7 **UI 实现一致性 (CR8)**：触碰 UI surface 时，检查实现是否遵循 `ui-design.md` 和 UI Implementation Contract：
+- 是否使用批准的主色、字体、surface/elevation、layout rhythm、motion token
+- Tailwind / 组件库 utility 是否能映射回 design token；是否存在未批准 hardcoded color、gradient、shadow、spacing、font
+- 是否实现了 forbidden drift 中禁止的模式（如蓝紫渐变 hero、额外 shadow tier、默认 dashboard/card 模板）
+- 是否保留了状态矩阵中的 loading / empty / error / focus / disabled 等关键状态
+- 实现交接块是否提供下游可追溯的 UI conformance notes（截图目标、DOM anchors、已知偏离）
 
 ### 4. 形成 verdict
 
-- `通过`：所有维度 >= 6（含 CR7 主维度 >= 8、所有 CR7 子维度 >= 6），代码足以支持追溯评审 → `next_action_or_recommended_skill=hf-traceability-review`，`needs_human_confirmation=false`
+- `通过`：所有维度 >= 6（含 CR7 主维度 >= 8、所有 CR7 子维度 >= 6；触碰 UI 时 CR8 >= 8），代码足以支持追溯评审 → `next_action_or_recommended_skill=hf-traceability-review`，`needs_human_confirmation=false`
 - `需修改`：findings 可 1-2 轮定向修订（含 CR7 in-task 可修复项：Refactor Note 字段补全、Boy Scout 遗漏、in-task 范围内可识别但被遗漏的 smell、可在 task 内回退的 over-abstraction、hat-mixing 导致 fresh evidence 不可信需重做 RGR） → `next_action_or_recommended_skill=hf-test-driven-dev`，`needs_human_confirmation=false`
 - `阻塞`：核心逻辑错误/安全漏洞/findings 无法定向回修 → `next_action_or_recommended_skill=hf-test-driven-dev`，`needs_human_confirmation=false`；若问题本质是 stage/route/profile/上游证据冲突，**或 CR7 触发 escalation-bypass（CA8）/ 实质修改 ADR / 模块边界 / 接口契约 / 跨 ≥3 模块结构性变更** → `next_action_or_recommended_skill=hf-workflow-router`，`reroute_via_router=true`
 

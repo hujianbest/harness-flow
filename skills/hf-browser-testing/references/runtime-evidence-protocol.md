@@ -42,6 +42,26 @@ features/<active>/verification/browser-evidence/<task-id>/
 - console.log 是完整时序日志；不允许"只保留 error"。
 - network 推荐 HAR 1.2；若工具不支持，用 `network.json` 并保留至少 method / url / status / headers / body 摘要。
 
+## 最小 smoke 场景清单
+
+`hf-browser-testing` 不替项目写完整 E2E，但每个触碰前端运行面的 task 至少要从下面选择相关项并写入 metadata：
+
+| 影响面 | 最小场景 |
+|---|---|
+| route / page | 访问目标 route + 一个入口 route；检查 root mount 非空、主要标题/控件存在 |
+| App root / provider / router / store | 访问依赖该 provider 的页面；检查无白屏、无 provider setup exception |
+| form | 空提交、无效输入、提交前按钮/校验状态；不得使用真实敏感凭据 |
+| API client / proxy / env | 触发关键请求；记录 expected host、actual URL、method、status、response content-type/摘要 |
+| full-stack flow | 记录服务启动或 health check，再跑一个关键用户流 |
+
+最低失败判定：
+
+- `body` / app root 为空、关键 DOM 完全缺失 → `blocking`
+- uncaught exception、framework provider 缺失、未处理 promise rejection → `blocking`
+- console error 若未被 spec 明确允许 → 至少 `major`，并必须写 observation
+- 关键请求打到错误 host / port / path、connection refused、期望 JSON 却返回 HTML、未预期 4xx/5xx → `major` 或 `blocking`
+- 表单无可提交控件、基础校验不能触发、提交后白屏 → `major` 或 `blocking`
+
 ## `metadata.json` schema
 
 ```json
@@ -63,6 +83,18 @@ features/<active>/verification/browser-evidence/<task-id>/
       "name": "<scenario-name>",
       "user_flow_ref": "<spec / ui-design 中对应的 user flow 标识>",
       "states_covered": ["initial", "hover", "focus", "disabled", "loading", "error", "empty"],
+      "runtime_checks": {
+        "root_non_empty": true,
+        "console_errors": 0,
+        "critical_requests": [
+          {
+            "expected_host": "localhost:8080",
+            "actual_url": "http://localhost:8080/api/v1/articles",
+            "method": "GET",
+            "status": 200
+          }
+        ]
+      },
       "screenshots": ["screenshots/01-initial.png", "..."],
       "console": "console.log",
       "network": "network.har"

@@ -50,6 +50,19 @@
         "返回 reroute_via_router=true",
         "不继续展开正式链路评分"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "这是一个 UI 追溯评审场景：\n- ui-design.md 的 UI contract 写明首页 hero 使用橙色 primary token、禁止蓝紫渐变、需要 desktop/mobile screenshot。\n- tasks.md 只写 AC-02: Hero 区域（欢迎标题、简介）。\n- Home.test.ts 只断言欢迎标题存在。\n- Home.vue 实现了 hero，但使用 `from-blue-600 to-purple-600`。\n- 没有截图、DOM anchor 或 UI contract 对照证据。\n\n请作为 `hf-traceability-review` 判断。",
+      "expected_output": "应判定不能通过：这是低分辨率追溯和 visual drift。当前链路只证明 Hero 元素存在，没有证明符合 UI contract；实现还违反禁用的蓝紫渐变。应给需修改，要求补 UI traceability matrix、修正实现或回写 UI design，并补截图/DOM/console-network 证据。",
+      "files": [],
+      "expectations": [
+        "识别只证明元素存在属于 low-resolution trace",
+        "识别蓝紫渐变违反 UI contract",
+        "要求 UI contract -> task -> implementation -> screenshot/DOM 追溯",
+        "给出需修改结论",
+        "可引用 TZ7、ZA5、ZA6 或 ZA8"
+      ]
     }
   ]
 }

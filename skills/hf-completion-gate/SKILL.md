@@ -60,6 +60,23 @@ full/standard 记录缺失/过旧 → `阻塞`。
 
 选择能直接证明结论的命令，立即运行完整验证。不用更弱证据替代。
 
+Evidence-tier 完成判定矩阵：
+
+| Evidence Tier | 可支持的 completion claim | 完成门禁限制 |
+|---|---|---|
+| `mocked-unit` | 局部逻辑 / 隔离组件行为完成 | 不足以宣称真实浏览器、真实 API、full-stack flow 完成 |
+| `component-integration` | App/provider/router/store 组合在测试环境可装配 | 不足以替代真实浏览器 runtime evidence |
+| `api-contract` | API path / method / status / DTO / base URL 契约闭合 | 不足以证明页面无白屏或用户交互正常 |
+| `browser-runtime` | 真实浏览器 DOM / Console / Network 证据支持 UI claim | 不足以证明所有后端持久化或服务间流程 |
+| `full-stack-smoke` | 前后端启动、健康检查、关键用户流在本地或声明环境跑通 | 不替代全量性能 / 安全 / 发布门禁 |
+
+完成声明约束：
+- 当前 task 触碰 UI route、App 根组件、UI provider、表单、浏览器存储、前端 API client、Vite proxy/env 时，completion evidence 必须包含 `browser-runtime`，或写明项目 DoD 允许降级；否则不得 `通过`
+- 当前 task 触碰 UI surface、visual token、layout、组件库样式或页面视觉结构时，completion evidence 必须包含 UI conformance evidence：截图路径/viewport、DOM anchors、console/network 摘要、UI Implementation Contract 对照结论；否则不得宣称 UI 设计已落地
+- 当前 task 触碰 HTTP API、DTO、auth、CORS、base URL / proxy 时，必须包含 `api-contract`
+- 当前 task 宣称 full-stack 行为完成时，必须包含 `full-stack-smoke`
+- `happy-dom` / jsdom / mock fetch / mocked provider 只能作为 lower-tier evidence，不得支持“浏览器已验证”“API 已联通”“production-ready”等 claim
+
 ### 5. 阅读完整结果
 
 检查退出码、失败数量、输出是否支持结论、结果是否属于当前最新代码。
@@ -73,6 +90,8 @@ full/standard 记录缺失/过旧 → `阻塞`。
 - `Upstream Evidence Consumed`：implementation handoff、review / gate records、task / progress anchors
 - `Claim Being Verified`：当前准备宣告的 completion claim
 - `Verification Scope`：Included Coverage、Uncovered Areas
+- `Evidence Tier Coverage`：列出 mocked-unit / component-integration / api-contract / browser-runtime / full-stack-smoke 的 required / provided / N/A 状态；lower-tier evidence 不得冒充 higher-tier evidence
+- `UI Conformance Evidence`：列出截图/viewport、DOM anchors、console/network assertions、UI contract anchors、visual drift / token bypass 检查结果
 - `Commands And Results`：命令、退出码、Summary、Notable Output
 - `Freshness Anchor`：为什么这些结果属于当前最新代码状态
 - `Conclusion`：`通过` / `需修改` / `阻塞` + 唯一 `Next Action Or Recommended Skill`
@@ -98,6 +117,8 @@ full/standard 记录缺失/过旧 → `阻塞`。
 | 声称“刚跑过且全绿”，但只有口头陈述，或终端 / 输出记录已不可核实 | `阻塞` | `hf-completion-gate` | `record_path`、不可核实原因、需要重新生成的验证输出 |
 | review 都过了，但本轮没运行能直接证明 completion claim 的命令 | `需修改` | `hf-test-driven-dev` | `record_path`、缺失的验证命令、为什么 review 不能替代 verification |
 | 验证命令有失败项，或结果不能直接支持 completion claim | `需修改` | `hf-test-driven-dev` | `record_path`、失败摘要、未满足的完成条件 |
+| completion claim 需要 runtime / contract / full-stack tier，但 evidence 只有 mock 单测或 happy-dom/jsdom | `需修改` | `hf-test-driven-dev` | `record_path`、claim、required tier、provided weaker evidence、需补的 runtime / contract 命令 |
+| UI 设计落地 claim 需要 visual conformance，但 evidence 没有截图 / DOM anchors / console-network / contract 对照 | `需修改` | `hf-test-driven-dev` | `record_path`、claim、required UI evidence、provided weaker evidence、需补的 screenshot / DOM / contract checks |
 | 强制验证步骤因环境 / 工具链问题未完成，且 项目约定 / DoD 无降级许可 | `阻塞` | `hf-completion-gate` | `record_path`、阻塞原因、未覆盖区域、恢复后需重跑什么 |
 | 当前任务证据充分，但 next-ready task 候选不唯一，或 ready 判定冲突 | `阻塞` | `hf-workflow-router` | `record_path`、候选任务清单、冲突证据、为什么本 skill 不能替 router 选任务 |
 | 当前任务证据充分，且仍有唯一 next-ready task | `通过` | `hf-workflow-router` | `record_path`、completion claim、evidence bundle、`Remaining Task Decision=唯一 next-ready task` |
@@ -124,6 +145,8 @@ full/standard 记录缺失/过旧 → `阻塞`。
 最少应包含：
 - 已消费的上游结论与证据矩阵
 - 完成宣告范围
+- evidence tier 覆盖矩阵；若 claim 涉及 UI / API / full-stack，必须列出 runtime / contract / smoke evidence 路径或缺口
+- 若 claim 涉及 UI 设计落地，必须列出 UI conformance evidence 路径或缺口（截图、viewport、DOM anchors、console/network、UI contract 对照）
 - 命令、退出码、结果摘要、新鲜度锚点
 - `Claim Being Verified` 与它对应的直接验证命令；不能只写 review 结论
 - 剩余任务判断与“唯一 next-ready task / 无剩余任务 / 候选不唯一”结论

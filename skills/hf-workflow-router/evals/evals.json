@@ -53,6 +53,19 @@
         "The response does not misclassify this stale-handoff case as `hf-hotfix` or `hf-increment`.",
         "The final response uses the compact router format with numbered `Current Stage`, `Workflow Profile`, `Target Skill`, and `Why` lines."
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "User request:\n继续推进当前任务\n\nProject snapshot:\n- `Workflow Profile`: standard.\n- `Current Stage`: `hf-test-driven-dev`.\n- The current task GREEN handoff exists and unit tests are fresh.\n- Changed files include `frontend/src/App.vue`, `frontend/src/views/Login.vue`, `frontend/src/stores/auth.ts`, and `frontend/vite.config.ts`.\n- The approved spec does not declare a UI surface or runtime surface, and the task plan only says `Verify: npm test`.\n- There is no browser evidence and no API contract evidence yet.\n\nAs the canonical runtime router, decide the next HF node.",
+      "expected_output": "Route back upstream to repair the task/spec runtime surface declaration, rather than skipping browser testing or going straight to regression. The code facts touch App wiring, UI, API client, and Vite runtime config, so the workflow needs runtime evidence requirements before continuing.",
+      "files": [],
+      "expectations": [
+        "Recognizes frontend runtime surface from changed files even though spec/tasks omit it.",
+        "Does not route directly to `hf-regression-gate` based only on unit GREEN.",
+        "Does not silently skip `hf-browser-testing`.",
+        "Routes to `hf-tasks` or `hf-specify` to add runtime surface / DoD evidence requirements.",
+        "Mentions browser/runtime and API contract evidence as the missing facts."
+      ]
     }
   ]
 }

@@ -51,6 +51,19 @@
         "识别“后续补测试”不是足够的测试设计种子",
         "给出 `需修改` 结论并指向 `hf-tasks`"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "这是一个 UI 任务计划评审场景：\n- 已批准 ui-design.md 写明首页 hero 使用橙色 primary token、禁止蓝紫渐变，并要求 desktop/mobile screenshot。\n- TASK-013 Acceptance 只写“实现 Hero 区域（欢迎标题、简介）”和“文章列表展示”。\n- Verify 只写 `npm test -- --run`，测试只断言文案存在。\n- 没有引用 UI Implementation Contract、visual invariants、forbidden drift、截图路由或 viewport。\n\n请作为 `hf-tasks-review` 判断。",
+      "expected_output": "应判定任务计划需修改：UI Acceptance 低分辨率，只证明元素存在，未承接 UI Implementation Contract；Verify 缺 screenshot/DOM/UI conformance evidence。应要求补 visual invariants、token mapping、forbidden drift、state anchors 和 browser-runtime evidence。",
+      "files": [],
+      "expectations": [
+        "识别 Acceptance 只写元素存在不足",
+        "要求承接 UI Implementation Contract",
+        "要求 screenshot/DOM/UI conformance evidence",
+        "给出需修改结论并指向 hf-tasks",
+        "可引用 TA10、TA11 或 TA12"
+      ]
     }
   ]
 }
