@@ -377,3 +377,47 @@ reviewer subagent 的最小结构化摘要统一使用：
 - [ ] 工件路径遵循双根目录布局：feature 周期内工件落到 `features/<active>/...`，长期资产落到 `docs/...`
 - [ ] 没有把 ADR 内联进 `features/<active>/design.md`；ADR 已落到 `docs/adr/NNNN-...md` 并通过 ID 引用
 - [ ] 没有在仓库根重新生成全局 `task-progress.md`；progress 仅写入 `features/<active>/progress.md`
+
+---
+
+## v0.6 新增 progress.md schema（按 ADR-008 D2 / spec FR-002 / FR-010）
+
+### `## Wisdom Delta` 段（FR-002）
+
+每个 feature 的 progress.md 新增一段，记录每 task 完成时写入的 wisdom-notebook entry-id 引用：
+
+```markdown
+## Wisdom Delta
+
+| Task | Notepad delta entries |
+|---|---|
+| TASK-001 | learnings/learn-0001 + learnings/learn-0002 + verification/verify-0001 + verify-0002 + verify-0003 |
+| TASK-002 | learnings/learn-0003 + learnings/learn-0004 + decisions/dec-0002 + verification/verify-0004 + verify-0005 + verify-0006 + verify-0007 |
+```
+
+`wisdom-skip` 例外（task 是纯 wording 修订无新 learning）需在 progress.md 显式写一行：
+
+```markdown
+- wisdom-skip: TASK-NNN reason: pure wording, no new learnings
+```
+
+router 选下一 active task 前从本段读"近 N=3 task 的 entry-id 列表"→ 解析对应 notepad entry → 注入 handoff `wisdom_summary` 字段。
+
+### `## Fast Lane Decisions` 段（FR-010 / ADR-009 D4）
+
+每个 fast lane 触发的 feature 必须含本段。schema：
+
+| 列 | 内容 |
+|---|---|
+| `time` | ISO 8601 时间戳 |
+| `node` | 触发节点（如 `hf-spec-review → spec-approval`）|
+| `decision_type` | enum: `mode-switch` / `auto-decide` / `auto-continue` / `auto-approve` / `auto-batch` / `escape-skipped` |
+| `decision_content` | 一句话决策说明 |
+| `trigger_condition` | 触发条件（如 `architect explicit auto mode + reviewer 通过 + 0 USER-INPUT`）|
+| `escape_enabled` | `yes` / `no` —— 本决策是否触发 fast lane escape |
+
+非 fast lane feature 此段可省略。
+
+### Schema 校验
+
+`hf-completion-gate` 在 closeout 前调用 `validate-wisdom-notebook.py` 校验 `## Wisdom Delta` 段引用的 entry-id 实际存在于 notepad 文件（间接校验本 schema 的一致性）。`## Fast Lane Decisions` 段无独立校验脚本（v0.7 runtime 阶段可加）。
