@@ -2,6 +2,22 @@
 
 > 跨 task 累积，按 task 时间倒序追加。Schema 见 `skills/hf-wisdom-notebook/references/notebook-schema.md`（TASK-002 起正式承接）。
 
+## TASK-009/010/011/012/013/014/015 — 2026-05-14T11:30Z — 7 modified-skill batched TDD pattern
+
+- entry-id: `learn-0012`
+- author: cursor cloud agent (hf-test-driven-dev TASK-009..015 batched)
+- pattern: "modified-skill TDD via single-purpose verifier" —— 修改既有 skill 的 task 用一个独立 stdlib python 测试针对 *本次改动的具体 anchor* 写断言（如 momus 4 维 / Interview FSM 5 状态 / step-level recovery / category_hint 等），不重复测试整个 skill。RED 是 skill 文件未改 → 新断言失败；GREEN 是按 design diff 改 skill → 断言通过；audit-skill-anatomy.py 仍通过保证既有 anatomy 合规不退化
+- applies-to: 任何"修改既有 skill 引入小特性"的 task；与"新 skill"task 的"全 anatomy 验证 verifier"区分
+- evidence-anchor: 7 个 task × ~7 tests 各 = ~49 tests 一并 PASS；累计 12 测试套件 / 100 stdlib unittest in < 1s
+
+## TASK-016/017 — 2026-05-14T12:30Z — 文档刷新统一措辞 "explicitly out-of-scope"
+
+- entry-id: `learn-0013`
+- author: cursor cloud agent (hf-test-driven-dev TASK-016+017)
+- pattern: "永久删除 vs 待后续实现的 wording 区分" —— 路线图收敛时把 "v0.6+ planned X / not yet implemented" 措辞 *显式* 改为 "explicitly out-of-scope per ADR-NNN D-N (永久删除，不是 deferred)"；前者给用户错误期望"等等就有"，后者明确"项目不做这件事"
+- applies-to: 后续任何 ADR 永久封禁某能力时的文档刷新
+- evidence-anchor: README.md / README.zh-CN.md / docs/principles/soul.md 共 9 处 grep `out-of-scope per ADR-008 D1` 或等价中文 (4 + 4 + 1)
+
 ## TASK-003 — 2026-05-14T11:50Z — validate-wisdom-notebook.py 即立刻发现 dogfood 的真实 bug
 
 - entry-id: `learn-0010`
