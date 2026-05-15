@@ -92,10 +92,10 @@
 
 ## Release / Docs Sync
 
-- README.md: 4 处 "v0.6+ planned X" → "out-of-scope per ADR-008 D1" (TASK-016 完成)
-- README.zh-CN.md: 同上 4 处中文 (TASK-016 完成)
+- README.md: 4 处 "v0.6+ planned X" → "out-of-scope per ADR-008 D1" (TASK-016 完成 2026-05-14) + **顶部 `Scope Note` 段从 v0.5.1 升级到 v0.6.0 全量同步**（含 4 新 skill 列表 + 7 改 skill + ADR-008/009/010/011 链 + 永久删除 6 末段 skill 声明）+ Acknowledgements 表新增 OMO 启发来源行 + Methodology By Skill 各表 (Authoring / Execution / Gates) row 标注 v0.6 升级点 + 新增"Cross-task knowledge & fast lane (v0.6 new)"段（3 新 skill + 1 段 router 内部升级）—— **2026-05-15 13:45Z 由架构师反馈触发的 README 全量同步**
+- README.zh-CN.md: 4 处中文 wording 统一 (TASK-016 完成) + 顶部 `范围声明` 段同款全量同步 + 致谢表 OMO 行 + Methodology 各表 v0.6 row 标注 + "跨 task 知识与 fast lane (v0.6 新增)"段
 - docs/principles/soul.md: 1 处现状脚注措辞刷新 (TASK-016 完成)
-- CHANGELOG.md: `[Unreleased]` 段含完整 v0.6 scope (TASK-017 完成；待 hf-release 翻为 `[v0.6.0]`)
+- CHANGELOG.md: `[Unreleased]` v0.6 段已翻为 `[0.6.0] - 2026-05-15 — pre-release` 段（hf-release 完成）
 - 宪法层: methodology-coherence.md / skill-anatomy.md 全程不动 (NFR 严格遵守)
 
 ## Backlinks
