@@ -118,6 +118,7 @@ Hard rule: the first 9 intents are **bias**, not bypass — the router inspects 
 | Router routes to the wrong node | `skills/hf-workflow-router/SKILL.md` + `skills/hf-workflow-router/references/profile-node-and-transition-map.md`. |
 | `hf-test-driven-dev` keeps refusing to start | No `Current Active Task` is locked; ask the router to plan first (NL: "plan this — design and tasks"). |
 | `hf-finalize` keeps bouncing back | A gate (regression / doc-freshness / completion) failed; follow the canonical next action it returned. |
+| **Cursor stops between tasks under `Execution Mode = auto` and asks "proceed to next task?"** | This is an SOP violation, not expected behavior. The agent MUST chain through tasks in the same Cursor turn (router → next `hf-test-driven-dev`) until `hf-finalize` or a real `interactive` approval / hard stop. See the new "Cross-task continuous execution" Hard rule in `.cursor/rules/harness-flow.mdc`, and the canonical definitions in `skills/hf-workflow-router/references/execution-semantics.md` (§ 连续执行原则 / § 非暂停点 / § Hard Stop). If the agent still pauses, re-prompt: "Per `harness-flow.mdc` Hard rule on cross-task continuous execution, continue to the next active task in the same turn." |
 | Reviewer wants to edit the artifact under review | That violates author/reviewer separation — file an issue. |
 
 ## 6. What is NOT included in v0.5.0
