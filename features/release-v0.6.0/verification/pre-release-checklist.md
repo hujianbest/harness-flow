@@ -14,7 +14,7 @@
 ## Documentation Sync (D 系列，sync-on-presence 协议)
 
 - [x] **D1**: `CHANGELOG.md` `[v0.6.0]` 段已写 — 待 §11 Final Confirmation 通过时由本 skill 从 `[Unreleased]` 翻入
-- [x] **D2**: 顶层导航已更新 — README.md / README.zh-CN.md docs refresh 完成（4 / 4 处 wording 改为 "out-of-scope per ADR-008 D1"）；档 0/1 仓库根 README 即顶层导航
+- [x] **D2**: 顶层导航已更新 — README.md + README.zh-CN.md 顶部 `Scope Note` / `范围声明` 段从 v0.5.1 升级到 v0.6.0（含 4 新 skill / 7 改 skill 列表 + ADR-008/009/010/011 链接 + 永久删除 6 项工程化末段 skill 声明）；Acknowledgements 表新增 OMO 行（启发来源 → v0.6 author-side 升级）；Methodology By Skill 表 (Authoring / 执行与评审 / 门禁与收尾) 各 row 标注 v0.6 升级点；新增"跨 task 知识与 fast lane (v0.6 新增)"段含 3 新 skill + 1 段 router 内部升级。**初次完成度修正**：本项在 hf-release Final Confirmation 之前的初版 (2026-05-15 早些时候) 仅完成了 4 处 wording 统一，没刷新顶部 Scope Note / skill inventory；架构师 2026-05-15 13:45Z 反馈"readme 有同步更新吗"后补做完整刷新；features/002 closeout `Limits / Open Notes` 段也同步更新
 - [x] **D3**: 涉及的 ADR 状态批量翻转 — ADR-008 / ADR-009 / ADR-010 已 `accepted`（v0.6 主 PR #53 / #54 内已落）；本版新增 ADR-011 状态待 Final Confirmation 后翻 accepted
 - [x] **D4**: 按存在同步以下资产：
   - `docs/release-notes/v0.6.0.md` — N/A（项目档 0/1，未启用 release notes 目录；与 v0.5.x 同向）
