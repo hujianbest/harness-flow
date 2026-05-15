@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+（empty — v0.6.0 已切版；下一版本切片前，新增内容写在此处）
+
+## [0.6.0] - 2026-05-15 — pre-release
+
+> **Minor release**: HF v0.6.0 — OMO-inspired Author-Side Discipline + Execution Mode Fast Lane.
+>
+> 第一个大规模 author-side discipline 升级 release。引入参照 [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) 已验证的 5 类机制（Atlas wisdom-notebook / Metis gap-analysis / Momus 4-dim rubric / Prometheus interview FSM / `/init-deep` hierarchical context）翻译成 HF 体系内的可执行范围。新增 4 个 SKILL.md（`hf-wisdom-notebook` / `hf-gap-analyzer` / `hf-context-mesh` / `hf-ultrawork`），surgical 修改 7 个既有 SKILL.md（`hf-tasks-review` momus / `hf-specify` Interview FSM / `hf-workflow-router` v0.6 段 / `hf-code-review` CR9 ai-slop / `hf-test-driven-dev` FR-002 / `hf-completion-gate` §6.2 / `using-hf-workflow` 步骤 5）。**HF skill 总数 24 → 28（4 新）；slash 命令面 7 不变；宪法层 (`docs/principles/{soul,methodology-coherence,skill-anatomy}.md`) 不变；install topology + Claude Code marketplace plugin manifest 不变（NFR-003 严守）。** 完整 release 范围决策见 [`docs/decisions/ADR-011-release-scope-v0.6.0.md`](docs/decisions/ADR-011-release-scope-v0.6.0.md)（8 项决策）。
+>
+> **架构师在 v0.6 起永久从路线图删除 6 项工程化末段 skill** —— `hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-debugging-and-error-recovery` / `hf-deprecation-and-migration` 不再列入路线图（不是延后；按 [ADR-008 D1](docs/decisions/ADR-008-omo-inspired-roadmap-v0.6-onwards.md) **永久 out-of-scope**，HF 拒绝假装是部署工具）。
+>
+> 本 release 是 HF 自身**第四次** dogfood `hf-release`（前三次为 v0.4.0 / v0.5.0 / v0.5.1），首次大规模 minor release dogfood；release pack 落到 [`features/release-v0.6.0/release-pack.md`](features/release-v0.6.0/release-pack.md)。
+
 ### Added
 
 - **v0.6 路线图与 OMO-inspired 范围锁定**（`docs/decisions/ADR-008-omo-inspired-roadmap-v0.6-onwards.md` / `ADR-009-execution-mode-fast-lane-governance.md` / `ADR-010-harnessflow-runtime-sidecar-boundary.md`）—— 三份 ADR 钉死 v0.6 ~ v1.0 路线图：v0.6 = 7 项 author-side / wisdom-accumulation 改造（纯 markdown，4 新 + 4 改 skill）+ `hf-ultrawork` fast lane 节点；v0.7 = 可选 `harnessflow-runtime` sidecar（OpenCode plugin，参照 OMO `src/tools/hashline-edit/` 等实现）；v0.9 = 客户端扩展；v1.0 = 商用级形态收尾。**显式删除 v0.8 工程化末段**（部署 / 可观测 / 度量 / 事故 / 性能 / 安全 / 调试 / 弃用迁移），HF 永不假装是部署工具。架构师 D1~D7 决策全部记入 ADR-008 D2，含 D3 + D4 = A 引入"不停下来"的 ultrawork fast lane（由 ADR-009 治理，与 `docs/principles/soul.md` 第 1 条硬纪律的张力化解为"explicit opt-in + Fagan/gate 不可绕过"）。本 ADR 三联**不**修改 `docs/principles/soul.md` / `methodology-coherence.md` / `skill-anatomy.md`（宪法层不变）；不增加 slash 命令；不修改既有 24 个 skill 中除 4 个升级目标外的 20 个 skill（v0.6 范围由 `features/002-omo-inspired-v0.6/spec.md` 直承）。
