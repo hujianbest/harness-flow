@@ -9,7 +9,7 @@
 > - **版本**：`v0.5.1`，在 GitHub Releases 上标记为 **pre-release**。v0.5.1 是 v0.5.0 之上的 **patch release**，修复 v0.5.0 的一个 vendoring 缺陷：closeout HTML 渲染脚本（`render-closeout-html.py`）从仓库根 `scripts/` 物理迁移到 `skills/hf-finalize/scripts/`，让 OpenCode `.opencode/skills/` 软链接 + Cursor `.cursor/rules/` + "vendor by copying `skills/`" 三种集成路径都能随 skill 一起 vendor 该脚本（详见 [`docs/decisions/ADR-006-skill-anatomy-v2-and-vendoring-fix.md`](docs/decisions/ADR-006-skill-anatomy-v2-and-vendoring-fix.md) —— HF skill anatomy v2：4 类子目录 `SKILL.md` + `references/` + `evals/` + 新增 `scripts/`）。v0.5.0 主线描述（下方）仍然准确。
 > - **v0.5.0 主线**：v0.5.0 是 **reviewer 体验切面** 版本——给 `hf-finalize` 的输出契约新增一份 **closeout HTML 工作总结报告**（每次 closeout 都会在 `features/<active>/closeout.html` 同步落盘），并新增 stdlib-only 渲染脚本 `skills/hf-finalize/scripts/render-closeout-html.py`（HF 主链节点 timeline rail + tests + coverage rings + 可搜索可排序 evidence matrix；WCAG 2.2 AA、暗亮主题、可打印、按 `skills/hf-ui-design/references/anti-slop-checklist.md` 反 AI slop 自检 S1-S8 全条覆盖）。v0.5.0 / v0.5.1 **不**扩 skill 集合（仍 **24** `hf-*` + `using-hf-workflow`），**不**新增 slash 命令（仍 **7**），**不**改主链 FSM 或 router transition map。v0.4.0 引入的 `hf-release`（release-tier standalone skill）保持不动。
 > - **正式支持的客户端**：**Claude Code**、**OpenCode**、**Cursor**（与 v0.3.0 一致）。其余 4 家延后客户端（Gemini CLI / Windsurf / GitHub Copilot / Kiro）继续延后到 v0.6+。
-> - **主链终点仍是 `hf-finalize`**——**单 feature 工程级 closeout**。v0.5.0 仅扩展 `hf-finalize` 的**输出契约**（新增 step 6A 产出 `closeout.html`），不动其它 23 个 skill。`hf-release` 是 release-tier 独立 skill，**汇总**多个 `workflow-closeout` 的 feature 成 vX.Y.Z 版本切片，**不**在主链中。发布管线、部署、可观测、事故响应、安全加固、性能门禁、debugging-and-error-recovery、deprecation-and-migration **仍然是 v0.6+ planned `hf-shipping-and-launch` / 等等（当前尚未实现）**。
+> - **主链终点仍是 `hf-finalize`**——**单 feature 工程级 closeout**。v0.5.0 仅扩展 `hf-finalize` 的**输出契约**（新增 step 6A 产出 `closeout.html`），不动其它 23 个 skill。`hf-release` 是 release-tier 独立 skill，**汇总**多个 `workflow-closeout` 的 feature 成 vX.Y.Z 版本切片，**不**在主链中。发布管线、部署、可观测、事故响应、安全加固、性能门禁、debugging-and-error-recovery、deprecation-and-migration 按 [ADR-008 D1](docs/decisions/ADR-008-omo-inspired-roadmap-v0.6-onwards.md) **显式 out-of-scope**——HF 拒绝假装是部署工具；`hf-shipping-and-launch` 与其它 5 个工程化末段 skill **永久从路线图删除**（不是"待后续实现"）。
 > - 这种窄而硬的范围是刻意选择（ADR-001 D1 / ADR-002 D1 / ADR-003 D2 / ADR-004 D2 / ADR-005 D7 — "P-Honest，窄而硬"）。HarnessFlow 拒绝把"代码合并 / 工程 closeout"伪装成"上线到生产"；v0.5.0 的 closeout HTML 是 closeout pack 的**视觉渲染**，**不是**部署记录。
 >
 > v0.5.1 patch 范围决策见 `docs/decisions/ADR-006-skill-anatomy-v2-and-vendoring-fix.md`；完整 v0.5.0 发版范围决策见 `docs/decisions/ADR-005-release-scope-v0.5.0.md`；v0.4.0 沿革（hf-release 引入）见 `docs/decisions/ADR-004-hf-release-skill.md`；v0.3.0 沿革（Cursor 加入）见 `docs/decisions/ADR-003-release-scope-v0.3.0.md`；v0.2.0 沿革（含 D11 校准说明）见 `docs/decisions/ADR-002-release-scope-v0.2.0.md`；v0.1.0 沿革见 `docs/decisions/ADR-001-release-scope-v0.1.0.md`。
@@ -300,13 +300,13 @@ Claude Code 插件注册 7 条短别名。前 6 条都是 **bias，不是 bypass
 | `/build` | `hf-test-driven-dev` | 仅当唯一 `Current Active Task` 已锁定时生效。 |
 | `/review` | router 派发到对应的 `hf-*-review` | 评审是独立节点，作者/评审者必须分离。 |
 | `/ship` | `hf-completion-gate` → `hf-finalize` | 由 gate 决定能否真正进入 finalize。**仅工程级 closeout，不是部署到生产**。 |
-| `/release [version]` | **direct invoke** `hf-release`（**不**经 router） | 切 vX.Y.Z 工程级 release：汇总 `workflow-closeout` 的 feature、起草 scope ADR、跑 release-wide regression、同步 CHANGELOG / release notes / ADR 状态、产 tag-ready pack。**不**做部署 / staged rollout / 监控 / 回滚（仍归 planned `hf-shipping-and-launch`，**当前尚未实现**）。 |
+| `/release [version]` | **direct invoke** `hf-release`（**不**经 router） | 切 vX.Y.Z 工程级 release：汇总 `workflow-closeout` 的 feature、起草 scope ADR、跑 release-wide regression、同步 CHANGELOG / release notes / ADR 状态、产 tag-ready pack。**不**做部署 / staged rollout / 监控 / 回滚（按 ADR-008 D1 **显式 out-of-scope**，不是"待后续实现"）。 |
 
 **刻意不包含**：
 
 - 没有 `/hotfix`——自然语言 + `/hf` 即可让 router 在线上缺陷或范围变化时分流到 `hf-hotfix` / `hf-increment`。
 - 没有 `/gate`——gate 应当被上游节点的 canonical next action **拉**起，而不是被用户**推**起。`/gate` 命令会鼓励"跳过实现 / 评审，直接撞门禁"的反模式。
-- 没有 `/ship-to-prod`（或类似部署命令）——部署 / staged rollout / 监控 / 回滚是 planned `hf-shipping-and-launch`（**当前尚未实现**）。
+- 没有 `/ship-to-prod`（或类似部署命令）——部署 / staged rollout / 监控 / 回滚按 ADR-008 D1 **显式 out-of-scope**（HF 不假装是部署工具；这是永久决定，不是延后）。
 
 OpenCode 与 Cursor 都不注册任何 slash 命令文件；同样的意图通过自然语言 + `using-hf-workflow` 触达。`using-hf-workflow` 入口 shell 的 entry bias 表已加一行"切版本 / 出 release / 打 tag" → direct invoke `hf-release`，与 `/release` 命令同语义但通过 NL 触达。
 
@@ -447,7 +447,7 @@ using-hf-workflow
   -> hf-finalize
 ```
 
-> **范围说明**：当前 Workflow Shape 的终点是 `hf-finalize`（**单 feature** 工程级 closeout；v0.5.0 新增 closeout HTML 工作总结报告——每次 closeout 在 `closeout.md` 旁同步落盘 `closeout.html` 视觉伴生制品）。**发布与上线**侧仍分两层：(1) **release-tier 版本切片**（多 feature → vX.Y.Z scope ADR + release-wide regression + 发布文档聚合 + tag readiness）由 v0.4.0 新增的 standalone skill `hf-release` 承担，与主链 **解耦**（不进本 Workflow Shape；通过 Claude Code 的 `/release` 或 OpenCode / Cursor 的 entry shell bias 行触发）。(2) **部署管线 / 可观测 / 事故响应 / 度量回流 / 上线后运维** 仍是 v0.6+ planned `hf-shipping-and-launch` / `hf-ci-cd-and-automation` / 等等——**当前尚未实现**。这与 `docs/principles/soul.md` 的"现状脚注"一致——HF 必须把这一缺口显式抛回用户，而**不能**悄悄把"代码合并 / 工程 closeout"当作"上线"；`hf-release` 是"切版本号 + 写发布文档"，**不是**"上线到生产"；v0.5.0 的 closeout HTML 是 closeout pack 的**视觉渲染**，**不是**部署记录。
+> **范围说明**：当前 Workflow Shape 的终点是 `hf-finalize`（**单 feature** 工程级 closeout；v0.5.0 新增 closeout HTML 工作总结报告——每次 closeout 在 `closeout.md` 旁同步落盘 `closeout.html` 视觉伴生制品）。**发布与上线**侧分两层：(1) **release-tier 版本切片**（多 feature → vX.Y.Z scope ADR + release-wide regression + 发布文档聚合 + tag readiness）由 v0.4.0 新增的 standalone skill `hf-release` 承担，与主链 **解耦**（不进本 Workflow Shape；通过 Claude Code 的 `/release` 或 OpenCode / Cursor 的 entry shell bias 行触发）。(2) **部署管线 / 可观测 / 事故响应 / 度量回流 / 上线后运维** 按 [ADR-008 D1](docs/decisions/ADR-008-omo-inspired-roadmap-v0.6-onwards.md) **显式 out-of-scope** —— `hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-debugging-and-error-recovery` / `hf-deprecation-and-migration` **永久从路线图删除**（不是"待后续实现"）。HF 拒绝假装是部署工具；`hf-release` 是"切版本号 + 写发布文档"，**不是**"上线到生产"；v0.5.0 的 closeout HTML 是 closeout pack 的**视觉渲染**，**不是**部署记录。
 
 `hf-experiment` 是 Phase 0 引入的 **discovery / spec stage 内部的 conditional insertion**：只在存在 Blocking 或低 confidence 关键假设时临时插入，`probe-result` 回流后按结果回到原插入点或上游修订节点。具体激活与回流规则见 `hf-workflow-router/references/profile-node-and-transition-map.md`。
 

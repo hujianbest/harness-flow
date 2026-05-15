@@ -1,0 +1,56 @@
+{
+  "skill": "hf-wisdom-notebook",
+  "behavior_contract_ref": "evals/README.md",
+  "evals": [
+    {
+      "name": "positive-real-dogfood",
+      "prompt": "Validate the wisdom notebook of features/002-omo-inspired-v0.6/",
+      "expected_behavior": "exit 0; report PASS with optional WARN for entry-id gaps from intentional skips",
+      "assertions": [
+        "exit code == 0",
+        "stdout contains 'Validation PASSED'",
+        "stdout WARN count >= 1 (gaps acceptable; learn-0005/0006 not assigned)",
+        "no FAIL line emitted"
+      ],
+      "input_files": ["../../../features/002-omo-inspired-v0.6/notepads/"],
+      "verifier": "skills/hf-wisdom-notebook/scripts/test_validate_wisdom_notebook.py::test_positive_real_dogfood"
+    },
+    {
+      "name": "negative-missing-file",
+      "prompt": "Validate when 4 of 5 notepad files are missing",
+      "expected_behavior": "exit 1; emit FAIL line naming each missing file",
+      "assertions": [
+        "exit code == 1",
+        "stdout contains 'FAIL: missing notepad file'",
+        "stdout names at least one of decisions/issues/verification/problems"
+      ],
+      "input_files": ["../scripts/test-fixtures/negative-missing-file/"],
+      "verifier": "test_validate_wisdom_notebook.py::test_negative_missing_file"
+    },
+    {
+      "name": "negative-no-delta",
+      "prompt": "Validate when progress.md claims TASK-002 wisdom delta but no entry exists",
+      "expected_behavior": "exit 1; emit FAIL line naming TASK-002",
+      "assertions": [
+        "exit code == 1",
+        "stdout contains 'TASK-002'",
+        "stdout contains 'no entry in learnings.md or verification.md'"
+      ],
+      "input_files": ["../scripts/test-fixtures/negative-no-delta/"],
+      "verifier": "test_validate_wisdom_notebook.py::test_negative_missing_delta"
+    },
+    {
+      "name": "negative-duplicate-entry-id",
+      "prompt": "Validate when same entry-id appears twice in one notepad file",
+      "expected_behavior": "exit 1; emit FAIL line naming the duplicate entry-id",
+      "assertions": [
+        "exit code == 1",
+        "stdout contains 'duplicate entry-id'",
+        "stdout names learn-0001"
+      ],
+      "input_files": ["../scripts/test-fixtures/negative-duplicate-entry-id/"],
+      "verifier": "test_validate_wisdom_notebook.py::test_negative_duplicate_entry_id"
+    }
+  ],
+  "comparison_baseline_note": "Without this skill (no validate-wisdom-notebook.py), reviewers would manually grep entry-id duplicates and per-task delta presence, an O(N) cognitive task per closeout. With the skill, hf-completion-gate runs the validator in <300ms and reports issues with task-id-level precision."
+}

@@ -88,6 +88,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | 线上问题修复 | `hf-hotfix` | `hf-workflow-router` |
 | 范围/验收/约束变化 | `hf-increment` | `hf-workflow-router` |
 | 切版本 / 出 release / 打 tag / 发版本号 | `hf-release`（**direct invoke**，不 route-first；本 skill 与 router 解耦，ADR-004 D3） | 候选 feature 还没 `workflow-closeout` → `hf-finalize` |
+| Execution Mode = auto 且当前不在 review/gate 节点 + 满足 fast lane direct invoke 条件 | `hf-ultrawork`（v0.6 起；direct invoke fast lane skill，**不**绕过 review / gate / approval 工件落盘 / Hard Gates；按 ADR-009 D2） | route/stage/profile 不清 → `hf-workflow-router` |
 
 ### 6. 命令当作 bias，不当作 authority
 

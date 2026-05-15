@@ -107,6 +107,18 @@ Evidence-tier 完成判定矩阵：
 
 本节既不修改本 SKILL 既有 verdict 词表（仍是 `通过` / `需修改` / `阻塞`），也不修改 §6A 完成判定闸门 5 行场景表；只是在 `Upstream Evidence Consumed` 段新增"必须含 doc-freshness verdict 路径"的承接条款。
 
+### 6.2 Wisdom Notebook 完整性校验（v0.6 新增 / FR-002 集成）
+
+调用 `python3 skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py --feature features/<active>/`。
+
+| 退出码 | 含义 | 本 gate 处理 |
+|---|---|---|
+| 0 | PASS（5 文件齐全 + 每 task 至少 learnings/verification 任一 + 无重复 entry-id；可能含非阻塞 WARN）| 继续 §6A |
+| 1 | FAIL（任一上面 invariant 违反） | gate verdict = **FAIL**；下一步 = `hf-test-driven-dev`（按 task 补 wisdom delta 或 wisdom-skip 显式声明）|
+| 2 | invalid args / IO error | gate verdict = **阻塞**；下一步 = `hf-workflow-router`（feature 路径异常） |
+
+**为何在 §6A 之前**：wisdom notebook 完整性是 closeout 前的 prerequisite，与 doc-freshness 同形态（前置完整性校验）。validator FAIL 时不让 closeout 继续，避免 closeout pack 引用残缺 wisdom evidence。
+
 ### 6A. 完成判定闸门
 
 先把当前场景收敛成**唯一 verdict + 唯一下一步**，再写完成记录。不要把“感觉差不多完成了”写成 `通过`。

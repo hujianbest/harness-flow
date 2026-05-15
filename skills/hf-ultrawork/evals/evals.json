@@ -1,0 +1,52 @@
+{
+  "skill": "hf-ultrawork",
+  "behavior_contract_ref": "evals/README.md",
+  "evals": [
+    {
+      "name": "fr-008-five-noncompressibles-enumerated",
+      "prompt": "Verify that hf-ultrawork SKILL.md Hard Gates section locally enumerates all 5 non-compressible items per ADR-009 D2",
+      "expected_behavior": "5 independent regex matches inside the Hard Gates section: Fagan review keyword, gate verdict keyword, closeout pack keyword, approval-artifact-disk-write keyword, standard-unclear-bounce keyword. Author cannot pass by writing only 'see ADR-009 D2'.",
+      "assertions": [
+        "Hard Gates section contains 'Fagan review' or '8 个 Fagan' or 'hf-(spec|design|tasks|test|code|traceability|ui|discovery)-review'",
+        "Hard Gates section contains 'gate verdict' or '3 个 gate' or 'hf-(regression|doc-freshness|completion)-gate'",
+        "Hard Gates section contains 'closeout pack' or 'hf-finalize'",
+        "Hard Gates section contains approval + (disk|落盘|written|工件)",
+        "Hard Gates section contains 方向 / 取舍 / 标准 unclear / 标准不清 / stop and bounce"
+      ],
+      "verifier": "tests/test_ultrawork_skill.py::test_hard_gates_enumerates_5_noncompressibles"
+    },
+    {
+      "name": "keyword-set-three-categories",
+      "prompt": "Verify keyword set covers enable / pause / revert-to-standard 3 categories per OQ-003",
+      "expected_behavior": "SKILL.md contains at least one keyword from each of the 3 categories",
+      "assertions": [
+        "enable category: auto mode | ultrawork | ulw | 自动执行 | 不要停下来 | keep going | proceed",
+        "pause category: 停 | 暂停 | pause | wait | hold on | stop",
+        "revert category: standard mode | 恢复 standard | revert to standard"
+      ],
+      "verifier": "tests/test_ultrawork_skill.py::test_keyword_set_present"
+    },
+    {
+      "name": "six-escape-conditions",
+      "prompt": "Verify references/fast-lane-escape-conditions.md enumerates 6 escape conditions per ADR-009 D3 item 4",
+      "expected_behavior": "References file contains >= 6 numbered/listed escape conditions",
+      "assertions": [
+        "references/fast-lane-escape-conditions.md exists",
+        ">= 6 distinct numbered or section-prefixed items"
+      ],
+      "verifier": "tests/test_ultrawork_skill.py::test_escape_conditions_six"
+    },
+    {
+      "name": "workflow-verdict-then-escape-check",
+      "prompt": "Verify Workflow describes 'check escape after every verdict before continuing'",
+      "expected_behavior": "Workflow section has >= 5 numbered steps and explicitly mentions verdict-then-escape ordering",
+      "assertions": [
+        "Workflow section has >= 5 numbered steps",
+        "Workflow section regex matches verdict.*escape OR escape.*verdict OR verdict.*后.*检查 OR after.*verdict.*check"
+      ],
+      "verifier": "tests/test_ultrawork_skill.py::test_workflow_has_5_plus_steps"
+    }
+  ],
+  "comparison_baseline_note": "Without these evals, an author could write 'hf-ultrawork SKILL.md follows ADR-009 D2 boundaries' and pass audit-skill-anatomy.py (which only checks anatomy structural compliance, not domain rules). With these evals, the FR-008 5-keyword enumeration becomes runtime-enforced; the test suite explicitly fails if a future edit collapses the 5 enumerated rows to 'see ADR-009 D2' shorthand.",
+  "dogfood_evidence_ref": "features/002-omo-inspired-v0.6/progress.md ## Fast Lane Decisions section (19 audit trail rows; 0 escape triggers)"
+}
