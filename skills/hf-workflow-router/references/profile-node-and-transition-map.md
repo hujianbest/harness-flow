@@ -374,3 +374,47 @@ branches:
 `hf-browser-testing` **不**签发 pass / fail verdict（参见 SKILL.md Hard Gates 与 Common Rationalizations）；上述回流是 router 基于 observation 计数的机械路由，不是 reviewer verdict。
 
 router 的实现职责仅限于：(a) 检查上述 3 个激活条件；(b) 读取 `features/<active>/verification/browser-evidence/<task-id>/observations.md` 的 severity 计数；(c) 把回流结论映射成唯一 canonical next action。**不读 evidence 内容、不参与 severity 改判**。
+
+---
+
+## v0.6 新增（按 ADR-008 D2 / spec FR-003 / FR-015）
+
+### Step-Level Recovery via `tasks.progress.json`
+
+router 在恢复 active task 时，除读 feature `progress.md`（节点级 stage trail）外，还读 `features/<active>/tasks.progress.json`（按 `skills/hf-test-driven-dev/references/tasks-progress-schema.md`）做 task 内 step-level 恢复：
+
+| `current_step` | router 路由 |
+|---|---|
+| `TEST-DESIGN` | `hf-test-driven-dev` 重新进入测试设计步 |
+| `APPROVAL` | `hf-test-driven-dev` 直接到 approval 写工件（auto mode）或等待架构师（standard mode） |
+| `RED-N` | `hf-test-driven-dev` 恢复 RED-N 步（不重做设计） |
+| `GREEN-N` | `hf-test-driven-dev` 恢复 GREEN-N 步 |
+| `REFACTOR-N` | `hf-test-driven-dev` 恢复 REFACTOR-N 步（含步骤 4A architectural health check） |
+| `DONE` | router 选下一 active task；归档 `tasks.progress.<task-id>.json` |
+
+工件不存在或 schema 不合规 → router 视为节点级恢复（按既有逻辑），不阻塞。
+
+### `category_hint` 字段（FR-015 SHOULD）
+
+router 在 handoff JSON 中可选地携带 `category_hint`（取值如 `visual-engineering` / `deep` / `quick` / `ultrabrain`，对齐 OMO category routing 体系）：
+
+```json
+{
+  "next_action_or_recommended_skill": "hf-test-driven-dev",
+  "active_task": "TASK-005",
+  "category_hint": "visual-engineering",
+  "wisdom_summary": "..."
+}
+```
+
+下游 host 不消费时直接忽略；不构成 hard error。SHOULD 失败处理：FR-015 不达标时 hf-completion-gate 不阻塞（按 spec FR-015 Acceptance #3）。
+
+### `wisdom_summary` 注入（FR-003）
+
+router 在选下一 active task 之前，从 `features/<active>/notepads/` 读取**近 N=3 task 的 wisdom 摘要**并注入下游 handoff：
+
+- 摘要内容：近 3 task 的 learnings.md 最新 entry `pattern` 字段 + verification.md 最新 entry `result` 字段 + 任何 issues.md status=open 的 entry
+- 摘要长度上限：1500 token（避免 handoff 过载）
+- 注入位置：handoff JSON 的 `wisdom_summary` 字段
+
+下游节点（hf-test-driven-dev 主要受众）按 wisdom_summary 调整实现策略，避免重复踩 N task 之前已踩过的坑。

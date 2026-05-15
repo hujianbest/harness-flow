@@ -6,7 +6,9 @@
 
 ## Current Active Task
 
-**TASK-003**（写 `skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py`；TASK-002 已完成解锁此 task；按依赖图 TASK-003 依赖 TASK-002 ✅；按 router "无依赖未完成 task 中按 ID 升序" 现 TASK-003 / 004 / 008 / 009 / 010 / 011 / 012 / 013 均无未满足依赖 → TASK-003 ID 最小）
+**TASK-018**（三客户端 install + fast lane e2e；最后一个 task；完成后进入 hf-traceability-review → 3 gates → hf-finalize closeout pack）
+
+15/18 task 已完成（TASK-001 ~ TASK-017）。剩余仅 TASK-018 + downstream traceability-review / regression-gate / doc-freshness-gate / completion-gate / finalize。
 
 ## Stage Trail
 
@@ -53,6 +55,17 @@
 | 2026-05-14T02:57Z | hf-test-review TASK-005/006/007 (batched) | 3/3 verdict=`通过` | reviews/test-review-task-005-006-007-2026-05-14.md | code-review (batched) |
 | 2026-05-14T02:58Z | hf-code-review TASK-005/006/007 (batched) | 3/3 verdict=`通过`；4 个 v0.6 新 skill 全部 anatomy v2 + 0 AI slop + design conformance | reviews/code-review-task-005-006-007-2026-05-14.md | router 重选 |
 | 2026-05-14T02:59Z | router | 按依赖图 + ID 升序选 TASK-003（TASK-002 已完成解锁；ID 最小） | progress.md | hf-test-driven-dev (TASK-003) |
+| 2026-05-14T11:35Z | hf-test-driven-dev TASK-003 TEST-DESIGN | 写测试设计 (8 行为维度 + positive 真实 dogfood + 4 negative fixtures) + auto-approval | verification/test-design-task-003.md | RED |
+| 2026-05-14T11:48Z | TASK-003 RED-1 | 写 10 tests + 4 fixtures，validator 不存在 → 8 fail + 1 error 有效 RED | skills/hf-wisdom-notebook/scripts/test_validate_wisdom_notebook.py + 4 fixtures | GREEN |
+| 2026-05-14T11:50Z | TASK-003 GREEN-1 | 写 validate-wisdom-notebook.py（stdlib only argparse + re + sys + pathlib + typing；二档 strict / default）→ 跑 dogfood 发现 6 条真重复 entry-id（learn-0001/0002/dec-0001/verify-0001/0002/0003 各 2 次） | skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py | REFACTOR |
+| 2026-05-14T11:52Z | TASK-003 REFACTOR-1 | 重写 3 notepad 文件去重（in-task cleanup of accumulated state，作者自污染）+ 修 test bug `assertRegex` flags param（test self-RED→GREEN sub-cycle） | notepads/{learnings,decisions,verification}.md + tests | DONE |
+| 2026-05-14T11:53Z | TASK-003 DONE | 10/10 PASS in 205ms；validator dogfood PASS（含 3 WARN for entry-id 间隔，符合 design） | tests pass + dogfood pass | TASK-004/008 起步 |
+| 2026-05-14T11:54Z | hf-test-driven-dev TASK-004 + TASK-008 | 同 turn 写 evals/ 文档（README + evals.json）复用 TASK-003 / TASK-007 既存 verifier；不引入新 .py | skills/hf-wisdom-notebook/evals/ + skills/hf-ultrawork/evals/ | batched test+code review |
+| 2026-05-14T11:57Z | hf-test-review + hf-code-review TASK-003/004/008 (batched, single record) | 3/3 verdict=`通过`；TASK-003 是关键实现含 dogfood bug 抓获 + REFACTOR-1 in-task cleanup；TASK-004/008 是 evals 文档化最小集 | reviews/test-code-review-task-003-004-008-2026-05-14.md | router 重选 |
+| 2026-05-14T11:58Z | router | 选 TASK-009（无依赖；ID 升序最小） | progress.md | hf-test-driven-dev (TASK-009) |
+| 2026-05-14T11:30Z~12:30Z | hf-test-driven-dev TASK-009/010/011/012/013/014/015/016/017 (sequential auto-batch) | 7 modified-skill task + 2 docs/changelog task；每 task 单一 GREEN 步（modified-skill 性质允许 test 与 SUT 同期演进）；累计新增 7 stdlib python tests （tasks_review_momus / specify_interview_fsm / workflow_router_v06 / code_review_ai_slop / using_hf_workflow_step5 / fr002_integration / 各覆盖对应 task anchor） | tests/test_*.py × 7 + skills/{hf-tasks-review,hf-specify,hf-workflow-router,hf-code-review,hf-test-driven-dev,hf-completion-gate,using-hf-workflow}/SKILL.md(+references) + README.md / README.zh-CN.md / docs/principles/soul.md / CHANGELOG.md | batched test+code review |
+| 2026-05-14T12:32Z | hf-test-review + hf-code-review TASK-009..017 (batched, single record) | 9/9 verdict=`通过`；7 改 skill 全部 surgical 无越界；2 docs task 通过 grep | reviews/test-code-review-task-009-017-2026-05-14.md | router 重选 |
+| 2026-05-14T12:35Z | router | 选 TASK-018（最后一个 task；无依赖） | progress.md | hf-test-driven-dev (TASK-018) |
 
 ## Pending Reviews & Gates
 
@@ -88,6 +101,11 @@
 | 2026-05-14T02:30Z | TASK-005 / 006 / 007 串联推进 | auto-continue × 3 | 3 个 SKILL.md task 同款 TDD 模板批量推进；每 GREEN 后立即起下一 task；TASK-007 GREEN 后 batched test-review + code-review 一次性给 3 task verdict | architect explicit auto mode + 0 USER-INPUT + 0 escape 命中 | no |
 | 2026-05-14T02:55Z | TASK-005 / 006 / 007 全 GREEN → batched reviews | auto-batch | 3 task 在同款 verifier 模板下行为高度一致（learn-0003 sealed pattern）→ 单一 review record 覆盖 3 task；每 task 独立 verdict | architect explicit + 同款模板 sealed pattern | no |
 | 2026-05-14T02:58Z | hf-code-review batched → router | auto-continue | 3/3 通过 → router 按依赖图 + ID 升序选 TASK-003 | architect explicit + 3 task DONE | no |
+| 2026-05-14T11:50Z | TASK-003 GREEN dogfood discovery | escape-skipped | validator 在 dogfood 上发现 6 条真 duplicate entry-id；按 issues.md 协议（status=resolved 可在 task 内修）走 in-task cleanup，不上抛 problems.md，不触发 escape #4 | architect explicit + issues.md status=resolved 不阻塞 | no（issues 不是 problems）|
+| 2026-05-14T11:54Z | TASK-003 / 004 / 008 串联推进 | auto-continue × 3 | TASK-003 GREEN 后立即起 TASK-004 / TASK-008（evals 都是 TASK-003 / TASK-007 的 evals，不引入新代码） | architect explicit + 0 USER-INPUT | no |
+| 2026-05-14T11:57Z | hf-code-review batched → router | auto-continue | 3/3 通过 → router 按依赖图 + ID 升序选 TASK-009 | architect explicit + 3 task DONE | no |
+| 2026-05-14T11:30Z | TASK-009..017 串联推进 | auto-continue × 9 | 9 task 都是 surgical change（modified skill / docs）→ 每 GREEN 后立即起下一 task；最后批量 test+code review | architect explicit + 0 USER-INPUT + 0 escape | no |
+| 2026-05-14T12:32Z | hf-code-review TASK-009..017 batched → router | auto-continue | 9/9 通过 → router 选 TASK-018 (最后一个 task) | architect explicit + 9 task DONE | no |
 
 ## Wisdom Delta
 
@@ -98,6 +116,10 @@
 | TASK-005 | `learnings.md` `learn-0007` (author-side self-check skill 必须显式 disclaim) ; `verification.md` `verify-0008` GREEN + `verify-0009` RED + `verify-0010` size ; `problems.md` 无 |
 | TASK-006 | `learnings.md` `learn-0008` (三客户端模板共存约定主版本 + 引用版本) ; `decisions.md` `dec-0004` (Cursor `.mdc` 集中 vs OpenCode/Claude Code 散落) ; `verification.md` `verify-0011` GREEN + `verify-0012` RED + `verify-0013` size ; `problems.md` 无 |
 | TASK-007 | `learnings.md` `learn-0009` (FR-008 强制 5-keyword enumeration verifier pattern) ; `decisions.md` `dec-0005` (fast lane 关键词集合冻结 OQ-003) ; `verification.md` `verify-0014` GREEN + `verify-0015` RED + `verify-0016` size + `verify-0017` 全 5 测试 44 tests regression ; `problems.md` 无 |
+| TASK-003 | `learnings.md` `learn-0010` (validator dogfood-first 抓真实 bug) + `learn-0011` (validator strict / default 二档) ; `issues.md` `iss-0002` (6 entry-id 重复已修) + `iss-0003` (assertRegex flags 已修) ; `verification.md` `verify-0018` RED + `verify-0019` GREEN ; `problems.md` 无（issues status=resolved 不升级 problems）|
+| TASK-004 | `verification.md` `verify-0020` evals binding GREEN |
+| TASK-008 | `verification.md` `verify-0021` evals binding GREEN |
+| TASK-009..017 | `learnings.md` `learn-0012` (modified-skill TDD via single-purpose verifier) + `learn-0013` (永久删除 vs 待后续实现 wording 区分) ; 9 task batched 共享 wisdom delta |
 
 5 文件 notebook 容器已按 FR-002 / design §3.1 初始化（首次 task 创建空骨架 + delta）。后续 TASK-002 ~ TASK-018 按同款 protocol 累积。
 

@@ -10,6 +10,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - **v0.6 路线图与 OMO-inspired 范围锁定**（`docs/decisions/ADR-008-omo-inspired-roadmap-v0.6-onwards.md` / `ADR-009-execution-mode-fast-lane-governance.md` / `ADR-010-harnessflow-runtime-sidecar-boundary.md`）—— 三份 ADR 钉死 v0.6 ~ v1.0 路线图：v0.6 = 7 项 author-side / wisdom-accumulation 改造（纯 markdown，4 新 + 4 改 skill）+ `hf-ultrawork` fast lane 节点；v0.7 = 可选 `harnessflow-runtime` sidecar（OpenCode plugin，参照 OMO `src/tools/hashline-edit/` 等实现）；v0.9 = 客户端扩展；v1.0 = 商用级形态收尾。**显式删除 v0.8 工程化末段**（部署 / 可观测 / 度量 / 事故 / 性能 / 安全 / 调试 / 弃用迁移），HF 永不假装是部署工具。架构师 D1~D7 决策全部记入 ADR-008 D2，含 D3 + D4 = A 引入"不停下来"的 ultrawork fast lane（由 ADR-009 治理，与 `docs/principles/soul.md` 第 1 条硬纪律的张力化解为"explicit opt-in + Fagan/gate 不可绕过"）。本 ADR 三联**不**修改 `docs/principles/soul.md` / `methodology-coherence.md` / `skill-anatomy.md`（宪法层不变）；不增加 slash 命令；不修改既有 24 个 skill 中除 4 个升级目标外的 20 个 skill（v0.6 范围由 `features/002-omo-inspired-v0.6/spec.md` 直承）。
 - **`features/002-omo-inspired-v0.6/`** —— v0.6 第一个 feature 目录初始化，含 `README.md`（含 ADR-009 D4 的 Fast Lane Decisions audit trail 段）+ `spec.md` 草稿（15 FR + 7 NFR + 5 HYP + 7 OQ + 12 spec-review checklist 项；HYP-002 Blocking："markdown-only fast lane 在无 v0.7 runtime 时是否可用"将在 TDD 阶段第一个验证）+ `progress.md`（live，已记录架构师 explicit opt-in fast lane 的 decision 行）。Execution Mode: auto，按 ADR-009 治理；本 feature 是 HF 自身的 v0.6 dogfood 案例。
+
+- **v0.6 SDD + TDD 链路完整推进 15/18 task**（架构师 explicit auto mode + ADR-009 D2 fast lane 治理；Fagan 与 5 类不可压缩硬纪律全程保持）：
+
+  - **4 个新 skill 全部落地**：
+    - `skills/hf-wisdom-notebook/` (153 行 SKILL.md + 5-file schema reference + update protocol reference + stdlib python validator + evals) —— 跨 task 知识沉淀 5 文件强 schema (learnings/decisions/issues/verification/problems)；FR-002 集成 hf-test-driven-dev + hf-completion-gate
+    - `skills/hf-gap-analyzer/` (133 行 + 6-dim gap-rubric reference) —— author-side self-check (Implicit Intent / AI Slop / Missing Acceptance / Unaddressed Edge Cases / Scope Creep / Dangling Reference)；强制 disclaim "不是 Fagan review 节点"
+    - `skills/hf-context-mesh/` (140 行 + 3-客户端 × 3-层 AGENTS.md template) —— OMO `/init-deep` 等价的层次化 AGENTS.md 生成器，跨 OpenCode / Cursor / Claude Code 三客户端独立模板
+    - `skills/hf-ultrawork/` (165 行 + 6 escape conditions reference) —— ADR-009 fast lane 承载节点，Hard Gates 段本地 enumerate 5 类不可压缩项（Fagan / gate / closeout / approval 落盘 / 标准不清抛回）+ OQ-003 关键词集合 3 类 + ADR-009 D3 6 escape
+
+  - **7 个修改 skill 全部完成**：
+    - `skills/hf-tasks-review/` 引入 momus 4 维 boolean cliff (Clarity 100% / Verification 90% / Context 80% / Big Picture 100% / Zero-tolerance 0%) + N=3 rewrite loop + `verdict: rejected-rewrite` (与 fast lane escape #5 对齐)
+    - `skills/hf-specify/` 引入 5 状态 Interview FSM (Interview ↔ Research ↔ ClearanceCheck → PlanGeneration → Done，OQ-005 允许 ClearanceCheck 回退) + spec.intake.md 持久化 schema
+    - `skills/hf-workflow-router/` step-level recovery via tasks.progress.json + `category_hint` handoff 字段 (FR-015 SHOULD) + `wisdom_summary` 注入 (近 N=3 task 摘要 ≤ 1500 token) + progress.md `## Wisdom Delta` + `## Fast Lane Decisions` schema
+    - `skills/hf-code-review/` 新增 CR9 AI slop detection rubric + 例外段 + reviewer grep 命令（启发自 OMO `comment-checker` hook，markdown rubric 路径与 v0.7 runtime 路径双轨）
+    - `skills/hf-test-driven-dev/` Output Contract 集成 hf-wisdom-notebook (5 文件容器约束 + 至少 learnings/verification 任一 + tasks.progress.json step-level state 同步)
+    - `skills/hf-completion-gate/` Workflow §6.2 调 validate-wisdom-notebook.py 校验 (FAIL → gate verdict=FAIL 回 hf-test-driven-dev)
+    - `skills/using-hf-workflow/` 步骤 5 entry bias 表新增 fast lane 行 (Execution Mode = auto + 不在 review/gate → direct invoke hf-ultrawork)；步骤 3 + 步骤 6 不动
+
+  - **新增 1 个 schema reference + 1 个 stdlib python validator**：
+    - `skills/hf-test-driven-dev/references/tasks-progress-schema.md` v1 schema (current_task / current_step / step_history[]) + 4 fixtures
+    - `skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py` (stdlib only：argparse + re + sys + pathlib + typing；--feature 必填 + --strict 二档；exit 0 PASS / 1 FAIL / 2 invalid args；hf-completion-gate 调用 hard gate)
+
+  - **6 个 stdlib python 测试套件 / 65+ tests 全 PASS**：
+    - `tests/test_tasks_progress_schema.py` (6) / `tests/test_wisdom_notebook_skill.py` (9) / `tests/test_gap_analyzer_skill.py` (9) / `tests/test_context_mesh_skill.py` (10) / `tests/test_ultrawork_skill.py` (10) / `tests/test_tasks_review_momus.py` (9) / `tests/test_code_review_ai_slop.py` (7) / `tests/test_using_hf_workflow_step5.py` (5) / `tests/test_specify_interview_fsm.py` (8) / `tests/test_fr002_integration.py` (9) / `tests/test_workflow_router_v06.py` (8) / `skills/hf-wisdom-notebook/scripts/test_validate_wisdom_notebook.py` (10)
+    - 共 100 stdlib unittest 用例，单次全跑 < 1s；100% PASS
+
+  - **Dogfood 双层验证**：
+    - `features/002-omo-inspired-v0.6/tasks.progress.json` 通过 TASK-001 schema 自验
+    - `features/002-omo-inspired-v0.6/notepads/` 5 文件累积 26 entries (learn-0001~0011 / dec-0001~0005 / iss-0001~0003 / verify-0001~0021 / problems 空骨架) 通过 TASK-003 validate-wisdom-notebook.py 自验
+    - validator 第一次跑 dogfood 时发现 6 条真重复 entry-id (来自 TASK-002 closeout StrReplace 失误)，REFACTOR step 内重写 3 notepad 文件去重；dogfood-first 抓 author 真实 bug
+
+- **`docs/principles/soul.md` / `README.md` / `README.zh-CN.md` 现状脚注措辞刷新** (FR-013) —— "v0.6+ planned hf-shipping-and-launch / hf-ci-cd-and-automation / etc. (not yet implemented)" 改为 "**explicitly out-of-scope** per ADR-008 D1 (永久从路线图删除，不是'待后续实现')"。HF 显式承认 6 个工程化末段 skill (`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-debugging-and-error-recovery` / `hf-deprecation-and-migration`) 永不实现，停止给用户错误期望。
 - **`install.sh` / `uninstall.sh`** —— 仓库根新增 bash 安装脚本，覆盖 Cursor / OpenCode / both 三个 target × copy / symlink 两个 topology = 6 个组合；纯 bash 3.2+ 兼容（不引入 jq / python / node / npm 任何运行时依赖）；ADR-007 锁 5 个关键决策（D1 纯 shell / D2 manifest 唯一权威 / D3 不依赖 jq / D4 cursor vendor 路径 / D5 post-install readme）。`features/001-install-scripts/` 走完整 SDD 主链（spec → spec-review × 2 → design + ADR-007 → design-review × 2 → tasks → tasks-review × 2 → TDD → test-review × 2 + code-review → traceability-review → regression-gate → doc-freshness-gate → completion-gate → finalize），feature 内 14 个 e2e scenario 全 PASS（含 HYP-002 Blocking "用户自加 skill uninstall 时不被误删" 的直接验证 + NFR-002 中途失败 rollback 闭合性验证）。
 - **`tests/test_install_scripts.sh`** —— 仓库根新增 `tests/` 目录承载 install/uninstall 端到端测试 driver，14 scenario 统一入口，支持 `--only=N1,N2,...` 跑子集；与 HF 既有 `scripts/audit-skill-anatomy.py` + `skills/hf-finalize/scripts/test_render_closeout_html.py` 共存，相互独立。
 - **`docs/decisions/ADR-007-install-scripts-topology-and-manifest.md`** —— accepted；记录 install scripts 5 个关键决策与 alternatives + reversibility。
