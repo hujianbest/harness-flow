@@ -136,6 +136,7 @@ verdict 取值（v0.6 起，与 N=3 rewrite loop 配套）：
 - [ ] review record 已落盘
 - [ ] 给出明确结论、findings 和唯一下一步
 - [ ] findings 已标明 severity / classification / rule_id
+- [ ] **每个关键任务的 Risk Tag 判定已审查**（v0.7 新增）：Risk Tag ∈ {trivial, standard, high-risk} 字段齐全；Rationale 言之有物；lightweight profile 下无 high-risk task
 - [ ] precheck blocked 时已写明 workflow blocker 和 reroute_via_router
 - [ ] 通过时已设 needs_human_confirmation=true
 - [ ] 结构化摘要含 record_path 和 next_action_or_recommended_skill

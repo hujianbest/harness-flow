@@ -161,8 +161,8 @@ HF 的每个 skill 都会在自己的 `SKILL.md` 里显式声明方法论。在 
 | Skill | 核心方法论 |
 |---|---|
 | `hf-regression-gate` | Regression Testing Best Practice、Impact-Based Testing、Fresh Evidence Principle |
-| `hf-doc-freshness-gate` | Sync-on-Presence、Profile-Aware Rigor、Evidence Bundle Pattern、Author/Reviewer/Gate Separation |
-| `hf-completion-gate` | Definition of Done、Evidence Bundle Pattern、Profile-Aware Rigor、**§6.2 Wisdom Notebook 完整性校验（v0.6；调 `skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py`）** |
+| `hf-doc-freshness-gate` | Sync-on-Presence、Profile-Aware Rigor、Evidence Bundle Pattern、Author/Reviewer/Gate Separation —— **v0.7：仅 feature-level 终局批跑** |
+| `hf-completion-gate` | Definition of Done、Evidence Bundle Pattern、Profile-Aware Rigor、**§6.2 Wisdom Notebook 完整性校验（v0.6；调 `skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py`）**、**v0.7 双形态（per-task form 允许 snapshot record + feature-level form 强制 file record）** |
 | `hf-finalize` | Project Closeout、Release Readiness Review、Handoff Pack Pattern、Closeout HTML Companion (v0.5.0+) |
 
 ### 跨 task 知识与 fast lane（v0.6 新增）

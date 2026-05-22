@@ -98,7 +98,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 |---|---|---|---|
 | `/hf-spec [topic]` | 规格澄清 / 修订 / 入口 | `hf-specify` | `hf-workflow-router` |
 | `/hf-build [task-id]` | 当前活跃任务实现 | `hf-test-driven-dev` | `hf-workflow-router` |
-| `/hf-review [spec\|design\|tasks\|test\|code\|trace\|regression\|completion]` | review / gate 请求 | 具体 review / gate 节点 | `hf-workflow-router` |
+| `/hf-review [spec\|design\|tasks\|task\|test\|code\|trace\|regression\|completion]` | review / gate 请求 | 具体 review / gate 节点（v0.7：`task` → `hf-task-review` 合成评审；`test` / `code` 仅独立直呼或 high-risk 深审场景） | `hf-workflow-router` |
 | `/hf-closeout [task-id]` | 完成判断 + 收尾 | `hf-completion-gate`（gate 未跑）/ `hf-finalize`（gate 已通过） | `hf-workflow-router` |
 
 命令规则：

@@ -49,6 +49,29 @@
 - 每个关键任务都要能回答“完成时什么必须为真”
 - 每个关键任务都要能回答“如何验证”与“会触碰哪些文件/工件”
 - 每个任务都能回答"做完的证据是什么"
+- 每个关键任务都要显式标注 `Risk Tag` 与 `Risk Tag Rationale`（v0.7 新增；详见下节）
+
+## Risk Tag 判定（v0.7 新增）
+
+每个 task 必须固化一个 `Risk Tag`，由作者写入、`hf-tasks-review` 批准时固化。runtime 不允许 reviewer / implementer 自降自升；如需变更回 `hf-tasks` 或 `hf-increment`。
+
+| Risk Tag | 触发信号（满足任一即建议升档） |
+|---|---|
+| `trivial` | 单文件改动 ≤ ~50 行；不触碰已批准接口契约；不触碰跨模块公共边界；不引入新依赖；不触碰 ADR / 设计已声明的不变量；不触碰 UI surface；测试设计种子能用 ≤ 2 个测试覆盖 |
+| `high-risk` | 触碰已批准接口契约 / ADR / 公共模块边界；跨 ≥ 2 模块；触碰认证 / 数据迁移 / 状态机切换 / 安全敏感面；spec 标 high-risk 区；触碰 UI surface 中 forbidden drift 监控段 |
+| `standard` | 其余情形（默认） |
+
+不同 Risk Tag 对应的 per-task 评审链路由 router 在 `hf-test-driven-dev` 之后选定（详见 `hf-workflow-router/references/profile-node-and-transition-map.md` 的 `Risk Tag 链路` 章节）：
+
+| Risk Tag | per-task 链路 |
+|---|---|
+| `trivial` | TDD → `hf-regression-gate` → `hf-completion-gate (per-task)` |
+| `standard` | TDD → `hf-task-review` → `hf-regression-gate` → `hf-completion-gate (per-task)` |
+| `high-risk` | TDD → `hf-task-review` → `hf-code-review`（深审） → `hf-regression-gate` → `hf-completion-gate (per-task)` |
+
+`lightweight` profile 不接受 `high-risk`；遇到必须先升级到 `standard` profile。
+
+`Risk Tag Rationale` 写不出充分理由时，作者应给更保守的档（向上靠）；reviewer 在 `hf-tasks-review` 检查"给低档的理由是否站得住"。
 
 ## 状态同步
 

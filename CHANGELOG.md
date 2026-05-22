@@ -6,7 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v0.6.0 已切版；下一版本切片前，新增内容写在此处）
+### Added — v0.7 per-task quality gate optimization
+
+- **`skills/hf-task-review/`** (新 skill) — 单 dispatch 合成式 per-task 评审，并行评测 **测试质量**（复用 `hf-test-review` TT/TA rubric）+ **代码质量**（复用 `hf-code-review` CR/CA rubric）+ **任务级追溯**（复用 `hf-traceability-review` 的 TZ3 / TZ4 / TZ6 task-local 子集），返回单个 severity-tagged findings 列表 + 单一 verdict。替代 v0.6 的 `hf-test-review → hf-code-review → hf-traceability-review` 三个 per-task 节点。引用 `references/review-record-template.md` 提供 file mode + snapshot mode 双套返回 JSON 模板。
+- **Reviewer return contract v0.7 扩展**（`skills/hf-workflow-router/references/reviewer-return-contract.md`） — 新增 `record_mode`（`file` / `snapshot`）/ `remediation_round_count`（1–3）/ `finding_breakdown` 字段；新增 "Snapshot Mode 父会话承接规则" 与 "Remediation Budget 父会话承接规则" 两节；canonical handoff 节点列表新增 `hf-task-review` / `hf-doc-freshness-gate`。
+- **Review dispatch protocol v0.7 扩展**（`skills/hf-workflow-router/references/review-dispatch-protocol.md`） — 新增 `task` review_type；`hf-task-review` dispatch 必填 `active_task_id` / `risk_tag` / `audit_mode` / `allowed_record_modes`；项目 `Audit Mode: file` 时父会话强制重写 `allowed_record_modes=["file"]`。
+- **Profile-node-and-transition-map v0.7 重构**（`skills/hf-workflow-router/references/profile-node-and-transition-map.md`） — 全量重写 3 个 profile 的 per-task 链路（`hf-task-review` 替代 v0.6 的 test-review + code-review）；新增 `Risk Tag 链路` 章节（`trivial` / `standard` / `high-risk` 三档对应的 per-task 链路）+ `Feature-Level Terminal Batch` 章节（`hf-traceability-review` / `hf-doc-freshness-gate` 上提到无剩余 ready task 时一次性跑）+ 全量 v0.7 迁移表覆盖 router authority。
+- **`skills/hf-completion-gate/` v0.7 双形态** — 拆分为 **per-task form**（`hf-regression-gate` 后做"本 task 证据 + next-ready 唯一性"轻量判定，默认 `record_mode=snapshot`）与 **feature-level form**（feature 终局批后做 closeout 收敛，强制 `record_mode=file`）；profile × form 上游证据矩阵；§6A 拆双形态闸门表；`通过` + 无剩余 ready task → 下一步 `hf-traceability-review`（v0.6 是 `hf-finalize`）。
+- **`skills/hf-test-driven-dev/` v0.7 主链改造** — Next Action 默认改指 `hf-task-review`（`Risk Tag ∈ {standard, high-risk}`）或 `hf-regression-gate`（`Risk Tag = trivial`）；新增 **Remediation Budget Hard Gate**（单 task review/gate 回流最多 2 轮，第 3 轮强制 `reroute_via_router=true`）；新增 **Risk Tag Hard Gate**（runtime 不允许自降自升）；wisdom-notebook 硬约束放宽（v0.7 见下）。
+- **`skills/hf-tasks/references/task-plan-template.md`** — 任务卡新增 `Risk Tag` + `Risk Tag Rationale` 字段（必填）；新增 `Risk Tag 判定` 章节（三档触发信号 + 对应 per-task 链路 + lightweight profile 不接受 high-risk 的约束）。
+- **`skills/hf-tasks/SKILL.md`** — 拆解清单增加 Risk Tag 项；评审前自检与 Verification 段增加 Risk Tag 校验。
+- **`skills/hf-tasks-review/SKILL.md`** — 步骤 3 checklist 新增 **3.7 Risk Tag 判定**（含 `[critical][LLM-FIXABLE][TR-RiskTag-Downgrade]` finding 规则）；Verification 段增加 Risk Tag 审查项。
+- **`skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py` v0.7 校验** — v0.6 "per task 至少 learnings 或 verification 任一" 改为 v0.7 "per task verification 必填 + feature 整体 ≥ 1 learnings 即可"；per-task learnings 缺失从 FAIL 改为 WARN；feature 零 learnings 默认 WARN、`--strict` 下 FAIL；与 `hf-test-driven-dev` Hard Gates 同步。
+
+### Changed — v0.7 retire 旧 review skill 主链位置
+
+- **`skills/hf-test-review/SKILL.md`** — 头部加 "v0.7 状态说明" block；标明主链上不再默认激活；保留作为 `hf-task-review` 测试维度的 reference rubric 库 + 用户独立直呼入口；`通过` 时 `next_action_or_recommended_skill` 由 `hf-code-review` 改为 `hf-workflow-router`（由 router 决定下一步）。
+- **`skills/hf-code-review/SKILL.md`** — 头部加 "v0.7 状态说明" block；标明主链上仅当 `Risk Tag = high-risk` 时作为 `hf-task-review` 之后的追加深审节点；`通过` 时 `next_action_or_recommended_skill` 由 `hf-traceability-review` 改为 `hf-regression-gate`（全量追溯改在 feature 终局）；高风险深审强制 `record_mode=file`。
+
+### Inspired by
+
+本次优化提案来自对 GitHub 高星 SDD / agentic-workflow 仓库的研究：`github/spec-kit` / `bmad-code-org/BMAD-METHOD` / `obra/superpowers` / `rhuss/cc-spex` + `gotalab/cc-sdd` / `eyaltoledano/claude-task-master` / `anthropics/claude-code` `code-review` 插件 / `Aider-AI/aider` / bradfeld 社区 NONE/LIGHT/FULL 三档评审 gist。共识：per-task 评审不超过 2 段（Superpowers）/ 1 段（BMad、Spec Kit、aider）；reviewer 默认不落 stand-alone 文件（Superpowers / aider）；跨工件 / 跨 task 一致性 = feature-level 一次性 pass（Spec Kit `/speckit.analyze`、cc-sdd `validate-impl` skills mode）；severity-driven 不 gate-per-dimension；按改动规模分档执行；bounded retries + escalation。
+
+### Skill 数量
+
+HF skill 总数 28 → 29（v0.7 新增 1：`hf-task-review`）；slash 命令面 7 不变；宪法层 (`docs/principles/{soul,methodology-coherence,skill-anatomy}.md`) 不变；author/reviewer Fagan 分离、Two Hats / TDD 纪律全部保留。
 
 ## [0.6.0] - 2026-05-15 — pre-release
 

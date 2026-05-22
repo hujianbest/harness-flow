@@ -171,6 +171,7 @@ Direct invoke 信号："把设计拆成任务"、"先别写代码，先梳理任
 
 - [ ] 任务计划已保存到约定路径
 - [ ] 关键任务的 Acceptance、Files、Verify、完成条件已写清
+- [ ] 关键任务的 `Risk Tag` + `Risk Tag Rationale` 已写清（v0.7 新增）
 - [ ] 需求/设计追溯与工件影响图已给出
 - [ ] 测试设计种子、Current Active Task 规则、queue projection 已提供
 - [ ] feature `progress.md` 已按 canonical schema 同步，下一步为 `hf-tasks-review`

@@ -32,7 +32,7 @@ HarnessFlow stands on a small set of clearly-attributed engineering and product 
 | Kent Beck — *Test-Driven Development* + Two Hats | `hf-test-driven-dev` (Canon TDD; Two Hats discipline) |
 | Martin Fowler — *Refactoring*, *Patterns of Enterprise Application Architecture*, Front Controller | `hf-test-driven-dev` (refactoring playbook); `using-hf-workflow` (Front Controller); `hf-workflow-router` (FSM dispatch) |
 | Robert C. Martin — *Clean Architecture*, SOLID | `hf-test-driven-dev` (architecture conformance check); `hf-code-review` (clean architecture review) |
-| Michael Fagan — Fagan Inspection | `hf-discovery-review`, `hf-spec-review`, `hf-design-review`, `hf-ui-review`, `hf-tasks-review`, `hf-test-review`, `hf-code-review`, `hf-traceability-review` |
+| Michael Fagan — Fagan Inspection | `hf-discovery-review`, `hf-spec-review`, `hf-design-review`, `hf-ui-review`, `hf-tasks-review`, `hf-task-review` (v0.7), `hf-test-review`, `hf-code-review`, `hf-traceability-review` |
 | Simon Brown — C4 Model | `hf-design` |
 | Gernot Starke — ARC42 | `hf-design` |
 | ISO/IEC 25010 — Quality Attribute model + Quality Attribute Scenarios | `hf-specify` (NFR framing); `hf-design` (NFR uptake via QAS) |
