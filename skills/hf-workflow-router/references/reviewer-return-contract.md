@@ -127,4 +127,29 @@
 
 这个 return contract 只定义“reviewer 回给父会话的摘要”，不替代 review 记录正文。
 
-review 正文仍应按各 `hf-*review` skill 自身要求写入仓库路径。
+review 正文仍应按各 `hf-*review` skill 自身要求写入仓库路径——**除非**该 skill 显式允许 `record_mode=snapshot`。当前唯一允许 snapshot 的是 `hf-task-review`，且仅在 `conclusion=通过` + 无 HIGH+ findings + 项目未声明 `Audit Mode: file` 时；其余 review skill 必须保持 `record_mode=file`。
+
+## Snapshot Mode 父会话承接规则（v0.7）
+
+当 reviewer 返回 `record_mode=snapshot`：
+
+1. 父会话**必须**把 ≤ 10 行 snapshot 追加到 `features/<active>/progress.md` 的 `## Task NNN Review Snapshot` 段（NNN 取当前 active task id；若 progress.md 中尚无该段则创建）
+2. snapshot 必须含：task id / 三维度 score 摘要（仅 `hf-task-review`）/ verdict / 非阻塞遗留项摘要（≤ 3 条或 `none`）/ next action
+3. snapshot 不重复实现交接块 / Refactor Note / 测试输出；只是路由所需最小回执
+4. 不在 `features/<active>/reviews/` 下落任何文件（git history + progress.md 即审计链）
+5. 若项目 `progress.md` 中 `Audit Mode: file` 显式声明 → 父会话**必须**忽略 reviewer 的 `record_mode=snapshot` 请求，要求 reviewer 重新以 `record_mode=file` 回执；这是 SOC 2 / 合规开关
+
+`hf-completion-gate` 的 `Upstream Evidence Consumed` 段接受 snapshot 锚点（形如 `features/<active>/progress.md#task-NNN-review-snapshot`）作为 `hf-task-review` 的 evidence reference，与 file mode 的 `features/<active>/reviews/task-review-task-NNN.md` 等价处理。
+
+## Remediation Budget 父会话承接规则（v0.7）
+
+`hf-test-driven-dev` Hard Gate 与本契约配套：单 task 的 review → fix → re-review 循环最多 2 轮（`remediation_round_count` ∈ {1, 2}）。
+
+父会话消费 reviewer 摘要时：
+
+- `remediation_round_count=1` 且 `conclusion=需修改` / `阻塞`（可回实现补救）→ 进入 `hf-test-driven-dev` 回修
+- `remediation_round_count=2` 且 `conclusion=需修改` / `阻塞`（可回实现补救）→ 进入 `hf-test-driven-dev` 回修；下次 review 将是第 3 轮
+- `remediation_round_count=3` 时 reviewer **必须**返回 `reroute_via_router=true` 与 `next_action_or_recommended_skill=hf-workflow-router`，让 router 决定升级到 `hf-increment` / 重新拆 task / 真人介入
+- 父会话在 `progress.md` `## Remediation Counters` 段维护 `| task_id | review_skill | round |` 行；进入下一 task 或 verdict 转为 `通过` 后清除该 task 的计数
+
+该 budget 不适用于 head-of-pipeline 的 `hf-spec-review` / `hf-design-review` / `hf-tasks-review`（那些 review 的 approval step 节奏由真人/auto 模式控制，不受 budget 约束）。

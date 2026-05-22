@@ -171,14 +171,15 @@ Refactor Note 必填规则：
 - 即使本轮没有任何 cleanup 也要写：In-task Cleanups 写 `none`，Documented Debt / Escalation Triggers 写 `none`，Hat Discipline 与 Architectural Conformance 仍须显式写结论。
 - 出现 Escalation Triggers 非 `none` 时，本轮 `Next Action Or Recommended Skill` 必须为 `hf-workflow-router`，不能为 `hf-test-review`；后续质量链由 router 重新路由。
 
-**v0.6 新增（FR-002 集成 hf-wisdom-notebook）**：每个 task 完成时（无论 fast lane 还是 standard mode）必须：
+**v0.6 集成 hf-wisdom-notebook，v0.7 放宽**：每个 task 完成时（无论 fast lane 还是 standard mode）必须：
 
 1. **5 个 notebook 文件作为容器存在**（`features/<active>/notepads/{learnings,decisions,issues,verification,problems}.md`）；首次 task 创建空骨架；详见 `hf-wisdom-notebook/references/notebook-schema.md`
-2. **至少在 `learnings.md` 或 `verification.md` 任一中追加 delta 段**（按 `hf-wisdom-notebook` schema；`wisdom-skip` 例外需在 progress.md 显式声明）
-3. **同步更新 `features/<active>/tasks.progress.json`**（按 `references/tasks-progress-schema.md` 的 step-level recovery schema：current_task / current_step / step_history[]；atomic write via temp + rename）
-4. **在 progress.md `## Wisdom Delta` 段追加引用行**（`| TASK-NNN | learnings/learn-NNNN + verification/verify-NNNN |`）
+2. **至少在 `verification.md` 中追加一行该 task 的 verification entry**（v0.7 放宽：v0.6 要求"learnings 或 verification 任一"，v0.7 收紧 verification 必填、放开 learnings 不必每 task；`wisdom-skip` 例外仍需在 progress.md 显式声明）
+3. `learnings.md` / `decisions.md` / `issues.md` / `problems.md` **按需写**：feature 内整体至少有 1 条 learnings entry 即可（不要求每 task 都有）
+4. **同步更新 `features/<active>/tasks.progress.json`**（按 `references/tasks-progress-schema.md` 的 step-level recovery schema：current_task / current_step / step_history[]；atomic write via temp + rename）
+5. **在 progress.md `## Wisdom Delta` 段追加引用行**（`| TASK-NNN | verification/verify-NNNN [+ learnings/learn-NNNN if any] |`）
 
-不写 wisdom notebook delta = task 未完成（hf-completion-gate 会调 `validate-wisdom-notebook.py` 校验，FAIL 则 gate 阻塞）。
+不写 wisdom notebook delta = task 未完成（feature-level `hf-completion-gate` 会调 `validate-wisdom-notebook.py` 校验，FAIL 则 gate 阻塞；v0.7 校验阈值参见 `hf-wisdom-notebook/scripts/validate-wisdom-notebook.py` 头注释）。
 
 Next Action 用 canonical skill ID：full/standard 通常 → `hf-test-review`；lightweight 通常 → `hf-regression-gate`；回流修订完成 → 写回触发回流的那个 node。不把下一任务的实现写成输出。
 

@@ -53,6 +53,13 @@
 
 当 `review_type=ui` 时，`supporting_context_paths` 至少包含对应 `hf-design` 最新草稿路径，便于 reviewer 比对 peer 交接块一致性。
 
+当 `review_type=task`（v0.7 新增，对应 `hf-task-review`）时：
+
+- `artifact_paths` 至少包含本 task 的实现交接块、测试改动、代码改动 diff 视角入口
+- `supporting_context_paths` 至少包含 `features/<active>/tasks.md`（本 task 段）+ `progress.md`；spec / design 不带全文，仅带 task 直接锚定的段
+- `risk_tag` 必填；reviewer 据此决定是否激活 CR7/CR8 深审 sub-rubric（`high-risk` 时本 skill 仍跑，但父会话**追加**一次独立 `hf-code-review` 深审，详见 profile-node-and-transition-map.md risk-tag 章节）
+- `allowed_record_modes` 默认 `["snapshot", "file"]`；项目 `Audit Mode: file` 时父会话必须重写为 `["file"]`
+
 ## 父会话职责
 
 父会话负责：

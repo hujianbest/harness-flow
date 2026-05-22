@@ -250,6 +250,85 @@ branches:
 
 上表主要描述“内容回修型”默认迁移。若 reviewer 返回摘要显式要求 `reroute_via_router=true`，或把 `next_action_or_recommended_skill` 指向 `hf-workflow-router`，该显式重编排信号优先于表内默认下一步。
 
+## Risk Tag 链路（v0.7 新增）
+
+`hf-tasks` 在每个 task 卡上写入 `Risk Tag: trivial | standard | high-risk`；`hf-tasks-review` 在批准时固化。runtime 不允许 reviewer / implementer 自降；如需升降，必须回 `hf-tasks` / `hf-increment` 走变更。
+
+### Risk Tag 判定信号
+
+由 `hf-tasks` 作者 / `hf-tasks-review` 评审者按以下信号判定：
+
+| Risk Tag | 触发信号 |
+|---|---|
+| `trivial` | 单文件改动 ≤ ~50 行；不触碰已批准接口契约；不触碰跨模块公共边界；不引入新依赖；不触碰 ADR / 设计已声明的不变量；不触碰 UI surface；测试设计种子能用 ≤ 2 个测试覆盖 |
+| `high-risk` | 触碰已批准接口契约 / ADR / 公共模块边界；跨 ≥ 2 模块；触碰认证 / 数据迁移 / 状态机切换 / 安全敏感面；spec 标 high-risk 区；触碰 UI surface 中 forbidden drift 监控段 |
+| `standard` | 其余情形（默认值） |
+
+判定理由必须写在任务卡 `Risk Tag Rationale` 段；空泛理由（"看起来简单"）由 `hf-tasks-review` 判 finding。
+
+### 不同 Risk Tag 的 per-task 链路
+
+| Risk Tag | `standard` / `full` profile 链路 | `lightweight` profile 链路 |
+|---|---|---|
+| `trivial` | TDD → `hf-regression-gate` → `hf-completion-gate (per-task)` | TDD → `hf-regression-gate` → `hf-completion-gate (per-task)` |
+| `standard` | TDD → `hf-task-review` → `hf-regression-gate` → `hf-completion-gate (per-task)` | TDD → `hf-regression-gate` → `hf-completion-gate (per-task)`（同 lightweight 默认） |
+| `high-risk` | TDD → `hf-task-review` → `hf-code-review`（深审） → `hf-regression-gate` → `hf-completion-gate (per-task)` | lightweight profile 不接受 `high-risk` task；遇到必须升级到 `standard`（router 在 `Risk Tag = high-risk` 且 `Profile = lightweight` 时强制升档） |
+
+注意：
+
+- `trivial` 跳过 `hf-task-review` 是 v0.7 的轻量化设计选择；reviewer 对该 task 的判断由 `hf-tasks-review` 在批准 Risk Tag 时一次性完成
+- `high-risk` 的追加 `hf-code-review` 在 `hf-task-review` 之后串行执行；不并行（避免 reviewer 上下文混淆）
+- 同 feature 内不同 task 可走不同档；每 task 的 active 档由 router 进入 `hf-test-driven-dev` 时锁定
+
+### Risk Tag 与 record_mode 的关系
+
+- `trivial`：默认 `record_mode=snapshot`（regression evidence + completion snapshot）
+- `standard`：`hf-task-review` 默认 `snapshot`；除非 verdict ≠ 通过 或 含 HIGH+ findings
+- `high-risk`：`hf-task-review` 默认 `snapshot`；`hf-code-review` 深审强制 `file`（高风险必留 audit trail）
+
+`Audit Mode: file` 项目级开关覆盖所有档。
+
+## Feature-Level Terminal Batch（v0.7 新增）
+
+v0.6 中 `hf-traceability-review` 与 `hf-doc-freshness-gate` 是 per-task 节点；v0.7 起上提为 **feature-level 终局批**，仅在 `hf-completion-gate (per-task form)` 判定本 task 通过且 router 确认**无剩余 ready task** 时由 router 一次性激活。
+
+### 激活条件
+
+router 在恢复编排时进入 feature-level terminal batch 当且仅当：
+
+1. 最近一个 `hf-completion-gate (per-task form)` 返回 `通过`
+2. 已批准任务计划中不存在 status ∈ {`pending`, `in_progress`} 且 dependency-ready 的剩余 task
+3. 当前 `progress.md` 未声明 `Feature Terminal Batch Completed: yes`（避免重复进入）
+
+不满足条件 1 → 回对应 per-task 节点；不满足条件 2 → router 选下一 active task；不满足条件 3 → 直接 `hf-finalize`。
+
+### 执行顺序
+
+```text
+hf-traceability-review (full feature matrix)
+  -> if pass: hf-doc-freshness-gate (feature-level)
+     -> if pass / partial / N/A: hf-completion-gate (feature-level form)
+        -> if pass: hf-finalize
+        -> else: hf-test-driven-dev or hf-workflow-router
+     -> if blocked: per blocked verdict 路由（hf-test-driven-dev / hf-increment / hf-traceability-review / hf-workflow-router）
+  -> if 需修改 / 阻塞: hf-test-driven-dev or hf-workflow-router
+```
+
+### record_mode 与 evidence bundle
+
+- `hf-traceability-review` 终局 record 默认 `file`：`features/<active>/reviews/traceability-review.md`（单 feature 一份，多轮加 `-r2` 后缀）
+- `hf-doc-freshness-gate` 终局 record 默认 `file`：`features/<active>/verification/doc-freshness-YYYY-MM-DD.md`
+- `hf-completion-gate (feature-level form)` evidence bundle 必须 reference 上面两个 record 路径 + 每个 task 的 review snapshot 锚点 / file 路径 + regression evidence 路径
+- per-task `hf-completion-gate (per-task form)` 不再要求引用 traceability / doc-freshness verdict（这两个 gate 在 per-task 链路上不触达）
+
+### 与既有 `hf-traceability-review` / `hf-doc-freshness-gate` SKILL.md 的关系
+
+两个 skill 的 SKILL.md 内容**不需要修改**：
+- `hf-traceability-review` 的 review-record-template 已经按 feature-level 设计（默认路径 `features/<active>/reviews/traceability-review.md`，"全 feature 一次性 review，scope 省略"）
+- `hf-doc-freshness-gate` 的 verdict 路径已经按日期落盘（`doc-freshness-YYYY-MM-DD.md`），feature-level 形态零冲突
+
+只是 router 进入它们的时机从"每 task 一次"改为"feature 终局一次"。
+
 ## `hf-experiment` 激活与回流（Phase 0 新增）
 
 `hf-experiment` 不是主链节点，而是 **discovery / spec stage 内部的 conditional insertion**。它在以下证据下激活：

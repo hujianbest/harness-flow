@@ -4,18 +4,31 @@
 Schema reference: skills/hf-wisdom-notebook/references/notebook-schema.md
 Authoritative caller: hf-completion-gate (per spec FR-002 acceptance #2).
 
-Checks:
+Checks (v0.7 relaxed):
   1. All 5 notepad files exist (learnings.md / decisions.md / issues.md /
      verification.md / problems.md).
   2. Every TASK referenced in progress.md `## Wisdom Delta` has at least one
-     entry in learnings.md OR verification.md (per FR-002 / design §3.1
-     `wisdom-skip` exception NOT yet implemented; explicit wisdom-skip lines
-     in progress.md count as passing).
-  3. No duplicate entry-id within any single notepad file
+     entry in **verification.md** (v0.7 tightens: verification is required
+     per task; learnings is no longer per-task mandatory).
+     Explicit `wisdom-skip: TASK-NNN` lines in progress.md still count as
+     passing for that task.
+  3. The feature has **at least one** learnings.md entry overall (v0.7 new:
+     replaces v0.6's "per-task learnings or verification" requirement with
+     a feature-level "at least one learning" floor). WARN if zero, FAIL only
+     under --strict.
+  4. No duplicate entry-id within any single notepad file
      (`learn-NNNN` / `dec-NNNN` / `iss-NNNN` / `verify-NNNN` / `prob-NNNN`).
-  4. Entry-id sequence per file: under --strict, must be globally monotonic
+  5. Entry-id sequence per file: under --strict, must be globally monotonic
      (no gaps allowed and must be ascending); under default, gaps and
      descending sequences are reported as WARN but do not fail.
+
+v0.6 -> v0.7 migration notes:
+  - v0.6 required: per task, at least one entry in learnings OR verification.
+  - v0.7 requires: per task, at least one entry in verification (tighter on
+    verification); feature must have >= 1 learnings entry overall (looser on
+    learnings -- they no longer scale 1:1 with tasks).
+  - The validator now reports MISSING_LEARNINGS_PER_TASK in the legacy v0.6
+    sense as a WARN (informational), not a FAIL.
 
 Exit codes:
   0 = PASS (all checks passed; or only WARN under non-strict mode)
@@ -26,7 +39,7 @@ Usage:
   python3 skills/hf-wisdom-notebook/scripts/validate-wisdom-notebook.py \\
       --feature features/<feature-id>/ [--strict]
 
-stdlib only — no third-party dependencies.
+stdlib only -- no third-party dependencies.
 """
 
 from __future__ import annotations
@@ -57,8 +70,9 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         prog="validate-wisdom-notebook.py",
         description=(
             "Validate the wisdom notebook of an HF feature. "
-            "Checks 5 file presence, per-task delta coverage, entry-id "
-            "uniqueness, and (with --strict) entry-id monotonicity. "
+            "Checks 5 file presence, per-task verification coverage (v0.7), "
+            "feature-level learnings floor (v0.7), entry-id uniqueness, and "
+            "(with --strict) entry-id monotonicity. "
             "Schema: skills/hf-wisdom-notebook/references/notebook-schema.md"
         ),
         epilog=(
@@ -72,7 +86,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--feature", required=True,
                         help="path to the feature directory (e.g. features/002-omo-inspired-v0.6/)")
     parser.add_argument("--strict", action="store_true",
-                        help="treat entry-id non-monotonicity as FAIL instead of WARN")
+                        help="treat entry-id non-monotonicity and zero-learnings as FAIL instead of WARN")
     return parser.parse_args(argv)
 
 
@@ -80,14 +94,14 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def _check_files_present(feature_dir: Path) -> tuple[list[str], list[str]]:
+def _check_files_present(feature_dir: Path) -> tuple[list[str], dict]:
     """Return (errors, file_contents_by_name)."""
-    errors = []
+    errors: list[str] = []
     notepads_dir = feature_dir / "notepads"
     if not notepads_dir.is_dir():
         errors.append(f"FAIL: notepads/ directory missing at {notepads_dir}")
         return errors, {}
-    contents = {}
+    contents: dict[str, str] = {}
     for name in NOTEPAD_FILES:
         f = notepads_dir / name
         if not f.is_file():
@@ -101,12 +115,19 @@ def _entries_in(text: str) -> list[str]:
     return ENTRY_ID_RE.findall(text)
 
 
-def _check_per_task_delta(feature_dir: Path, file_contents: dict) -> list[str]:
-    errors = []
+def _check_per_task_delta(
+    feature_dir: Path, file_contents: dict
+) -> tuple[list[str], list[str]]:
+    """v0.7: verification.md is required per task; learnings.md is optional.
+
+    Returns (errors, warnings).
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
     progress = feature_dir / "progress.md"
     if not progress.is_file():
         # progress.md missing is not strictly part of FR-002; skip silently.
-        return errors
+        return errors, warnings
     progress_text = _read(progress)
     delta_section = re.search(
         r"^##\s+Wisdom Delta\b(.*?)(?=^##\s+|\Z)",
@@ -114,7 +135,7 @@ def _check_per_task_delta(feature_dir: Path, file_contents: dict) -> list[str]:
         flags=re.MULTILINE | re.DOTALL,
     )
     if not delta_section:
-        return errors
+        return errors, warnings
     body = delta_section.group(1)
     claimed_tasks = set(WISDOM_DELTA_TASK_RE.findall(body))
     skipped = set(WISDOM_SKIP_RE.findall(progress_text))
@@ -125,19 +146,49 @@ def _check_per_task_delta(feature_dir: Path, file_contents: dict) -> list[str]:
     for task in sorted(claimed_tasks):
         if task in skipped:
             continue
-        if task not in learnings_tasks and task not in verification_tasks:
+        # v0.7: verification.md entry is required per task.
+        if task not in verification_tasks:
             errors.append(
                 f"FAIL: {task} claimed in progress.md ## Wisdom Delta but has no entry in "
-                f"learnings.md or verification.md (FR-002 requires at least one)"
+                f"verification.md (v0.7 requires per-task verification entry)"
             )
-    return errors
+        # v0.7: learnings.md per-task is informational only (was FAIL in v0.6).
+        if task not in learnings_tasks:
+            warnings.append(
+                f"WARN: {task} has no per-task entry in learnings.md "
+                f"(v0.7 informational; learnings are feature-level optional)"
+            )
+    return errors, warnings
+
+
+def _check_feature_learnings_floor(
+    file_contents: dict, strict: bool
+) -> tuple[list[str], list[str]]:
+    """v0.7: feature must have >= 1 learnings.md entry overall.
+
+    Under --strict: FAIL when zero learnings; otherwise WARN.
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
+    learnings_text = file_contents.get("learnings.md", "")
+    learnings_entries = _entries_in(learnings_text)
+    if len(learnings_entries) == 0:
+        msg = (
+            "feature has zero entries in learnings.md "
+            "(v0.7 expects at least one learning per feature)"
+        )
+        if strict:
+            errors.append("FAIL: " + msg)
+        else:
+            warnings.append("WARN: " + msg)
+    return errors, warnings
 
 
 def _check_unique_entry_ids(file_contents: dict) -> list[str]:
-    errors = []
+    errors: list[str] = []
     for fname, text in file_contents.items():
         ids = _entries_in(text)
-        seen = {}
+        seen: dict[str, int] = {}
         for idx, entry_id in enumerate(ids):
             if entry_id in seen:
                 errors.append(
@@ -151,7 +202,8 @@ def _check_unique_entry_ids(file_contents: dict) -> list[str]:
 
 def _check_monotonic(file_contents: dict, strict: bool) -> tuple[list[str], list[str]]:
     """Return (errors, warnings)."""
-    errors, warnings = [], []
+    errors: list[str] = []
+    warnings: list[str] = []
     for fname, text in file_contents.items():
         ids = _entries_in(text)
         if len(ids) < 2:
@@ -191,7 +243,12 @@ def main(argv: Iterable[str]) -> int:
     errors.extend(file_errors)
 
     if file_contents:
-        errors.extend(_check_per_task_delta(feature_dir, file_contents))
+        per_task_errors, per_task_warnings = _check_per_task_delta(feature_dir, file_contents)
+        errors.extend(per_task_errors)
+        warnings.extend(per_task_warnings)
+        feature_errors, feature_warnings = _check_feature_learnings_floor(file_contents, args.strict)
+        errors.extend(feature_errors)
+        warnings.extend(feature_warnings)
         errors.extend(_check_unique_entry_ids(file_contents))
         mono_errors, mono_warnings = _check_monotonic(file_contents, args.strict)
         errors.extend(mono_errors)

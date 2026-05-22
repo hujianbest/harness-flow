@@ -152,7 +152,12 @@ Evidence-tier 完成判定矩阵：
 
 ## Output Contract
 
-记录保存到 项目声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/completion-task-NNN.md`。若项目无专用格式，默认使用本 skill 模板 `references/verification-record-template.md`。
+记录保存到 项目声明的 verification 路径；若无项目覆写：
+
+- **per-task form**：默认 `record_mode=snapshot`（progress.md `## Task NNN Completion Snapshot` 段 ≤ 10 行）；以下情形升 `file`：verdict ≠ `通过` / 项目 `Audit Mode: file` / per-task form 触碰 high-risk task 的 audit policy。file mode 路径：`features/<active>/verification/completion-task-NNN.md`
+- **feature-level form**：强制 `record_mode=file`，路径：`features/<active>/verification/completion-feature.md`（同 feature 多轮加 `-r2` 后缀）
+
+若项目无专用格式，默认使用本 skill 模板 `references/verification-record-template.md`。
 
 最少应包含：
 - 已消费的上游结论与证据矩阵
