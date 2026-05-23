@@ -6,7 +6,7 @@
 
 HarnessFlow packages the practices behind disciplined AI-assisted engineering into self-contained Markdown skills: discovery, specs, design, tasks, TDD implementation, independent reviews, gates, and closeout.
 
-![HarnessFlow overview](docs/assets/harnessflow-overview.svg)
+![HarnessFlow TDD overview](docs/assets/harnessflow-tdd-overview.png)
 
 ---
 
