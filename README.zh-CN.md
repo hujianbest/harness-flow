@@ -56,7 +56,7 @@ bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/proje
 bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
 ```
 
-脚本会复制或软链接 `skills/` 和 `agents/`，放置客户端规则，并写入 `.harnessflow-install-manifest.json`，让 uninstall 只移除 HF 管理的文件。
+脚本会复制或软链接 `skills/`、`agents/`、OpenCode command assets 和 Cursor agent mirrors，放置客户端规则，并写入 `.harnessflow-install-manifest.json`，让 uninstall 只移除 HF 管理的文件。
 
 ### 试一下
 

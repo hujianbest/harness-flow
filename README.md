@@ -56,7 +56,7 @@ bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/proje
 bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
 ```
 
-The script copies or symlinks `skills/` and `agents/`, places client-specific rules, and writes `.harnessflow-install-manifest.json` so uninstall can remove only HF-managed files.
+The script copies or symlinks `skills/`, `agents/`, OpenCode command assets, and Cursor agent mirrors, places client-specific rules, and writes `.harnessflow-install-manifest.json` so uninstall can remove only HF-managed files.
 
 ### Try it
 
