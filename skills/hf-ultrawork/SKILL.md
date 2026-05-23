@@ -110,7 +110,7 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
 
 6. **跨 task 自动续跑**
    - Object: build session task loop。
-   - Method: `hf-completion-gate=通过` 且 router 唯一锁定 next-ready task 时，写 audit row 后直接进入新的 `hf-test-driven-dev`。
+   - Method: `hf-completion-gate=通过` 且 router 唯一锁定 next-ready task 时，写 audit row 后直接进入合格实现 leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`）。
    - Input: completion verdict、task summary、task board / tasks plan。
    - Output: 更新后的 `Current Active Task` + 下一轮实现。
    - Stop / continue: 下一任务不唯一、无剩余任务或 escape 条件命中时让出 / finalize。

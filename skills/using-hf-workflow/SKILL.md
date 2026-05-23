@@ -82,7 +82,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | 产品发现 / thesis / wedge / probe | `hf-product-discovery` | `hf-workflow-router` |
 | 规格澄清/修订 | `hf-specify` | `hf-workflow-router` |
 | UI / 前端 / 页面 / 交互 / 视觉 设计（规格已批准含 UI surface） | `hf-ui-design` | `hf-workflow-router` |
-| 当前活跃任务实现 | `hf-test-driven-dev`；若请求含 `auto` / `自动执行` / `不用确认`，优先 `hf-ultrawork` 承接 build session loop | `hf-workflow-router` |
+| 当前活跃任务实现 | `hf-test-driven-dev`；若明确要求 fresh implementer subagent 且 task eligibility 已由工件证明，可 direct invoke `hf-subagent-driven-dev`；若请求含 `auto` / `自动执行` / `不用确认`，优先 `hf-ultrawork` 承接 build session loop | `hf-workflow-router` |
 | review/gate 请求 | 具体 review/gate skill（含 `hf-ui-review`） | `hf-workflow-router` |
 | closeout/finalize | `hf-completion-gate` / `hf-finalize` | `hf-workflow-router` |
 | 线上问题修复 | `hf-hotfix` | `hf-workflow-router` |
@@ -97,7 +97,7 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | 命令 | 主意图 | 偏向 direct invoke 的节点 | 不确定时回退 |
 |---|---|---|---|
 | `/hf-spec [topic]` | 规格澄清 / 修订 / 入口 | `hf-specify` | `hf-workflow-router` |
-| `/hf-build [task-id]` | 当前活跃任务实现；带 `auto` / `自动执行` 时表示连续 build session | `hf-test-driven-dev`；auto 时 `hf-ultrawork` | `hf-workflow-router` |
+| `/hf-build [task-id]` | 当前活跃任务实现；带 `auto` / `自动执行` 时表示连续 build session | `hf-test-driven-dev`；subagent eligibility 已证明时可为 `hf-subagent-driven-dev`；auto 时 `hf-ultrawork` | `hf-workflow-router` |
 | `/hf-review [spec\|design\|tasks\|test\|code\|trace\|regression\|completion]` | review / gate 请求 | 具体 review / gate 节点 | `hf-workflow-router` |
 | `/hf-closeout [task-id]` | 完成判断 + 收尾 | `hf-completion-gate`（gate 未跑）/ `hf-finalize`（gate 已通过） | `hf-workflow-router` |
 

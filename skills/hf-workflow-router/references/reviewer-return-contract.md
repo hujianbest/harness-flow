@@ -61,6 +61,7 @@
 - `hf-tasks-review`
 - `任务真人确认`
 - `hf-test-driven-dev`
+- `hf-subagent-driven-dev`
 - `hf-test-review`
 - `hf-code-review`
 - `hf-traceability-review`

@@ -139,9 +139,15 @@ scenario_1() { # opencode copy + git-path manifest fields (F5 fix) + per-skill c
     assert_ge "$n" 24 "skills count" || return 1
     assert_file "$host/.harnessflow-install-manifest.json" "manifest exists" || return 1
     assert_file "$host/.harnessflow-install-readme.md" "readme exists" || return 1
+    assert_file "$host/agents/hf-implementer.md" "hf-implementer agent" || return 1
+    assert_file "$host/agents/hf-reviewer.md" "hf-reviewer agent" || return 1
     local mf="$host/.harnessflow-install-manifest.json"
     manifest_has_path "$mf" ".opencode/skills/hf-finalize" \
         || { printf '  ❌ manifest lacks per-skill entry\n' >&2; return 1; }
+    manifest_has_path "$mf" "agents/hf-implementer.md" \
+        || { printf '  ❌ manifest lacks hf-implementer entry\n' >&2; return 1; }
+    manifest_has_path "$mf" "agents/hf-reviewer.md" \
+        || { printf '  ❌ manifest lacks hf-reviewer entry\n' >&2; return 1; }
     # F5: git-path manifest fields
     grep -q '"manifest_version": 1' "$mf" || { printf '  ❌ manifest_version missing\n' >&2; return 1; }
     grep -qE '"hf_commit"[[:space:]]*:[[:space:]]*"[a-f0-9]{40}"' "$mf" \
@@ -160,7 +166,9 @@ scenario_2() { # opencode symlink
     local host="$1"
     bash "$INSTALL" --target opencode --topology symlink --host "$host" >/dev/null || return 1
     assert_symlink_to "$host/.opencode/skills" "$HF_REPO/skills" "opencode symlink" || return 1
+    assert_symlink_to "$host/agents" "$HF_REPO/agents" "agents symlink" || return 1
     manifest_has_path "$host/.harnessflow-install-manifest.json" ".opencode/skills" || return 1
+    manifest_has_path "$host/.harnessflow-install-manifest.json" "agents" || return 1
 }
 
 scenario_3() { # cursor copy
@@ -169,6 +177,8 @@ scenario_3() { # cursor copy
     local n
     n=$(count_skill_md_in "$host/.cursor/harness-flow-skills")
     assert_ge "$n" 24 "cursor skills count" || return 1
+    assert_file "$host/agents/hf-implementer.md" "hf-implementer agent" || return 1
+    assert_file "$host/agents/hf-reviewer.md" "hf-reviewer agent" || return 1
     assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rule" || return 1
     manifest_has_path "$host/.harnessflow-install-manifest.json" ".cursor/rules/harness-flow.mdc" || return 1
 }
@@ -177,6 +187,7 @@ scenario_4() { # cursor symlink (+ F8 manifest entries verification)
     local host="$1"
     bash "$INSTALL" --target cursor --topology symlink --host "$host" >/dev/null || return 1
     assert_symlink_to "$host/.cursor/harness-flow-skills" "$HF_REPO/skills" "cursor skills symlink" || return 1
+    assert_symlink_to "$host/agents" "$HF_REPO/agents" "agents symlink" || return 1
     assert_symlink_to "$host/.cursor/rules/harness-flow.mdc" "$HF_REPO/.cursor/rules/harness-flow.mdc" "cursor rule symlink" || return 1
     local mf="$host/.harnessflow-install-manifest.json"
     grep -q '"target": "cursor"' "$mf" || { printf '  ❌ target field wrong\n' >&2; return 1; }
@@ -185,6 +196,8 @@ scenario_4() { # cursor symlink (+ F8 manifest entries verification)
         || { printf '  ❌ skills symlink entry missing\n' >&2; return 1; }
     grep -q '"kind": "symlink", "path": ".cursor/rules/harness-flow.mdc"' "$mf" \
         || { printf '  ❌ rule symlink entry missing\n' >&2; return 1; }
+    grep -q '"kind": "symlink", "path": "agents"' "$mf" \
+        || { printf '  ❌ agents symlink entry missing\n' >&2; return 1; }
 }
 
 scenario_5() { # both copy
@@ -192,6 +205,8 @@ scenario_5() { # both copy
     bash "$INSTALL" --target both --host "$host" >/dev/null || return 1
     assert_ge "$(count_skill_md_in "$host/.opencode/skills")" 24 "opencode skills" || return 1
     assert_ge "$(count_skill_md_in "$host/.cursor/harness-flow-skills")" 24 "cursor skills" || return 1
+    assert_file "$host/agents/hf-implementer.md" "hf-implementer agent" || return 1
+    assert_file "$host/agents/hf-reviewer.md" "hf-reviewer agent" || return 1
     assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rule" || return 1
 }
 
@@ -200,6 +215,7 @@ scenario_6() { # both symlink
     bash "$INSTALL" --target both --topology symlink --host "$host" >/dev/null || return 1
     assert_symlink_to "$host/.opencode/skills" "$HF_REPO/skills" "opencode symlink" || return 1
     assert_symlink_to "$host/.cursor/harness-flow-skills" "$HF_REPO/skills" "cursor skills symlink" || return 1
+    assert_symlink_to "$host/agents" "$HF_REPO/agents" "agents symlink" || return 1
     assert_symlink_to "$host/.cursor/rules/harness-flow.mdc" "$HF_REPO/.cursor/rules/harness-flow.mdc" "cursor rule symlink" || return 1
 }
 

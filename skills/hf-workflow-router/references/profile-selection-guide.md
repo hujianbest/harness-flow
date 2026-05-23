@@ -19,7 +19,7 @@
 说明：
 
 - 这里的节点数按 `hf-workflow-router` 主文件中的 canonical route map 统计。
-- `lightweight` 不是“直接实现”，而是保留一条最小可审计主链：`hf-tasks` → `hf-tasks-review` → `任务真人确认` → `hf-test-driven-dev` → `hf-regression-gate` → `hf-completion-gate` → `hf-finalize`。
+- `lightweight` 不是“直接实现”，而是保留一条最小可审计主链：`hf-tasks` → `hf-tasks-review` → `任务真人确认` → implementation leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`）→ `hf-regression-gate` → `hf-completion-gate` → `hf-finalize`。
 - `Execution Mode` 不属于 profile 选择的一部分；`interactive` / `auto` 只改变 approval step 的处理方式，不改变这里的节点链路。
 
 ## 选择信号矩阵

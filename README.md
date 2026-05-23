@@ -56,7 +56,7 @@ bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/proje
 bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
 ```
 
-The script copies or symlinks `skills/`, places client-specific rules, and writes `.harnessflow-install-manifest.json` so uninstall can remove only HF-managed files.
+The script copies or symlinks `skills/` and `agents/`, places client-specific rules, and writes `.harnessflow-install-manifest.json` so uninstall can remove only HF-managed files.
 
 ### Try it
 
@@ -113,9 +113,9 @@ If the architect explicitly asks for auto mode, `hf-ultrawork` can continue thro
 
 ---
 
-## All 29 Skills
+## All 30 Skills
 
-HarnessFlow currently ships 28 `hf-*` skills plus the `using-hf-workflow` entry skill.
+HarnessFlow currently ships 29 `hf-*` skills plus the `using-hf-workflow` entry skill.
 
 ### Meta and routing
 
@@ -151,6 +151,7 @@ HarnessFlow currently ships 28 `hf-*` skills plus the `using-hf-workflow` entry 
 | Skill | What it does | Use when |
 |-------|--------------|----------|
 | [hf-test-driven-dev](skills/hf-test-driven-dev/SKILL.md) | Implements one active task with test design, RED/GREEN evidence, and refactor discipline | A single current task is locked |
+| [hf-subagent-driven-dev](skills/hf-subagent-driven-dev/SKILL.md) | Implements one active task through a fresh implementer subagent while preserving HF reviews and gates | The locked task is self-contained enough for subagent execution |
 | [hf-browser-testing](skills/hf-browser-testing/SKILL.md) | Captures browser DOM, console, and network evidence | A frontend task needs runtime proof |
 | [hf-test-review](skills/hf-test-review/SKILL.md) | Reviews test quality and fail-first evidence | Tests are ready for independent review |
 | [hf-code-review](skills/hf-code-review/SKILL.md) | Reviews implementation quality, design conformance, and AI-slop risks | Code is ready for independent review |
@@ -219,7 +220,7 @@ Key design choices:
 
 ```text
 harness-flow/
-├── skills/                            # 29 skills (28 hf-* + 1 entry skill)
+├── skills/                            # 30 skills (29 hf-* + 1 entry skill)
 │   ├── using-hf-workflow/             # Meta: choose entry point
 │   ├── hf-workflow-router/            # Meta: route from artifacts
 │   ├── hf-product-discovery/          # Discover: frame product opportunity
@@ -235,6 +236,7 @@ harness-flow/
 │   ├── hf-tasks-review/               # Plan: review task plan
 │   ├── hf-gap-analyzer/               # Plan: author-side gap check
 │   ├── hf-test-driven-dev/            # Build: one task with TDD
+│   ├── hf-subagent-driven-dev/        # Build: fresh implementer subagent
 │   ├── hf-browser-testing/            # Verify: browser runtime evidence
 │   ├── hf-test-review/                # Review: test quality
 │   ├── hf-code-review/                # Review: implementation quality
@@ -249,7 +251,8 @@ harness-flow/
 │   ├── hf-wisdom-notebook/            # Knowledge: cross-task memory
 │   ├── hf-context-mesh/               # Context: client rule skeletons
 │   └── hf-ultrawork/                  # Fast lane: explicit auto mode
-├── .claude/commands/               # 7 Claude Code slash commands
+├── commands/                       # 7 client-agnostic slash command definitions
+├── agents/                         # HF subagent role definitions
 ├── .claude-plugin/                 # Claude Code marketplace plugin metadata
 ├── .cursor/rules/                  # Cursor alwaysApply entry rule
 ├── .opencode/                      # OpenCode integration assets
@@ -269,7 +272,7 @@ harness-flow/
 └── README.zh-CN.md
 ```
 
-When vendoring HarnessFlow into another project, copy `skills/` only or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; there is no extra top-level template bundle to copy. The `docs/principles/` directory explains this repository's design, but hosted projects do not need it at runtime.
+When vendoring HarnessFlow into another project, copy `skills/` plus `agents/`, or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; shared subagent roles live in `agents/`, and client slash-command definitions live in `commands/`. The `docs/principles/` directory explains this repository's design, but hosted projects do not need it at runtime.
 
 ---
 

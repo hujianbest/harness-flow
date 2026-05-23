@@ -1,8 +1,8 @@
 # HarnessFlow on Claude Code
 
-HarnessFlow v0.5.0 ships a Claude Code plugin so you can install the skill pack from the marketplace and use 7 short slash commands.
+HarnessFlow v1.0.0 ships a Claude Code plugin so you can install the skill pack from the marketplace and use 7 short slash commands.
 
-> **Scope (v0.5.0 pre-release).** v0.5.0 officially supports 3 clients (unchanged from v0.3.0 / v0.4.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.6+. v0.5.0 adds a **closeout HTML companion report** to `hf-finalize` — every closeout now also produces `features/<active>/closeout.html` rendered by the new stdlib-only `skills/hf-finalize/scripts/render-closeout-html.py` (workflow timeline rail + tests + coverage rings + searchable evidence matrix; WCAG 2.2 AA, dark/light, printable). v0.4.0's `hf-release` (release-tier **standalone** skill + `/release` slash command) is unchanged. v0.5.0 does **not** grow the skill set (still 24 `hf-*` + `using-hf-workflow`), does **not** add slash commands (still 7), and does **not** touch the main-chain FSM. The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout, now with HTML companion). The remaining 5 ops/release skills (`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`) and personas all stay deferred to v0.6+ (ADR-005 D5 / D7). See `docs/decisions/ADR-005-release-scope-v0.5.0.md` for the full v0.5.0 scope decisions.
+> **Scope (v1.0.0).** v1.0.0 is the first stable HarnessFlow release. It ships 29 `hf-*` skills plus `using-hf-workflow`, top-level `agents/` for shared subagent roles, and top-level `commands/` for the 7 slash command definitions. The supported clients remain **Claude Code**, **OpenCode**, and **Cursor**. `hf-release` still produces tag-ready release packs only; deployment, staged rollout, monitoring, and rollback remain out of scope.
 
 ## 1. Marketplace install (recommended)
 
@@ -63,8 +63,9 @@ Claude Code will read:
 
 - `.claude-plugin/plugin.json` — plugin manifest (name, version, license, commands path).
 - `.claude-plugin/marketplace.json` — marketplace entry used when published.
-- `.claude/commands/*.md` — the 7 slash command definitions (v0.4.0 added `release.md`).
-- `skills/` — the 24 self-contained `hf-*` skills + `using-hf-workflow` (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*`; v0.4.0 added `hf-release` as the 24th, ADR-004 D1).
+- `commands/*.md` — the 7 slash command definitions (client-independent source; `.claude-plugin/plugin.json` points here).
+- `skills/` — the self-contained `hf-*` skills + `using-hf-workflow`.
+- `agents/` — shared subagent role definitions such as `hf-implementer` and `hf-reviewer`.
 
 ## 3. Verify the install
 
@@ -83,7 +84,7 @@ Expected behavior:
 
 If the router skips straight into implementation (`hf-test-driven-dev`) without an approved spec / design / tasks chain, that is a **bug** — please open an issue.
 
-## 4. What is NOT included in v0.5.0
+## 4. What is NOT included in v1.0.0
 
 Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Honest, "narrow but hard"):
 
@@ -96,13 +97,13 @@ Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Ho
 - `hf-release` does **not** auto-execute `git tag` or `git push --tags`. The skill produces a readiness pack only; tag operations are project-maintainer actions.
 - The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is still **advisory** (does not block PR merge in maintainer workflows; ADR-003 D8 / ADR-004 inherits this stance).
 
-These constraints are intentional. They keep the surface area small enough for the v0.5.0 pre-release to be honest about what it does and does not cover.
+These constraints are intentional. They keep the stable v1.0.0 surface honest about what HF does and does not cover.
 
 ## 5. Where to look when something is wrong
 
 | Symptom | Look at |
 |---|---|
-| Slash command not visible after install | `.claude-plugin/plugin.json` `commands` path; reinstall plugin |
+| Slash command not visible after install | `.claude-plugin/plugin.json` `commands` path (`./commands`); reinstall plugin |
 | Router routes to the wrong node | `skills/hf-workflow-router/SKILL.md` + `skills/hf-workflow-router/references/profile-node-and-transition-map.md` |
 | `/build` refuses to start TDD | No `Current Active Task` is locked; run `/plan` first |
 | `/ship` keeps bouncing back | A gate (regression / doc-freshness / completion) failed; follow the canonical next action it returned |
