@@ -67,7 +67,7 @@ HF workflow skill 大多是 `Technique + Pattern` 的混合体；当某个节点
 | Router | `hf-workflow-router` | stage/profile/mode/isolation/handoff 判断 |
 | Authoring | `hf-specify` / `hf-design` / `hf-tasks` | 起草、回修、自检、评审 handoff |
 | Review | `hf-*-review` | precheck、rubric、findings、verdict |
-| Implementation | `hf-test-driven-dev` | 唯一实现入口、TDD、fresh evidence、交接块 |
+| Implementation | `hf-test-driven-dev` / `hf-subagent-driven-dev` | 单一活跃任务实现、TDD、fresh evidence、交接块 |
 | Gate | `hf-regression-gate` / `hf-completion-gate` | evidence bundle、门禁结论、唯一下一步 |
 | Branch / Re-entry | `hf-hotfix` / `hf-increment` | 分岔分析、同步、re-entry |
 | Finalize | `hf-finalize` | closeout、状态闭合、release notes、handoff pack |

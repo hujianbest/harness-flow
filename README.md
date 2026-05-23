@@ -113,9 +113,9 @@ If the architect explicitly asks for auto mode, `hf-ultrawork` can continue thro
 
 ---
 
-## All 29 Skills
+## All 30 Skills
 
-HarnessFlow currently ships 28 `hf-*` skills plus the `using-hf-workflow` entry skill.
+HarnessFlow currently ships 29 `hf-*` skills plus the `using-hf-workflow` entry skill.
 
 ### Meta and routing
 
@@ -151,6 +151,7 @@ HarnessFlow currently ships 28 `hf-*` skills plus the `using-hf-workflow` entry 
 | Skill | What it does | Use when |
 |-------|--------------|----------|
 | [hf-test-driven-dev](skills/hf-test-driven-dev/SKILL.md) | Implements one active task with test design, RED/GREEN evidence, and refactor discipline | A single current task is locked |
+| [hf-subagent-driven-dev](skills/hf-subagent-driven-dev/SKILL.md) | Implements one active task through a fresh implementer subagent while preserving HF reviews and gates | The locked task is self-contained enough for subagent execution |
 | [hf-browser-testing](skills/hf-browser-testing/SKILL.md) | Captures browser DOM, console, and network evidence | A frontend task needs runtime proof |
 | [hf-test-review](skills/hf-test-review/SKILL.md) | Reviews test quality and fail-first evidence | Tests are ready for independent review |
 | [hf-code-review](skills/hf-code-review/SKILL.md) | Reviews implementation quality, design conformance, and AI-slop risks | Code is ready for independent review |
@@ -219,7 +220,7 @@ Key design choices:
 
 ```text
 harness-flow/
-├── skills/                            # 29 skills (28 hf-* + 1 entry skill)
+├── skills/                            # 30 skills (29 hf-* + 1 entry skill)
 │   ├── using-hf-workflow/             # Meta: choose entry point
 │   ├── hf-workflow-router/            # Meta: route from artifacts
 │   ├── hf-product-discovery/          # Discover: frame product opportunity
@@ -235,6 +236,7 @@ harness-flow/
 │   ├── hf-tasks-review/               # Plan: review task plan
 │   ├── hf-gap-analyzer/               # Plan: author-side gap check
 │   ├── hf-test-driven-dev/            # Build: one task with TDD
+│   ├── hf-subagent-driven-dev/        # Build: fresh implementer subagent
 │   ├── hf-browser-testing/            # Verify: browser runtime evidence
 │   ├── hf-test-review/                # Review: test quality
 │   ├── hf-code-review/                # Review: implementation quality
