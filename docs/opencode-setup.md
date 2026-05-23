@@ -1,8 +1,8 @@
 # HarnessFlow on OpenCode
 
-HarnessFlow v0.5.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` to route every request through HarnessFlow's main chain.
+HarnessFlow v1.0.0 supports OpenCode through an **agent-driven, evidence-based routing** integration. There is no plugin manifest and no `AGENTS.md` sidecar — instead, the agent uses natural language plus the on-disk artifacts under `skills/` and shared roles under `agents/` to route every request through HarnessFlow's main chain.
 
-> **Scope (v0.5.0 pre-release).** v0.5.0 officially supports 3 clients (unchanged from v0.3.0 / v0.4.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.6+. v0.5.0 adds a **closeout HTML companion report** to `hf-finalize` — every closeout now also produces `features/<active>/closeout.html` rendered by the new stdlib-only `skills/hf-finalize/scripts/render-closeout-html.py` (workflow timeline rail + tests + coverage rings + searchable evidence matrix; WCAG 2.2 AA, dark/light, printable). v0.4.0's `hf-release` (release-tier **standalone** skill) is unchanged; on OpenCode it is invoked via natural language ("cut a release / tag a version") through the `using-hf-workflow` entry shell's bias row, which then **direct invokes** `hf-release` without going through `hf-workflow-router` (ADR-004 D3). The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout, now with HTML companion). The remaining 5 ops/release skills (`hf-shipping-and-launch` / etc.) and personas all stay deferred to v0.6+ (ADR-005 D5 / D7). See `docs/decisions/ADR-005-release-scope-v0.5.0.md` for the full v0.5.0 scope decisions.
+> **Scope (v1.0.0).** v1.0.0 is the first stable HarnessFlow release. It ships 29 `hf-*` skills plus `using-hf-workflow`, top-level `agents/` for shared subagent roles, and top-level `commands/` for slash command definitions. The supported clients remain **Claude Code**, **OpenCode**, and **Cursor**. `hf-release` remains engineer-level tag readiness only and does not deploy.
 
 ## How OpenCode discovers HF skills
 
@@ -17,7 +17,7 @@ OpenCode's [`skill` tool](https://opencode.ai/docs/skills/) only loads `SKILL.md
 
 OpenCode walks up from the working directory to the git worktree root and loads any matching `*/SKILL.md` it finds along the way. **Putting a `skills/` folder at the repo root is not sufficient.**
 
-HarnessFlow stores its 25 self-contained skills (24 `hf-*` + `using-hf-workflow`) under the top-level `skills/` directory (so vendor-by-copy works for any client). To make those skills discoverable to OpenCode without duplicating files, the repository ships a symlink:
+HarnessFlow stores its self-contained skills under the top-level `skills/` directory (so vendor-by-copy works for any client). To make those skills discoverable to OpenCode without duplicating files, the repository ships a symlink:
 
 ```text
 .opencode/skills -> ../skills
@@ -39,7 +39,7 @@ cd harness-flow
 opencode .
 ```
 
-The shipped `.opencode/skills` symlink makes all 24 `hf-*` skills + `using-hf-workflow` immediately discoverable (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*` skill; v0.4.0 added `hf-release` as the 24th). No further setup.
+The shipped `.opencode/skills` symlink makes all `hf-*` skills + `using-hf-workflow` immediately discoverable. No further setup.
 
 ### B. Vendor HarnessFlow skills into your own project (recommended: install script)
 
@@ -98,7 +98,7 @@ After opening OpenCode in any of the three topologies above, run:
 /skills
 ```
 
-You should see at least the following skills listed (24 `hf-*` skills + `using-hf-workflow`; v0.2.0 added `hf-browser-testing` as the 23rd; v0.4.0 added `hf-release` as the 24th):
+You should see at least the following skills listed (29 `hf-*` skills + `using-hf-workflow`):
 
 - `using-hf-workflow`
 - `hf-workflow-router`
@@ -107,6 +107,7 @@ You should see at least the following skills listed (24 `hf-*` skills + `using-h
 - `hf-design`, `hf-ui-design`, `hf-design-review`, `hf-ui-review`
 - `hf-tasks`, `hf-tasks-review`
 - `hf-test-driven-dev`, `hf-test-review`
+- `hf-subagent-driven-dev`
 - `hf-code-review`, `hf-traceability-review`
 - `hf-regression-gate`, `hf-doc-freshness-gate`, `hf-completion-gate`
 - `hf-finalize`
@@ -192,7 +193,7 @@ Natural-language intents also cover side branches and gates:
 
 The `hf-regression-gate`, `hf-doc-freshness-gate`, and `hf-completion-gate` skills are intentionally **pulled** by upstream nodes, not pushed by the user. Asking for "/gate" directly would encourage skipping implementation or review — that is why HarnessFlow ships no `/gate` command, on Claude Code or on OpenCode (ADR-001 D4).
 
-## 7. What is NOT included in v0.5.0
+## 7. What is NOT included in v1.0.0
 
 Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Honest, "narrow but hard"):
 
@@ -204,7 +205,7 @@ Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Ho
 - No 3 user-facing personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`) — ADR-002 D11 revoked; ADR-003 D3 / ADR-004 / ADR-005 D5 keep deferred to v0.6+.
 - ADR-001 D11's stance on `Object Contract` (neither mandatory nor recommended in v0.1.0) is preserved — only `Common Rationalizations` (required) and `和其他 Skill 的区别` (forbidden) are hard rules in `skill-anatomy.md` (ADR-002 D9 / D10; ADR-003 D9 / ADR-004 keep the rest as design reference).
 
-These constraints are intentional. They keep the surface area small enough for the v0.5.0 pre-release to be honest about what it does and does not cover.
+These constraints are intentional. They keep the stable v1.0.0 surface honest about what HF does and does not cover.
 
 ## 8. Cross-references
 

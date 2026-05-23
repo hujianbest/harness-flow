@@ -6,10 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+（empty — v1.0.0 已切版；下一版本切片前，新增内容写在此处）
+
+## [1.0.0] - 2026-05-23
+
+> **Major release / first stable release**: HarnessFlow v1.0.0 promotes the markdown skill pack to a stable contract surface after the v0.6 author-side discipline upgrade.
+>
+> 本版新增 `hf-subagent-driven-dev` 可选实现 leaf，定义顶层 `agents/` 中的 `hf-implementer` / `hf-reviewer` 两个 subagent role，并把 7 个 slash command definitions 从 Claude 适配目录抽到顶层 `commands/`。`hf-implementer` 必须使用 `hf-test-driven-dev` 完成 TDD 实现；`hf-reviewer` 覆盖所有 `hf-*review` 节点，不限于 TDD 后 review。
+
 ### Added
 
 - **`hf-subagent-driven-dev` + top-level `agents/`** —— 新增可选实现 leaf：当 approved task 可完整封装给 `hf-implementer` 时，router 可选择该节点执行单一活跃任务；`hf-implementer` 必须使用 `hf-test-driven-dev` 完成 TDD 实现，`hf-reviewer` 是所有 `hf-*review` 节点的通用 reviewer agent（不只限 TDD 后）。同步新增 `agents/hf-implementer.md` / `agents/hf-reviewer.md`、agent role contracts / implementer return contract，并更新 README / README.zh-CN skill 清单。
 - **Top-level `commands/`** —— 将 7 个 Claude slash command definitions 从 `.claude/commands/` 抽为独立 `commands/` 目录，`.claude-plugin/plugin.json` 改为指向 `./commands`，避免命令定义绑定 Claude 适配目录。
+
+### Changed
+
+- **Release metadata** —— `.claude-plugin/plugin.json` version 同步为 `1.0.0`，marketplace description、SECURITY supported versions、Claude/OpenCode/Cursor setup docs 同步到 stable v1.0.0。
+- **Install topology** —— `install.sh` / `uninstall.sh` 现在把 top-level `agents/` 作为运行时资产随 `skills/` 一起 vendor，并在 14 个 install/uninstall scenario 中覆盖 copy / symlink / Cursor / OpenCode 路径。
+
+### Decided
+
+- **v1.0.0 不勾 pre-release**：本版锁定 HF 当前稳定承诺面（Markdown skills + shared agents + commands + setup scripts + release pack），仍明确不承诺部署 / staged rollout / monitoring / rollback。
 
 ## [0.6.0] - 2026-05-15 — pre-release
 

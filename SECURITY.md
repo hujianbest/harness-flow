@@ -5,6 +5,8 @@
 HarnessFlow is a Markdown-based skill pack for AI coding agents. It does **not** ship runtime code that touches user machines, networks, or data on its own — agents that load these skills do. The security surface that this policy actually covers is therefore narrow:
 
 - Skill content authored under `skills/`
+- Shared subagent role definitions under `agents/`
+- Slash command definitions under `commands/`
 - Setup paths described under `docs/claude-code-setup.md`, `docs/opencode-setup.md`, and `docs/cursor-setup.md`
 - The `.claude-plugin/` plugin manifest registered with Claude Code's marketplace
 - The `.cursor/rules/harness-flow.mdc` rule (v0.3.0; refreshed in v0.4.0 / v0.5.0) loaded by Cursor's rules system
@@ -14,18 +16,15 @@ Runtime behavior of any agent (Claude Code, OpenCode, Cursor, etc.) that loads H
 
 ## Supported Versions
 
-HarnessFlow follows SemVer. `v0.5.1` is the current pre-release (see [`CHANGELOG.md`](CHANGELOG.md)).
+HarnessFlow follows SemVer. `v1.0.0` is the current stable release (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 | Version | Supported for security fixes |
 |---|---|
-| `0.5.x` (current pre-release; latest `0.5.1`) | Best-effort; fixes shipped via patch releases on the `main` branch |
-| `0.4.x` (previous pre-release; latest `0.4.0`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
-| `0.3.x` (older pre-release; latest `0.3.0`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
-| `0.2.x` (older pre-release; latest `0.2.1`) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
-| `0.1.x` (older pre-release) | Best-effort, security-only; users encouraged to upgrade to `0.5.x` |
+| `1.0.x` (current stable; latest `1.0.0`) | Supported; fixes shipped via patch releases on the `main` branch |
+| `0.6.x` (previous pre-release; latest `0.6.0`) | Best-effort, security-only; users encouraged to upgrade to `1.0.x` |
+| `0.5.x` (older pre-release; latest `0.5.1`) | Best-effort, security-only; users encouraged to upgrade to `1.0.x` |
+| `0.4.x` and older | Best-effort, security-only; users encouraged to upgrade to `1.0.x` |
 | `< 0.1.0` | Not applicable (no prior public release) |
-
-When `v1.0.0` ships, this table will be updated with a formal support window.
 
 ## Reporting a Vulnerability
 
