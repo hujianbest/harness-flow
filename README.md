@@ -74,6 +74,45 @@ More setup detail:
 
 ---
 
+## See It Work
+
+```text
+You:    Use HarnessFlow from this repo. Start with `using-hf-workflow`.
+        I want to add rate limiting to our notifications API.
+
+HF:     Reads repository artifacts, chooses the right entry point, and routes
+        into discovery or `hf-specify` instead of jumping straight to code.
+
+You:    Use HarnessFlow to plan the approved spec.
+
+HF:     Produces architecture with `hf-design`, adds `hf-ui-design` only when
+        the spec declares a UI surface, then breaks the design into reviewed
+        tasks with `hf-tasks`.
+
+You:    Use HarnessFlow to build the current active task.
+
+HF:     Locks one `Current Active Task`, writes the test design, records the
+        approval, runs RED -> GREEN -> REFACTOR, updates `tasks.progress.json`,
+        and writes a wisdom-notebook delta for cross-task learning.
+
+You:    Use HarnessFlow to verify and close this work.
+
+HF:     Runs test, code, and traceability reviews. If the task touches a
+        frontend surface, `hf-browser-testing` captures DOM / console / network
+        evidence before the gates decide what happens next.
+
+You:    Use HarnessFlow to ship the completed workflow.
+
+HF:     Runs regression, doc-freshness, and completion gates, then `hf-finalize`
+        writes `closeout.md` plus the closeout HTML companion. For a vX.Y.Z
+        release, `hf-release` can aggregate closed workflows into a tag-ready
+        release pack; it still does not deploy to production.
+```
+
+If the architect explicitly asks for auto mode, `hf-ultrawork` can continue through canonical next actions, write approval records, and keep a fast-lane audit trail while preserving Fagan reviews, gate verdicts, closeout, and hard stops.
+
+---
+
 ## All 29 Skills
 
 HarnessFlow currently ships 28 `hf-*` skills plus the `using-hf-workflow` entry skill.
@@ -188,6 +227,10 @@ harness-flow/
 │   ├── hf-test-driven-dev/
 │   ├── hf-finalize/
 │   └── ...                         # one folder per skill
+├── .claude/commands/               # 7 Claude Code slash commands
+├── .claude-plugin/                 # Claude Code marketplace plugin metadata
+├── .cursor/rules/                  # Cursor alwaysApply entry rule
+├── .opencode/                      # OpenCode integration assets
 ├── docs/
 │   ├── claude-code-setup.md
 │   ├── opencode-setup.md
@@ -196,19 +239,25 @@ harness-flow/
 │   ├── principles/                 # HF design notes
 │   └── assets/
 ├── examples/writeonce/             # end-to-end demo artifacts
+├── features/                       # HarnessFlow dogfood feature artifacts
+├── tests/                          # Repository-level validators and regressions
+├── scripts/                        # Repository maintenance scripts
 ├── install.sh / uninstall.sh
+├── install.ps1 / uninstall.ps1
 └── README.zh-CN.md
 ```
 
-When vendoring HarnessFlow into another project, copy `skills/` only or use `install.sh`. The `docs/principles/` directory explains this repository's design; it is not a runtime dependency for hosted projects.
+When vendoring HarnessFlow into another project, copy `skills/` only or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; there is no extra top-level template bundle to copy. The `docs/principles/` directory explains this repository's design, but hosted projects do not need it at runtime.
 
 ---
 
 ## Why HarnessFlow?
 
-AI coding agents often jump from request to implementation. HarnessFlow makes the hidden senior-engineering work explicit: clarify intent, design before slicing work, prove behavior with tests, separate reviews from authorship, and close the loop with durable artifacts.
+AI coding agents often jump from request to implementation. HarnessFlow gives them a narrower, harder path: clarify intent, design before slicing work, prove behavior with TDD, separate reviews from authorship, and close the loop with durable artifacts.
 
-It is useful when correctness, recoverability, and auditability matter more than getting to first code as fast as possible.
+The pack is optimized for repositories where correctness, recoverability, and auditability matter. It keeps routing grounded in files instead of chat memory, keeps one active task under control, and records enough evidence for another agent or human reviewer to resume without guessing.
+
+HarnessFlow also draws a clear boundary around shipping. It supports engineering closeout and tag-ready release packs; deployment, staged rollout, monitoring, rollback, and post-launch operations stay with the project's own production systems.
 
 ---
 
