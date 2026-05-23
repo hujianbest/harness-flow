@@ -67,7 +67,7 @@
 - Long-Term Assets Sync:
   - `README.md` / `README.zh-CN.md`: runtime asset layout (`skills/` + `agents/` + `commands/`)
   - `docs/claude-code-setup.md`: v1.0.0 scope + `commands/`
-  - `docs/opencode-setup.md`: v1.0.0 scope + `agents/`
+  - `docs/opencode-setup.md`: v1.0.0 scope + `agents/` project-level requirement for global installs
   - `docs/cursor-setup.md`: v1.0.0 scope + `agents/`
   - `install.sh`: Cursor rule path rewrite for vendored installs
   - `SECURITY.md`: supported versions updated to `1.0.x`

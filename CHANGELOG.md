@@ -27,6 +27,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Fixed
 
 - **Cursor vendored rule path** —— `install.sh --target cursor` 现在生成一份路径已重写的 `.cursor/rules/harness-flow.mdc`，指向 `.cursor/harness-flow-skills/...`，避免宿主项目没有根目录 `skills/` 时 Cursor 无法加载 HF skills。
+- **OpenCode global install note** —— `docs/opencode-setup.md` 明确 global skills install 仍需在项目根 vendor `agents/`，推荐使用 `install.sh --target opencode` 以同时安装 skills 与 shared agent roles。
 
 ### Decided
 

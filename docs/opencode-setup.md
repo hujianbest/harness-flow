@@ -80,7 +80,7 @@ Each `hf-*` skill is self-contained (its `SKILL.md`, `references/`, `evals/`, an
 
 ### C. Install HarnessFlow globally for every OpenCode session
 
-If you want HarnessFlow available across all of your projects:
+If you want HarnessFlow skills available globally:
 
 ```bash
 # Linux / macOS
@@ -89,6 +89,14 @@ cp -R /path/to/harness-flow/skills/* ~/.config/opencode/skills/
 ```
 
 Global skills live alongside any project-local skills you may have; project-local copies win on name collision.
+
+`agents/` is still a project-level runtime asset. For workflows that use shared roles such as `hf-implementer` or `hf-reviewer`, also vendor `agents/` into each project root:
+
+```bash
+cp -R /path/to/harness-flow/agents /path/to/your/project/agents
+```
+
+The bundled `install.sh --target opencode --host <project>` does both steps for project-local installs and is the recommended path when using subagent-driven workflows.
 
 ## 2. Verify the install
 
