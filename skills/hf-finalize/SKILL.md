@@ -1,15 +1,13 @@
 ---
 name: hf-finalize
-description: Use when completion gate already allows closeout and the remaining work is state/doc/release-note closure, either for the current completed task or for the whole workflow cycle.
+description: Use when batch completion gate already allows workflow closeout and the remaining work is state/doc/release-note closure.
 ---
 
 # HF Finalize
 
-正式做 closeout。这个 skill 有两个合法分支：
-- `task closeout`：当前任务已经完成并通过 completion gate，但 workflow 里仍有剩余 approved tasks，需要把状态收口后交回 `hf-workflow-router`
-- `workflow closeout`：当前任务完成后，已无剩余 approved tasks，需要把整个工作周期正式关闭
+正式做 closeout。hybrid batch 下，这个 skill 只在 batch quality chain 已通过且无剩余 approved tasks 时进入，用来把整个工作周期正式关闭。
 
-它不做：新实现、不替代 completion gate、不替代 router 决定下一任务。
+它不做：新实现、不替代 completion gate、不替代 router 决定下一任务或 batch scope。
 
 ## Methodology
 
@@ -35,7 +33,7 @@ description: Use when completion gate already allows closeout and the remaining 
 
 - 无 on-disk completion / regression 记录，不得进入 finalize
 - 不混入新实现；发现需改动则停止并回上游
-- 必须先判断 closeout 类型：`task closeout` 或 `workflow closeout`
+- 必须先确认 closeout 类型是 `workflow closeout`
 - 有剩余 approved tasks 时，不得声称 workflow 已结束
 - 无剩余 approved tasks 时，不得把下一步再写回 `hf-workflow-router`
 - `workflow closeout` 在 `interactive` 模式下必须先给出 closeout summary，再等真人确认后才把 next action 写成 `null`
@@ -44,13 +42,12 @@ description: Use when completion gate already allows closeout and the remaining 
 
 ## Closeout Decision
 
-先只回答一件事：本次是哪个 closeout 分支？
+先只回答一件事：本次是否满足 workflow closeout？
 
 | 条件 | Closeout Type | Next Action |
 |---|---|---|
-| 当前任务完成，但仍有剩余 approved tasks | `task closeout` | `hf-workflow-router` |
-| 当前任务完成，且已无剩余 approved tasks | `workflow closeout` | `null` / 项目 null 约定 |
-| 剩余任务是否存在不清、或 queue 证据冲突 | `blocked` | `hf-workflow-router` |
+| batch completion gate 通过，且已无剩余 approved tasks | `workflow closeout` | `null` / 项目 null 约定 |
+| 仍有剩余 approved tasks、batch scope 不完整、或 queue 证据冲突 | `blocked` | `hf-workflow-router` |
 
 ## Workflow
 
@@ -73,17 +70,17 @@ Profile-aware 证据矩阵：
 
 在判断 closeout type 前，先确认：
 
-- `completion` / `regression` 记录已落盘，且与当前 stage / active task / worktree 语义一致
+- batch `completion` / `regression` 记录已落盘，且与当前 stage / batch scope / worktree 语义一致
 - 当前 profile 所需的 review / verification 记录要么已落盘，要么能明确写成 `N/A（按 profile 跳过）`
 - “是否还有剩余 approved tasks” 的证据足够稳定，不存在 queue / task board / progress 互相打架
 
-若不满足，不进入 `task closeout` 或 `workflow closeout`，而是明确写成 `blocked`，并把唯一下一步交回 `hf-workflow-router`。
+若不满足，不进入 `workflow closeout`，而是明确写成 `blocked`，并把唯一下一步交回 `hf-workflow-router`。
 
 ### 2. 判断 closeout 类型
 
 显式写出：
-- 当前是 `task closeout` / `workflow closeout` / `blocked`
-- 判断依据：剩余 approved tasks 是否存在、是否唯一、是否已准备重选
+- 当前是 `workflow closeout` / `blocked`
+- 判断依据：batch scope 是否完整、剩余 approved tasks 是否存在、是否有 queue 冲突
 
 若无法稳定判断，就停止 finalize，交回 `hf-workflow-router`。
 
@@ -95,14 +92,12 @@ Profile-aware 证据矩阵：
 - Workspace Isolation / Worktree Path / Worktree Branch 的最终状态
 
 分支规则：
-- `task closeout`：Current Stage 写回 `hf-workflow-router`；Next Action 写 `hf-workflow-router`
 - `workflow closeout`：Current Stage 标记为 closed / completed；Next Action 写 `null` 或项目 null 约定
+- `blocked`：Current Stage 保持在 `hf-finalize` 或写回 `hf-workflow-router`；Next Action 写 `hf-workflow-router`
 
 ### 3A. 结束工作周期确认点
 
-`task closeout` 不要求额外人工确认；它只是把当前任务收口后交回 router。
-
-`workflow closeout` 则不同：它会把整个工作周期收口为 closed / completed，并把 `Next Action Or Recommended Skill` 写成 `null`。因此：
+`workflow closeout` 会把整个工作周期收口为 closed / completed，并把 `Next Action Or Recommended Skill` 写成 `null`。因此：
 - `interactive`：先展示 closeout summary + evidence matrix + worktree disposition，等待真人确认“正式结束本轮 workflow”
 - `auto`：先写 closeout pack，再按项目 auto 规则把 workflow 视为已关闭
 
@@ -148,7 +143,7 @@ Profile-aware 证据矩阵：
 
 写入 `features/<active>/closeout.md`（基于 `references/finalize-closeout-pack-template.md`）。至少写出：
 - closeout type
-- 关闭的 scope（当前任务 / 整个 workflow）
+- 关闭的 scope（batch scope / 整个 workflow）
 - 已消费的 evidence matrix
 - 更新过的记录与路径
 - release notes / changelog 路径
@@ -229,7 +224,6 @@ python3 skills/hf-finalize/scripts/render-closeout-html.py features/<active>/
 ```
 
 Closeout type-specific 约束：
-- `task closeout`：`Next Action Or Recommended Skill` 必须是 `hf-workflow-router`
 - `workflow closeout`：`Next Action Or Recommended Skill` 必须是 `null` 或项目 null 约定
 - `blocked`：`Next Action Or Recommended Skill` 必须是 `hf-workflow-router`，且不得声称 closeout 已完成
 
@@ -253,7 +247,7 @@ Closeout type-specific 约束：
 
 ## Red Flags
 
-- 不区分 `task closeout` 和 `workflow closeout`
+- 在 hybrid batch 下继续产出 `task closeout`
 - 有剩余任务却宣称 workflow done
 - 没剩余任务却仍写回 `hf-workflow-router`
 - release notes / CHANGELOG 没更新就声称 closeout 完成
@@ -288,7 +282,6 @@ Closeout type-specific 约束：
 - [ ] closeout pack 已写入 `features/<active>/closeout.md`
 - [ ] HTML 视觉伴生报告已写入 `features/<active>/closeout.html`（由 `python3 skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>` 生成；脚本与 skill 同 vendor）；缺覆盖率数据时 HTML 已显式标注"未提供"，未编造数据
 - [ ] worktree 状态已同步
-- [ ] `task closeout` 时 next action = `hf-workflow-router`
 - [ ] `workflow closeout` 时 next action = `null` 或项目 null 约定
 - [ ] `workflow closeout` 在 interactive 模式下已显式经过最终确认
 - [ ] feature 目录平铺保留在 `features/`，未被移动到 `features/archived/`
