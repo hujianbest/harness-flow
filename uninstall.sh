@@ -19,7 +19,10 @@ PROG="uninstall.sh"
 # content survives). Other dir entries get rm -rf.
 PARENT_DIRS=(
     ".opencode/skills"
+    ".opencode/agents"
+    ".opencode/commands"
     ".cursor/harness-flow-skills"
+    ".cursor/harness-flow-agents"
     ".cursor/rules"
     "agents"
 )
