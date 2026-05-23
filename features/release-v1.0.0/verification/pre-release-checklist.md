@@ -10,6 +10,7 @@
 - [x] cross-release traceability summary written (`features/release-v1.0.0/verification/release-traceability.md`)
 - [x] SKILL.md anatomy audit passed
 - [x] install/uninstall suite passed
+- [x] OpenCode install includes `.opencode/skills`, `.opencode/agents`, and `.opencode/commands`
 - [x] Cursor installed rule points at `.cursor/harness-flow-skills/...`
 - [x] plugin and marketplace JSON validate
 

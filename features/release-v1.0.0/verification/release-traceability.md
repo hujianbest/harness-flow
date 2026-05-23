@@ -12,7 +12,7 @@
 | `hf-implementer` must use `hf-test-driven-dev` | `agents/hf-implementer.md` | `skills/hf-subagent-driven-dev/references/agent-role-contracts.md` | role-contract tests |
 | `hf-reviewer` covers all `hf-*review` nodes | `agents/hf-reviewer.md` | `skills/hf-workflow-router/references/review-dispatch-protocol.md` | role-contract tests |
 | Slash command definitions are top-level | `commands/*.md` | `.claude-plugin/plugin.json` `commands=./commands` | command directory tests + JSON validation |
-| `agents/` vendors with install scripts | `install.sh` / `uninstall.sh` | `tests/test_install_scripts.sh` | 14 install scenarios PASS |
+| OpenCode runtime assets vendor together | `install.sh` / `uninstall.sh` | `.opencode/skills` + `.opencode/agents` + `.opencode/commands` | 14 install scenarios PASS |
 | Cursor installed rule loads vendored skills | `install.sh` `write_cursor_rule()` | `.cursor/rules/harness-flow.mdc` in host install | Cursor copy/symlink install scenarios PASS |
 | v1.0.0 metadata synced | `CHANGELOG.md`, `.claude-plugin/plugin.json`, `SECURITY.md` | setup docs + marketplace description | JSON validation + docs review |
 

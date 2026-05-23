@@ -33,14 +33,14 @@ Defaults:
   --host    .  (current working directory)
 
 Vendors HarnessFlow into a host repository:
-  --target opencode → host/.opencode/skills/
+  --target opencode → host/.opencode/skills/ + host/.opencode/agents/ + host/.opencode/commands/
   --target cursor   → host/.cursor/harness-flow-skills/ + host/.cursor/rules/harness-flow.mdc
   --target both     → both of the above
   all targets       → host/agents/
 
 Topology:
   copy    → cp -R the skills tree (per-skill manifest entries)
-  symlink → ln -s the skills and agents trees (single symlink manifest entries)
+  symlink → ln -s the skills, agents, and commands trees (single symlink manifest entries)
 
 Manifest is written to host/.harnessflow-install-manifest.json.
 A README is written to host/.harnessflow-install-readme.md.
@@ -301,6 +301,43 @@ vendor_skills_opencode() {
     fi
 }
 
+vendor_opencode_runtime_assets() {
+    mark_will_create dir "$HOST/.opencode" ""
+    op MKDIR "$HOST/.opencode"
+
+    local agents_abs="$HOST/.opencode/agents"
+    local agents_rel=".opencode/agents"
+    local commands_abs="$HOST/.opencode/commands"
+    local commands_rel=".opencode/commands"
+
+    if [ "$TOPOLOGY" = "symlink" ]; then
+        mark_will_create symlink "$agents_abs" "$agents_rel"
+        op LN "$HF_REPO/agents" "$agents_abs"
+        mark_will_create symlink "$commands_abs" "$commands_rel"
+        op LN "$HF_REPO/commands" "$commands_abs"
+    else
+        mark_will_create dir "$agents_abs" "$agents_rel"
+        op MKDIR "$agents_abs"
+        local agent_path agent_name
+        for agent_path in "$HF_REPO/agents"/*.md; do
+            [ -f "$agent_path" ] || continue
+            agent_name="${agent_path##*/}"
+            mark_will_create file "$agents_abs/$agent_name" "$agents_rel/$agent_name"
+            op CP "$agent_path" "$agents_abs/$agent_name"
+        done
+
+        mark_will_create dir "$commands_abs" "$commands_rel"
+        op MKDIR "$commands_abs"
+        local command_path command_name
+        for command_path in "$HF_REPO/commands"/*.md; do
+            [ -f "$command_path" ] || continue
+            command_name="${command_path##*/}"
+            mark_will_create file "$commands_abs/$command_name" "$commands_rel/$command_name"
+            op CP "$command_path" "$commands_abs/$command_name"
+        done
+    fi
+}
+
 vendor_cursor() {
     mark_will_create dir "$HOST/.cursor" ""
     op MKDIR "$HOST/.cursor"
@@ -418,6 +455,8 @@ find .opencode/skills -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l
 
 # 2. check shared agent definitions
 ls agents/hf-implementer.md agents/hf-reviewer.md 2>/dev/null
+ls .opencode/agents/hf-implementer.md .opencode/agents/hf-reviewer.md 2>/dev/null || true
+ls .opencode/commands/hf.md .opencode/commands/build.md .opencode/commands/review.md 2>/dev/null || true
 
 # 3. inspect install manifest
 cat .harnessflow-install-manifest.json
@@ -455,10 +494,14 @@ main() {
     trap rollback ERR INT TERM
 
     case "$TARGET" in
-        opencode) vendor_skills_opencode ;;
+        opencode)
+            vendor_skills_opencode
+            vendor_opencode_runtime_assets
+            ;;
         cursor)   vendor_cursor ;;
         both)
             vendor_skills_opencode
+            vendor_opencode_runtime_assets
             vendor_cursor
             ;;
     esac
