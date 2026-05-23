@@ -10,6 +10,7 @@
 - [x] cross-release traceability summary written (`features/release-v1.0.0/verification/release-traceability.md`)
 - [x] SKILL.md anatomy audit passed
 - [x] install/uninstall suite passed
+- [x] Cursor installed rule points at `.cursor/harness-flow-skills/...`
 - [x] plugin and marketplace JSON validate
 
 ## Documentation Sync

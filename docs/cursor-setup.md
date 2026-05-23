@@ -48,7 +48,7 @@ bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
 
 If you want both Cursor and OpenCode integrations at once, use `--target both`.
 
-> **Cursor rule path note**: `harness-flow.mdc` references `skills/using-hf-workflow/SKILL.md` relatively. After vendoring, the correct path is `.cursor/harness-flow-skills/using-hf-workflow/SKILL.md`. The post-install README in your host repo reminds you of this; v0.6+ may rewrite paths automatically (ADR-007 D4 Alternatives A3, deferred).
+> **Cursor rule path note**: the source rule in this repository references `skills/...` because the repo root has a `skills/` directory. During `install.sh --target cursor`, the installed rule is rewritten to `.cursor/harness-flow-skills/...` so it works inside the host repository.
 
 #### Manual fallback (advanced users)
 
@@ -59,14 +59,17 @@ If you prefer to vendor by hand:
 mkdir -p .cursor/rules
 cp ../harness-flow/.cursor/rules/harness-flow.mdc .cursor/rules/
 
-# And expose the skills tree itself (the rule references skills/ paths):
+# And expose the skills tree itself:
 ln -s ../harness-flow/skills .cursor/harness-flow-skills
+
+# Rewrite the copied rule to point at the vendored skills path:
+sed -i.bak 's#`skills/#`.cursor/harness-flow-skills/#g; s# skills/# .cursor/harness-flow-skills/#g' .cursor/rules/harness-flow.mdc
 
 # And expose shared subagent role definitions:
 cp -R ../harness-flow/agents ./agents
 ```
 
-Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. Shared subagent roles live in `agents/`. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root). The install script automates this and also writes a manifest for clean uninstall.
+Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. Shared subagent roles live in `agents/`. The installed rule must point at `.cursor/harness-flow-skills/...`; the install script rewrites it automatically and also writes a manifest for clean uninstall.
 
 ## 2. The shipped rule
 

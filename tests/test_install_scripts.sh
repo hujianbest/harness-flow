@@ -180,6 +180,8 @@ scenario_3() { # cursor copy
     assert_file "$host/agents/hf-implementer.md" "hf-implementer agent" || return 1
     assert_file "$host/agents/hf-reviewer.md" "hf-reviewer agent" || return 1
     assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rule" || return 1
+    grep -F -q '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
+        || { printf '  ❌ cursor rule was not rewritten to vendored skills path\n' >&2; return 1; }
     manifest_has_path "$host/.harnessflow-install-manifest.json" ".cursor/rules/harness-flow.mdc" || return 1
 }
 
@@ -188,14 +190,16 @@ scenario_4() { # cursor symlink (+ F8 manifest entries verification)
     bash "$INSTALL" --target cursor --topology symlink --host "$host" >/dev/null || return 1
     assert_symlink_to "$host/.cursor/harness-flow-skills" "$HF_REPO/skills" "cursor skills symlink" || return 1
     assert_symlink_to "$host/agents" "$HF_REPO/agents" "agents symlink" || return 1
-    assert_symlink_to "$host/.cursor/rules/harness-flow.mdc" "$HF_REPO/.cursor/rules/harness-flow.mdc" "cursor rule symlink" || return 1
+    assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rewritten rule file" || return 1
+    grep -F -q '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
+        || { printf '  ❌ cursor symlink rule was not rewritten to vendored skills path\n' >&2; return 1; }
     local mf="$host/.harnessflow-install-manifest.json"
     grep -q '"target": "cursor"' "$mf" || { printf '  ❌ target field wrong\n' >&2; return 1; }
     grep -q '"topology": "symlink"' "$mf" || { printf '  ❌ topology field wrong\n' >&2; return 1; }
     grep -q '"kind": "symlink", "path": ".cursor/harness-flow-skills"' "$mf" \
         || { printf '  ❌ skills symlink entry missing\n' >&2; return 1; }
-    grep -q '"kind": "symlink", "path": ".cursor/rules/harness-flow.mdc"' "$mf" \
-        || { printf '  ❌ rule symlink entry missing\n' >&2; return 1; }
+    grep -q '"kind": "file", "path": ".cursor/rules/harness-flow.mdc"' "$mf" \
+        || { printf '  ❌ rewritten rule file entry missing\n' >&2; return 1; }
     grep -q '"kind": "symlink", "path": "agents"' "$mf" \
         || { printf '  ❌ agents symlink entry missing\n' >&2; return 1; }
 }
@@ -216,7 +220,9 @@ scenario_6() { # both symlink
     assert_symlink_to "$host/.opencode/skills" "$HF_REPO/skills" "opencode symlink" || return 1
     assert_symlink_to "$host/.cursor/harness-flow-skills" "$HF_REPO/skills" "cursor skills symlink" || return 1
     assert_symlink_to "$host/agents" "$HF_REPO/agents" "agents symlink" || return 1
-    assert_symlink_to "$host/.cursor/rules/harness-flow.mdc" "$HF_REPO/.cursor/rules/harness-flow.mdc" "cursor rule symlink" || return 1
+    assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rewritten rule file" || return 1
+    grep -F -q '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
+        || { printf '  ❌ both symlink cursor rule was not rewritten\n' >&2; return 1; }
 }
 
 scenario_7() { # HYP-002 Blocking: user-skill survives uninstall

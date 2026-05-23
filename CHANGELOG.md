@@ -24,6 +24,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - **Release metadata** —— `.claude-plugin/plugin.json` version 同步为 `1.0.0`，marketplace description、SECURITY supported versions、Claude/OpenCode/Cursor setup docs 同步到 stable v1.0.0。
 - **Install topology** —— `install.sh` / `uninstall.sh` 现在把 top-level `agents/` 作为运行时资产随 `skills/` 一起 vendor，并在 14 个 install/uninstall scenario 中覆盖 copy / symlink / Cursor / OpenCode 路径。
 
+### Fixed
+
+- **Cursor vendored rule path** —— `install.sh --target cursor` 现在生成一份路径已重写的 `.cursor/rules/harness-flow.mdc`，指向 `.cursor/harness-flow-skills/...`，避免宿主项目没有根目录 `skills/` 时 Cursor 无法加载 HF skills。
+
 ### Decided
 
 - **v1.0.0 不勾 pre-release**：本版锁定 HF 当前稳定承诺面（Markdown skills + shared agents + commands + setup scripts + release pack），仍明确不承诺部署 / staged rollout / monitoring / rollback。

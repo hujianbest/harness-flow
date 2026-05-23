@@ -2,7 +2,7 @@
 
 - Release: `v1.0.0`
 - Date: 2026-05-23
-- Scope: full repository regression for stable release metadata, skills, agents, commands, install topology, and release pack.
+- Scope: full repository regression for stable release metadata, skills, agents, commands, install topology, Cursor rule path rewrite, and release pack.
 - Conclusion: PASS
 
 ## Commands
@@ -26,4 +26,4 @@ The regression commands were run after v1.0.0 release metadata, `agents/`, `comm
 ## Notes
 
 - No GUI-visible changes; no browser walkthrough required.
-- Install regression explicitly verifies `agents/` copy and symlink topology for OpenCode and Cursor.
+- Install regression explicitly verifies `agents/` copy/symlink topology and Cursor installed rule path rewriting for OpenCode and Cursor.

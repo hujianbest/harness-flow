@@ -116,6 +116,23 @@ op() {
     esac
 }
 
+write_cursor_rule() {
+    local src="$HF_REPO/.cursor/rules/harness-flow.mdc"
+    local dst="$HOST/.cursor/rules/harness-flow.mdc"
+    local rel=".cursor/rules/harness-flow.mdc"
+    mark_will_create file "$dst" "$rel"
+    if [ "$VERBOSE" = 1 ] || [ "$DRY_RUN" = 1 ]; then
+        printf '[WRITE] %s (Cursor rule with vendored skill paths)\n' "$dst"
+    fi
+    if [ "$DRY_RUN" = 1 ]; then
+        return 0
+    fi
+    # The source rule works in this repo where skills/ is at the root. Vendored
+    # Cursor installs place skills under .cursor/harness-flow-skills/, so rewrite
+    # those references while keeping agents/ as a top-level path.
+    sed 's#`skills/#`.cursor/harness-flow-skills/#g; s# skills/# .cursor/harness-flow-skills/#g' "$src" > "$dst"
+}
+
 # Pre-register an "I am about to create this" intent so rollback can clean it
 # up even if the actual op fails partway. Pre-existing dirs are intentionally
 # skipped: we won't delete dirs we did not create (so host's own .cursor/
@@ -300,8 +317,7 @@ vendor_cursor() {
     if [ "$TOPOLOGY" = "symlink" ]; then
         mark_will_create symlink "$skills_abs" "$skills_rel"
         op LN "$HF_REPO/skills" "$skills_abs"
-        mark_will_create symlink "$rule_abs" "$rule_rel"
-        op LN "$HF_REPO/.cursor/rules/harness-flow.mdc" "$rule_abs"
+        write_cursor_rule
     else
         mark_will_create dir "$skills_abs" "$skills_rel"
         op MKDIR "$skills_abs"
@@ -314,8 +330,7 @@ vendor_cursor() {
             mark_will_create dir "$skill_abs" "$skill_rel"
             op CP "$skill_path" "$skill_abs"
         done
-        mark_will_create file "$rule_abs" "$rule_rel"
-        op CP "$HF_REPO/.cursor/rules/harness-flow.mdc" "$rule_abs"
+        write_cursor_rule
     fi
 }
 
@@ -410,8 +425,9 @@ cat .harnessflow-install-manifest.json
 # 4. (symlink topology only) check symlink target
 readlink .opencode/skills 2>/dev/null || true
 
-# 5. (cursor target only) check rule placement
+# 5. (cursor target only) check rule placement and rewritten skill paths
 ls -la .cursor/rules/harness-flow.mdc 2>/dev/null || true
+grep -F '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' .cursor/rules/harness-flow.mdc 2>/dev/null || true
 \`\`\`
 
 ## Uninstall
@@ -422,9 +438,9 @@ bash <hf-repo>/uninstall.sh --host .
 
 ## Cursor rule note (cursor / both target)
 
-\`.cursor/rules/harness-flow.mdc\` references \`skills/using-hf-workflow/SKILL.md\` relatively;
-after vendor, the correct path is \`.cursor/harness-flow-skills/using-hf-workflow/SKILL.md\`.
-(v0.6+ may rewrite paths automatically at install time — see ADR-007 D4 alternative A3.)
+\`.cursor/rules/harness-flow.mdc\` is written with vendored skill paths:
+\`.cursor/harness-flow-skills/using-hf-workflow/SKILL.md\` and
+\`.cursor/harness-flow-skills/hf-workflow-router/SKILL.md\`.
 EOF
 }
 
