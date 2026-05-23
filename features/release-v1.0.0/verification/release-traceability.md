@@ -14,6 +14,7 @@
 | Slash command definitions are top-level | `commands/*.md` | `.claude-plugin/plugin.json` `commands=./commands` | command directory tests + JSON validation |
 | OpenCode runtime assets vendor together | `install.sh` / `uninstall.sh` | `.opencode/skills` + `.opencode/agents` + `.opencode/commands` | 14 install scenarios PASS |
 | Cursor installed rule loads vendored skills | `install.sh` `write_cursor_rule()` | `.cursor/rules/harness-flow.mdc` in host install | Cursor copy/symlink install scenarios PASS |
+| Cursor agent definitions are visible | `install.sh` `vendor_cursor()` | `.cursor/harness-flow-agents` + rewritten rule path | Cursor copy/symlink install scenarios PASS |
 | v1.0.0 metadata synced | `CHANGELOG.md`, `.claude-plugin/plugin.json`, `SECURITY.md` | setup docs + marketplace description | JSON validation + docs review |
 
 ## Review Chain

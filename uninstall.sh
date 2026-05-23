@@ -22,6 +22,7 @@ PARENT_DIRS=(
     ".opencode/agents"
     ".opencode/commands"
     ".cursor/harness-flow-skills"
+    ".cursor/harness-flow-agents"
     ".cursor/rules"
     "agents"
 )

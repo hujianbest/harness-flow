@@ -33,7 +33,7 @@
 - **Install topology update**:
   - `install.sh` vendors `agents/` alongside `skills/`
   - OpenCode installs now include `.opencode/skills/`, `.opencode/agents/`, and `.opencode/commands/`
-  - Cursor installs write a path-rewritten rule pointing at `.cursor/harness-flow-skills/...`
+  - Cursor installs now include `.cursor/harness-flow-skills/`, `.cursor/harness-flow-agents/`, and a path-rewritten rule
   - `uninstall.sh` treats `agents/` as an empty-only parent directory
   - install regression suite covers copy / symlink paths for Cursor and OpenCode
 
@@ -69,7 +69,7 @@
   - `README.md` / `README.zh-CN.md`: runtime asset layout (`skills/` + `agents/` + `commands/`)
   - `docs/claude-code-setup.md`: v1.0.0 scope + `commands/`
   - `docs/opencode-setup.md`: v1.0.0 scope + `.opencode/agents` / `.opencode/commands` install shape
-  - `docs/cursor-setup.md`: v1.0.0 scope + `agents/`
+  - `docs/cursor-setup.md`: v1.0.0 scope + `.cursor/harness-flow-agents`
   - `install.sh`: Cursor rule path rewrite for vendored installs
   - `SECURITY.md`: supported versions updated to `1.0.x`
 - Project Metadata Sync:

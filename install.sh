@@ -34,7 +34,7 @@ Defaults:
 
 Vendors HarnessFlow into a host repository:
   --target opencode → host/.opencode/skills/ + host/.opencode/agents/ + host/.opencode/commands/
-  --target cursor   → host/.cursor/harness-flow-skills/ + host/.cursor/rules/harness-flow.mdc
+  --target cursor   → host/.cursor/harness-flow-skills/ + host/.cursor/harness-flow-agents/ + host/.cursor/rules/harness-flow.mdc
   --target both     → both of the above
   all targets       → host/agents/
 
@@ -127,10 +127,10 @@ write_cursor_rule() {
     if [ "$DRY_RUN" = 1 ]; then
         return 0
     fi
-    # The source rule works in this repo where skills/ is at the root. Vendored
-    # Cursor installs place skills under .cursor/harness-flow-skills/, so rewrite
-    # those references while keeping agents/ as a top-level path.
-    sed 's#`skills/#`.cursor/harness-flow-skills/#g; s# skills/# .cursor/harness-flow-skills/#g' "$src" > "$dst"
+    # The source rule works in this repo where skills/ and agents/ are at the
+    # root. Vendored Cursor installs place those assets under .cursor/, so
+    # rewrite references for Cursor's project rule.
+    sed 's#`skills/#`.cursor/harness-flow-skills/#g; s# skills/# .cursor/harness-flow-skills/#g; s#agents/#.cursor/harness-flow-agents/#g' "$src" > "$dst"
 }
 
 # Pre-register an "I am about to create this" intent so rollback can clean it
@@ -348,12 +348,14 @@ vendor_cursor() {
 
     local skills_abs="$HOST/.cursor/harness-flow-skills"
     local skills_rel=".cursor/harness-flow-skills"
-    local rule_abs="$HOST/.cursor/rules/harness-flow.mdc"
-    local rule_rel=".cursor/rules/harness-flow.mdc"
+    local agents_abs="$HOST/.cursor/harness-flow-agents"
+    local agents_rel=".cursor/harness-flow-agents"
 
     if [ "$TOPOLOGY" = "symlink" ]; then
         mark_will_create symlink "$skills_abs" "$skills_rel"
         op LN "$HF_REPO/skills" "$skills_abs"
+        mark_will_create symlink "$agents_abs" "$agents_rel"
+        op LN "$HF_REPO/agents" "$agents_abs"
         write_cursor_rule
     else
         mark_will_create dir "$skills_abs" "$skills_rel"
@@ -366,6 +368,15 @@ vendor_cursor() {
             local skill_rel="$skills_rel/$name"
             mark_will_create dir "$skill_abs" "$skill_rel"
             op CP "$skill_path" "$skill_abs"
+        done
+        mark_will_create dir "$agents_abs" "$agents_rel"
+        op MKDIR "$agents_abs"
+        local agent_path agent_name
+        for agent_path in "$HF_REPO/agents"/*.md; do
+            [ -f "$agent_path" ] || continue
+            agent_name="${agent_path##*/}"
+            mark_will_create file "$agents_abs/$agent_name" "$agents_rel/$agent_name"
+            op CP "$agent_path" "$agents_abs/$agent_name"
         done
         write_cursor_rule
     fi
@@ -467,6 +478,7 @@ readlink .opencode/skills 2>/dev/null || true
 # 5. (cursor target only) check rule placement and rewritten skill paths
 ls -la .cursor/rules/harness-flow.mdc 2>/dev/null || true
 grep -F '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' .cursor/rules/harness-flow.mdc 2>/dev/null || true
+grep -F '.cursor/harness-flow-agents/' .cursor/rules/harness-flow.mdc 2>/dev/null || true
 \`\`\`
 
 ## Uninstall
