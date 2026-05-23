@@ -134,7 +134,7 @@ approval record 与交接块中**必须**包含声明好的 `SUT Form`；后续 
 
 ### 5. 生成实现交接块并同步状态
 
-写回稳定交接块：
+写回稳定交接块，并为本 task 的最终 summary 提供输入。`hf-test-driven-dev` 不写 review / gate verdict，但必须给后续 thin verdict matrix 留下可引用的实现、测试和 evidence anchors。
 
 ```md
 ## 实现交接块
@@ -149,6 +149,7 @@ approval record 与交接块中**必须**包含声明好的 `SUT Form`；后续 
 - 剩余风险 / 未覆盖项:
 - Pending Reviews And Gates:
 - Next Action Or Recommended Skill:
+- Task Summary Path: `features/<active>/summaries/task-<TASK-ID>.md`（若项目无覆写；由后续 review/gate 聚合 thin verdict blocks）
 
 ### Refactor Note
 - Hat Discipline: <RGR 是否守住 Two Hats；是否有独立 preparatory refactor 步骤>
@@ -181,6 +182,8 @@ Refactor Note 必填规则：
 不写 wisdom notebook delta = task 未完成（hf-completion-gate 会调 `validate-wisdom-notebook.py` 校验，FAIL 则 gate 阻塞）。
 
 Next Action 用 canonical skill ID：full/standard 通常 → `hf-test-review`；lightweight 通常 → `hf-regression-gate`；回流修订完成 → 写回触发回流的那个 node。不把下一任务的实现写成输出。
+
+报告形态约束：本节点只写实现交接块与 task summary 输入，不为每个后续 review / gate 预创建长报告。通过态的人读入口应由 task summary 聚合；详细报告只在后续 review / gate `需修改` / `阻塞` 或出现关键 finding 时展开。
 
 **Verify 拐点（v0.2.0 / ADR-002 D7）**：当 spec 声明 UI surface 且当前 active task 触碰前端表面时，由 router 在 GREEN 之后插入 `hf-browser-testing` 作为 verify side node，产出 runtime evidence bundle（DOM / Console / Network 三层）；该节点**不签发 verdict**，仅产 observation 与 canonical next action。激活与回流规则见 `skills/hf-workflow-router/references/profile-node-and-transition-map.md` 的「`hf-browser-testing` 激活与回流」一节。本 skill 在 GREEN 交接块中不需要主动声明是否触发 `hf-browser-testing`，由 router 依据 spec / tasks 工件证据判断。
 

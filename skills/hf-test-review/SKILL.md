@@ -87,12 +87,15 @@ Findings 带 severity（critical/important/minor）和分类（USER-INPUT/LLM-FI
 
 保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/test-review-task-NNN.md`。若项目无专用格式，默认使用 `references/review-record-template.md`。
 
+报告形态：`通过` 且无关键 finding 时，review record 可收敛为 thin verdict block，并由 task completion summary 聚合；`需修改` / `阻塞`、关键维度 < 6、存在 `critical` / `important` finding 或 workflow blocker 时，必须展开详细诊断。
+
 回传结构化摘要给父会话时，遵循当前 skill pack 中 `hf-workflow-router/references/reviewer-return-contract.md`：`next_action_or_recommended_skill` 只写一个 canonical 值；workflow blocker 必须显式写 `reroute_via_router=true`。
 
 ## Output Contract
 
 完成时产出：
 - Review 记录（保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/test-review-task-NNN.md`）
+- 通过态 thin verdict block，或异常态详细诊断；两者都必须可被 task completion summary 索引
 - 结构化摘要含 `record_path`、`next_action_or_recommended_skill`
 - workflow blocker 时显式写明 `reroute_via_router=true`
 

@@ -132,6 +132,7 @@ branches:
 说明：
 
 - `hf-test-driven-dev` 到 `hf-completion-gate` 描述的是“单个 `Current Active Task` 的实现与质量闭环”
+- “单个 task”是质量闭环边界，不是 build 会话停止条件；通过态应聚合为 task summary + thin verdict blocks，避免每个 review / gate 生成面向人的长报告
 - `hf-completion-gate` 返回 `通过` 后，不默认等于“整个 workflow 已完成”；父会话必须先判断是否仍有 approved 且 dependency-ready 的剩余任务
 - 若存在唯一 `next-ready task`，先回到 `hf-workflow-router` 锁定新的 `Current Active Task`，再重新进入 `hf-test-driven-dev`
 - 只有在没有剩余任务时，才进入 `hf-finalize`
