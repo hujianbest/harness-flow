@@ -56,6 +56,8 @@
 
 `Build one task` 是实现原子边界，不是 build 会话的停止条件。build 会话应按“单 task 质量闭环 → task summary → router 选择唯一 next-ready task → 下一轮 `hf-test-driven-dev`”循环；只有 approval step、hard stop、下一任务不唯一或无剩余任务时才停止。
 
+task summary 不是 verdict，也不是人工确认点；它只是把本 task 的实现证据、thin verdict blocks 与 next task decision 聚合到一个人读入口。
+
 ## Approval Step
 
 以下场景属于 canonical approval step；它们在 `interactive` / `auto` 下的处理方式不同，但节点语义都必须保留：
