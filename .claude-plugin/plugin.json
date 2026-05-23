@@ -8,5 +8,5 @@
   "homepage": "https://github.com/hujianbest/harness-flow",
   "repository": "https://github.com/hujianbest/harness-flow",
   "license": "MIT",
-  "commands": "./.claude/commands"
+  "commands": "./commands"
 }

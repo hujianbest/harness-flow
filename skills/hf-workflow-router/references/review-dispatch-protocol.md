@@ -9,7 +9,7 @@
 1. review 节点仍然是 workflow 的 canonical 节点。
 2. 进入 review 节点时，父会话不直接执行评审判断。
 3. 父会话要构造 review request，并启动独立 `hf-reviewer` subagent。
-4. `hf-reviewer` 在 fresh context 中读取对应 `hf-*review` skill 与最小必要工件。
+4. `hf-reviewer`（定义见 `agents/hf-reviewer.md`）在 fresh context 中读取对应 `hf-*review` skill 与最小必要工件。
 5. `hf-reviewer` 负责写 review 记录并回传结构化摘要。
 6. 父会话消费该摘要，继续主链推进或进入 approval step。
 

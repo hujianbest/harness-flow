@@ -56,7 +56,7 @@ bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/proje
 bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
 ```
 
-The script copies or symlinks `skills/`, places client-specific rules, and writes `.harnessflow-install-manifest.json` so uninstall can remove only HF-managed files.
+The script copies or symlinks `skills/` and `agents/`, places client-specific rules, and writes `.harnessflow-install-manifest.json` so uninstall can remove only HF-managed files.
 
 ### Try it
 
@@ -251,7 +251,8 @@ harness-flow/
 │   ├── hf-wisdom-notebook/            # Knowledge: cross-task memory
 │   ├── hf-context-mesh/               # Context: client rule skeletons
 │   └── hf-ultrawork/                  # Fast lane: explicit auto mode
-├── .claude/commands/               # 7 Claude Code slash commands
+├── commands/                       # 7 client-agnostic slash command definitions
+├── agents/                         # HF subagent role definitions
 ├── .claude-plugin/                 # Claude Code marketplace plugin metadata
 ├── .cursor/rules/                  # Cursor alwaysApply entry rule
 ├── .opencode/                      # OpenCode integration assets
@@ -271,7 +272,7 @@ harness-flow/
 └── README.zh-CN.md
 ```
 
-When vendoring HarnessFlow into another project, copy `skills/` only or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; there is no extra top-level template bundle to copy. The `docs/principles/` directory explains this repository's design, but hosted projects do not need it at runtime.
+When vendoring HarnessFlow into another project, copy `skills/` plus `agents/`, or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; shared subagent roles live in `agents/`, and client slash-command definitions live in `commands/`. The `docs/principles/` directory explains this repository's design, but hosted projects do not need it at runtime.
 
 ---
 

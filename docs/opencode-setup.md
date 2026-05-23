@@ -54,7 +54,7 @@ bash /path/to/harness-flow/install.sh --target opencode --topology symlink \
      --host /path/to/your/project
 ```
 
-The script writes `.opencode/skills/` plus a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
+The script writes `.opencode/skills/` plus top-level `agents/`, a `.harnessflow-install-manifest.json`, and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
 
 ```bash
 bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
@@ -70,12 +70,13 @@ If you prefer to vendor by hand:
 # From inside your project root, with harness-flow cloned alongside:
 mkdir -p .opencode
 cp -R ../harness-flow/skills .opencode/skills
+cp -R ../harness-flow/agents ./agents
 
 # Or, if you want updates to track upstream automatically:
 ln -s ../../harness-flow/skills .opencode/skills
 ```
 
-Each `hf-*` skill is self-contained (its `SKILL.md`, `references/`, `evals/`, and `scripts/` ship together in the skill folder), so a plain `cp -R` is enough — there is nothing else to vendor. The install script does the same thing plus produces a manifest for clean uninstall.
+Each `hf-*` skill is self-contained (its `SKILL.md`, `references/`, `evals/`, and `scripts/` ship together in the skill folder). Shared subagent role definitions live in `agents/`, so vendor that directory too. The install script does the same thing plus produces a manifest for clean uninstall.
 
 ### C. Install HarnessFlow globally for every OpenCode session
 

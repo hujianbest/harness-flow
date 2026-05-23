@@ -21,7 +21,7 @@ A clear, concise description of the actual behavior.
 
 - [ ] A `skills/<name>/SKILL.md` or its `references/`
 - [ ] The Claude Code plugin manifest (`.claude-plugin/`)
-- [ ] A slash command file (`.claude/commands/*.md`)
+- [ ] A slash command file (`commands/*.md`) or agent definition (`agents/*.md`)
 - [ ] A setup doc (`docs/claude-code-setup.md` / `docs/opencode-setup.md`)
 - [ ] The WriteOnce demo (`examples/writeonce/`)
 - [ ] Repository-root `README.md` / `README.zh-CN.md` / `CHANGELOG.md` / `LICENSE`

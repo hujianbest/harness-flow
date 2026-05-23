@@ -63,8 +63,9 @@ Claude Code will read:
 
 - `.claude-plugin/plugin.json` — plugin manifest (name, version, license, commands path).
 - `.claude-plugin/marketplace.json` — marketplace entry used when published.
-- `.claude/commands/*.md` — the 7 slash command definitions (v0.4.0 added `release.md`).
-- `skills/` — the 24 self-contained `hf-*` skills + `using-hf-workflow` (v0.2.0 added `hf-browser-testing` as the 23rd `hf-*`; v0.4.0 added `hf-release` as the 24th, ADR-004 D1).
+- `commands/*.md` — the 7 slash command definitions (client-independent source; `.claude-plugin/plugin.json` points here).
+- `skills/` — the self-contained `hf-*` skills + `using-hf-workflow`.
+- `agents/` — shared subagent role definitions such as `hf-implementer` and `hf-reviewer`.
 
 ## 3. Verify the install
 
@@ -102,7 +103,7 @@ These constraints are intentional. They keep the surface area small enough for t
 
 | Symptom | Look at |
 |---|---|
-| Slash command not visible after install | `.claude-plugin/plugin.json` `commands` path; reinstall plugin |
+| Slash command not visible after install | `.claude-plugin/plugin.json` `commands` path (`./commands`); reinstall plugin |
 | Router routes to the wrong node | `skills/hf-workflow-router/SKILL.md` + `skills/hf-workflow-router/references/profile-node-and-transition-map.md` |
 | `/build` refuses to start TDD | No `Current Active Task` is locked; run `/plan` first |
 | `/ship` keeps bouncing back | A gate (regression / doc-freshness / completion) failed; follow the canonical next action it returned |

@@ -40,7 +40,7 @@ bash /path/to/harness-flow/install.sh --target cursor --topology symlink \
      --host /path/to/your/project
 ```
 
-The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/` and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`. It also writes a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
+The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/`, vendors shared `agents/` to `<host>/agents/`, and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`. It also writes a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
 
 ```bash
 bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
@@ -61,9 +61,12 @@ cp ../harness-flow/.cursor/rules/harness-flow.mdc .cursor/rules/
 
 # And expose the skills tree itself (the rule references skills/ paths):
 ln -s ../harness-flow/skills .cursor/harness-flow-skills
+
+# And expose shared subagent role definitions:
+cp -R ../harness-flow/agents ./agents
 ```
 
-Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root). The install script automates this and also writes a manifest for clean uninstall.
+Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. Shared subagent roles live in `agents/`. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root). The install script automates this and also writes a manifest for clean uninstall.
 
 ## 2. The shipped rule
 

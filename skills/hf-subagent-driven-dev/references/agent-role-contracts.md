@@ -2,10 +2,10 @@
 
 ## Purpose
 
-`hf-subagent-driven-dev` uses exactly two named subagent roles:
+`hf-subagent-driven-dev` uses exactly two named subagent roles. Their canonical definitions live in the top-level `agents/` directory:
 
-1. `hf-implementer`
-2. `hf-reviewer`
+1. `agents/hf-implementer.md`
+2. `agents/hf-reviewer.md`
 
 These are role contracts, not new canonical workflow nodes. The router still routes to `hf-subagent-driven-dev` for implementation and to existing `hf-*review` skills for review verdicts.
 
@@ -13,7 +13,7 @@ These are role contracts, not new canonical workflow nodes. The router still rou
 
 ### Responsibility
 
-`hf-implementer` implements one locked `Current Active Task` in a fresh context.
+`hf-implementer` implements one locked `Current Active Task` in a fresh context. See `agents/hf-implementer.md`.
 
 ### Required skill
 
@@ -41,16 +41,20 @@ These are role contracts, not new canonical workflow nodes. The router still rou
 
 ### Responsibility
 
-`hf-reviewer` performs independent review in a fresh context after `hf-implementer` produces a complete handoff.
+`hf-reviewer` performs independent review in a fresh context for any canonical review node, not only after TDD implementation. See `agents/hf-reviewer.md`.
 
 ### Required skill
 
 `hf-reviewer` MUST load and apply the specific review skill selected by the parent session:
 
+- `hf-discovery-review`
+- `hf-spec-review`
+- `hf-design-review`
+- `hf-ui-review`
+- `hf-tasks-review`
 - `hf-test-review`
 - `hf-code-review`
 - `hf-traceability-review`
-- any other canonical `hf-*review` node selected by router
 
 It returns the normal reviewer return contract, including `conclusion`, `record_path`, `next_action_or_recommended_skill`, `needs_human_confirmation`, and `reroute_via_router`.
 

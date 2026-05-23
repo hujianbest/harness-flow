@@ -13,6 +13,9 @@ SKILL_DIR = REPO_ROOT / "skills" / "hf-subagent-driven-dev"
 SKILL_MD = SKILL_DIR / "SKILL.md"
 RETURN_CONTRACT = SKILL_DIR / "references" / "implementer-return-contract.md"
 ROLE_CONTRACTS = SKILL_DIR / "references" / "agent-role-contracts.md"
+AGENTS_DIR = REPO_ROOT / "agents"
+COMMANDS_DIR = REPO_ROOT / "commands"
+PLUGIN_JSON = REPO_ROOT / ".claude-plugin" / "plugin.json"
 ROUTER_SKILL = REPO_ROOT / "skills" / "hf-workflow-router" / "SKILL.md"
 TRANSITION_MAP = REPO_ROOT / "skills" / "hf-workflow-router" / "references" / "profile-node-and-transition-map.md"
 SHARED_CONVENTIONS = REPO_ROOT / "skills" / "hf-workflow-router" / "references" / "workflow-shared-conventions.md"
@@ -27,6 +30,8 @@ class TestSubagentDrivenDevSkill(unittest.TestCase):
         self.assertTrue(SKILL_MD.exists())
         self.assertTrue(RETURN_CONTRACT.exists())
         self.assertTrue(ROLE_CONTRACTS.exists())
+        self.assertTrue((AGENTS_DIR / "hf-implementer.md").exists())
+        self.assertTrue((AGENTS_DIR / "hf-reviewer.md").exists())
 
     def test_skill_declares_single_task_and_no_review_skip(self):
         text = SKILL_MD.read_text()
@@ -42,7 +47,11 @@ class TestSubagentDrivenDevSkill(unittest.TestCase):
         self.assertIn("hf-code-review", text)
 
     def test_role_contracts_define_implementer_and_reviewer(self):
-        text = ROLE_CONTRACTS.read_text()
+        text = "\n".join([
+            ROLE_CONTRACTS.read_text(),
+            (AGENTS_DIR / "hf-implementer.md").read_text(),
+            (AGENTS_DIR / "hf-reviewer.md").read_text(),
+        ])
         self.assertIn("hf-implementer", text)
         self.assertIn("hf-reviewer", text)
         self.assertTrue(
@@ -50,9 +59,25 @@ class TestSubagentDrivenDevSkill(unittest.TestCase):
             "hf-implementer must be bound to hf-test-driven-dev",
         )
         self.assertTrue(
-            re.search(r"hf-reviewer.*hf-\\*review|hf-reviewer.*reviewer return contract", text, flags=re.IGNORECASE | re.DOTALL),
-            "hf-reviewer must be bound to existing review skills and return contract",
+            re.search(r"hf-reviewer.*every canonical review node|hf-reviewer.*所有 `hf-\\*review`|hf-reviewer.*hf-discovery-review", text, flags=re.IGNORECASE | re.DOTALL),
+            "hf-reviewer must cover all review nodes, not just post-TDD reviews",
         )
+        for review_skill in (
+            "hf-discovery-review",
+            "hf-spec-review",
+            "hf-design-review",
+            "hf-ui-review",
+            "hf-tasks-review",
+            "hf-test-review",
+            "hf-code-review",
+            "hf-traceability-review",
+        ):
+            self.assertIn(review_skill, text)
+
+    def test_commands_are_top_level_and_plugin_points_there(self):
+        for command in ("hf", "spec", "plan", "build", "review", "ship", "release"):
+            self.assertTrue((COMMANDS_DIR / f"{command}.md").exists(), command)
+        self.assertIn('"commands": "./commands"', PLUGIN_JSON.read_text())
 
     def test_return_contract_has_four_statuses(self):
         text = RETURN_CONTRACT.read_text()

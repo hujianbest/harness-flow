@@ -56,7 +56,7 @@ bash /path/to/harness-flow/install.sh --target cursor --host /path/to/your/proje
 bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
 ```
 
-脚本会复制或软链接 `skills/`，放置客户端规则，并写入 `.harnessflow-install-manifest.json`，让 uninstall 只移除 HF 管理的文件。
+脚本会复制或软链接 `skills/` 和 `agents/`，放置客户端规则，并写入 `.harnessflow-install-manifest.json`，让 uninstall 只移除 HF 管理的文件。
 
 ### 试一下
 
@@ -250,7 +250,8 @@ harness-flow/
 │   ├── hf-wisdom-notebook/            # Knowledge: cross-task memory
 │   ├── hf-context-mesh/               # Context: client rule skeletons
 │   └── hf-ultrawork/                  # Fast lane: explicit auto mode
-├── .claude/commands/               # 7 Claude Code slash commands
+├── commands/                       # 7 client-agnostic slash command definitions
+├── agents/                         # HF subagent role definitions
 ├── .claude-plugin/                 # Claude Code marketplace plugin metadata
 ├── .cursor/rules/                  # Cursor alwaysApply entry rule
 ├── .opencode/                      # OpenCode integration assets
@@ -270,7 +271,7 @@ harness-flow/
 └── README.zh-CN.md
 ```
 
-把 HarnessFlow vendor 到另一个项目时，只需要复制 `skills/`，或直接使用 `install.sh`。每个 skill 自己拥有 `SKILL.md`、`references/`、`evals/` 和可选 `scripts/`；不需要额外复制顶层模板包。`docs/principles/` 解释本仓库的设计，但宿主项目运行时不依赖它。
+把 HarnessFlow vendor 到另一个项目时，需要复制 `skills/` 和 `agents/`，或直接使用 `install.sh`。每个 skill 自己拥有 `SKILL.md`、`references/`、`evals/` 和可选 `scripts/`；共享 subagent roles 放在 `agents/`，客户端 slash-command definitions 放在 `commands/`。`docs/principles/` 解释本仓库的设计，但宿主项目运行时不依赖它。
 
 ---
 
