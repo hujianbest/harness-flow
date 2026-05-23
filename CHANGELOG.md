@@ -8,7 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
-- **`hf-subagent-driven-dev`** —— 新增可选实现 leaf：当 approved task 可完整封装给 fresh implementer subagent 时，router 可选择该节点执行单一活跃任务；后续仍回到既有 HF review/gate 链，不跳过 Fagan verdict、gate verdict、approval record 或 closeout。同步新增 implementer return contract，并更新 README / README.zh-CN skill 清单。
+- **`hf-subagent-driven-dev`** —— 新增可选实现 leaf：当 approved task 可完整封装给 `hf-implementer` 时，router 可选择该节点执行单一活跃任务；`hf-implementer` 必须使用 `hf-test-driven-dev` 完成 TDD 实现，后续由 `hf-reviewer` 执行既有 HF review skills，不跳过 Fagan verdict、gate verdict、approval record 或 closeout。同步新增 agent role contracts / implementer return contract，并更新 README / README.zh-CN skill 清单。
 
 ## [0.6.0] - 2026-05-15 — pre-release
 

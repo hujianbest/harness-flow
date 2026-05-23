@@ -2,12 +2,13 @@
 
 ## Purpose
 
-本文件定义 `hf-subagent-driven-dev` 派发的 implementer subagent 返回给父会话的最小结构化摘要。它只描述实现尝试的状态，不替代 review / gate verdict。
+本文件定义 `hf-subagent-driven-dev` 派发的 `hf-implementer` 返回给父会话的最小结构化摘要。它只描述实现尝试的状态，不替代 `hf-reviewer` 或 gate verdict。
 
 ## Minimal return format
 
 ```json
 {
+  "agent_role": "hf-implementer",
   "status": "DONE|DONE_WITH_CONCERNS|NEEDS_CONTEXT|BLOCKED",
   "task_id": "TASK-001",
   "changed_artifacts": ["path/to/file"],
@@ -31,6 +32,7 @@
 ## Field rules
 
 - `status` must be one of the four values above.
+- `agent_role` must be `hf-implementer`.
 - `task_id` must match the current `Current Active Task`.
 - `changed_artifacts` lists touched files or generated workflow artifacts; it is not a review finding list.
 - `evidence_anchors` must point to fresh RED/GREEN commands, logs, or verification artifacts.
@@ -43,7 +45,7 @@
 
 1. Verify `task_id` matches the active task and worktree context.
 2. Check `status`.
-3. For `DONE`, verify evidence anchors and handoff completeness before entering the next HF node.
+3. For `DONE`, verify evidence anchors and handoff completeness before dispatching `hf-reviewer` or entering the next HF node.
 4. For `DONE_WITH_CONCERNS`, classify every concern:
    - scope/correctness/evidence concern: resolve or re-dispatch before review
    - advisory observation: record in remaining risk, then continue
@@ -52,4 +54,4 @@
 
 ## Boundary
 
-This contract is not a reviewer return contract. It does not use `conclusion`, does not write `record_path`, and does not authorize approval, completion, or closeout.
+This contract is not a reviewer return contract. It does not use `conclusion`, does not write `record_path`, and does not authorize approval, completion, or closeout. `hf-reviewer` remains responsible for review records through the normal reviewer return contract.
