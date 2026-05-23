@@ -219,14 +219,36 @@ Key design choices:
 
 ```text
 harness-flow/
-├── skills/                         # Redistributable skill pack
-│   ├── using-hf-workflow/
-│   ├── hf-workflow-router/
-│   ├── hf-specify/
-│   ├── hf-design/
-│   ├── hf-test-driven-dev/
-│   ├── hf-finalize/
-│   └── ...                         # one folder per skill
+├── skills/                            # 29 skills (28 hf-* + 1 entry skill)
+│   ├── using-hf-workflow/             # Meta: choose entry point
+│   ├── hf-workflow-router/            # Meta: route from artifacts
+│   ├── hf-product-discovery/          # Discover: frame product opportunity
+│   ├── hf-discovery-review/           # Discover: review discovery output
+│   ├── hf-experiment/                 # Discover: probe blocking hypotheses
+│   ├── hf-specify/                    # Define: write or revise specs
+│   ├── hf-spec-review/                # Define: review specs
+│   ├── hf-design/                     # Plan: architecture and decisions
+│   ├── hf-design-review/              # Plan: review architecture
+│   ├── hf-ui-design/                  # Plan: UI surface design
+│   ├── hf-ui-review/                  # Plan: review UI design
+│   ├── hf-tasks/                      # Plan: break work into tasks
+│   ├── hf-tasks-review/               # Plan: review task plan
+│   ├── hf-gap-analyzer/               # Plan: author-side gap check
+│   ├── hf-test-driven-dev/            # Build: one task with TDD
+│   ├── hf-browser-testing/            # Verify: browser runtime evidence
+│   ├── hf-test-review/                # Review: test quality
+│   ├── hf-code-review/                # Review: implementation quality
+│   ├── hf-traceability-review/        # Review: end-to-end traceability
+│   ├── hf-regression-gate/            # Gate: regression evidence
+│   ├── hf-doc-freshness-gate/         # Gate: docs stay current
+│   ├── hf-completion-gate/            # Gate: completion decision
+│   ├── hf-finalize/                   # Closeout: handoff pack
+│   ├── hf-release/                    # Release: tag-ready release pack
+│   ├── hf-hotfix/                     # Branch: defect recovery
+│   ├── hf-increment/                  # Branch: scope change
+│   ├── hf-wisdom-notebook/            # Knowledge: cross-task memory
+│   ├── hf-context-mesh/               # Context: client rule skeletons
+│   └── hf-ultrawork/                  # Fast lane: explicit auto mode
 ├── .claude/commands/               # 7 Claude Code slash commands
 ├── .claude-plugin/                 # Claude Code marketplace plugin metadata
 ├── .cursor/rules/                  # Cursor alwaysApply entry rule
