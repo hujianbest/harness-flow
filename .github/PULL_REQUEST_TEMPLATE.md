@@ -37,7 +37,7 @@ Brief enumeration. For larger PRs, group by area:
 - `skills/<name>/`: <what changed>
 - `examples/writeonce/`: <what changed>
 - `docs/`: <what changed>
-- `.claude-plugin/` / `.claude/commands/`: <what changed>
+- `.claude-plugin/` / `commands/` / `agents/`: <what changed>
 - `README.md` / `README.zh-CN.md` / `CHANGELOG.md`: <what changed>
 
 ## Testing / verification

@@ -2,22 +2,22 @@
 
 ## 目的
 
-这份协议说明 `hf-workflow-router` 与各上游产出 skill 在遇到 review 节点时，如何把评审动作派发给独立 reviewer subagent，而不是在父会话里内联执行 review。
+这份协议说明 `hf-workflow-router` 与各上游产出 skill 在遇到 review 节点时，如何把评审动作派发给独立 `hf-reviewer` subagent，而不是在父会话里内联执行 review。
 
 ## 核心原则
 
 1. review 节点仍然是 workflow 的 canonical 节点。
 2. 进入 review 节点时，父会话不直接执行评审判断。
-3. 父会话要构造 review request，并启动独立 reviewer subagent。
-4. reviewer subagent 在 fresh context 中读取对应 `hf-*review` skill 与最小必要工件。
-5. reviewer subagent 负责写 review 记录并回传结构化摘要。
+3. 父会话要构造 review request，并启动独立 `hf-reviewer` subagent。
+4. `hf-reviewer`（定义见 `agents/hf-reviewer.md`）在 fresh context 中读取对应 `hf-*review` skill 与最小必要工件。
+5. `hf-reviewer` 负责写 review 记录并回传结构化摘要。
 6. 父会话消费该摘要，继续主链推进或进入 approval step。
 
 其中 reviewer 摘要里的 canonical handoff 字段应与 family vocabulary 对齐，统一使用 `next_action_or_recommended_skill`。
 
 ## 当前适用节点
 
-| Canonical review 节点 | reviewer subagent 调用的 skill |
+| Canonical review 节点 | `hf-reviewer` 调用的 skill |
 | --- | --- |
 | `hf-spec-review` | `hf-spec-review` |
 | `hf-design-review` | `hf-design-review` |
@@ -61,7 +61,7 @@
 - 选择正确的 review skill
 - 组装最小 review request
 - 若当前 `Workspace Isolation=worktree-active`，把 `Worktree Path` / `Worktree Branch` 明确带入 review request
-- 启动 reviewer subagent
+- 启动 `hf-reviewer` subagent
 - 消费 reviewer 返回摘要
 - 在需要时发起 approval step，或在 `Execution Mode=auto` 下自动落盘批准
 - 根据摘要继续推进或回流修订
@@ -73,9 +73,9 @@
 - 在当前上下文直接执行 review 判断
 - 代替 reviewer 写 review 记录
 
-## reviewer subagent 职责
+## `hf-reviewer` subagent 职责
 
-reviewer subagent 负责：
+`hf-reviewer` subagent 负责：
 
 - 读取对应 `hf-*review` skill
 - 读取 review request 指定的最小必要工件
@@ -84,7 +84,7 @@ reviewer subagent 负责：
 - 把评审记录写到约定路径
 - 按统一 return contract 回传摘要
 
-reviewer subagent 不负责：
+`hf-reviewer` subagent 不负责：
 
 - 推进整个 workflow 到下一主链节点
 - 代替父会话做 approval step 决策或落盘

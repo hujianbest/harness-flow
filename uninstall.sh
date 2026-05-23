@@ -21,6 +21,7 @@ PARENT_DIRS=(
     ".opencode/skills"
     ".cursor/harness-flow-skills"
     ".cursor/rules"
+    "agents"
 )
 
 usage() {

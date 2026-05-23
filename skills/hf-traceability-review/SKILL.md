@@ -102,11 +102,14 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 
 保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`（全 feature 一次性 review，scope 省略；若同一 feature 内多次复审，追加日期或序号后缀）。参考 `references/traceability-review-record-template.md`。
 
+报告形态：`通过` 且无关键 finding 时，review record 可收敛为 thin verdict block，并由 task completion summary 聚合；`需修改` / `阻塞`、断链、漂移、范围变化或 workflow blocker 时，必须展开详细诊断。
+
 ## Output Contract
 
 完成时产出：
 - Review 记录（保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`）
 - 链接矩阵（spec→design→tasks→impl→test 映射）
+- 通过态 thin verdict block，或异常态详细诊断；两者都必须可被 task completion summary 索引
 - 明确 verdict 和唯一下一步
 - workflow blocker 时显式写明 `reroute_via_router=true`
 

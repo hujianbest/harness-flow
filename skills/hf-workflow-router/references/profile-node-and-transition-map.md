@@ -30,6 +30,7 @@
 - `hf-tasks-review`
 - `任务真人确认`
 - `hf-test-driven-dev`
+- `hf-subagent-driven-dev`（conditional：approved task 可被完整封装给 fresh implementer subagent 时，作为 `hf-test-driven-dev` 的可选实现 leaf；不改变后续 review/gate 链）
 - `hf-test-review`
 - `hf-code-review`
 - `hf-traceability-review`
@@ -42,7 +43,8 @@
 
 - `hf-ui-design` / `hf-ui-review` 属于 **design stage 内部的 conditional peer**，不是 side-line。激活判定见 `ui-surface-activation.md`
 - `hf-experiment` 属于 **discovery / spec stage 内部的 conditional insertion**（Phase 0 引入）：在 discovery 或 spec 中发现 Blocking / 低 confidence 关键假设时临时插入，完成后回到插入点（`hf-product-discovery` / `hf-discovery-review` / `hf-specify` / `hf-spec-review`）；激活判定见本文件的 `hf-experiment 激活与回流` 一节
-- `hf-browser-testing` 属于 **verify stage 内部的 conditional side node**（v0.2.0 / ADR-002 D1 / D7 引入）：在 `hf-test-driven-dev` GREEN 之后，当 task 或代码影响面触碰前端运行面时由 router 拐点拉入；产出 runtime evidence bundle（DOM / Console / Network 三层），不签发 verdict，不修改主链 FSM 主路径；完成后回到下游 gate（`hf-regression-gate` / `hf-completion-gate`）。若代码事实显示触碰 UI / API client / dev-server 配置，但 spec / tasks 未声明对应 runtime surface，router 必须回上游补工件，不得静默跳过。激活判定见本文件的 `hf-browser-testing 激活与回流` 一节
+- `hf-browser-testing` 属于 **verify stage 内部的 conditional side node**（v0.2.0 / ADR-002 D1 / D7 引入）：在 `hf-test-driven-dev` / `hf-subagent-driven-dev` GREEN 之后，当 task 或代码影响面触碰前端运行面时由 router 拐点拉入；产出 runtime evidence bundle（DOM / Console / Network 三层），不签发 verdict，不修改主链 FSM 主路径；完成后回到下游 gate（`hf-regression-gate` / `hf-completion-gate`）。若代码事实显示触碰 UI / API client / dev-server 配置，但 spec / tasks 未声明对应 runtime surface，router 必须回上游补工件，不得静默跳过。激活判定见本文件的 `hf-browser-testing 激活与回流` 一节
+- `hf-subagent-driven-dev` 属于 **implementation stage 内部的 conditional alternative**，不是并行实现模式；一次仍只允许一个 `Current Active Task`，且后续 review/gate 链与 `hf-test-driven-dev` 相同
 - `standard` / `lightweight` profile 不加入 `hf-ui-design` / `hf-ui-review` / `hf-product-discovery` / `hf-experiment` 作为主链节点；若新 iteration 需要补 discovery 或假设验证，应升级到 `full`
 - `hf-browser-testing` 不依赖 profile，全 profile 共享同一激活规则（runtime surface 声明或代码事实 + 当前 task 触碰前端 / API client / dev-server 配置）
 
@@ -52,6 +54,7 @@
 - `hf-tasks-review`
 - `任务真人确认`
 - `hf-test-driven-dev`
+- `hf-subagent-driven-dev`（conditional：同 full profile；不适用于任务强耦合或上下文不可封装）
 - `hf-test-review`
 - `hf-code-review`
 - `hf-traceability-review`
@@ -66,6 +69,7 @@
 - `hf-tasks-review`
 - `任务真人确认`
 - `hf-test-driven-dev`
+- `hf-subagent-driven-dev`（conditional：同 full profile；通过后仍按 lightweight 质量链进入 gate）
 - `hf-regression-gate`
 - `hf-doc-freshness-gate`（Phase 0 / ADR-0003：lightweight 模式下使用 lightweight checklist template，≤ 5 分钟 / ≤ 30 行）
 - `hf-completion-gate`
@@ -94,10 +98,10 @@
 full (no UI surface):
   hf-specify -> hf-spec-review -> 规格真人确认
   -> hf-design -> hf-design-review -> 设计真人确认
-  -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
+  -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev | hf-subagent-driven-dev
   -> hf-test-review -> hf-code-review
   -> hf-traceability-review -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
-  -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
+  -> if unique next-ready task exists: hf-workflow-router -> eligible implementation leaf
   -> else: hf-finalize
 
 full (with UI surface, Design Execution Mode=parallel):
@@ -105,23 +109,23 @@ full (with UI surface, Design Execution Mode=parallel):
   -> {hf-design || hf-ui-design}                      # 并行起稿
   -> {hf-design-review || hf-ui-review}               # 各自独立 reviewer subagent
   -> 设计真人确认                                       # 两条 review 均 `通过` 后由父会话汇总发起
-  -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
+  -> hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev | hf-subagent-driven-dev
   -> hf-test-review -> hf-code-review
   -> hf-traceability-review -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
-  -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
+  -> if unique next-ready task exists: hf-workflow-router -> eligible implementation leaf
   -> else: hf-finalize
 
 standard:
-  hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
+  hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev | hf-subagent-driven-dev
   -> hf-test-review -> hf-code-review
   -> hf-traceability-review -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
-  -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
+  -> if unique next-ready task exists: hf-workflow-router -> eligible implementation leaf
   -> else: hf-finalize
 
 lightweight:
-  hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev
+  hf-tasks -> hf-tasks-review -> 任务真人确认 -> hf-test-driven-dev | hf-subagent-driven-dev
   -> hf-regression-gate -> hf-doc-freshness-gate -> hf-completion-gate
-  -> if unique next-ready task exists: hf-workflow-router -> hf-test-driven-dev
+  -> if unique next-ready task exists: hf-workflow-router -> eligible implementation leaf
   -> else: hf-finalize
 
 branches:
@@ -131,9 +135,10 @@ branches:
 
 说明：
 
-- `hf-test-driven-dev` 到 `hf-completion-gate` 描述的是“单个 `Current Active Task` 的实现与质量闭环”
+- `hf-test-driven-dev` / `hf-subagent-driven-dev` 到 `hf-completion-gate` 描述的是“单个 `Current Active Task` 的实现与质量闭环”
+- “单个 task”是质量闭环边界，不是 build 会话停止条件；通过态应聚合为 task summary + thin verdict blocks，避免每个 review / gate 生成面向人的长报告
 - `hf-completion-gate` 返回 `通过` 后，不默认等于“整个 workflow 已完成”；父会话必须先判断是否仍有 approved 且 dependency-ready 的剩余任务
-- 若存在唯一 `next-ready task`，先回到 `hf-workflow-router` 锁定新的 `Current Active Task`，再重新进入 `hf-test-driven-dev`
+- 若存在唯一 `next-ready task`，先回到 `hf-workflow-router` 锁定新的 `Current Active Task`，再进入合格实现 leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`）
 - 只有在没有剩余任务时，才进入 `hf-finalize`
 
 ## 结果驱动迁移表
@@ -175,9 +180,11 @@ branches:
 | `hf-tasks-review` | `通过` | 任务真人确认 |
 | `hf-tasks-review` | `需修改` / `阻塞` | `hf-tasks` |
 | `hf-tasks-review` | `阻塞`（需重编排） | `hf-workflow-router` |
-| 任务真人确认 | approval step 完成 | `hf-test-driven-dev` |
+| 任务真人确认 | approval step 完成（默认 / eligibility 不清） | `hf-test-driven-dev` |
+| 任务真人确认 | approval step 完成（task 可完整封装给 fresh implementer subagent） | `hf-subagent-driven-dev` |
 | 任务真人确认 | 要求修改 / approval step 未完成 | `hf-tasks` |
 | `hf-test-driven-dev` | 实现完成 | `hf-test-review` |
+| `hf-subagent-driven-dev` | 实现完成 | `hf-test-review` |
 | `hf-test-review` | `通过` | `hf-code-review` |
 | `hf-test-review` | `需修改` / `阻塞` | `hf-test-driven-dev` |
 | `hf-code-review` | `通过` | `hf-traceability-review` |
@@ -203,9 +210,11 @@ branches:
 | `hf-tasks-review` | `通过` | 任务真人确认 |
 | `hf-tasks-review` | `需修改` / `阻塞` | `hf-tasks` |
 | `hf-tasks-review` | `阻塞`（需重编排） | `hf-workflow-router` |
-| 任务真人确认 | approval step 完成 | `hf-test-driven-dev` |
+| 任务真人确认 | approval step 完成（默认 / eligibility 不清） | `hf-test-driven-dev` |
+| 任务真人确认 | approval step 完成（task 可完整封装给 fresh implementer subagent） | `hf-subagent-driven-dev` |
 | 任务真人确认 | 要求修改 / approval step 未完成 | `hf-tasks` |
 | `hf-test-driven-dev` | 实现完成 | `hf-test-review` |
+| `hf-subagent-driven-dev` | 实现完成 | `hf-test-review` |
 | `hf-test-review` | `通过` | `hf-code-review` |
 | `hf-test-review` | `需修改` / `阻塞` | `hf-test-driven-dev` |
 | `hf-code-review` | `通过` | `hf-traceability-review` |
@@ -231,9 +240,11 @@ branches:
 | `hf-tasks-review` | `通过` | 任务真人确认 |
 | `hf-tasks-review` | `需修改` / `阻塞` | `hf-tasks` |
 | `hf-tasks-review` | `阻塞`（需重编排） | `hf-workflow-router` |
-| 任务真人确认 | approval step 完成 | `hf-test-driven-dev` |
+| 任务真人确认 | approval step 完成（默认 / eligibility 不清） | `hf-test-driven-dev` |
+| 任务真人确认 | approval step 完成（task 可完整封装给 fresh implementer subagent） | `hf-subagent-driven-dev` |
 | 任务真人确认 | 要求修改 / approval step 未完成 | `hf-tasks` |
 | `hf-test-driven-dev` | 实现完成 | `hf-regression-gate` |
+| `hf-subagent-driven-dev` | 实现完成 | `hf-regression-gate` |
 | `hf-regression-gate` | `通过` | `hf-doc-freshness-gate` |
 | `hf-regression-gate` | `需修改` / `阻塞` | `hf-test-driven-dev` |
 | `hf-doc-freshness-gate` | `pass` / `partial` / `N/A` | `hf-completion-gate`（lightweight 模式下使用 `templates/lightweight-checklist-template.md`，verdict 文件 ≤ 30 行） |
@@ -283,7 +294,7 @@ branches:
 3. 若 feature `progress.md` 或等价工件已经写入合法或可归一化的 `Next Action Or Recommended Skill`，且它来自上一个已完成节点并与最新证据不冲突，优先采用这个显式下一步
 4. 否则检查该结论对应的上游 / 下游迁移是否在当前 profile 迁移表中有明确规则
 5. 若当前结论是 `hf-completion-gate=通过`，优先检查已批准任务计划或 `Task Board Path` 指向的等价工件：
-   - 若存在唯一 `next-ready task`，先把 `Current Active Task` 切换到该任务，并把显式下一步锁定为 `hf-test-driven-dev`
+   - 若存在唯一 `next-ready task`，先把 `Current Active Task` 切换到该任务，并把显式下一步锁定为合格实现 leaf（默认 `hf-test-driven-dev`；subagent eligible 时可为 `hf-subagent-driven-dev`）
    - 若不存在剩余 ready / pending task，才把下一步视为 `hf-finalize`
    - 若剩余任务候选不唯一、依赖状态冲突或 ready 判定不稳定，回到 `hf-workflow-router` 作为 hard stop
 6. 根据当前会话上下文判断用户是否已经提出了新范围、新缺陷或新阻塞（基于已有信息判断，不主动询问用户）
@@ -323,8 +334,8 @@ branches:
 2. 读取 task board，先把 T1 投影为 `done`
 3. 根据 `Depends On` + `Ready When` 判断，T2 成为唯一 `next-ready task`
 4. 更新 `Current Active Task: T2`
-5. 将 `Next Action Or Recommended Skill` 锁定为 `hf-test-driven-dev`
-6. 因为这不是 approval node，也不是 hard stop，所以在同一轮继续进入 `hf-test-driven-dev`
+5. 将 `Next Action Or Recommended Skill` 锁定为合格实现 leaf（默认 `hf-test-driven-dev`；subagent eligible 时可为 `hf-subagent-driven-dev`）
+6. 因为这不是 approval node，也不是 hard stop，所以在同一轮继续进入该实现 leaf
 
 ### 最小示例：最后一个任务完成后进入 finalize
 
@@ -353,22 +364,22 @@ branches:
 
 ## `hf-browser-testing` 激活与回流
 
-`hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入）是 verify 阶段的 conditional side node，**不修改主链 FSM 主路径**。router 在以下条件满足时把它作为 `hf-test-driven-dev` 的下一推荐节点：
+`hf-browser-testing`（v0.2.0 / ADR-002 D1 / D7 引入）是 verify 阶段的 conditional side node，**不修改主链 FSM 主路径**。router 在以下条件满足时把它作为实现 leaf（`hf-test-driven-dev` / `hf-subagent-driven-dev`）的下一推荐节点：
 
-1. `hf-test-driven-dev` 已完成当前 active task 的 GREEN（progress.md 中存在 GREEN 交接块且单元 fresh evidence 可读）。
+1. 当前实现 leaf 已完成 active task 的 GREEN（progress.md 中存在 GREEN 交接块且单元 fresh evidence 可读）。
 2. runtime surface 已被工件声明：`features/<active>/spec.md` 中存在 UI surface / API client / runtime surface 段，或 `hf-ui-design` 已批准，或 `tasks.md` 的当前 task 明确列出 browser smoke / API contract / full-stack smoke 证据。
 3. 当前 active task 影响面触碰前端运行面，依据 `tasks.md`、design 工件、实现交接块或变更文件判断。触发信号包括：可见页面 / route / App 根组件、UI library provider、表单交互、前端 API client / fetch / auth store、Vite proxy / env / dev-server 配置、浏览器存储、网络错误处理。
 
 处理规则：
 
-- 条件 1 不满足 → 回 `hf-test-driven-dev` 补 GREEN evidence。
+- 条件 1 不满足 → 回当前实现 leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`）补 GREEN evidence。
 - 条件 2 不满足但条件 3 明确满足 → 工件与代码事实冲突；回 `hf-specify` / `hf-tasks`（按缺失层级）补 runtime surface / DoD，而不是跳过浏览器证据。
-- 条件 3 不满足 → router 跳过 `hf-browser-testing`，直接把 `hf-test-driven-dev` 的下一推荐节点收敛为下游正常迁移（典型为 `hf-test-review` / `hf-code-review` 二者并行 → `hf-regression-gate`）。
+- 条件 3 不满足 → router 跳过 `hf-browser-testing`，直接把实现 leaf 的下一推荐节点收敛为下游正常迁移（典型为 `hf-test-review` / `hf-code-review` 二者并行 → `hf-regression-gate`）。
 
 回流（`hf-browser-testing` 完成后）：
 
 - 0 blocking + 0 major observation → 下一推荐节点 = `hf-regression-gate`（按主链原迁移规则继续）。
-- ≥ 1 blocking observation → 下一推荐节点 = `hf-test-driven-dev`（携带 finding，回修后重跑 GREEN）。
+- ≥ 1 blocking observation → 下一推荐节点 = 当前实现 leaf（携带 finding，回修后重跑 GREEN）。
 - 0 blocking + ≥ 1 major observation → 下一推荐节点 = observations.md 中 majority `suggested next` 指向的节点（典型为 `hf-test-review` 或 `hf-ui-review`）。
 
 `hf-browser-testing` **不**签发 pass / fail verdict（参见 SKILL.md Hard Gates 与 Common Rationalizations）；上述回流是 router 基于 observation 计数的机械路由，不是 reviewer verdict。

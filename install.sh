@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # install.sh — Install HarnessFlow into a host repository for Cursor / OpenCode.
 #
-# Vendors the HF skills tree (and Cursor rule, when applicable) into a host
+# Vendors the HF skills and agents trees (and Cursor rule, when applicable) into a host
 # repository and writes a manifest so the install can be cleanly reversed via
 # uninstall.sh.
 #
@@ -36,10 +36,11 @@ Vendors HarnessFlow into a host repository:
   --target opencode → host/.opencode/skills/
   --target cursor   → host/.cursor/harness-flow-skills/ + host/.cursor/rules/harness-flow.mdc
   --target both     → both of the above
+  all targets       → host/agents/
 
 Topology:
   copy    → cp -R the skills tree (per-skill manifest entries)
-  symlink → ln -s the skills tree (single symlink manifest entry)
+  symlink → ln -s the skills and agents trees (single symlink manifest entries)
 
 Manifest is written to host/.harnessflow-install-manifest.json.
 A README is written to host/.harnessflow-install-readme.md.
@@ -318,6 +319,27 @@ vendor_cursor() {
     fi
 }
 
+vendor_agents() {
+    local agents_abs="$HOST/agents"
+    local agents_rel="agents"
+    if [ "$TOPOLOGY" = "symlink" ]; then
+        mark_will_create symlink "$agents_abs" "$agents_rel"
+        op LN "$HF_REPO/agents" "$agents_abs"
+    else
+        mark_will_create dir "$agents_abs" "$agents_rel"
+        op MKDIR "$agents_abs"
+        local agent_path name
+        for agent_path in "$HF_REPO/agents"/*.md; do
+            [ -f "$agent_path" ] || continue
+            name="${agent_path##*/}"
+            local agent_abs="$agents_abs/$name"
+            local agent_rel="$agents_rel/$name"
+            mark_will_create file "$agent_abs" "$agent_rel"
+            op CP "$agent_path" "$agent_abs"
+        done
+    fi
+}
+
 write_manifest() {
     local manifest="$HOST/.harnessflow-install-manifest.json"
     local now
@@ -379,13 +401,16 @@ write_readme() {
 # 1. count vendored skills (expected ≥ 24)
 find .opencode/skills -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l
 
-# 2. inspect install manifest
+# 2. check shared agent definitions
+ls agents/hf-implementer.md agents/hf-reviewer.md 2>/dev/null
+
+# 3. inspect install manifest
 cat .harnessflow-install-manifest.json
 
-# 3. (symlink topology only) check symlink target
+# 4. (symlink topology only) check symlink target
 readlink .opencode/skills 2>/dev/null || true
 
-# 4. (cursor target only) check rule placement
+# 5. (cursor target only) check rule placement
 ls -la .cursor/rules/harness-flow.mdc 2>/dev/null || true
 \`\`\`
 
@@ -421,6 +446,7 @@ main() {
             vendor_cursor
             ;;
     esac
+    vendor_agents
 
     write_readme
     write_manifest

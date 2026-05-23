@@ -85,6 +85,8 @@ Evidence-tier 完成判定矩阵：
 
 记录：完成范围、命令、退出码、结果摘要、新鲜度锚点、未覆盖什么。
 
+同时更新本 task 的人读 summary（默认 `features/<active>/summaries/task-<TASK-ID>.md`）：聚合实现交接块、review / gate thin verdict blocks、关键 findings、remaining risk 与 next task decision。summary 不替代任何 review / gate verdict；它只索引 `record_path` 与 evidence anchors。
+
 若项目未覆写格式，默认把 evidence bundle 映射到本 skill 模板 `references/verification-record-template.md` 的这些字段：
 - `Metadata`：`Verification Type=completion-gate`、Scope、Record Path、Worktree Path / Branch（若适用）
 - `Upstream Evidence Consumed`：implementation handoff、review / gate records、task / progress anchors
@@ -164,6 +166,7 @@ Evidence-tier 完成判定矩阵：
 - 剩余任务判断与“唯一 next-ready task / 无剩余任务 / 候选不唯一”结论
 - worktree 锚点（若适用）
 - 唯一门禁结论与唯一下一步
+- task completion summary 路径；通过态应把本 task 的 review / gate thin verdict matrix 聚合到该 summary，异常态才展开详细诊断
 
 在 feature `progress.md` 写回 canonical Next Action。
 

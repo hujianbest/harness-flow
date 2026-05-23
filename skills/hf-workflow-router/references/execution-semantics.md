@@ -40,7 +40,7 @@
 
 约束：
 
-- `worktree-required` 不是暂停点；若下一节点是 `hf-test-driven-dev`，应在同一轮继续完成 worktree 准备
+- `worktree-required` 不是暂停点；若下一节点是 `hf-test-driven-dev` / `hf-subagent-driven-dev`，应在同一轮继续完成 worktree 准备
 - 若当前是 `worktree-active`，review dispatch 必须携带 `Worktree Path` / `Worktree Branch`
 - 不允许在节点切换时静默丢失 worktree 上下文
 
@@ -52,7 +52,11 @@
 
 即使刚刚回到 `hf-workflow-router` 完成重编排，这条规则也不变：只要结果不是 `interactive` 下的 approval step，也不是 hard stop，就应继续在同一轮进入目标 skill，而不是额外停一轮等待用户回复。
 
-任务边界本身也不是默认暂停点：若当前任务刚通过 `hf-completion-gate`，且 router 能唯一锁定下一个 `Current Active Task`，则应在同一轮继续进入新的 `hf-test-driven-dev`，而不是把“一个任务做完”误当成自然暂停。
+任务边界本身也不是默认暂停点：若当前任务刚通过 `hf-completion-gate`，且 router 能唯一锁定下一个 `Current Active Task`，则应在同一轮继续进入合格实现 leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`），而不是把“一个任务做完”误当成自然暂停。
+
+`Build one task` 是实现原子边界，不是 build 会话的停止条件。build 会话应按“单 task 质量闭环 → task summary → router 选择唯一 next-ready task → 下一轮合格实现 leaf”循环；只有 approval step、hard stop、下一任务不唯一或无剩余任务时才停止。
+
+task summary 不是 verdict，也不是人工确认点；它只是把本 task 的实现证据、thin verdict blocks 与 next task decision 聚合到一个人读入口。
 
 ## Approval Step
 
@@ -61,7 +65,7 @@
 1. **规格真人确认**：`hf-spec-review` 返回 `通过` 后进入
 2. **设计真人确认**：`hf-design-review` 返回 `通过` 后进入
 3. **任务真人确认**：`hf-tasks-review` 返回 `通过` 后进入
-4. **测试用例设计确认**：`hf-test-driven-dev` 在进入 Red-Green-Refactor 前进入
+4. **测试用例设计确认**：`hf-test-driven-dev` / `hf-subagent-driven-dev` 在进入 Red-Green-Refactor 前进入
 
 处理规则：
 
@@ -102,7 +106,8 @@
 - `auto` 模式下，approval step 在 approval record 写入后继续进入下游节点
 - `auto` 模式下，`hf-spec-review` / `hf-design-review` 返回 `需修改` 且修订方向明确时，可自动回到上游 skill 继续修订
 - 除 `hf-spec-review` / `hf-design-review` 外，review / gate 结论为"需修改"且修订方向明确时，自动回到上游 skill 继续修订
-- 当前任务的 `hf-completion-gate` 返回 `通过` 后，若 router 能唯一锁定 `next-ready task`，则回 router 并在同一轮继续进入 `hf-test-driven-dev`
+- 当前任务的 `hf-completion-gate` 返回 `通过` 后，若 router 能唯一锁定 `next-ready task`，则回 router 并在同一轮继续进入合格实现 leaf
+- 当前任务 summary 已聚合 thin verdict blocks，且 verdict 均为 `通过`、下一任务唯一；summary 只是人读入口，不构成人工确认点
 - 恢复编排协议判断出唯一下一推荐节点时
 
 ## 连续执行的红旗信号

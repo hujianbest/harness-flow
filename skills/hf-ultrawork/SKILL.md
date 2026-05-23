@@ -48,6 +48,7 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
   1. 自动 dispatch 下一节点（按 router canonical next action）
   2. 各 approval 工件落盘（spec / design / tasks approval；reviewer verdict 通过时）
   3. `progress.md` `## Fast Lane Decisions` 段每次自动决策 +1 行 audit trail
+  4. 自动续跑唯一 next-ready task；通过态 review / gate 只要求 thin verdict block，并由 task completion summary 聚合
 - **Object Boundaries**:
   - 不写 review record / verdict / gate verdict
   - 不修改 spec / design / tasks artifact
@@ -106,6 +107,13 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
    - Input: 步骤 2-4 的决策记录
    - Output: progress.md 更新
    - Stop / continue: 一条决策一条 audit row；进入下一循环（回步骤 2）
+
+6. **跨 task 自动续跑**
+   - Object: build session task loop。
+   - Method: `hf-completion-gate=通过` 且 router 唯一锁定 next-ready task 时，写 audit row 后直接进入合格实现 leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`）。
+   - Input: completion verdict、task summary、task board / tasks plan。
+   - Output: 更新后的 `Current Active Task` + 下一轮实现。
+   - Stop / continue: 下一任务不唯一、无剩余任务或 escape 条件命中时让出 / finalize。
 
 ## Output Contract
 

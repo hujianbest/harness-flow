@@ -1,8 +1,8 @@
 # HarnessFlow on Cursor
 
-HarnessFlow v0.5.0 supports Cursor through Cursor's **rules** mechanism. Skills are plain Markdown, so the same `skills/` tree that ships in this repository is consumed by Cursor as a project-level (or globally-registered) `alwaysApply` rule that points the agent at the canonical entry shell + router.
+HarnessFlow v1.0.0 supports Cursor through Cursor's **rules** mechanism. Skills are plain Markdown, so the same `skills/` tree and shared `agents/` definitions that ship in this repository are consumed by Cursor through a project-level `alwaysApply` rule that points the agent at the canonical entry shell + router.
 
-> **Scope (v0.5.0 pre-release).** v0.5.0 officially supports 3 clients (unchanged from v0.3.0 / v0.4.0): **Claude Code**, **OpenCode**, and **Cursor**. The 4 remaining client expansions (Gemini CLI / Windsurf / GitHub Copilot / Kiro) stay deferred to v0.6+. v0.5.0 adds a **closeout HTML companion report** to `hf-finalize` — every closeout now also produces `features/<active>/closeout.html` rendered by the new stdlib-only `skills/hf-finalize/scripts/render-closeout-html.py` (workflow timeline rail + tests + coverage rings + searchable evidence matrix; WCAG 2.2 AA, dark/light, printable). v0.4.0's `hf-release` (release-tier **standalone** skill) is unchanged; on Cursor it is invoked via natural language ("cut a release / tag a version") through the entry shell's bias row, which then **direct invokes** `hf-release` without going through `hf-workflow-router` (ADR-004 D3). The HarnessFlow main chain still ends at `hf-finalize` (single-feature engineering-level closeout, now with HTML companion). The remaining 5 ops/release skills (`hf-shipping-and-launch` / etc.) and personas all stay deferred to v0.6+ (ADR-005 D5 / D7). See `docs/decisions/ADR-005-release-scope-v0.5.0.md` for the full v0.5.0 scope decisions.
+> **Scope (v1.0.0).** v1.0.0 is the first stable HarnessFlow release. It ships 29 `hf-*` skills plus `using-hf-workflow`, top-level `agents/` for shared subagent roles, and top-level `commands/` for slash command definitions. The supported clients remain **Claude Code**, **OpenCode**, and **Cursor**. `hf-release` remains engineer-level tag readiness only and does not deploy.
 
 ## How Cursor sees HF skills
 
@@ -40,7 +40,7 @@ bash /path/to/harness-flow/install.sh --target cursor --topology symlink \
      --host /path/to/your/project
 ```
 
-The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/` and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`. It also writes a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
+The script vendors `skills/` to `<host>/.cursor/harness-flow-skills/`, vendors shared `agents/` to `<host>/agents/`, and copies (or symlinks) `harness-flow.mdc` to `<host>/.cursor/rules/`. It also writes a `.harnessflow-install-manifest.json` and a `.harnessflow-install-readme.md` with quick-verify and uninstall instructions. To uninstall later:
 
 ```bash
 bash /path/to/harness-flow/uninstall.sh --host /path/to/your/project
@@ -61,9 +61,12 @@ cp ../harness-flow/.cursor/rules/harness-flow.mdc .cursor/rules/
 
 # And expose the skills tree itself (the rule references skills/ paths):
 ln -s ../harness-flow/skills .cursor/harness-flow-skills
+
+# And expose shared subagent role definitions:
+cp -R ../harness-flow/agents ./agents
 ```
 
-Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root). The install script automates this and also writes a manifest for clean uninstall.
+Each `hf-*` skill is self-contained, so a `cp -R ../harness-flow/skills .cursor/harness-flow-skills` is also fine if you don't want a symlink. Shared subagent roles live in `agents/`. The rule looks for `skills/using-hf-workflow/SKILL.md` and `skills/hf-workflow-router/SKILL.md` relative to the workspace root, so make sure those paths resolve (either via the symlink above, or by keeping `skills/` at the project root). The install script automates this and also writes a manifest for clean uninstall.
 
 ## 2. The shipped rule
 
@@ -121,7 +124,7 @@ Hard rule: the first 9 intents are **bias**, not bypass — the router inspects 
 | **Cursor stops between tasks under `Execution Mode = auto` and asks "proceed to next task?"** | This is an SOP violation, not expected behavior. The agent MUST chain through tasks in the same Cursor turn (router → next `hf-test-driven-dev`) until `hf-finalize` or a real `interactive` approval / hard stop. See the new "Cross-task continuous execution" Hard rule in `.cursor/rules/harness-flow.mdc`, and the canonical definitions in `skills/hf-workflow-router/references/execution-semantics.md` (§ 连续执行原则 / § 非暂停点 / § Hard Stop). If the agent still pauses, re-prompt: "Per `harness-flow.mdc` Hard rule on cross-task continuous execution, continue to the next active task in the same turn." |
 | Reviewer wants to edit the artifact under review | That violates author/reviewer separation — file an issue. |
 
-## 6. What is NOT included in v0.5.0
+## 6. What is NOT included in v1.0.0
 
 Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Honest, "narrow but hard"):
 
@@ -134,7 +137,7 @@ Per ADR-001 D1 + ADR-002 D1 / D11 + ADR-003 D2 / D3 / D6 + ADR-004 D2 / D3 (P-Ho
 - The SKILL.md anatomy audit script `scripts/audit-skill-anatomy.py` is **advisory** (does not block PR merge in maintainer workflows); ADR-003 D8 / ADR-004 keep this stance.
 - Real-environment Cursor install smoke is **not** a release hard gate (ADR-003 D7 / ADR-004 inherits). The first-time real Cursor verification is performed by users in their own Cursor environment; `CONTRIBUTING.md` "Known Limitations" carries this gap explicitly.
 
-These constraints are intentional. They keep the v0.5.0 surface small enough to be honest about what the release actually covers (1 closeout HTML companion report + 1 new stdlib-only render script, no new skills, no new clients, no new personas, no new ops skills).
+These constraints are intentional. They keep the stable v1.0.0 surface honest about what HF does and does not cover.
 
 ## 7. Cross-references
 
