@@ -33,7 +33,8 @@
 - Current Stage: hf-test-driven-dev
 - Workflow Profile: standard
 - Current Active Task: TASK-003
-- Pending Reviews And Gates: hf-test-review, hf-code-review, hf-traceability-review, hf-regression-gate, hf-completion-gate
+- Batch Quality Scope: TASK-001, TASK-002 (implemented-pending-batch-quality)
+- Pending Reviews And Gates: hf-test-review, hf-code-review, hf-traceability-review, hf-regression-gate, hf-doc-freshness-gate, hf-completion-gate
 - Relevant Files:
 - Constraints:
 
@@ -46,7 +47,7 @@
 
 ## Next Step
 
-- Next Action Or Recommended Skill: hf-test-review
+- Next Action Or Recommended Skill: hf-workflow-router
 - Blockers:
 - Notes:
 

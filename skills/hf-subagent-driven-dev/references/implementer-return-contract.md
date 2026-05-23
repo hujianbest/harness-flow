@@ -16,7 +16,7 @@
   "handoff_path": "features/<active>/summaries/task-TASK-001.md",
   "concerns": ["optional concern"],
   "blockers": ["optional blocker"],
-  "next_action_or_recommended_skill": "hf-test-review"
+  "next_action_or_recommended_skill": "hf-workflow-router"
 }
 ```
 
@@ -24,7 +24,7 @@
 
 | status | Meaning | Parent action |
 |---|---|---|
-| `DONE` | Implementation, tests, handoff, wisdom delta, and task progress sync are complete | Validate anchors, then enter the normal HF review/gate chain |
+| `DONE` | Implementation, tests, handoff, wisdom delta, and task progress sync are complete | Validate anchors, then return to router for next-ready task vs batch quality chain |
 | `DONE_WITH_CONCERNS` | Work is complete, but implementer flags doubts or residual risk | Classify concerns before review; scope/correctness/evidence concerns must be resolved first |
 | `NEEDS_CONTEXT` | Implementer cannot proceed without specific missing context | Provide the missing context and re-dispatch with an updated request |
 | `BLOCKED` | Implementer cannot complete the task under current plan/input | Change something: add context, use a more capable agent, split the task, reroute, or escalate |
@@ -45,7 +45,7 @@
 
 1. Verify `task_id` matches the active task and worktree context.
 2. Check `status`.
-3. For `DONE`, verify evidence anchors and handoff completeness before dispatching `hf-reviewer` or entering the next HF node.
+3. For `DONE`, verify evidence anchors and handoff completeness before returning to `hf-workflow-router`.
 4. For `DONE_WITH_CONCERNS`, classify every concern:
    - scope/correctness/evidence concern: resolve or re-dispatch before review
    - advisory observation: record in remaining risk, then continue
@@ -54,4 +54,4 @@
 
 ## Boundary
 
-This contract is not a reviewer return contract. It does not use `conclusion`, does not write `record_path`, and does not authorize approval, completion, or closeout. `hf-reviewer` remains responsible for review records through the normal reviewer return contract.
+This contract is not a reviewer return contract. It does not use `conclusion`, does not write `record_path`, and does not authorize approval, completion, or closeout. `hf-reviewer` remains responsible for review records when the batch quality chain starts.

@@ -74,10 +74,10 @@ The parent session enforces the role split:
 
 1. dispatch `hf-implementer` with bounded task text and required `hf-test-driven-dev` discipline
 2. reject any implementer `DONE` response missing RED/GREEN evidence or Refactor Note
-3. dispatch `hf-reviewer` only after implementer handoff is complete
+3. return to `hf-workflow-router` after implementer handoff is complete; dispatch `hf-reviewer` when the router starts the batch review chain
 4. reject reviewer output that lacks the reviewer return contract fields
 5. route fixes back to `hf-implementer` or `hf-workflow-router` based on the reviewer verdict
 
 ## Boundary
 
-The two-role model improves subagent-driven execution without introducing team mode. There is still one authoritative `Current Active Task`, one parent session controller, and the existing HF review/gate chain remains authoritative.
+The two-role model improves subagent-driven execution without introducing team mode. There is still one authoritative `Current Active Task`, one parent session controller, and the HF review/gate verdict chain remains authoritative even when executed once per batch.

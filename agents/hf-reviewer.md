@@ -34,6 +34,7 @@ The parent session must provide:
 - review type
 - selected review skill
 - artifact paths under review
+- `Batch Quality Scope` when reviewing post-implementation batch quality
 - minimal supporting context paths
 - workspace isolation context, if any
 - expected review record path

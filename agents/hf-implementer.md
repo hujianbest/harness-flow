@@ -39,7 +39,7 @@ Return:
 - fresh evidence anchors
 - implementation handoff path
 - concerns or blockers, if present
-- canonical next action suggestion
+- canonical next action suggestion (`hf-workflow-router` after normal implementation handoff)
 
 ## Hard boundaries
 

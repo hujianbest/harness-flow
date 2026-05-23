@@ -164,11 +164,12 @@ hf-workflow-router
 -> hf-tasks
 -> hf-tasks-review
 -> 任务真人确认
--> hf-test-driven-dev
+-> implementation batch loop (hf-test-driven-dev / hf-subagent-driven-dev, one Current Active Task at a time)
 -> hf-test-review
 -> hf-code-review
 -> hf-traceability-review
 -> hf-regression-gate
+-> hf-doc-freshness-gate
 -> hf-completion-gate
 -> hf-finalize
 ```

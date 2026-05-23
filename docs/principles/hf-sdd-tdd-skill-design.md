@@ -160,7 +160,8 @@ Kent Beck 的 `Canon TDD` 强调“一次一个测试”，HF 则应进一步强
 
 - `hf-workflow-router` 锁定唯一 `Current Active Task`
 - `hf-test-driven-dev` 只处理这一个任务
-- 当前任务的质量链未闭环前，不切下一任务
+- 当前任务的实现交接、fresh evidence、wisdom delta 与 task progress 未完成前，不切下一任务
+- review/gate 质量链可按 hybrid batch 在所有 approved tasks 实现完成后统一执行
 - 若存在下一个 `next-ready task`，也要先回 router，再重新进入实现
 
 ### 6. HF 的 TDD 应保留“测试设计确认”这一步

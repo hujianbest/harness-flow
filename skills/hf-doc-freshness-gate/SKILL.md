@@ -1,11 +1,11 @@
 ---
 name: hf-doc-freshness-gate
-description: 适用于已通过 hf-regression-gate、即将进入 hf-completion-gate、需要为本任务/本 feature 引入的对外可见行为变化判定相关用户文档（仓库根 README 产品介绍段、模块层 README、公共 API doc / OpenAPI / docstring、i18n 副本、CONTRIBUTING / onboarding doc、用户文档站 source）是否同步刷新的场景。不适用于尚未通过 hf-regression-gate（→ 上游）、纯 prose feature 但 reviewer 误以为强制 lint 工具链、阶段不清或证据冲突（→ hf-workflow-router）。
+description: 适用于已通过 hf-regression-gate、即将进入 hf-completion-gate、需要为本批 task/本 feature 引入的对外可见行为变化判定相关用户文档（仓库根 README 产品介绍段、模块层 README、公共 API doc / OpenAPI / docstring、i18n 副本、CONTRIBUTING / onboarding doc、用户文档站 source）是否同步刷新的场景。不适用于尚未通过 hf-regression-gate（→ 上游）、纯 prose feature 但 reviewer 误以为强制 lint 工具链、阶段不清或证据冲突（→ hf-workflow-router）。
 ---
 
 # HF Doc Freshness Gate
 
-判定本任务 / 本 feature 引入的 user-visible behavior change 是否已在**对外可见文档**中同步刷新，并按 sync-on-presence + profile 分级 + 与 `hf-completion-gate` / `hf-finalize` / `hf-increment` / `hf-code-review` / `hf-traceability-review` 显式分工的纪律输出 `verdict + fresh evidence`。
+判定本批 task / 本 feature 引入的 user-visible behavior change 是否已在**对外可见文档**中同步刷新，并按 sync-on-presence + profile 分级 + 与 `hf-completion-gate` / `hf-finalize` / `hf-increment` / `hf-code-review` / `hf-traceability-review` 显式分工的纪律输出 `verdict + fresh evidence`。
 
 **职责边界**：本 gate 只负责"对外可见文档的同步 verdict"。同 tier 的 `hf-regression-gate` 负责"行为不回归"；下游 `hf-completion-gate` 消费本 gate verdict 作为 evidence bundle 一项；`hf-finalize` 在 closeout 阶段同步既有合同覆盖的长期资产（CHANGELOG / ADR 状态翻转 / 顶层导航 / docs/architecture / docs/runbooks 等），**不重叠**本 gate 负责的对外可见文档维度。完整责任划分见 `references/responsibility-matrix.md`。
 
@@ -24,7 +24,7 @@ description: 适用于已通过 hf-regression-gate、即将进入 hf-completion-
 ## When to Use
 
 适用：
-- 父会话已通过 `hf-regression-gate`，即将进入 `hf-completion-gate`，需要本 gate verdict 作为 evidence bundle 一项
+- 父会话已通过 batch `hf-regression-gate`，即将进入 `hf-completion-gate`，需要本 gate verdict 作为 evidence bundle 一项
 - 用户明确要求"评估本任务对外可见文档是否同步"
 - reviewer subagent 被父会话按 `references/reviewer-dispatch-handoff.md` 派发执行本 gate
 
@@ -55,8 +55,8 @@ description: 适用于已通过 hf-regression-gate、即将进入 hf-completion-
 
 reviewer 按以下顺序读取输入（FR-001 + FR-004）：
 
-1. `features/<active>/spec.md` 中本任务 / 本 feature 关联 FR / NFR 条目
-2. `features/<active>/tasks.md` 中本任务 Acceptance（如适用）
+1. `features/<active>/spec.md` 中本批 task / 本 feature 关联 FR / NFR 条目
+2. `features/<active>/tasks.md` 中 `Batch Quality Scope` 覆盖 task 的 Acceptance（如适用）
 3. （若使用）Conventional Commits 中的 `feat:` / `fix:` / `BREAKING CHANGE:` / `docs:` 条目
 4. `features/<active>/progress.md` 中 `Workflow Profile` 字段
 5. 项目级覆盖（若项目已声明）
@@ -66,7 +66,7 @@ reviewer 按以下顺序读取输入（FR-001 + FR-004）：
 
 判定优先级：**spec FR/NFR 关联 > tasks Acceptance > Conventional Commits**（按可信度）。
 
-形成 user-visible behavior change list（FR-001）。若三类来源全缺 → 进入步骤 4 输出 verdict = `blocked`，next = `hf-traceability-review`。
+形成 user-visible behavior change list（FR-001），scope 覆盖 `Batch Quality Scope`。若三类来源全缺 → 进入步骤 4 输出 verdict = `blocked`，next = `hf-traceability-review`。
 
 ### 3. Reviewer subagent: 逐维度判定
 
@@ -75,7 +75,7 @@ reviewer 按以下顺序读取输入（FR-001 + FR-004）：
 | 判定情形 | 维度 verdict | evidence 标注 |
 |---|---|---|
 | 项目载体不存在（FR-003 sync-on-presence + NFR-004） | `N/A` | "项目当前未启用此资产" |
-| 本任务未触发该载体的同步需求（user-visible change list 与该载体无关） | `N/A` | "本 task / feature 未触发该资产变化" |
+| 本批 task 未触发该载体的同步需求（user-visible change list 与该载体无关） | `N/A` | "本 batch / feature 未触发该资产变化" |
 | 文档已同步 | `pass` | 引用 commits / file diff |
 | 部分维度未同步且不阻塞 closeout | `partial` | 列出未同步项 + 影响评估 |
 | 关键维度漂移（如仓库根 README 产品介绍段与本次行为相关部分明显过期） | `blocked` | next = `hf-test-driven-dev`（补文档变更） |
@@ -90,7 +90,7 @@ reviewer 按以下顺序读取输入（FR-001 + FR-004）：
 ### 4. Reviewer subagent: 写 verdict + evidence
 
 按 `templates/verdict-record-template.md` 写入 `features/<active>/verification/doc-freshness-YYYY-MM-DD.md`，至少包含：
-- metadata header（reviewer subagent ID、profile、commit hash、被测 task / feature）
+- metadata header（reviewer subagent ID、profile、commit hash、被测 batch scope / feature）
 - user-visible behavior change list（含 file:line 来源引用）
 - 维度判定明细表
 - 整体 verdict 与聚合理由

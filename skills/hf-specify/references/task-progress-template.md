@@ -8,6 +8,7 @@
 - 优先使用下面的 canonical 字段名，不再把 `Current Task` / `Next Action` 当作主字段。
 - 该模板定义的是 minimal canonical core；项目可按需追加附加工件区块，但不应改写核心字段名。
 - 若 workflow 需要 task-to-task 自动推进，建议额外提供 `Task Board Path`（默认 `features/<NNN>-<slug>/task-board.md`）或等价队列投影视图；`Current Active Task` 只记录当前锁定任务，不承担整个任务队列状态。可配合 `hf-tasks` 的 `references/task-board-template.md` 使用。
+- hybrid batch quality 下，已完成实现交接但尚未统一 review/gate 的 task 应记录到 `Batch Quality Scope`。
 
 ## Goal
 
@@ -23,6 +24,7 @@
 - Execution Mode:
 - Current Active Feature:                  # 例：features/003-rate-limiting/
 - Current Active Task:
+- Batch Quality Scope:
 - Pending Reviews And Gates:
 - Relevant Files:
 - Constraints:

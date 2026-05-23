@@ -5,7 +5,7 @@ description: 适用于 code review 通过后判断追溯完整性、用户显式
 
 # HF Traceability Review
 
-评审证据链追溯完整性：spec→design→tasks→impl→test/verification→status。防止"代码能跑但不再匹配已批准工件"。UI surface 还要追溯 `ui-design.md` 的 visual invariants / token / contract 到实现与截图证据，防止只证明"元素存在"。运行在 `hf-code-review` 之后，决定是否可进入 `hf-regression-gate`。
+评审证据链追溯完整性：spec→design→tasks→impl→test/verification→status。防止"代码能跑但不再匹配已批准工件"。UI surface 还要追溯 `ui-design.md` 的 visual invariants / token / contract 到实现与截图证据，防止只证明"元素存在"。运行在 `hf-code-review` 之后，决定是否可进入 `hf-regression-gate`。hybrid batch 下，本 review 覆盖 `Batch Quality Scope` 中所有已实现 task。
 
 ## Methodology
 
@@ -40,14 +40,14 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 
 ### 1. 建立证据基线
 
-读已批准规格、设计、任务计划（默认 `features/<active>/spec.md` / `design.md` / `tasks.md`）、实现交接块、test-review/code-review 记录（默认 `features/<active>/reviews/`）、项目级约定、feature `progress.md`（默认 `features/<active>/progress.md`）。
+读 `Batch Quality Scope`、已批准规格、设计、任务计划（默认 `features/<active>/spec.md` / `design.md` / `tasks.md`）、每个 task 的实现交接块、test-review/code-review 记录（默认 `features/<active>/reviews/`）、项目级约定、feature `progress.md`（默认 `features/<active>/progress.md`）。
 
 ### 1.5 Precheck：能否合法进入 review
 
-检查：是否存在稳定可定位的上游工件、实现交接块与上游 review 记录是否一致、route/stage/profile 是否稳定。
+检查：是否存在稳定可定位的上游工件、batch scope 是否可恢复、每个实现交接块与上游 review 记录是否一致、route/stage/profile 是否稳定。
 
 - route/stage/证据冲突 → 写最小 blocked precheck record，`reroute_via_router=true`
-- route 明确但缺关键上游工件或稳定实现交接块 → 写最小 blocked record，下一步 `hf-test-driven-dev`
+- route 明确但缺关键上游工件或任一 task 缺稳定实现交接块 → 写最小 blocked record，下一步 `hf-test-driven-dev`（finding 必须定位到 task ID）
 - precheck 通过 → 继续正式审查
 
 ### 2. 多维评分与挑战式审查
@@ -100,7 +100,7 @@ Direct invoke 信号："追溯评审"、"traceability review"、"帮我检查证
 
 ### 5. 写 review 记录
 
-保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review.md`（全 feature 一次性 review，scope 省略；若同一 feature 内多次复审，追加日期或序号后缀）。参考 `references/traceability-review-record-template.md`。
+保存到 项目声明的 review record 路径；若无项目覆写，默认使用 `features/<active>/reviews/traceability-review-batch-YYYY-MM-DD.md`（全 feature 一次性 review 可继续使用 `traceability-review.md`；若同一 feature 内多次复审，追加日期或序号后缀）。参考 `references/traceability-review-record-template.md`。
 
 报告形态：`通过` 且无关键 finding 时，review record 可收敛为 thin verdict block，并由 task completion summary 聚合；`需修改` / `阻塞`、断链、漂移、范围变化或 workflow blocker 时，必须展开详细诊断。
 

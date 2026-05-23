@@ -5,7 +5,7 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
 
 # HF Ultrawork
 
-架构师 explicit opt-in 的 fast lane skill。识别 fast lane 关键词 / Metadata 后接管"节点之间的是否继续"决策权，自动走 router canonical next action，自动写 approval 工件（reviewer verdict 通过时），不打断架构师。
+架构师 explicit opt-in 的 fast lane skill。识别 fast lane 关键词 / Metadata 后接管"节点之间的是否继续"决策权，自动走 router canonical next action，自动写 approval 工件（reviewer verdict 通过时），不打断架构师。hybrid batch quality 下，它会连续实现唯一 ready tasks，并在所有 approved tasks 实现完成后启动一次 batch review/gate chain。
 
 **绝不**绕过 Fagan author/reviewer 分离 + 硬门禁 verdict（见 Hard Gates 5 类不可压缩项）。markdown-only 路径下本 skill 是**宣告式**（declarative），依赖 host agent 自觉读取本 SKILL.md + 工件；v0.7 `harnessflow-runtime` 落地后才有 idle 检测 hook 增强。
 
@@ -29,8 +29,8 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
 
 | # | 不可压缩项 | 原因 |
 |---|---|---|
-| 1 | **8 个 Fagan review 节点的 verdict**：`hf-discovery-review` / `hf-spec-review` / `hf-design-review` / `hf-ui-review` / `hf-tasks-review` / `hf-test-review` / `hf-code-review` / `hf-traceability-review` | author ≠ reviewer 是工程纪律的根；fast lane 不能让作者自审或跳过任一 review verdict |
-| 2 | **3 个 gate verdict**：`hf-regression-gate` / `hf-doc-freshness-gate` / `hf-completion-gate` | gate 是"证据是否足以推进"的独立判断；fast lane 不能绕过任一 gate verdict |
+| 1 | **8 个 Fagan review 节点的 verdict**：`hf-discovery-review` / `hf-spec-review` / `hf-design-review` / `hf-ui-review` / `hf-tasks-review` / `hf-test-review` / `hf-code-review` / `hf-traceability-review` | author ≠ reviewer 是工程纪律的根；fast lane 不能让作者自审或跳过任一 review verdict。hybrid batch 只允许 `hf-test-review` / `hf-code-review` / `hf-traceability-review` 的 scope 覆盖整批 implemented tasks |
+| 2 | **3 个 gate verdict**：`hf-regression-gate` / `hf-doc-freshness-gate` / `hf-completion-gate` | gate 是"证据是否足以推进"的独立判断；fast lane 不能绕过任一 gate verdict。hybrid batch 只允许 gate scope 覆盖整批 implemented tasks |
 | 3 | **`hf-finalize` 的 closeout pack 完整性**（含 closeout HTML companion 由 ADR-005 引入） | PMBOK-style handoff，不减项；fast lane 不能简化 closeout pack |
 | 4 | **spec / design / tasks 的 approval 工件落盘**（即便 fast lane auto-APPROVED） | approval 自动化 ≠ approval 工件可省；ADR-009 D2 明文："approval 工件本身**必须**写入磁盘" |
 | 5 | **任何 SKILL.md `Hard Gates` 段命中"方向 / 取舍 / 标准不清必须停下抛回用户"** | `docs/principles/soul.md` 第 1 条硬纪律；fast lane 不豁免 standard 不清时的抛回义务 |
@@ -48,7 +48,7 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
   1. 自动 dispatch 下一节点（按 router canonical next action）
   2. 各 approval 工件落盘（spec / design / tasks approval；reviewer verdict 通过时）
   3. `progress.md` `## Fast Lane Decisions` 段每次自动决策 +1 行 audit trail
-  4. 自动续跑唯一 next-ready task；通过态 review / gate 只要求 thin verdict block，并由 task completion summary 聚合
+  4. 自动续跑唯一 next-ready task；所有 approved tasks 实现完成后启动 batch review/gate；通过态 review / gate 只要求 thin verdict block，并由 batch matrix + task completion summary 聚合
 - **Object Boundaries**:
   - 不写 review record / verdict / gate verdict
   - 不修改 spec / design / tasks artifact
@@ -110,10 +110,10 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
 
 6. **跨 task 自动续跑**
    - Object: build session task loop。
-   - Method: `hf-completion-gate=通过` 且 router 唯一锁定 next-ready task 时，写 audit row 后直接进入合格实现 leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`）。
-   - Input: completion verdict、task summary、task board / tasks plan。
-   - Output: 更新后的 `Current Active Task` + 下一轮实现。
-   - Stop / continue: 下一任务不唯一、无剩余任务或 escape 条件命中时让出 / finalize。
+   - Method: 实现交接完成且 router 唯一锁定 next-ready task 时，写 audit row 后直接进入合格实现 leaf（默认 `hf-test-driven-dev`，subagent eligible 时可为 `hf-subagent-driven-dev`）；无剩余 task 时启动 batch quality chain。
+   - Input: implementation handoff、task summary、task board / tasks plan、Batch Quality Scope。
+   - Output: 更新后的 `Current Active Task` + 下一轮实现，或 batch quality chain 首节点。
+   - Stop / continue: 下一任务不唯一、batch scope 不可恢复、escape 条件命中时让出；batch `hf-completion-gate` 通过后 finalize。
 
 ## Output Contract
 
@@ -154,7 +154,7 @@ description: Use when architect explicitly opts into fast lane via 'auto mode' /
 |---|---|
 | "review verdict 通过了，approval 工件不写也行，反正 review record 已经有了。" | Hard Gates 第 4 类（不可压缩 #4）+ ADR-009 D2: approval 工件**必须**落盘；review record + approval 工件是 2 类不同 audit 链 |
 | "escape 条件 5（rewrite loop 第 4 次）跟我现在没关系，跳过。" | Hard Gates: 6 条 escape 必须每个 verdict 后全检；漏检 = 违反 fast lane 边界 |
-| "架构师明确说了 ultrawork，意思就是连 review 也不用做了吧。" | Hard Gates 第 1 / 第 2 类（不可压缩 #1 #2）+ ADR-009 D2: ultrawork 仅压缩"中间确认"，**不**替代 Fagan review 与 gate verdict |
+| "架构师明确说了 ultrawork，意思就是连 review 也不用做了吧。" | Hard Gates 第 1 / 第 2 类（不可压缩 #1 #2）+ ADR-009 D2: ultrawork 仅压缩"中间确认"，hybrid batch 仅延后到整批完成，**不**替代 Fagan review 与 gate verdict |
 | "audit trail 太啰嗦，会话末尾一并补就行。" | Object Invariants: append-only + 即时追加；批量补 = 失去 fresh evidence 性质 |
 
 ## Reference Guide

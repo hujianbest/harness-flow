@@ -32,7 +32,8 @@
 - `pending`: 前置依赖或 ready 条件尚未满足
 - `ready`: 可被 router 锁定为下一任务
 - `in_progress`: 已被锁定为当前唯一活跃任务
-- `done`: 当前任务已完成实现质量链，并通过 `hf-completion-gate`
+- `implemented-pending-batch-quality`: 当前任务已完成实现交接，等待 batch review/gate 覆盖
+- `done`: 当前任务已被 batch review/gate 覆盖，并通过 `hf-completion-gate`
 - `blocked`: 任务当前无法推进，需要外部条件或上游修订
 - `cancelled`: 任务已失效、被改范围覆盖或不再执行
 
@@ -50,7 +51,7 @@
 | Task ID | Title | Status | Depends On | Ready When | Selection Priority | Last Outcome / Record | Notes |
 |---|---|---|---|---|---|---|---|
 | T1 | <task title> | ready | - | <ready condition> | P1 | N/A | <notes> |
-| T2 | <task title> | pending | T1 | T1=`done` | P2 | N/A | <notes> |
+| T2 | <task title> | pending | T1 | T1=`implemented-pending-batch-quality` | P2 | N/A | <notes> |
 
 ## State Change Log
 
