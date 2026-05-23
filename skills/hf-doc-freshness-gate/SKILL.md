@@ -101,6 +101,8 @@ reviewer 按以下顺序读取输入（FR-001 + FR-004）：
 
 `lightweight` profile 下使用 `templates/lightweight-checklist-template.md`，verdict 文件 ≤ 30 行（NFR-002）。
 
+报告形态：`pass` / `partial` / `N/A` 且无关键 finding 时，verdict 文件应保持 thin verdict block 级别，并由 task completion summary 聚合；`blocked`、关键文档漂移、workflow 冲突或需用户阅读的 finding 才展开详细诊断。
+
 ### 5. Reviewer subagent 返回；父会话按 verdict 路由
 
 按 reviewer-return JSON 中 `next_action_or_recommended_skill` 路由：
@@ -116,6 +118,7 @@ reviewer 按以下顺序读取输入（FR-001 + FR-004）：
 完成时产出：
 
 - **verdict 文件**（必有）：`features/<active>/verification/doc-freshness-YYYY-MM-DD.md`
+- **通过态 thin verdict block**：可被 task completion summary 索引；异常态才展开详细诊断
 - **可选 diff log**：`features/<active>/evidence/doc-freshness-diff-*.log`
 - **reviewer-return JSON**：返回给父会话；含 `conclusion` / `next_action_or_recommended_skill` / `record_path` / `dimension_breakdown` / `reroute_via_router`
 - **`hf-completion-gate` evidence bundle**（仅当 verdict ∈ {pass, partial, N/A}）：verdict 路径作为 evidence bundle 一项被 reference

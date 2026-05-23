@@ -125,6 +125,8 @@ Evidence-tier 回归范围（按当前 task / traceability 影响面叠加，不
 
 记录保存到 项目声明的 verification 路径；若无项目覆写，默认使用 `features/<active>/verification/regression-YYYY-MM-DD.md`（如需对应到具体任务，可写 `regression-task-NNN.md`）。若项目无专用格式，默认使用本 skill 模板 `references/verification-record-template.md`。
 
+报告形态：`通过` 且无关键 finding 时，默认只写 thin verdict block，并由 task completion summary 聚合；`需修改` / `阻塞`、缺少必需 evidence tier、环境阻塞或存在关键 finding 时，才展开详细诊断报告。
+
 最少应包含：
 - 已消费的上游证据（至少写清 implementation handoff、traceability review、相关 review/gate records）
 - 回归面定义、Included Coverage 与 Uncovered Areas
