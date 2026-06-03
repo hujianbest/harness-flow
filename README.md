@@ -260,6 +260,7 @@ harness-flow/
 │   ├── claude-code-setup.md
 │   ├── opencode-setup.md
 │   ├── cursor-setup.md
+│   ├── harnessflow-2.0-rewrite-design.md
 │   ├── decisions/                  # ADRs
 │   ├── principles/                 # HF design notes
 │   └── assets/
@@ -272,7 +273,7 @@ harness-flow/
 └── README.zh-CN.md
 ```
 
-When vendoring HarnessFlow into another project, copy `skills/` plus `agents/`, or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; shared subagent roles live in `agents/`, and client slash-command definitions live in `commands/`. The `docs/principles/` directory explains this repository's design, but hosted projects do not need it at runtime.
+When vendoring HarnessFlow into another project, copy `skills/` plus `agents/`, or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; shared subagent roles live in `agents/`, and client slash-command definitions live in `commands/`. The `docs/principles/` directory explains this repository's design, and [`docs/harnessflow-2.0-rewrite-design.md`](docs/harnessflow-2.0-rewrite-design.md) captures the 2.0 rewrite blueprint; hosted projects do not need these docs at runtime.
 
 ---
 

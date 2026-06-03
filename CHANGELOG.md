@@ -6,7 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v1.0.0 已切版；下一版本切片前，新增内容写在此处）
+### Added
+
+- **HarnessFlow 2.0 rewrite design** —— 新增 [`docs/harnessflow-2.0-rewrite-design.md`](docs/harnessflow-2.0-rewrite-design.md)，基于 `addyosmani/agent-skills` 的 `using-agent-skills` meta-skill、skill anatomy、progressive disclosure 与 verification discipline，提出 HF 2.0 完整重写蓝图；同步在 README / README.zh-CN 项目结构中加入入口。
 
 ## [1.0.0] - 2026-05-23
 

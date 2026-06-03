@@ -259,6 +259,7 @@ harness-flow/
 │   ├── claude-code-setup.md
 │   ├── opencode-setup.md
 │   ├── cursor-setup.md
+│   ├── harnessflow-2.0-rewrite-design.md
 │   ├── decisions/                  # ADRs
 │   ├── principles/                 # HF design notes
 │   └── assets/
@@ -271,7 +272,7 @@ harness-flow/
 └── README.zh-CN.md
 ```
 
-把 HarnessFlow vendor 到另一个项目时，需要复制 `skills/` 和 `agents/`，或直接使用 `install.sh`。每个 skill 自己拥有 `SKILL.md`、`references/`、`evals/` 和可选 `scripts/`；共享 subagent roles 放在 `agents/`，客户端 slash-command definitions 放在 `commands/`。`docs/principles/` 解释本仓库的设计，但宿主项目运行时不依赖它。
+把 HarnessFlow vendor 到另一个项目时，需要复制 `skills/` 和 `agents/`，或直接使用 `install.sh`。每个 skill 自己拥有 `SKILL.md`、`references/`、`evals/` 和可选 `scripts/`；共享 subagent roles 放在 `agents/`，客户端 slash-command definitions 放在 `commands/`。`docs/principles/` 解释本仓库的设计，[`docs/harnessflow-2.0-rewrite-design.md`](docs/harnessflow-2.0-rewrite-design.md) 记录 2.0 完整重写蓝图；宿主项目运行时不依赖这些文档。
 
 ---
 
