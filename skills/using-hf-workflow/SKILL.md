@@ -1,26 +1,81 @@
 ---
 name: using-hf-workflow
-description: 适用于新会话不确定从哪进入 HF workflow、用户用 /hf-* 命令表达意图、需判断 direct invoke 还是 route-first 的场景。不适用于 runtime 恢复编排（→ hf-workflow-router）、已在 leaf skill 内部（→ 继续当前 skill）。
+description: 适用于新会话开始、需要发现当前任务该用哪个 HF skill、判断 direct invoke 还是 route-first 的场景。HF skill family 的发现与调度元入口（meta-skill），统辖所有 hf-* skill 如何被发现与调用。不适用于 runtime 恢复编排（→ hf-workflow-router）、已在 leaf skill 内部（→ 继续当前 skill）。
 ---
 
 # Using HF Workflow
 
-HF workflow family 的 **public shell**。帮助你决定：
+## Overview
 
-- `direct invoke`：当前节点已明确，直接进入 leaf skill
-- `route-first`：阶段/profile/证据不稳定，交给 `hf-workflow-router`
+HarnessFlow 是一组**按开发阶段组织**的工程工作流 skill（spec-anchored SDD + gated TDD + 证据驱动路由 + 独立评审 + 正式 closeout）。每个 `hf-*` skill 封装一个资深工程师会遵循的具体流程。
 
-本 skill 是 public entry，不是 runtime handoff。不替代 router 的 authoritative routing。
+本 skill 是 HF skill family 的**发现与调度元入口（meta-skill）**：帮你为当前任务找到正确的 `hf-*` skill，并决定走哪一类动作：
 
-## Methodology
+- `direct invoke`：节点已明确、属于该 skill 职责、工件可读、无 route/stage/profile 冲突 → 直接进入对应 leaf skill 的最小 kickoff
+- `route-first`：阶段 / profile / 证据不稳定，或属于 runtime 恢复编排 → 交给 `hf-workflow-router`（authoritative runtime routing）
 
-本 skill 融合以下已验证方法。每个方法在 Workflow 中有对应的落地步骤。
+本 skill 是 public entry，不是 runtime handoff，也不替代 router 的权威路由。下面的 **Skill Discovery** 树与 **Lifecycle Sequence** 是**发现取向（orientation / bias）**，不是 router 的 transition map；任何不确定都回退 router。
 
-| 方法 | 核心原则 | 来源 | 落地步骤 |
-|------|----------|------|----------|
-| **Front Controller Pattern** | 作为统一入口点，解析用户意图后分发到对应处理节点 | GoF 设计模式 / Martin Fowler, "Patterns of Enterprise Application Architecture" | 步骤 1 — 判断 entry vs recovery；步骤 7 — 正确结束 |
-| **Evidence-Based Dispatch** | 通过读取 feature `progress.md` 与工件状态判断 entry vs recovery | 项目化实践（HF 核心约定） | 步骤 1 — entry vs runtime recovery；步骤 4 — direct invoke 判断 |
-| **Separation of Concerns** | 入口层只负责意图识别和分发，不做 authoritative routing 或状态修改 | 项目化实践（分层架构原则） | 步骤 7 — 只输出两类结果 |
+## Skill Discovery
+
+任务到来时，识别开发阶段并指向对应 skill。**任一处不确定 / 证据冲突 / review·gate 刚结束 / 需切支线 → 一律回退 `hf-workflow-router`。**
+
+```
+任务到来
+    │
+    ├── 还没想清做什么（问题/用户/wedge/假设）? ─→ hf-product-discovery
+    │     ├── discovery 草稿需评审? ───────────→ hf-discovery-review
+    │     └── 关键假设高风险需先验证? ─────────→ hf-experiment
+    ├── 需写 / 修需求规格? ─────────────────────→ hf-specify
+    │     └── 规格草稿需评审? ─────────────────→ hf-spec-review
+    ├── 规格已批准，要做设计? ──────────────────→ hf-design
+    │     ├── 含 UI / 前端 / 交互 surface? ─────→ hf-ui-design
+    │     └── 设计草稿需评审? ─────────────────→ hf-design-review / hf-ui-review
+    ├── 设计已批准，要拆任务? ──────────────────→ hf-tasks
+    │     └── 任务计划需评审? ─────────────────→ hf-tasks-review
+    ├── 提审前想自查 spec/design/tasks 盲点? ───→ hf-gap-analyzer
+    ├── 实现当前活跃任务? ──────────────────────→ hf-test-driven-dev
+    │     ├── 可整包交给 fresh subagent? ──────→ hf-subagent-driven-dev
+    │     ├── auto mode / 连续 build? ─────────→ hf-ultrawork
+    │     └── 需前端运行时证据? ───────────────→ hf-browser-testing
+    ├── 评审测试质量? ──────────────────────────→ hf-test-review
+    ├── 评审代码质量? ──────────────────────────→ hf-code-review
+    ├── 评审追溯完整性? ────────────────────────→ hf-traceability-review
+    ├── 回归 / 文档同步 / 完成判定? ────────────→ hf-regression-gate → hf-doc-freshness-gate → hf-completion-gate
+    ├── 线上紧急缺陷修复? ──────────────────────→ hf-hotfix
+    ├── 需求 / 范围 / 验收 / 约束变化? ─────────→ hf-increment
+    ├── 任务 / feature 收尾? ───────────────────→ hf-finalize
+    ├── 多 feature 汇总切版本 / 打 tag? ────────→ hf-release（direct invoke，不经 router）
+    └── 不确定 / 证据冲突 / 恢复编排? ──────────→ hf-workflow-router
+```
+
+## Core Operating Behaviors
+
+以下行为在所有 HF 节点恒定生效、不可协商；在本入口层尤其约束"如何分流"。
+
+### 1. 显式化假设（Surface Assumptions）
+
+做任何非平凡判断前，显式列出关键假设："现在纠正我，否则我按这些假设推进"。不要悄悄填补含糊的需求或工件状态。进入 leaf skill 前先把已知 / 未知 / 待澄清显式化（Think Before Coding）。
+
+### 2. 主动管理困惑（Manage Confusion Actively）
+
+遇到不一致 / 冲突需求 / 工件状态互相矛盾：**STOP**，命名具体困惑，给出 tradeoff 或提一个最小判别问题，等解决再继续（对应 Workflow 4A 单事实分流检查点）。证据冲突时不要猜 leaf，直接 `route-first` 交给 router。
+
+### 3. 该反对时反对（Push Back When Warranted）
+
+不做 yes-machine。方案有明确问题时直接指出、量化下行、给替代方案，再接受架构师在充分信息下的决定。sycophancy（"当然可以！"后实现坏主意）本身就是失败模式。
+
+### 4. 强制简单（Enforce Simplicity）
+
+入口层只解最小分流问题，不替下游展开 routing / approval / review。YAGNI：能用 3 行快路径给结论就不要展开整轮 intake。
+
+### 5. 维持范围纪律（Maintain Scope Discipline）
+
+入口层只输出两类动作——"明确进入合法 leaf skill"或"交给 router"。不旁路修改工件 / 状态，不顺手清理无关内容，不把 `using-hf-workflow` 写进 runtime handoff。
+
+### 6. 验证而非假设（Verify, Don't Assume）
+
+路由结论必须基于 **on-disk 工件证据**（spec / design / tasks / progress / verification / reviews），不靠 chat memory；"看起来对"不算数。记忆 ≠ evidence。
 
 ## When to Use
 
@@ -31,14 +86,9 @@ HF workflow family 的 **public shell**。帮助你决定：
 - 需判断 direct invoke 还是 route-first
 - 用户要求 `auto mode` 但还没确定交给哪个节点
 
-不适用：已在 leaf skill 内部 → 继续当前 skill；需要 authoritative routing → 直接交给 `hf-workflow-router`。
+不适用：已在 leaf skill 内部 → 继续当前 skill；需要 authoritative routing / runtime 恢复 → 直接交给 `hf-workflow-router`。
 
-## Boundary With Product Skills
-
-若问题仍在产品 thesis/wedge/probe 层面 → 仍由当前 public entry 统一分流，但目标 leaf 应是 `hf-product-discovery`，而不是再引入第二个 public shell。
-若已产出 `docs/insights/*-spec-bridge.md` 且目标是 formal spec/design/tasks → 可进入 coding family。
-
-`hf-release` 是 release-tier 独立 skill（v0.4.0 引入，ADR-004），**不进** coding family / discovery family 主链，**不进** `hf-workflow-router` 的 transition map。本 entry shell 在 entry bias 表加它一行只用于"用户表达切版本意图时直接 direct invoke"，**不是**把它纳入 runtime FSM。
+**与产品 / 发布 skill 的边界**：若问题仍在产品 thesis/wedge/probe 层面 → 仍由本 public entry 统一分流，目标 leaf 是 `hf-product-discovery`，不要发明第二个 public shell。`hf-release` 是 release-tier 独立 skill（ADR-004），**不进** coding/discovery 主链，**不进** router transition map；本 entry 在 §5 entry bias 表加它一行，仅用于"用户表达切版本意图时直接 direct invoke"。
 
 ## Workflow
 
@@ -133,14 +183,100 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 
 `route-first` 时，不回放 entry matrix、不重讲分层历史、不展开不相关的备选；只说明"为什么不能 direct invoke"然后立即转交。
 
+## Lifecycle Sequence
+
+一个完整 feature 的典型 HF 序列（**并非每个任务都需要每个 skill**；旁支与连续执行见下）：
+
+```
+1.  hf-product-discovery     → 收敛产品问题 / 用户 / wedge / 假设
+2.  hf-experiment            → 高风险假设最小可验证 probe
+3.  hf-specify               → formal spec（需求 + 验收标准）
+4.  hf-design / hf-ui-design → 架构 / API 契约 / UI 设计
+5.  hf-tasks                 → 拆分可评审的小任务
+6.  hf-gap-analyzer          → 提审前自查 spec/design/tasks 盲点
+7.  hf-test-driven-dev       → 单任务 TDD 实现（subagent / auto 见 §5）
+8.  hf-browser-testing       → 前端运行时证据
+9.  hf-spec/design/tasks/test/code/traceability-review → 各级独立 Fagan 评审
+10. hf-regression-gate       → 回归验证
+11. hf-doc-freshness-gate    → 用户文档同步
+12. hf-completion-gate       → 任务完成判定
+13. hf-finalize              → closeout pack（+ HTML 报告）
+14. hf-release               → 多 feature 汇总切版本（独立，不经 router）
+```
+
+- **旁支**：`hf-hotfix`（线上修复）、`hf-increment`（需求/范围/验收/约束变化）。
+- **知识沉淀**：`hf-wisdom-notebook`（feature 级跨任务知识本）、`hf-context-mesh`（按目录生成分层上下文）按需介入。
+- **连续执行**：`Execution Mode = auto` 下的跨任务连续推进由 `hf-workflow-router` 编排，**不在本入口展开**；本入口只负责把第一步指向正确节点。
+- bug fix 可能只需：`hf-hotfix` → `hf-test-driven-dev` → `hf-code-review`。
+
+## Failure Modes to Avoid
+
+看起来像在干活、实际制造问题的隐性错误：
+
+1. 不核对就做出错误假设（工件状态 / 节点 / profile）
+2. 卡住时不管理自己的困惑，硬着头皮往前
+3. 注意到工件冲突却不显式 surface
+4. 非显然分流不摆 tradeoff 就替用户决定
+5. 对有明显问题的方案 sycophantic（"当然！"）
+6. 过度复杂化——把整套 routing/approval 在入口层展开
+7. 修改 / 顺手清理与分流无关的工件或状态
+8. 删除 / 改动自己没完全理解的内容
+9. 没 spec / 没工件证据就因为"显而易见"直接开干
+10. 跳过验证：路由结论不基于 on-disk 工件就下结论
+11. route 不清 / 证据冲突时硬做 direct invoke，而不是回退 router
+12. review/gate 完成后仍在入口层做恢复编排，或把 `using-hf-workflow` 写进 runtime handoff
+
+## Skill Rules
+
+1. **开工前先查是否有适用 skill。** skill 封装了避免常见错误的流程，不是可选建议。
+2. **Skill 是 workflow，不是 suggestion。** 按步骤执行，**不跳 review / gate**；approvals 与 gates 是 first-class 节点。
+3. **多个 skill 可串联生效。** 一个 feature 可能依次经过 discovery → spec → design → tasks → build → 各级 review → gate → finalize。
+4. **不确定时回退 `hf-workflow-router`。** 任务非平凡且阶段 / 证据不稳定时，不要在入口层硬选 leaf——交给 router 做 evidence-based recovery。
+5. **Command is bias, not authority。** `/hf-*` 命令先经本 skill 解析；不替代工件检查与 leaf skill hard gates。
+6. **作者 / 评审分离（Fagan）。** 写工件的人不得同时批准它；reviewer 派发与 verdict 归属由对应 review/gate skill 决定。
+7. **Direct invoke 后 leaf 的 standalone contract 仍生效。** 入口放行不等于跳过目标 skill 的 preflight / hard gates。
+
+## Quick Reference
+
+| 阶段 | Skill | 一句话 |
+|------|-------|--------|
+| Route | `hf-workflow-router` | 权威 runtime 路由与恢复编排 |
+| Discover | `hf-product-discovery` | 收敛产品问题 / 用户 / wedge / 假设 |
+| Discover | `hf-discovery-review` | discovery 草稿独立评审 |
+| Discover | `hf-experiment` | 高风险假设最小可验证 probe |
+| Define | `hf-specify` | 需求规格 + 验收标准 |
+| Define | `hf-spec-review` | 规格草稿独立评审 |
+| Design | `hf-design` | 架构与 API 契约设计 |
+| Design | `hf-design-review` | 技术设计独立评审 |
+| Design | `hf-ui-design` | 前端 / UI / 交互设计 |
+| Design | `hf-ui-review` | UI 设计独立评审 |
+| Plan | `hf-tasks` | 拆分可评审的小任务 |
+| Plan | `hf-tasks-review` | 任务计划独立评审 |
+| Plan | `hf-gap-analyzer` | 提审前自查 spec/design/tasks 盲点（非评审节点） |
+| Build | `hf-test-driven-dev` | 单任务 TDD 实现（默认实现节点） |
+| Build | `hf-subagent-driven-dev` | 整包任务交给 fresh implementer subagent |
+| Build | `hf-ultrawork` | auto mode fast lane 连续 build（不绕 gate） |
+| Build | `hf-context-mesh` | 按目录生成分层上下文骨架 |
+| Verify | `hf-browser-testing` | 前端运行时证据（截图 / console / network） |
+| Review | `hf-test-review` | 测试质量评审 |
+| Review | `hf-code-review` | 代码质量评审 |
+| Review | `hf-traceability-review` | 追溯完整性评审 |
+| Gate | `hf-regression-gate` | 回归验证 gate |
+| Gate | `hf-doc-freshness-gate` | 用户文档同步 gate |
+| Gate | `hf-completion-gate` | 任务完成判定 gate |
+| Fix | `hf-hotfix` | 线上缺陷复现 + 最小修复 |
+| Change | `hf-increment` | 需求 / 范围 / 验收 / 约束变化 |
+| Close | `hf-finalize` | 单 feature / 任务 closeout pack + HTML |
+| Release | `hf-release` | 多 feature 汇总切版本（独立，不经 router） |
+| Knowledge | `hf-wisdom-notebook` | feature 级跨任务知识本 |
+
 ## Red Flags
 
-- 把 `using-hf-workflow` 写成完整状态机
+- 把 `using-hf-workflow` 写成完整状态机 / 复制 router 的 transition map 或 pause-point rules
 - route 不清时硬做 direct invoke
 - 把本 skill 写进 `Next Action Or Recommended Skill`
 - 因用户点名就跳过工件检查
 - review/gate 完成后仍在做恢复编排
-- 复制 router 的 transition map 或 pause-point rules
 - 在已有 `hf-product-discovery` 的前提下仍发明第二个 product public shell
 
 ## Supporting References
@@ -149,13 +285,6 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 |------|------|
 | `hf-workflow-router/SKILL.md` | authoritative runtime routing |
 | `hf-workflow-router/references/workflow-shared-conventions.md` | progress schema / verdict 词表 / record_path 语义 / `<kind>` allowlist 等运行时约定 |
-
-**横切行为基线（所有 HF 节点共同遵守，无需外部引用）**：
-
-1. **Think Before Coding**：不假设、不藏混乱；进入 leaf skill 前先把已知 / 未知 / 待澄清显式化
-2. **Simplicity First (YAGNI)**：意图识别只解最小问题，不替下游展开 routing / approval / review
-3. **Surgical Changes**：本 skill 只输出"明确进入 leaf"或"交给 router"两类动作，不旁路修改工件 / 状态
-4. **Goal-Driven Execution**：始终对齐"帮助用户从 idea 到产品高质量落地"，未达成 direct invoke 标准就 route-first，不为速度让步
 
 当前 pack 已提供 `hf-product-discovery` 作为 discovery leaf；本 skill 继续作为唯一 public entry，不再引入第二个 product public shell。
 
@@ -166,6 +295,8 @@ runtime recovery（交给 router）：review/gate 刚完成、evidence 冲突、
 | "我知道下一步是哪个 leaf skill，直接 invoke。" | Workflow stop rule: 路径不确定 / 证据冲突时必须经 hf-workflow-router；越过 router 会绕开 evidence-based recovery。 |
 | "聊天上下文里我已经记得状态了。" | Hard Gates: 状态从 on-disk artifacts 恢复，不依赖 chat memory；记忆 ≠ evidence。 |
 | "新会话直接 /build。" | Workflow stop rule: 新会话 family discovery 必须从 using-hf-workflow 开始，再决定 bias。 |
+| "用户点名了某个 leaf skill，那就直接进。" | Command is bias, not authority: 点名不解除 review 顺序 / profile / 工件前置；前置未满足 → route-first。 |
+| "auto mode 就该跳过确认和评审一路冲。" | Execution Mode 偏好不是跳过 approval / review / gate 的理由；只随 handoff 传递。 |
 
 ## Verification
 
