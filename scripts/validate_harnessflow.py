@@ -136,3 +136,31 @@ def validate_no_legacy_references(root: Path = ROOT) -> list[str]:
         for hit in find_legacy_references(text):
             errors.append(f"{path}: legacy reference remains: {hit}")
     return errors
+
+
+def validate_eval_json(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    for path in root.glob("skills/*/evals/*.json"):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{path}: invalid JSON: {exc}")
+            continue
+        scenarios = data.get("scenarios")
+        count = len(scenarios) if isinstance(scenarios, list) else 0
+        if count < MIN_SCENARIOS:
+            errors.append(
+                f"{path}: needs >= {MIN_SCENARIOS} scenarios, found {count}"
+            )
+    return errors
+
+
+def validate_coding_standards_length(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    for skill in root.glob("skills/*-coding-standards/SKILL.md"):
+        n = len(skill.read_text(encoding="utf-8", errors="ignore").splitlines())
+        if n > CODING_STANDARDS_MAX_LINES:
+            errors.append(
+                f"{skill}: {n} lines exceeds {CODING_STANDARDS_MAX_LINES}"
+            )
+    return errors

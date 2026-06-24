@@ -76,3 +76,50 @@ def test_legacy_reference_in_active_file_is_reported(tmp_path):
     result = validator.validate_no_legacy_references(tmp_path)
 
     assert any("reroute_via_router" in e for e in result)
+
+
+import json as _json
+
+
+def _write_evals(skill_dir: Path, scenarios: list) -> None:
+    e = skill_dir / "evals"
+    e.mkdir(parents=True, exist_ok=True)
+    (e / "evals.json").write_text(
+        _json.dumps({"skill_name": skill_dir.name, "scenarios": scenarios}),
+        encoding="utf-8",
+    )
+
+
+def test_evals_need_at_least_three_scenarios(tmp_path):
+    validator = load_validator()
+    skill = tmp_path / "skills" / "hf-tdd"
+    skill.mkdir(parents=True)
+    _write_evals(skill, [{"id": 1, "prompt": "p", "expected": "e", "expectations": []}])
+
+    result = validator.validate_eval_json(tmp_path)
+
+    assert any("scenarios" in e for e in result)
+
+
+def test_three_scenarios_pass(tmp_path):
+    validator = load_validator()
+    skill = tmp_path / "skills" / "hf-tdd"
+    skill.mkdir(parents=True)
+    scenarios = [
+        {"id": i, "prompt": "p", "expected": "e", "expectations": ["a"]} for i in (1, 2, 3)
+    ]
+    _write_evals(skill, scenarios)
+
+    assert validator.validate_eval_json(tmp_path) == []
+
+
+def test_coding_standards_length_cap(tmp_path):
+    validator = load_validator()
+    skill = tmp_path / "skills" / "cpp-coding-standards"
+    skill.mkdir(parents=True)
+    body = "---\nname: cpp-coding-standards\ndescription: t\n---\n" + ("x\n" * 400)
+    (skill / "SKILL.md").write_text(body, encoding="utf-8")
+
+    result = validator.validate_coding_standards_length(tmp_path)
+
+    assert any("exceeds" in e for e in result)
