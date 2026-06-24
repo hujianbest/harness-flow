@@ -140,11 +140,14 @@ def validate_no_legacy_references(root: Path = ROOT) -> list[str]:
 
 def validate_eval_json(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
-    for path in root.glob("skills/*/evals/*.json"):
+    for path in root.glob("skills/*/evals/evals.json"):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             errors.append(f"{path}: invalid JSON: {exc}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{path}: evals JSON must be an object with a 'scenarios' key")
             continue
         scenarios = data.get("scenarios")
         count = len(scenarios) if isinstance(scenarios, list) else 0

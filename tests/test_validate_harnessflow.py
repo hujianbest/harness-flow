@@ -161,3 +161,26 @@ def test_run_all_returns_empty_on_clean_repo(tmp_path):
     )
 
     assert validator.run_all(tmp_path) == []
+
+
+def test_non_dict_evals_json_is_reported_not_crash(tmp_path):
+    validator = load_validator()
+    skill = tmp_path / "skills" / "hf-tdd" / "evals"
+    skill.mkdir(parents=True)
+    (skill / "evals.json").write_text('["bare", "array"]\n', encoding="utf-8")
+
+    result = validator.validate_eval_json(tmp_path)
+
+    assert any("must be an object" in e for e in result)
+
+
+def test_evals_validator_only_checks_canonical_evals_json(tmp_path):
+    validator = load_validator()
+    skill = tmp_path / "skills" / "hf-tdd"
+    skill.mkdir(parents=True)
+    # canonical file present and valid
+    _write_evals(skill, [{"id": i, "prompt": "p", "expected": "e", "expectations": []} for i in (1, 2, 3)])
+    # sibling bare-array file that must NOT be inspected (would crash old code)
+    (skill / "evals" / "test-prompts.json").write_text('["x"]\n', encoding="utf-8")
+
+    assert validator.validate_eval_json(tmp_path) == []
