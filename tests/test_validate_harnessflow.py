@@ -123,3 +123,41 @@ def test_coding_standards_length_cap(tmp_path):
     result = validator.validate_coding_standards_length(tmp_path)
 
     assert any("exceeds" in e for e in result)
+
+
+def test_agent_missing_frontmatter_is_caught(tmp_path):
+    validator = load_validator()
+    agents = tmp_path / "agents"
+    agents.mkdir()
+    (agents / "hf-reviewer.md").write_text("# reviewer\n", encoding="utf-8")
+
+    result = validator.validate_agent_frontmatter(tmp_path)
+
+    assert any("missing YAML frontmatter" in e for e in result)
+
+
+def test_markdown_link_checker_reports_missing_relative_links(tmp_path):
+    validator = load_validator()
+    doc = tmp_path / "doc.md"
+    doc.write_text("[missing](missing.md)\n", encoding="utf-8")
+
+    result = validator.validate_markdown_links(tmp_path)
+
+    assert "missing.md" in result[0]
+
+
+def test_run_all_returns_empty_on_clean_repo(tmp_path):
+    validator = load_validator()
+    for name in validator.EXPECTED_SKILLS:
+        write_skill(tmp_path, name)
+        if name.endswith("-coding-standards"):
+            _write_evals(tmp_path / "skills" / name,
+                         [{"id": i, "prompt": "p", "expected": "e", "expectations": []}
+                          for i in (1, 2, 3)])
+    agents = tmp_path / "agents"
+    agents.mkdir()
+    (agents / "hf-reviewer.md").write_text(
+        "---\ndescription: d\nmode: subagent\n---\n# r\n", encoding="utf-8"
+    )
+
+    assert validator.run_all(tmp_path) == []

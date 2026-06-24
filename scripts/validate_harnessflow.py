@@ -164,3 +164,75 @@ def validate_coding_standards_length(root: Path = ROOT) -> list[str]:
                 f"{skill}: {n} lines exceeds {CODING_STANDARDS_MAX_LINES}"
             )
     return errors
+
+
+def iter_markdown_files(root: Path):
+    ignored = {".git", "__pycache__", ".cursor", ".idea"}
+    for path in root.rglob("*.md"):
+        if ignored.intersection(path.parts):
+            continue
+        yield path
+
+
+def validate_markdown_links(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    for path in iter_markdown_files(root):
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for target in LINK_PATTERN.findall(text):
+            if "://" in target or target.startswith("#") or target.startswith("mailto:"):
+                continue
+            link_path = target.split("#", 1)[0]
+            if not link_path:
+                continue
+            resolved = (path.parent / link_path).resolve()
+            if not resolved.exists():
+                errors.append(f"{path}: missing link target {target}")
+    return errors
+
+
+def validate_agent_frontmatter(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    agents_dir = root / "agents"
+    if not agents_dir.exists():
+        return [f"{agents_dir}: agents directory is missing"]
+    for agent in agents_dir.glob("*.md"):
+        text = agent.read_text(encoding="utf-8", errors="ignore")
+        if not text.startswith("---\n"):
+            errors.append(f"{agent}: missing YAML frontmatter (need description + mode)")
+            continue
+        end = text.find("\n---", 4)
+        if end == -1:
+            errors.append(f"{agent}: unterminated YAML frontmatter")
+            continue
+        frontmatter = text[4:end]
+        if "\ndescription:" not in f"\n{frontmatter}":
+            errors.append(f"{agent}: missing description (required for subagent dispatch)")
+        if "\nmode:" not in f"\n{frontmatter}":
+            errors.append(f"{agent}: missing mode (subagent agents need mode: subagent)")
+    return errors
+
+
+def run_all(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    errors.extend(validate_markdown_links(root))
+    errors.extend(validate_skill_frontmatter(root))
+    errors.extend(validate_agent_frontmatter(root))
+    errors.extend(validate_skill_set(root))
+    errors.extend(validate_no_legacy_references(root))
+    errors.extend(validate_eval_json(root))
+    errors.extend(validate_coding_standards_length(root))
+    return errors
+
+
+def main() -> int:
+    errors = run_all(ROOT)
+    if errors:
+        for error in errors:
+            print(error)
+        return 1
+    print("HarnessFlow validation passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
