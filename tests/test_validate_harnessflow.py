@@ -53,3 +53,26 @@ def test_frontmatter_name_must_match_directory(tmp_path):
     result = validator.validate_skill_frontmatter(tmp_path)
 
     assert any("does not match directory" in e for e in result)
+
+
+def test_legacy_references_are_detected_in_active_text():
+    validator = load_validator()
+
+    assert "hf-workflow-router" in validator.find_legacy_references(
+        "route via hf-workflow-router"
+    )
+    assert "Workflow Profile" in validator.find_legacy_references(
+        "decide Workflow Profile before build"
+    )
+    assert validator.find_legacy_references("use hf-tdd and hf-design") == []
+
+
+def test_legacy_reference_in_active_file_is_reported(tmp_path):
+    validator = load_validator()
+    skill = tmp_path / "skills" / "hf-tdd" / "SKILL.md"
+    skill.parent.mkdir(parents=True)
+    skill.write_text("next: reroute_via_router=true\n", encoding="utf-8")
+
+    result = validator.validate_no_legacy_references(tmp_path)
+
+    assert any("reroute_via_router" in e for e in result)

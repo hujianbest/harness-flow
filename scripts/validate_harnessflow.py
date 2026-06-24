@@ -116,3 +116,23 @@ def validate_skill_set(root: Path = ROOT) -> list[str]:
                 f"skills/{name}: must follow the <language>-coding-standards naming convention"
             )
     return errors
+
+
+def find_legacy_references(text: str) -> list[str]:
+    found: list[str] = []
+    for name in sorted(LEGACY_SKILL_NAMES):
+        if re.search(rf"(?<![A-Za-z0-9_-]){re.escape(name)}(?![A-Za-z0-9_-])", text):
+            found.append(name)
+    for phrase in LEGACY_MECHANISM_PHRASES:
+        if phrase in text:
+            found.append(phrase)
+    return found
+
+
+def validate_no_legacy_references(root: Path = ROOT) -> list[str]:
+    errors: list[str] = []
+    for path in iter_active_markdown_files(root):
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for hit in find_legacy_references(text):
+            errors.append(f"{path}: legacy reference remains: {hit}")
+    return errors
