@@ -76,6 +76,7 @@ overlay 技能（5）：
 - `spec.md` — 范围、需求条目、验收标准、接口候选契约。
 - `traceability.md` — 追溯矩阵：需求→设计→测试→代码→证据，spec-design-code 一致性约束。
 - `design.md` — 工作项级设计：职责、接口契约、错误模型、测试设计、质量增补章节。
+- `component-design-draft.md` — 组件级设计修订草稿：当工作项影响组件边界时由 `hf-design` 产出，收尾时由 `hf-ship` promotion 为长期资产 `docs/component-design.md`。
 - `plan.md` — **中断恢复的单一入口**：组件根、工件根、运行模式、门禁状态表、自包含任务拆解 + 每任务 RED/GREEN 证据行。
 - `reviews/` — 每轮一份评审记录（findings 含 Resolution 列 + verdict + 抽查记录 + 人工确认）。
 - `closeout.md` — DoD 核验摘要、promotion 路径表、债务去向。
