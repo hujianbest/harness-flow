@@ -1,33 +1,52 @@
 ---
-description: HarnessFlow entry rule — always load the using-hf-workflow shell and route through hf-workflow-router. Skill pack lives under skills/hf-*/SKILL.md; shared subagent roles live under agents/.
+description: HarnessFlow entry rule — always load the using-hf entry shell, then drive the spec→design→TDD→review→ship chain. Skills live under skills/hf-*/SKILL.md and skills/using-hf/SKILL.md; shared subagent roles live under agents/.
 alwaysApply: true
 ---
 
 # HarnessFlow on Cursor
 
-This Cursor workspace ships HarnessFlow, a skill pack for spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, shared subagent role definitions, and formal closeout.
+This Cursor workspace ships HarnessFlow, a 15-skill pack for spec-anchored SDD, gated TDD, evidence-based recovery, independent Fagan-style reviews, and formal closeout. There is no router skill and no separate state file — `plan.md` (gate table + task status) and `reviews/` are the recoverable state.
 
 ## On every session
 
-1. Load the entry shell: `skills/using-hf-workflow/SKILL.md`.
-2. Hand off to the router: `skills/hf-workflow-router/SKILL.md`.
-3. Let the router pick the canonical next node from on-disk artifacts under the active feature directory (default `features/<active>/`).
+1. Load the entry shell: `skills/using-hf/SKILL.md`.
+2. Recover the current stage from on-disk artifacts (`plan.md` gate table, `reviews/`, the active feature directory — default `features/<active>/`).
+3. Drive the canonical next stage skill (`hf-specify` → `hf-design` → `hf-tdd` → `hf-ship`), inserting the mandatory `hf-review` gate after each stage output.
+
+## The three quality layers
+
+| Layer | Question | Failure mode without it | Carrying skills |
+|---|---|---|---|
+| 1 · SDD | Are we building the right thing? | Vague spec → model guesses → wrong thing | `hf-specify` |
+| 2 · TDD | Is the feature proven correct? | Unverified code → a pile of bugs | `hf-tdd` |
+| 3 · Clean Code | Is the code itself well written? | Works but rots → hard to maintain/review/evolve | `hf-clean-code` + `*-coding-standards` + domain skills |
+
+`hf-design` sits between layers 1 and 2: it lays structure, interface contracts, error model, and test design for layer 3. Layers 1–2 guarantee external quality; layer 3 guarantees intrinsic quality.
 
 ## Hard rules (do not bypass)
 
-- **One Current Active Task at a time.** Cross-task switches are decided by `hf-workflow-router`, not by you.
-- **Cross-task continuous execution under `Execution Mode = auto`.** A task boundary is **not** a default pause point. After `hf-completion-gate` returns `通过`, if `hf-workflow-router` can uniquely lock the next `Current Active Task`, you MUST in the **same Cursor turn** route through `hf-workflow-router` and enter the next eligible implementation leaf (`hf-test-driven-dev` by default; `hf-subagent-driven-dev` when router proves subagent eligibility) — do **not** end the turn to ask the user "should we proceed to the next task?". Continue chaining through tasks until either (a) `hf-completion-gate` returns `通过` with no remaining approved task → enter `hf-finalize`, or (b) you hit a real `interactive` approval step / hard stop as enumerated in `skills/hf-workflow-router/references/execution-semantics.md` (§ Approval Step / § Hard Stop / § 非暂停点). Asking for confirmation between tasks under `auto` is itself a violation of the SOP, not a courtesy.
-- **Approvals and gates are first-class nodes.** Don't skip `hf-spec-review` / `hf-design-review` / `hf-tasks-review` / `hf-test-review` / `hf-code-review` / `hf-traceability-review` / `hf-regression-gate` / `hf-doc-freshness-gate` / `hf-completion-gate`.
-- **Evidence-based routing.** Recover the next step from on-disk artifacts (spec / design / tasks / progress / verification / reviews), not from chat memory.
+- **`hf-review` is a mandatory gate, not an optional pre-check.** After each stage output (`hf-specify` / `hf-design` / `hf-tdd` test+code) you MUST run `hf-review`, write the verdict into `reviews/`, and not advance until it passes (and, in attended mode, gets human confirmation). Skipping an R node is a process violation.
 - **Author / reviewer separation (Fagan).** Whoever wrote the artifact under review must NOT also approve it.
-- **No HF slash commands on Cursor in v0.5.0.** Use natural-language intent; the router will pick the leaf skill (see `docs/cursor-setup.md` § 4).
-- **`hf-release` is standalone, not router-coupled.** When the user wants to cut a vX.Y.Z release (multi-feature aggregation + release-wide regression + release docs + tag readiness), `using-hf-workflow` § 5 entry bias table direct-invokes `hf-release`; do NOT route through `hf-workflow-router`. `hf-release` produces a readiness pack only; it does NOT auto-execute `git tag` and does NOT deploy / staged-rollout / monitor / rollback (that's v0.6+ planned `hf-shipping-and-launch`, **not yet implemented**).
-- **`hf-finalize` must produce closeout HTML companion (v0.5.0+).** After writing `closeout.md` in step 6, `hf-finalize` MUST also run `python3 skills/hf-finalize/scripts/render-closeout-html.py <feature-dir>` to produce `closeout.html` (step 6A). The HTML is a visual rendering of the closeout pack; it does NOT introduce facts beyond what is already in `closeout.md` + adjacent evidence. Coverage data is consumed sync-on-presence; missing coverage is rendered as "未提供" and does NOT block closeout.
+- **One Current Active Task at a time.** Task switches come from the `plan.md` gate table, not from your own guesswork.
+- **Evidence-based recovery.** Recover the next step from on-disk artifacts (spec / design / plan / reviews / progress / verification), never from chat memory.
+- **No HF slash commands required on Cursor.** Use natural-language intent; the entry shell and the gate table pick the leaf skill. (The 7 commands under `commands/` are convenience aliases, not gate enforcers.)
+- **`hf-fix` is the rework path.** When a review returns `rework`, route the targeted fix through `hf-fix` (oriented to the failing artifact), then re-run the corresponding R gate. R1 `rework` defaults back to `hf-specify`; R2 to `hf-design`; R3 to `hf-tdd`. Same R node auto-reworks at most 3 rounds before escalating to a human.
+- **No router, no extra state file.** `plan.md`'s gate table + `reviews/` ARE the lightweight state machine (see `using-hf` §3). Do not invent a router or write a separate routing state file.
+
+## The 15 skills
+
+- **Entry (1):** `using-hf`
+- **Phase (7):** `hf-specify`, `hf-design`, `hf-tdd`, `hf-review`, `hf-ship`, `hf-fix`, `hf-clean-code`
+- **Coding standards (4):** `c-coding-standards`, `cpp-coding-standards`, `java-coding-standards`, `python-coding-standards`
+- **Domain (2):** `backend-development`, `frontend-development`
+- **Tool (1):** `coding-standards-creator`
+
+Shared subagent roles: `agents/hf-implementer.md` (the leaf implementer `hf-tdd` dispatches per task) and `agents/hf-reviewer.md` (the independent reviewer `hf-review` uses to keep Fagan separation).
 
 ## Scope honesty
 
-HarnessFlow's main chain ends at `hf-finalize` (engineering-level closeout for a single feature/workflow). It is NOT production deployment, observability, incident response, or post-launch ops. v0.3.0 added Cursor as the third officially-supported client (without adding any new `hf-*` skills); v0.4.0 introduced **`hf-release`** as a release-tier **standalone** skill that aggregates `workflow-closeout` features into a vX.Y.Z release — it is **decoupled** from `hf-workflow-router`, does NOT enter the main-chain FSM, and does NOT modify any existing skill; v0.5.0 added a **closeout HTML companion report** to `hf-finalize` (new step 6A + new `skills/hf-finalize/scripts/render-closeout-html.py`, stdlib-only), without growing the skill set (still 24 `hf-*` + `using-hf-workflow`), without adding new slash commands (still 7), and without touching the main-chain FSM or router transition map. v0.5.0 still does NOT introduce personas and does NOT add deployment / monitoring / rollback. The 5 remaining deferred ops/release skills (`hf-shipping-and-launch` / `hf-ci-cd-and-automation` / `hf-security-hardening` / `hf-performance-gate` / `hf-deprecation-and-migration` / `hf-debugging-and-error-recovery`), the 3 deferred personas (`hf-staff-reviewer` / `hf-qa-engineer` / `hf-security-auditor`), and the 4 remaining deferred clients (Gemini CLI / Windsurf / GitHub Copilot / Kiro) all stay on the v0.6+ roadmap (ADR-003 D1 / D2 / D3 + ADR-004 D2 / D3 + ADR-005 D5 / D7).
+HarnessFlow's main chain ends at `hf-ship` (engineering-level closeout for a single feature/workflow: DoD check, traceability final check, promotion of long-lived assets, closeout). It is NOT production deployment, observability, incident response, or post-launch ops. Release-tier aggregation, CI/CD automation, security hardening, performance gating, and deprecation/migration are intentionally out of scope and not part of the 15-skill set.
 
 ## When in doubt
 
-If you're not sure which node to use, the user's intent is ambiguous, evidence conflicts, or a review/gate just finished — load `using-hf-workflow` and let `hf-workflow-router` decide.
+If you're not sure which stage to use, the user's intent is ambiguous, evidence conflicts, or a review just finished — load `skills/using-hf/SKILL.md` and let the gate table in `plan.md` decide.

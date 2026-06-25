@@ -1,0 +1,60 @@
+{
+  "skill_name": "using-hf",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "用户说「用 HarnessFlow 给通知组件加重试机制，直接开始写代码吧，需求我心里有数」。当前 features/ 下没有该工作项目录，也没有 spec.md。",
+      "expected": "应路由到 hf-specify 先把意图写成可测试规格 + 初始化 traceability.md + plan.md 骨架，而不是直接实现。识别这是第一层 SDD 缺失（需求含糊、模型靠猜）。启动时确认一次运行模式并记入 plan.md 头部。",
+      "expectations": [
+        "识别无 spec.md → 进入 hf-specify，不跳到实现",
+        "不默默补全模糊需求，把假设列出让用户确认",
+        "启动工作流时确认 attended/unattended 运行模式",
+        "不因用户催促「直接写代码」绕过规格阶段"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "spec.md 已写好且看起来完整，但 reviews/ 下没有任何规格评审记录。用户说「规格没问题，进设计吧」。",
+      "expected": "应路由到 hf-review 执行 R1 规格评审（独立上下文，作者不自审），评审通过且 attended 下人工确认后才进 hf-design。不能因为「看起来完整」或用户催促就跳过 R1 门禁。",
+      "expectations": [
+        "识别 R1 为 pending（产物就绪未评审）→ 去 hf-review",
+        "不跳过 R1 直接进 hf-design",
+        "评审由独立上下文完成，作者不自审",
+        "attended 模式下 R1 通过后呈人确认再进下一阶段"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "R3 测试与代码评审刚打回，有 2 条未闭环的 critical findings。用户说「那就再评审一次看看」。",
+      "expected": "应路由回 hf-tdd 做定向返工：先修复 findings 并回填 Resolution，再发起 R3 复审。rework 不等于「立刻再评审」——必须先修再评。同一 R 节点最多自动返工复审 3 轮，仍不通过升级人裁决。",
+      "expectations": [
+        "识别 R3 rework → 先回 hf-tdd 定向返工，不是立刻复审",
+        "要求回填每条 finding 的 Resolution 后再复审",
+        "遵守同一 R 节点最多 3 轮自动返工复审的规则",
+        "不在评审上下文里自己改代码"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "运行模式是 unattended。有人认为「unattended 就是无人工值守，评审可以跳过、记录可以省，连续跑到底就行」。",
+      "expected": "纠正误解：unattended 只移除人工停顿，不移除任何质量动作——独立评审照做、评审记录照写、critical findings 照样阻塞（返工修复并复审，而非带病推进）、DoD 照核验。所有评审记录留存 reviews/ 供事后审计。",
+      "expectations": [
+        "明确 unattended 只移除人工停顿",
+        "不因 unattended 跳过任何 R 节点或评审记录",
+        "critical findings 在 unattended 下仍阻塞",
+        "DoD 核验在 unattended 下照做"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "新会话恢复：用户说「继续推进」。plan.md 头部记录运行模式 attended，门禁表显示 R1 passed 但人工确认列为 no，design.md 尚未写。",
+      "expected": "应呈人确认 R1 评审记录后再进 hf-design，而不是沿用聊天记忆自动推进。恢复时先读 plan.md（运行模式 + 门禁状态 + 当前任务），工件与聊天冲突以工件为准。",
+      "expectations": [
+        "恢复时先读 plan.md（模式/门禁/任务），不依赖聊天记忆",
+        "识别 R1 passed 但 attended 人工确认列为 no → 呈人确认",
+        "确认通过后才进 hf-design",
+        "工件优先于聊天记忆"
+      ]
+    }
+  ]
+}

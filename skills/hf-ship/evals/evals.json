@@ -1,0 +1,70 @@
+{
+  "skill_name": "hf-ship",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "全部评审都通过了，agent 跳过 Definition of Done，直接写 closeout.md 宣布关闭。",
+      "expected": "必须先逐项跑 DoD 核验；评审通过不等于可以关闭；缺口回对应阶段而不是被解释；attended 模式呈人确认后才关闭",
+      "expectations": [
+        "逐项检查 DoD 清单，每项写满足/缺口结论（不是整体打勾）",
+        "把缺口路由回 hf-tdd / hf-review 等对应阶段，不在收尾就地修",
+        "closeout 的 DoD 摘要是逐项结论而非整体通过",
+        "attended 模式下呈人确认后才关闭；features/ 目录原地保留"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "promote 时 agent 把 spec.md 原样复制到 docs/ar-specs/，保留了 Open Questions、评审应答和过程笔记；设计则改写成一段简短叙述，丢掉了接口契约表和测试设计表。",
+      "expected": "拒绝把过程内容带入长期资产；拒绝过度改写；保留原模板章节/表格/锚点，只去掉草稿专属内容",
+      "expectations": [
+        "拒绝携带 Open Questions、过程笔记、评审应答进入长期资产",
+        "保留原 spec/design 模板的章节、接口契约表、测试设计表、编号与追溯锚点",
+        "不把设计改写成摘要；只去掉草稿专属内容，保留交付件主体",
+        "长期文档头部记录 Promoted From commit 锚点；变更记录按规则追加"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "本工作项修订了组件状态机，但 agent 以'设计已经描述了'为由跳过更新 docs/component-design.md。",
+      "expected": "必须 promotion 组件设计修订到 docs/component-design.md；只更新受影响章节；跳过同步是阻塞缺口而非备注",
+      "expectations": [
+        "要求把组件设计修订 promote 到 docs/component-design.md",
+        "只更新本次受影响的章节（如状态机一节），不顺手重排其他章节",
+        "把跳过的组件设计同步视为阻塞缺口，不是 closeout 里的一句备注",
+        "promotion 的接口/状态机变化与 spec 批准的 modify/remove 基线一一对应"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "traceability.md 里某条需求行没有填测试用例和证据列，agent 想标 N/A 收尾。",
+      "expected": "无理由 N/A 是断链；按 critical 处理回阶段补；N/A 只有带理由才接受",
+      "expectations": [
+        "把无理由的 N/A / 空缺当作 spec-design-code 漂移信号，按 critical 处理",
+        "路由回对应阶段补真实链路，而不是标 N/A 收尾",
+        "N/A 只有在写出理由（如纯文档需求）时才被接受",
+        "断链不闭环就不写 closeout"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "closeout 的 DoD 表里把 hf-clean-code、适用的 cpp-coding-standards 都标 clean，但没有引用任何 REFACTOR 证据、R3 finding、静态分析输出或 commit。",
+      "expected": "只写 clean 没有证据引用 = DoD 缺口；要求每项约束有证据或带理由的 N/A；critical-open 阻塞关闭",
+      "expectations": [
+        "拒绝无证据引用的 clean 标签，判为 DoD 缺口",
+        "要求每项适用约束标注 clean/documented-debt/critical-open/N/A+理由，并给出证据引用",
+        "documented-debt 必须有可定位登记与去向；critical-open 阻塞关闭",
+        "缺口路由回 hf-tdd/hf-review 补证据，不在收尾解释掉"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "遗留债务写成'后续优化，到时候再说'，没有登记到任何工作项或 issue。",
+      "expected": "无去向的债务等于未登记；每条债务必须落到新工作项或登记的 issue",
+      "expectations": [
+        "拒绝没有去向的'后续优化'表述",
+        "要求每条遗留债务带去向（新工作项编号 / 登记的 issue 链接）",
+        "closeout 的债务清单可冷读、可追溯"
+      ]
+    }
+  ]
+}

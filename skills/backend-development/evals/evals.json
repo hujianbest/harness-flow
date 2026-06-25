@@ -1,0 +1,55 @@
+{
+  "skill_name": "backend-development",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "A list endpoint fetches orders then calls getUser(userId) inside the loop for each row to attach the creator. The author says the dataset is small now so the N+1 is fine, and proposes to ship it.",
+      "expected": "Requires batch fetching to eliminate the N+1 query at design time; rejects 'the dataset is small' since data grows and N+1 is the classic scale killer. The fix is a single getUsers(ids) + in-memory join, not per-row queries.",
+      "expectations": [
+        "identifies the N+1 as a design-time defect that must be eliminated via batch fetching, not deferred",
+        "rejects the 'small dataset' rationalization as a reason to ship the N+1",
+        "requires evidence (execution plan / query count) for the hot read path, not just a code-level fix"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A payment/charge endpoint performs the charge directly with no idempotency key. The author argues 'our client won't retry, so idempotency is unnecessary overhead'.",
+      "expected": "Requires idempotency protection (idempotency key + unique constraint fallback) for the non-idempotent side-effecting mutation. Rejects 'clients won't retry' — network retries and duplicate delivery are inevitable, and double-charging is a critical correctness defect.",
+      "expectations": [
+        "requires idempotency protection for the non-idempotent side-effecting mutation, not treated as optional",
+        "explicitly rejects 'clients won't retry' as a guarantee; cites that retries / duplicate delivery are inevitable",
+        "requires a duplicate/concurrent-request invariant test proving the same idempotency key takes effect exactly once"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A service handler catches an exception from the downstream call, logs nothing, and returns an empty success result 'so the caller doesn't see an error'. A bare throw new Error('user not found') is used elsewhere and an ad-hoc catch maps it to 500.",
+      "expected": "Treats silently swallowed errors as a real defect — failures become unobservable and un-debuggable. Requires typed domain errors (not bare Error) with a single boundary mapping to correct status codes, and that caught errors are logged with enough context and never silently discarded.",
+      "expectations": [
+        "treats silently swallowing a caught error as a defect, not a convenience",
+        "requires typed domain errors (with code/status) instead of bare Error, with a single unified boundary mapping",
+        "requires that errors carry enough context to locate the fault and are observable (logged/metric), not discarded"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "An endpoint creates an order and then decrements inventory in a separate write with no transaction and no compensation. The author says 'if the second write fails we'll just alert and fix it manually'.",
+      "expected": "Requires the multi-step write to be in a single transaction (failure rolls back the whole thing) or have an explicit compensation; 'alert and fix manually' is not a consistency strategy. A partial-success state (order created but stock not decremented, or vice versa) is a data-correctness defect.",
+      "expectations": [
+        "requires a transaction boundary (or explicit compensation) around the multi-step write, not manual cleanup",
+        "rejects 'alert and fix manually' as a consistency strategy for multi-step writes",
+        "requires a rollback/partial-failure path test proving the invariant holds when one step fails"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "An API returns HTTP 200 with {\"success\": false, \"error\": \"not found\"} for every outcome and 500 for validation failures, justified as 'simpler for the client'. Separately, production rate limiting uses an in-process in-memory counter and a client-supplied role field is trusted for authorization.",
+      "expected": "Requires semantic HTTP status codes (404/400/422, not 200 for failures) with a consistent error envelope that leaks no internals on 5xx; rejects in-memory rate limiting in favor of a shared store; requires server-side object-level authorization, not trusting client claims.",
+      "expectations": [
+        "requires semantic HTTP status codes with a consistent, non-leaking error envelope, rejects 200-for-failures",
+        "rejects in-process in-memory rate limiting; requires a shared store (Redis/gateway)",
+        "requires server-side authority and object-level authorization, not trusting client-supplied role/ownership"
+      ]
+    }
+  ]
+}

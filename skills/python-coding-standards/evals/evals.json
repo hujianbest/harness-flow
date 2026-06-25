@@ -1,0 +1,45 @@
+{
+  "skill_name": "python-coding-standards",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "评审一个 Python 函数 def append_to(item, items=[]): items.append(item); return items。作者说「这没事，每次调用 items 都是新的空列表」。是否接受？",
+      "expected": "不接受，标记为缺陷（非风格）：默认参数在函数定义时求值一次，items 被所有调用共享，会跨调用累积污染。要求改用 None 哨兵（items=None，函数内 if items is None: items=[]）。指出「每次调用都是新的」是对默认参数求值时机的误解，是 Python 最经典事故。",
+      "expectations": [
+        "识别可变默认参数在调用间累积的事故",
+        "要求 None 哨兵模式（items=None 然后 items=[]）",
+        "反驳「每次调用都是新的」，指出默认参数在定义时求值一次"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "评审代码用了裸 except: 直接 return None 吞掉异常；另一处 except ValueError as e: raise ConfigError(str(e)) 包装时没用 from。作者说「裸 except 最省事，反正重试就行」。是否接受？",
+      "expected": "不接受：裸 except 连 KeyboardInterrupt/SystemExit 都吞，掩盖所有 bug；包装丢 from 使异常链断、根因丢失。要求捕获具体异常（ValueError 等）并处理或上抛，包装用 raise ConfigError(...) from e 保留 traceback。指出被吞错误是定位事故的最大障碍，EAFP 仍需精确捕获。",
+      "expectations": [
+        "拒绝裸 except / 静默 return None，要求捕获具体异常",
+        "要求包装异常用 raise ... from e 保留异常链",
+        "反驳「裸 except 省事」，指出 EAFP 仍需精确捕获"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "评审代码用 if value == None: 判空，用 if type(obj) == list: 判类型。作者说「== None 和 is None 一样，写哪个都行」。是否接受？",
+      "expected": "不接受：== None 调用 __eq__ 可能被覆盖返回错误结果；is None 才是不可覆盖的身份判定。type(obj)==list 破坏子类与多态，应用 isinstance(obj, list)。要求 None 判定一律用 is None，类型判定用 isinstance。指出「都一样」忽略了 __eq__ 可被覆盖的语义差异。",
+      "expectations": [
+        "要求 None 判定用 is None 而非 == None",
+        "要求类型判定用 isinstance 而非 type()==",
+        "反驳「== None 和 is None 一样」，指出 __eq__ 可被覆盖的语义差异"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "评审一个 dataclass：@dataclass class Basket: items: list = []，作者把它当默认值，说「dataclass 会处理默认值」。是否接受？",
+      "expected": "不接受：dataclass 会拒绝可变默认值（ValueError: mutable default ... is not allowed），即使绕过也会让所有实例共享同一个 list，跨实例状态泄漏。要求用 field(default_factory=list)。指出这是可变默认参数事故的类级变体，「dataclass 会处理」不成立。",
+      "expectations": [
+        "识别 dataclass 可变默认值导致跨实例共享 list",
+        "要求 field(default_factory=list) 替代裸 []",
+        "反驳「dataclass 会处理默认值」，指出这是可变默认事故的类级变体"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "skill_name": "hf-tdd",
+  "scenarios": [
+    {
+      "id": "code-before-test",
+      "prompt": "The agent has already written 200 lines of implementation and proposes to 'add tests now to cover it'.",
+      "expected": "Invokes the iron law: implementation written before a watched-fail test must be deleted and restarted from RED.",
+      "expectations": [
+        "rejects keeping the untested implementation 'as reference'",
+        "rejects the sunk-cost argument as a rationalization",
+        "restarts from a RED test that fails for the right reason"
+      ]
+    },
+    {
+      "id": "test-passes-immediately",
+      "prompt": "A newly written test passes on the first run and the agent moves on, recording GREEN.",
+      "expected": "A test that never failed proves nothing; stop and resolve before continuing.",
+      "expectations": [
+        "does not accept GREEN without a prior RED that failed for behavior-missing reasons",
+        "determines whether the behavior already exists or the test is wrong",
+        "records the resolution (skip if behavior exists; rewrite if test is wrong) before proceeding"
+      ]
+    },
+    {
+      "id": "weak-assertion-shortcut",
+      "prompt": "To make a flaky case pass, the agent loosens assert count == 3 to assert count > 0.",
+      "expected": "Reject weakening assertions to make a test pass; fix the implementation or test environment instead.",
+      "expectations": [
+        "rejects loosening the assertion as a way to reach GREEN",
+        "applies the mutation self-check to judge assertion strength",
+        "keeps the assertion pinned to a definite expected value"
+      ]
+    },
+    {
+      "id": "green-refactor-mixed-diff",
+      "prompt": "During GREEN the agent also renames functions and reorganizes files in the same step, then commits it all together.",
+      "expected": "Two-hats discipline: behavior change (GREEN) and structure change (REFACTOR) must not share a diff.",
+      "expectations": [
+        "separates GREEN behavior changes from REFACTOR structural changes",
+        "keeps refactoring within the current task boundary",
+        "runs the full suite after each step and does not mix the two in one commit"
+      ]
+    },
+    {
+      "id": "skip-refactor-after-green",
+      "prompt": "The current task has RED and GREEN evidence and the suite is passing. The agent marks the task done without any REFACTOR entry because 'the code works'.",
+      "expected": "A task is not done without a REFACTOR record, even when no code changes are needed.",
+      "expectations": [
+        "rejects marking done without a REFACTOR record",
+        "requires a hf-clean-code self-check after GREEN",
+        "records either the refactoring summary + test run or REFACTOR: N/A with a reason tied to hf-clean-code"
+      ]
+    },
+    {
+      "id": "subagent-required-not-controller-direct",
+      "prompt": "The runtime supports subagents. plan.md has T1 ready, but the parent session starts writing the RED test and production code directly in the main chat because the task looks small.",
+      "expected": "When the runtime has subagent capability, every task must be dispatched to a fresh hf-implementer subagent.",
+      "expectations": [
+        "rejects controller-direct execution when subagents are available",
+        "keeps the parent session in controller role: select task, build Context Pack, dispatch a fresh hf-implementer",
+        "controller-direct is allowed only when the runtime has no subagent capability and the reason is recorded in plan.md"
+      ]
+    },
+    {
+      "id": "context-pack-missing-quality-stack-paths",
+      "prompt": "The parent dispatches an hf-implementer subagent with a Context Pack that only says 'use hf-clean-code and cpp-coding-standards' by name, without required_skill_files or skill file paths.",
+      "expected": "Quality Stack must list concrete required_skill_files paths, not just skill names.",
+      "expectations": [
+        "rejects the Context Pack as incomplete instead of relying on automatic skill triggering",
+        "repackages with a Quality Stack whose required_skill_files include hf-tdd, hf-clean-code, and the applicable language skill paths",
+        "does not let the implementer start RED/GREEN work until the required skill files are explicit"
+      ]
+    },
+    {
+      "id": "plan-supports-resume",
+      "prompt": "The agent writes plan.md tasks as 'T2: same as T1 but for the error path, see chat above for details'.",
+      "expected": "Every task must be self-contained so a fresh session reading only spec/design/plan can resume from any breakpoint.",
+      "expectations": [
+        "rejects non-self-contained tasks: each needs case anchors, exact paths, steps with commands, and a done definition inline",
+        "rejects 'see above' / 'same as' phrasing that breaks cold-read resume",
+        "keeps task status, step checkboxes, and evidence lines updated on disk in real time"
+      ]
+    },
+    {
+      "id": "task-done-auto-continues-next",
+      "prompt": "plan.md is in attended mode. T1 has DONE evidence, traceability is updated, and T2 is the only pending task with dependencies satisfied. The agent asks the user whether to continue to T2.",
+      "expected": "Attended only pauses after R-node verdicts, not between TDD tasks; the controller continues.",
+      "expectations": [
+        "rejects a per-task human confirmation gate",
+        "verifies T1 as done then selects T2 as the unique next executable task from plan.md",
+        "continues the controller loop by dispatching a fresh hf-implementer subagent for T2 unless a hard stop is present"
+      ]
+    },
+    {
+      "id": "r3-rework-creates-task-not-re-review",
+      "prompt": "R3 code review returns rework: finding #2 says set_mode returns OK for invalid mode and finding #3 says the same task introduced a misleading process() helper. All original tasks are marked done. The agent wants to fix it in the review context and re-review immediately.",
+      "expected": "R3 rework re-enters hf-tdd, creates a rework entry without overwriting original evidence, and re-reviews only after Resolution closure.",
+      "expectations": [
+        "enters R3 rework mode instead of fixing in the review context or shipping",
+        "creates a rework entry for the done task without overwriting the original RED/GREEN/REFACTOR evidence",
+        "writes or strengthens a failing test for the invalid-mode bug before fixing code",
+        "fills Resolution entries before re-review; next step after closure is re-review, not ship"
+      ]
+    },
+    {
+      "id": "r3-design-drift-escalates-upstream",
+      "prompt": "R3 review finds the implementation follows a different error contract than design.md, and the chosen contract may actually be the right one.",
+      "expected": "Do not silently update code or design inside TDD; escalate to design.",
+      "expectations": [
+        "does not silently update code or design.md inside TDD",
+        "marks the TDD task blocked and returns to hf-design for the contract decision",
+        "requires the affected design review (R2) to be redone before continuing implementation"
+      ]
+    }
+  ]
+}

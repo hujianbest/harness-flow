@@ -1,1 +1,0 @@
-# Verification — fixture (skeleton)

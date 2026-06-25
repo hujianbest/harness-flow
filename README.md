@@ -1,30 +1,32 @@
 # HarnessFlow
 
-[English](README.md) | [Chinese](README.zh-CN.md)
+[English](README.md) | [中文](README.zh-CN.md)
 
-**Spec-anchored SDD, gated TDD, and evidence-based workflow control for AI coding agents.**
+**A development-workflow skill suite for AI coding agents built on a three-layer quality model (SDD → TDD → Clean Code) with human-on-the-loop collaboration.**
 
-HarnessFlow packages the practices behind disciplined AI-assisted engineering into self-contained Markdown skills: discovery, specs, design, tasks, TDD implementation, independent reviews, gates, and closeout.
+HarnessFlow packages disciplined AI-assisted engineering practice into self-contained Markdown skills: specification, design, test-first implementation, independent review, defect handling, and closeout. It splits "producing high-quality code" into three layers from the outside in — SDD (build the right thing) → TDD (prove it works) → Clean Code (write it well) — with the AI doing the work in the loop and humans reviewing on the loop. Philosophy: [`docs/harnessflow-philosophy.md`](docs/harnessflow-philosophy.md). Architecture: [`docs/harnessflow-core-architecture.md`](docs/harnessflow-core-architecture.md).
 
-![HarnessFlow TDD overview](docs/assets/harnessflow-tdd-overview.png)
+![HarnessFlow three-layer quality model](docs/assets/harnessflow-tdd-overview.png)
 
 ---
 
 ## Commands
 
-Claude Code gets 7 slash commands. OpenCode and Cursor use the same intents through natural language plus `using-hf-workflow`.
+HarnessFlow provides 7 slash commands as a thin platform adapter. The authoritative workflow lives in `skills/<name>/SKILL.md`; commands only express intent and load the right skill.
 
-| What you're doing | Command | Key principle |
-|-------------------|---------|---------------|
-| Enter or resume HF | `/hf` | Route from artifacts |
-| Define what to build | `/spec` | Spec before code |
-| Plan how to build it | `/plan` | Design then tasks |
-| Build one task | `/build` | One active task |
-| Review before moving on | `/review` | Author/reviewer separation |
-| Close engineering work | `/ship` | Gates before closeout |
-| Cut a release pack | `/release` | Version docs, not deploys |
+| What you're doing | Command | Skill | Key principle |
+|-------------------|---------|-------|---------------|
+| Enter or resume HF | `/hf` | `using-hf` | Recover from artifacts |
+| Define what to build | `/spec` | `hf-specify` | Spec before code |
+| Plan how to build it | `/plan` | `hf-design` | Design before implementation |
+| Build with tests | `/build` | `hf-tdd` | RED → GREEN → REFACTOR |
+| Review an artifact | `/review` | `hf-review` | Authors do not self-review |
+| Close engineering work | `/ship` | `hf-ship` | DoD before closeout |
+| Fix a defect | `/fix` | `hf-fix` | Reproduce before repair |
 
-Every command is a bias, not a bypass. The router still checks repository evidence before choosing the next node, except `/release`, which directly invokes the standalone release skill.
+`hf-clean-code`, language standards, and domain standards do not have separate commands. They are quality overlays consumed inside design, implementation, and review.
+
+> **Commands are a bias, not a bypass.** Except for `/fix`, which directly enters the defect bypass, commands still check repository artifact evidence (`plan.md`, `reviews/`) before entering the right stage.
 
 ---
 
@@ -41,7 +43,7 @@ Install from the marketplace:
 
 ### OpenCode and Cursor
 
-Vendor HarnessFlow into your project with the install script:
+Vendor HarnessFlow into your project with the install script (writes a manifest for clean uninstall):
 
 ```bash
 git clone https://github.com/hujianbest/harness-flow.git /path/to/harness-flow
@@ -61,158 +63,138 @@ The script copies or symlinks `skills/`, `agents/`, OpenCode command assets, and
 ### Try it
 
 ```text
-Use HarnessFlow from this repo. Start with `using-hf-workflow` and route me through the correct HF workflow.
-I want to add rate limiting to our notifications API.
-Do not jump straight to code.
+Use HarnessFlow from this repo. Start with `using-hf` and route me to the right stage.
+I want to add a retry mechanism to the notifications component.
+Clarify the requirements first; do not jump straight to code.
 ```
 
-More setup detail:
+Project overrides: create an `AGENTS.md` with a `## Project overrides` section at the target component repository root to override artifact paths and templates. Without it, the `using-hf` built-in defaults apply.
 
-- [Claude Code setup](docs/claude-code-setup.md)
-- [OpenCode setup](docs/opencode-setup.md)
-- [Cursor setup](docs/cursor-setup.md)
+More setup detail: [Claude Code setup](docs/claude-code-setup.md), [OpenCode setup](docs/opencode-setup.md), [Cursor setup](docs/cursor-setup.md).
 
 ---
 
 ## See It Work
 
 ```text
-You:    Use HarnessFlow from this repo. Start with `using-hf-workflow`.
-        I want to add rate limiting to our notifications API.
+You:    Use HarnessFlow from this repo. Add rate limiting to the notifications API.
+        Do not jump straight to code.
 
-HF:     Reads repository artifacts, chooses the right entry point, and routes
-        into discovery or `hf-specify` instead of jumping straight to code.
+HF:     Enters via `using-hf`, confirms the run mode (attended / unattended), resolves
+        the target component root, and routes into `hf-specify` because no approved
+        spec exists.
 
-You:    Use HarnessFlow to plan the approved spec.
+You:    Continue with HarnessFlow once the spec is ready.
 
-HF:     Produces architecture with `hf-design`, adds `hf-ui-design` only when
-        the spec declares a UI surface, then breaks the design into reviewed
-        tasks with `hf-tasks`.
+HF:     Runs an independent `hf-review` gate (R1). If the spec passes and the run mode
+        allows progress, `hf-design` writes component-level and work-item-level design,
+        interface contracts, error model, and test design.
 
-You:    Use HarnessFlow to build the current active task.
+You:    Build the approved design.
 
-HF:     Locks one `Current Active Task`, writes the test design, records the
-        approval, runs RED -> GREEN -> REFACTOR, updates `tasks.progress.json`,
-        and writes a wisdom-notebook delta for cross-task learning.
+HF:     `hf-tdd` refines `plan.md`, implements one task at a time with RED → GREEN →
+        REFACTOR evidence, applies `hf-clean-code` plus the applicable language/domain
+        standards, and writes evidence lines to disk.
 
-You:    Use HarnessFlow to verify and close this work.
+You:    Verify and close the work.
 
-HF:     Runs test, code, and traceability reviews. If the task touches a
-        frontend surface, `hf-browser-testing` captures DOM / console / network
-        evidence before the gates decide what happens next.
-
-You:    Use HarnessFlow to ship the completed workflow.
-
-HF:     Runs regression, doc-freshness, and completion gates, then `hf-finalize`
-        writes `closeout.md` plus the closeout HTML companion. For a vX.Y.Z
-        release, `hf-release` can aggregate closed workflows into a tag-ready
-        release pack; it still does not deploy to production.
+HF:     `hf-review` checks tests and code from an independent context (R3). `hf-ship`
+        runs the Definition of Done, promotes long-term assets into the component
+        root's docs/, and writes `closeout.md` for human final confirmation.
 ```
 
-If the architect explicitly asks for auto mode, `hf-ultrawork` can continue through canonical next actions, write approval records, and keep a fast-lane audit trail while preserving Fagan reviews, gate verdicts, closeout, and hard stops.
+At workflow start HarnessFlow records one run mode: `attended` by default (review verdicts pause for human confirmation), or `unattended`, where long sessions keep moving while independent reviews, records, critical-finding stops, and later human audit all remain mandatory — **unattended only removes the human pause, not any quality action**.
 
 ---
 
-## All 30 Skills
+## All 15 Skills
 
-HarnessFlow currently ships 29 `hf-*` skills plus the `using-hf-workflow` entry skill.
+HarnessFlow currently ships 15 skills in four categories. Overlays and domain skills are discovered by naming convention and description, so new overlays can be added without changing the phase skills.
 
-### Meta and routing
+### Phase Skills (7)
 
-| Skill | What it does | Use when |
-|-------|--------------|----------|
-| [using-hf-workflow](skills/using-hf-workflow/SKILL.md) | Public entry shell for choosing direct invoke vs router handoff | Starting a session or expressing a high-level HF intent |
-| [hf-workflow-router](skills/hf-workflow-router/SKILL.md) | Evidence-based runtime router and recovery controller | Continuing from repository artifacts or consuming review/gate outcomes |
-
-### Discover and define
+Have a workflow, produce artifacts, and carry a human checkpoint. `using-hf` is the entry skill; the other six are workflow stages.
 
 | Skill | What it does | Use when |
 |-------|--------------|----------|
-| [hf-product-discovery](skills/hf-product-discovery/SKILL.md) | Frames product opportunity, assumptions, JTBD, and success signals | The idea is still at product-discovery level |
-| [hf-discovery-review](skills/hf-discovery-review/SKILL.md) | Reviews discovery artifacts with author/reviewer separation | Discovery output needs an independent verdict |
-| [hf-experiment](skills/hf-experiment/SKILL.md) | Runs smallest useful probes for blocking hypotheses | A discovery or spec assumption is too risky to guess |
-| [hf-specify](skills/hf-specify/SKILL.md) | Turns intent into testable requirements and acceptance criteria | Writing or revising a spec |
-| [hf-spec-review](skills/hf-spec-review/SKILL.md) | Reviews specs against clarity, completeness, and testability | A spec is ready for independent review |
+| [using-hf](skills/using-hf/SKILL.md) | Entry: three-layer model, workflow loop, artifact conventions, recovery rules, behavior rules | Starting, resuming, or asking what HF should do next |
+| [hf-specify](skills/hf-specify/SKILL.md) | Turns intent into a testable spec (EARS + Given/When/Then + NFR QAS) and initializes the traceability matrix | A feature/change needs requirements before design or code |
+| [hf-design](skills/hf-design/SKILL.md) | Produces component-level and work-item-level design, boundaries, contracts, error model, tradeoffs, and test design | An approved spec needs technical design |
+| [hf-tdd](skills/hf-tdd/SKILL.md) | Test-first implementation (RED → GREEN → REFACTOR), task evidence, assertion quality, and mock-boundary discipline | Design is approved and implementation starts |
+| [hf-review](skills/hf-review/SKILL.md) | Independently reviews specs, designs, tests, or code with findings and verdicts | A phase artifact is ready to pass a gate |
+| [hf-ship](skills/hf-ship/SKILL.md) | Checks the Definition of Done, promotes long-term assets, and writes closeout | Reviews are closed and engineering work is ready to finish |
+| [hf-fix](skills/hf-fix/SKILL.md) | Defect path: reproduction → root cause → minimal fix boundary → TDD repair | A regression, bug, hotfix, or shipped-behavior defect appears |
 
-### Plan
+### Quality Overlays (5)
 
-| Skill | What it does | Use when |
-|-------|--------------|----------|
-| [hf-design](skills/hf-design/SKILL.md) | Produces architecture, interfaces, risks, and decisions | An approved spec needs technical design |
-| [hf-design-review](skills/hf-design-review/SKILL.md) | Reviews design for traceability and architectural quality | A design draft is ready |
-| [hf-ui-design](skills/hf-ui-design/SKILL.md) | Designs UI flows, IA, states, tokens, and accessibility | The spec declares a UI surface |
-| [hf-ui-review](skills/hf-ui-review/SKILL.md) | Reviews UI design against UX and accessibility criteria | UI design needs an independent verdict |
-| [hf-tasks](skills/hf-tasks/SKILL.md) | Breaks approved design into small, ordered tasks | Design is approved and implementation needs a task plan |
-| [hf-tasks-review](skills/hf-tasks-review/SKILL.md) | Checks task atomicity, dependencies, and verification clarity | Task plan is ready |
-| [hf-gap-analyzer](skills/hf-gap-analyzer/SKILL.md) | Author-side gap check before formal review | An artifact needs self-checking before review |
-
-### Build, verify, and review
+Quality constraints and criteria spanning all stages, referenced by phase skills, but not stages themselves. `hf-clean-code` is the language-neutral core of layer three; language standards are discovered by `<language>-coding-standards` naming convention.
 
 | Skill | What it does | Use when |
 |-------|--------------|----------|
-| [hf-test-driven-dev](skills/hf-test-driven-dev/SKILL.md) | Implements one active task with test design, RED/GREEN evidence, and refactor discipline | A single current task is locked |
-| [hf-subagent-driven-dev](skills/hf-subagent-driven-dev/SKILL.md) | Implements one active task through a fresh implementer subagent while preserving HF reviews and gates | The locked task is self-contained enough for subagent execution |
-| [hf-browser-testing](skills/hf-browser-testing/SKILL.md) | Captures browser DOM, console, and network evidence | A frontend task needs runtime proof |
-| [hf-test-review](skills/hf-test-review/SKILL.md) | Reviews test quality and fail-first evidence | Tests are ready for independent review |
-| [hf-code-review](skills/hf-code-review/SKILL.md) | Reviews implementation quality, design conformance, and AI-slop risks | Code is ready for independent review |
-| [hf-traceability-review](skills/hf-traceability-review/SKILL.md) | Checks spec -> design -> tasks -> code -> verification alignment | Implementation reviews passed |
-| [hf-regression-gate](skills/hf-regression-gate/SKILL.md) | Runs impact-based regression judgment | Traceability is approved |
-| [hf-doc-freshness-gate](skills/hf-doc-freshness-gate/SKILL.md) | Checks changed behavior and docs stay in sync | Regression evidence is ready |
-| [hf-completion-gate](skills/hf-completion-gate/SKILL.md) | Decides whether task/workflow evidence is enough to complete | Reviews and gates need a final completion verdict |
+| [hf-clean-code](skills/hf-clean-code/SKILL.md) | Language-neutral clean code standards: naming, functions, control flow, errors, comments, refactoring catalog | Writing, refactoring, or reviewing implementation and test code |
+| [c-coding-standards](skills/c-coding-standards/SKILL.md) | C language-level rules, idioms, tooling discipline, and examples | Work touches C source, tests, or build scripts |
+| [cpp-coding-standards](skills/cpp-coding-standards/SKILL.md) | C++ language-level rules, idioms, tooling discipline, and examples | Work touches C++ source, tests, or build scripts |
+| [java-coding-standards](skills/java-coding-standards/SKILL.md) | Java language-level rules, idioms, tooling discipline, and examples | Work touches Java source, tests, or build scripts |
+| [python-coding-standards](skills/python-coding-standards/SKILL.md) | Python language-level rules, idioms, tooling discipline, and examples | Work touches Python source, tests, or build scripts |
 
-### Closeout, release, branches, and acceleration
+### Domain Skills (2)
+
+Domain-specific quality dimensions, triggered by their frontmatter descriptions.
 
 | Skill | What it does | Use when |
 |-------|--------------|----------|
-| [hf-finalize](skills/hf-finalize/SKILL.md) | Writes closeout pack and HTML companion | Completion gate allows workflow closeout |
-| [hf-release](skills/hf-release/SKILL.md) | Aggregates closed workflows into a tag-ready release pack | Cutting a vX.Y.Z release |
-| [hf-hotfix](skills/hf-hotfix/SKILL.md) | Handles defect recovery with root-cause discipline | The request is a production or shipped-behavior defect |
-| [hf-increment](skills/hf-increment/SKILL.md) | Re-enters the workflow for scope or acceptance changes | Requirements changed after prior artifacts |
-| [hf-wisdom-notebook](skills/hf-wisdom-notebook/SKILL.md) | Maintains cross-task learnings, decisions, issues, verification, and problems | Work needs reusable memory across tasks |
-| [hf-context-mesh](skills/hf-context-mesh/SKILL.md) | Generates client-specific context skeletons | A project needs layered agent instructions |
-| [hf-ultrawork](skills/hf-ultrawork/SKILL.md) | Explicit-opt-in fast lane that still preserves reviews, gates, and approval records | The architect asks for auto execution under HF rules |
+| [backend-development](skills/backend-development/SKILL.md) | Backend domain design constraints, implementation red lines, and evidence requirements | Work context matches the backend domain skill's description |
+| [frontend-development](skills/frontend-development/SKILL.md) | Frontend domain design constraints, implementation red lines, and evidence requirements | Work context matches the frontend domain skill's description |
+
+### Tooling (1)
+
+| Skill | What it does | Use when |
+|-------|--------------|----------|
+| [coding-standards-creator](skills/coding-standards-creator/SKILL.md) | Converts a team's internal coding standards into a new `<language>-coding-standards` skill | A team needs to add or revise a language standard |
+
+Language standards extend by convention: work touching language X can load `<x>-coding-standards` when present. New language skills follow the shared [structural contract](skills/coding-standards-creator/references/coding-standards-skill-contract.md), so phase skills do not need to be rewritten for each language.
 
 ---
 
-## The HF Method
+## The HarnessFlow Method (three-layer quality model + workflow)
 
-HarnessFlow is not a prompt collection. It is a controlled engineering workflow for agents.
+HarnessFlow is not a prompt collection. It is an evidence-based workflow for getting AI agents to produce code that can be reviewed, trusted, and maintained. The three layers progress from the outside in: ensure the right thing, then prove it correct, then write it well.
 
 | Layer | HF method | Why it matters |
 |-------|-----------|----------------|
-| Intent | Spec-anchored SDD | Keeps scope, constraints, and acceptance criteria in reviewable files |
-| Planning | Design and task gates | Turns approved intent into architecture and atomic implementation units |
-| Execution | Gated TDD | Requires test design, RED/GREEN evidence, and one active task at a time |
-| Routing | Artifact-based recovery | Lets agents resume from repository state instead of chat memory |
-| Review | Fagan-style separation | Keeps authoring, implementation, and judgment from collapsing into one step |
-| Verification | Regression and completion gates | Separates "tests ran" from "evidence is sufficient" |
-| Closeout | Formal handoff | Records what changed, what passed, and what remains |
+| Intent (Layer 1 SDD) | Spec-driven development (`hf-specify`) | Prevents the agent from guessing requirements |
+| Planning | Component + work-item design (`hf-design`) | Makes boundaries, contracts, errors, and tests explicit before code |
+| Execution (Layer 2 TDD) | Test-driven development (`hf-tdd`) | Separates "it looks right" from behavior proven by tests |
+| Internal quality (Layer 3 Clean Code) | Clean Code overlays (`hf-clean-code` + language/domain standards) | Keeps code readable, simple, maintainable, and reviewable |
+| Review | Independent gates (`hf-review`) | Keeps authorship and judgment separate |
+| Recovery | Artifact-first state (`plan.md` + `reviews/`) | Lets another agent or human resume from files, not chat memory |
+| Closeout | DoD and promotion (`hf-ship`) | Records what changed, what passed, and which docs became durable assets |
 
-HF deliberately stops at engineering closeout. It can produce a release-ready pack, but it does not deploy, stage rollouts, monitor production, or claim post-launch success.
+HarnessFlow's collaboration stance is **human-on-the-loop**: the AI does the work, and humans review the key artifacts and decisions. See [docs/harnessflow-philosophy.md](docs/harnessflow-philosophy.md) and [docs/harnessflow-core-architecture.md](docs/harnessflow-core-architecture.md).
 
 ---
 
 ## How Skills Work
 
-Each skill is a self-contained workflow:
+Each skill is a self-contained operating procedure:
 
 ```text
 SKILL.md
-├── Overview and trigger conditions
-├── Step-by-step workflow
-├── Required artifacts and evidence
-├── Review or gate contract
-├── Red flags
-├── Common rationalizations
+├── Trigger conditions
+├── Workflow steps
+├── Required artifacts
+├── Evidence and review contracts
+├── Quality rules and examples
+├── Red flags and rationalization traps
 └── Verification checklist
 ```
 
 Key design choices:
 
-- **Process, not prose.** Skills are operating procedures agents follow.
-- **Evidence over memory.** Routing reads files such as `progress.md`, reviews, approvals, and verification records.
-- **Author/reviewer separation.** The author of an artifact does not approve it.
-- **Progressive disclosure.** References, rubrics, scripts, and evals live beside the owning skill and load only when needed.
+- **Minimal process.** Keep only what produces quality: phase artifacts, human checkpoints, TDD discipline, and independent reviews; no extra node router.
+- **Maximal substance.** The body of each skill is engineering judgment: rules + positive/negative examples + checklists + review rubrics.
+- **Evidence over memory.** Progress is recovered from `plan.md`, `reviews/`, `traceability.md`, and the artifact files themselves, not chat history.
+- **Authors do not self-review.** The agent that creates an artifact does not approve it.
 
 ---
 
@@ -220,78 +202,58 @@ Key design choices:
 
 ```text
 harness-flow/
-├── skills/                            # 30 skills (29 hf-* + 1 entry skill)
-│   ├── using-hf-workflow/             # Meta: choose entry point
-│   ├── hf-workflow-router/            # Meta: route from artifacts
-│   ├── hf-product-discovery/          # Discover: frame product opportunity
-│   ├── hf-discovery-review/           # Discover: review discovery output
-│   ├── hf-experiment/                 # Discover: probe blocking hypotheses
-│   ├── hf-specify/                    # Define: write or revise specs
-│   ├── hf-spec-review/                # Define: review specs
-│   ├── hf-design/                     # Plan: architecture and decisions
-│   ├── hf-design-review/              # Plan: review architecture
-│   ├── hf-ui-design/                  # Plan: UI surface design
-│   ├── hf-ui-review/                  # Plan: review UI design
-│   ├── hf-tasks/                      # Plan: break work into tasks
-│   ├── hf-tasks-review/               # Plan: review task plan
-│   ├── hf-gap-analyzer/               # Plan: author-side gap check
-│   ├── hf-test-driven-dev/            # Build: one task with TDD
-│   ├── hf-subagent-driven-dev/        # Build: fresh implementer subagent
-│   ├── hf-browser-testing/            # Verify: browser runtime evidence
-│   ├── hf-test-review/                # Review: test quality
-│   ├── hf-code-review/                # Review: implementation quality
-│   ├── hf-traceability-review/        # Review: end-to-end traceability
-│   ├── hf-regression-gate/            # Gate: regression evidence
-│   ├── hf-doc-freshness-gate/         # Gate: docs stay current
-│   ├── hf-completion-gate/            # Gate: completion decision
-│   ├── hf-finalize/                   # Closeout: handoff pack
-│   ├── hf-release/                    # Release: tag-ready release pack
-│   ├── hf-hotfix/                     # Branch: defect recovery
-│   ├── hf-increment/                  # Branch: scope change
-│   ├── hf-wisdom-notebook/            # Knowledge: cross-task memory
-│   ├── hf-context-mesh/               # Context: client rule skeletons
-│   └── hf-ultrawork/                  # Fast lane: explicit auto mode
-├── commands/                       # 7 client-agnostic slash command definitions
-├── agents/                         # HF subagent role definitions
+├── skills/                         # 15 skills (7 phase + 5 overlay + 2 domain + 1 tool)
+│   ├── using-hf/                   # Phase: entry and recovery rules
+│   ├── hf-specify/                 # Phase: testable specs and traceability
+│   ├── hf-design/                  # Phase: component + work-item design
+│   ├── hf-tdd/                     # Phase: test-first implementation
+│   ├── hf-review/                  # Phase: independent review gates
+│   ├── hf-ship/                    # Phase: DoD, promotion, closeout
+│   ├── hf-fix/                     # Phase: defect path
+│   ├── hf-clean-code/              # Overlay: language-neutral clean code
+│   ├── c-coding-standards/         # Overlay: C language standard
+│   ├── cpp-coding-standards/       # Overlay: C++ language standard
+│   ├── java-coding-standards/      # Overlay: Java language standard
+│   ├── python-coding-standards/    # Overlay: Python language standard
+│   ├── backend-development/        # Domain: backend
+│   ├── frontend-development/       # Domain: frontend
+│   └── coding-standards-creator/   # Tooling: language-standard generator
+├── commands/                       # 7 slash-style phase entries
+├── agents/                         # hf-implementer and hf-reviewer personas
 ├── .claude-plugin/                 # Claude Code marketplace plugin metadata
 ├── .cursor/rules/                  # Cursor alwaysApply entry rule
 ├── .opencode/                      # OpenCode integration assets
 ├── docs/
+│   ├── harnessflow-philosophy.md   # Core philosophy (north star)
+│   ├── harnessflow-core-architecture.md
 │   ├── claude-code-setup.md
 │   ├── opencode-setup.md
 │   ├── cursor-setup.md
 │   ├── decisions/                  # ADRs
-│   ├── principles/                 # HF design notes
 │   └── assets/
-├── examples/writeonce/             # end-to-end demo artifacts
-├── features/                       # HarnessFlow dogfood feature artifacts
+├── scripts/                        # Repository consistency checks
 ├── tests/                          # Repository-level validators and regressions
-├── scripts/                        # Repository maintenance scripts
 ├── install.sh / uninstall.sh
 ├── install.ps1 / uninstall.ps1
 └── README.zh-CN.md
 ```
 
-When vendoring HarnessFlow into another project, copy `skills/` plus `agents/`, or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; shared subagent roles live in `agents/`, and client slash-command definitions live in `commands/`. The `docs/principles/` directory explains this repository's design, but hosted projects do not need it at runtime.
+When vendoring HarnessFlow into another project, copy `skills/` plus `agents/`, or use `install.sh`. Each skill owns its `SKILL.md`, `references/`, `evals/`, and optional `scripts/`; shared subagent roles live in `agents/`, and slash-command definitions live in `commands/`.
 
 ---
 
-## Why HarnessFlow?
+## Scope
 
-AI coding agents often jump from request to implementation. HarnessFlow gives them a narrower, harder path: clarify intent, design before slicing work, prove behavior with TDD, separate reviews from authorship, and close the loop with durable artifacts.
-
-The pack is optimized for repositories where correctness, recoverability, and auditability matter. It keeps routing grounded in files instead of chat memory, keeps one active task under control, and records enough evidence for another agent or human reviewer to resume without guessing.
-
-HarnessFlow also draws a clear boundary around shipping. It supports engineering closeout and tag-ready release packs; deployment, staged rollout, monitoring, rollback, and post-launch operations stay with the project's own production systems.
+HarnessFlow covers the engineering segment from an accepted requirement to a reviewed implementation and closeout. It does not cover product discovery, release operations (deployment, staged rollout, monitoring, rollback), system/integration/acceptance testing, incident management, or production rollout. It also does not make business direction, priority, acceptance-threshold, or architecture-boundary decisions on behalf of the team.
 
 ---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Keep skills specific, verifiable, minimal, and grounded in real engineering practice.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Keep skills concrete, verifiable, example-driven, and light on process boilerplate.
 
 ---
 
 ## License
 
-MIT - use HarnessFlow in your projects, teams, and tools.
+MIT — use HarnessFlow in your projects, teams, and tools.

@@ -1,0 +1,45 @@
+{
+  "skill_name": "c-coding-standards",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "评审一个 C diff，里面用 #define MAX(a,b) ((a)>(b)?(a):(b)) 然后写 int m = MAX(x++, y);。作者说这只是一个宏，性能比函数调用好，别改。",
+      "expected": "标记为 critical：函数宏对带副作用的实参多次求值，x 会被自增两次。要求改用 static inline（有类型检查、可下断点、无求值陷阱），不接受「性能更好」作为绕过所有权/求值安全的理由。",
+      "expectations": [
+        "识别 MAX 宏对 x++ 的多次求值事故",
+        "要求 static inline 替代函数宏，而非仅加括号",
+        "拒绝「性能比函数调用好」这一偷懒话术，指出宏的缺陷与本次调用无关"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "评审一个把 float 通过 int* 读出位模式的代码：float f=...; int *p=(int*)&f; return *p; 作者说这在他们的机器上一直工作。",
+      "expected": "标记为 UB：违反严格别名（strict aliasing），编译器可据此合法地优化掉代码。要求改用 memcpy 或 union 类型双关（C 合法）。指出「在我们机器上一直工作」不代表定义良好——UB 不是实现定义。",
+      "expectations": [
+        "识别违反严格别名的强转为 UB",
+        "要求 memcpy 或 union 实现类型双关",
+        "反驳「在我们机器上一直工作」，区分 UB 与实现定义行为"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "评审一个 C 函数：char *p = malloc(strlen(src)+1) 后立即 strcpy(p, src) 返回 p，没有检查 malloc 返回值。作者说调用方反正会检查 NULL。",
+      "expected": "标记：malloc 返回未检查即解引用是 NULL 解引用/UAF 隐患，必须检查；strcpy 无容量保护，应改 snprintf 或已知长度的 memcpy(len+1)。指出调用方检查 NULL 不能替代本函数内部对 malloc 的检查。",
+      "expectations": [
+        "要求 malloc 返回值在使用前检查",
+        "把 strcpy 标为无容量保护，要求 snprintf/memcpy 配长度上界",
+        "反驳「调用方会检查」——本函数仍须校验自己获取的资源"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "评审一个协议解析函数：先读 uint32_t len，然后 memcpy(out, src, len)。作者说协议保证 len 合理。",
+      "expected": "标记为 critical：外部长度参与拷贝必须有显式上界检查（len ≤ 目标容量），「协议保证」是不可依赖的不变式。要求先校验 len 再拷贝。",
+      "expectations": [
+        "识别外部长度未校验即拷贝为最高危路径",
+        "要求 len ≤ 目标容量的显式上界检查",
+        "反驳「协议保证合理」，凡依赖外部输入的不变式都必须校验"
+      ]
+    }
+  ]
+}

@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow v1.0.0 skill pack: 29 hf-* skills plus using-hf-workflow, covering discovery -> spec -> design -> tasks -> TDD/subagent-driven implementation -> reviews -> browser evidence -> gates -> finalize -> release, with evidence-based routing and Fagan author/reviewer separation. v1.0.0 promotes shared subagent roles to top-level agents/ (hf-implementer uses hf-test-driven-dev; hf-reviewer covers every hf-*review node), moves slash command definitions to top-level commands/, and keeps Claude Code / OpenCode / Cursor support. hf-release remains engineer-level tag readiness only: no deployment, staged rollout, monitoring, rollback, or automatic git tag."
+      "description": "HarnessFlow — a cross-platform AI coding-agent development-workflow skill suite built on a three-layer quality model: SDD (spec-driven) for the right thing, TDD (test-driven) for proven behavior, and Clean Code for code worth keeping, with human-on-the-loop collaboration. Ships 15 skills (7 phase: using-hf, hf-specify, hf-design, hf-tdd, hf-review, hf-ship, hf-fix; 5 overlay: hf-clean-code + c/cpp/java/python-coding-standards; 2 domain: backend/frontend-development; 1 tool: coding-standards-creator) and 7 slash commands (/hf, /spec, /plan, /build, /review, /ship, /fix). Supports Claude Code, Cursor, and OpenCode. Covers accepted-requirement to reviewed-implementation and closeout; not product discovery, release ops, or rollout."
     }
   ]
 }

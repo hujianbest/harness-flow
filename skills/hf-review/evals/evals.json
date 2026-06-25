@@ -1,0 +1,95 @@
+{
+  "skill_name": "hf-review",
+  "scenarios": [
+    {
+      "id": "no-self-review",
+      "prompt": "The session that wrote design.md proposes to review it itself to save time, since it already understands the design best.",
+      "expected": "Authors do not self-review; dispatch an independent hf-reviewer subagent (or new session) with only the artifact, upstream artifacts, and rubric.",
+      "expectations": [
+        "refuses self-review as a violation of the author/reviewer separation",
+        "dispatches an independent hf-reviewer with only the artifact, upstream artifacts, and the R2 rubric",
+        "does not pass the author's reasoning process or chat history to the reviewer"
+      ]
+    },
+    {
+      "id": "no-record-no-review",
+      "prompt": "The agent reports 'design review passed' in chat, but features/<id>/reviews/ contains no design review file.",
+      "expected": "A review without an on-disk record is treated as not having happened.",
+      "expectations": [
+        "treats a review without an on-disk reviews/ record as not having happened",
+        "writes the record (object + findings table with Resolution column + verdict + spot checks) before the gate can pass",
+        "updates the plan.md gate table with the record path"
+      ]
+    },
+    {
+      "id": "findings-must-be-actionable",
+      "prompt": "A reviewer returns 'overall quality could be improved' as the only finding with verdict 需修改.",
+      "expected": "Reject vague findings; require rubric-based itemized findings with location, severity, class, and fix direction.",
+      "expectations": [
+        "rejects vague findings lacking location and fix direction",
+        "requires rubric-based itemized checking rather than impression scoring",
+        "for R3, requires a recorded mutation spot-check on 2-3 key tests"
+      ]
+    },
+    {
+      "id": "resolution-closure-required",
+      "prompt": "After fixing review findings, the agent starts the next phase without writing how each finding was resolved.",
+      "expected": "The Resolution column must be filled per finding; open critical/important findings block the gate.",
+      "expectations": [
+        "requires the Resolution column filled per finding (fix+commit / accepted-by-human+reason / debt+destination)",
+        "open critical/important findings block the gate",
+        "re-review verifies resolutions against the actual diff and does not let findings vanish"
+      ]
+    },
+    {
+      "id": "green-is-not-clean-code-proof",
+      "prompt": "A code review sees all behavior tests passing, so the reviewer wants to pass. The diff adds a 120-line function named process(), checks mode == 3 directly, swallows an error after logging it, and introduces a single-implementation interface only for tests.",
+      "expected": "Passing tests do not prove code quality; load hf-clean-code and report blocking findings.",
+      "expectations": [
+        "does not pass the review just because behavior tests are green",
+        "loads hf-clean-code and reports blocking findings for lying names, magic values, swallowed errors, and speculative abstraction",
+        "uses verdict 需修改 or 重新设计 instead of downgrading the issues to style nits"
+      ]
+    },
+    {
+      "id": "drift-is-critical",
+      "prompt": "During R3 code review the implementation deviates from design.md but works; the reviewer wants to pass it since the behavior is correct.",
+      "expected": "Silent artifact drift is critical; fix code or update and re-confirm design, reviewer does not edit.",
+      "expectations": [
+        "treats silent drift between code and design.md as critical",
+        "requires either fixing the code or updating and re-confirming the design (then re-reviewing R2)",
+        "the reviewer does not edit the artifacts themselves"
+      ]
+    },
+    {
+      "id": "finding-classification-controls-human-questions",
+      "prompt": "An R1 spec review finds one unclear sentence, one missing business threshold, and one component-boundary decision that requires an architect.",
+      "expected": "Classify findings to control who gets asked what.",
+      "expectations": [
+        "classifies the unclear sentence as LLM-FIXABLE and does not ask the human about it",
+        "classifies the missing threshold as USER-INPUT and asks only that specific question",
+        "classifies the component-boundary decision as TEAM-EXPERT and escalates it as a concrete decision point"
+      ]
+    },
+    {
+      "id": "r3-rework-target-is-tdd",
+      "prompt": "An R3 code review finds an important bug and a critical resource leak in implementation. The reviewer writes verdict 需修改 and suggests fixing in place.",
+      "expected": "R3 需修改 routes the author back to hf-tdd; reviewer does not modify code or send the workflow to ship.",
+      "expectations": [
+        "sets the recommended author stage to hf-tdd",
+        "requires Resolution entries and RED/GREEN/REFACTOR evidence from hf-tdd before re-review",
+        "does not let the reviewer modify code or send the workflow directly to hf-ship"
+      ]
+    },
+    {
+      "id": "three-round-review-loop-cap",
+      "prompt": "The same R3 gate has reached the third review round and still has open critical findings.",
+      "expected": "Stop the automatic rework/re-review loop and escalate to a human.",
+      "expectations": [
+        "stops automatic rework and re-review at the 3-round cap",
+        "summarizes remaining critical findings and prior Resolution evidence",
+        "escalates only the concrete unresolved decisions to a human or expert"
+      ]
+    }
+  ]
+}

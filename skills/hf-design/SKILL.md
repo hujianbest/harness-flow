@@ -1,326 +1,251 @@
 ---
 name: hf-design
-description: 适用于需求规格已批准但设计尚未批准、或设计评审返回需修改/阻塞需修订的场景。不适用于规格仍是草稿/待批准（→ hf-specify）、设计已批准需拆任务（→ hf-tasks）、仅需执行设计评审（→ hf-design-review）、阶段不清或证据冲突（→ hf-workflow-router）。
+description: 在规格确认后、写代码前做软件设计时使用；也在设计评审被打回、或实现中发现模块边界/接口契约/错误处理需要重新设计时使用。涵盖模块划分、接口契约、错误模型、数据所有权、方案取舍与测试设计。
 ---
 
-# HF 设计
+# HarnessFlow 设计
 
-把已批准规格转化为可评审的设计文档，说明"如何"实现，让后续任务规划与实现不再靠猜测推进。
+## 总览
 
-**职责边界**：本 skill 只负责 **架构 / 模块 / API 契约 / 数据模型 / 后端 NFR**。若规格声明 UI surface，`hf-ui-design` 会被 `hf-workflow-router` 激活为 **design stage 的 conditional peer**，与本 skill 并行处理 IA / wireframe / 交互 / 视觉 / 前端 a11y / i18n / 响应式。两条 skill 独立起草、独立 review、联合进入 `设计真人确认`。详见 `hf-workflow-router/references/ui-surface-activation.md`。
+设计回答的问题：**用什么结构来满足规格，让代码做对的同时也值得长期持有。** 一份好设计的检验标准：
 
-## Methodology
+1. 拿着它，不看代码就能写出测试（接口契约完整）；
+2. 实现者不需要再做任何"发明"（结构决策已闭合）；
+3. 每个结构决策都能回答「为什么不是更简单的方案」（复杂度有理由）。
 
-本 skill 融合以下已验证方法：
+**设计的第一律：简单性。** 满足当前规格的最少结构就是好结构。每多一层间接、一个抽象、一个配置项，都要付出理解、测试和演进的复利成本。本文所有原则最终都服务于这一条。
 
-- **ADR (Architecture Decision Records, Nygard format)**: 所有影响后续任务的关键决策用 ADR 格式记录，包含上下文、决策、后果与可逆性评估。详见 `references/adr-template.md`。
-- **C4 Model (Context-Container-Component-Code)**: 架构视图按 Context → Container → Component 层次递进，提供最少必要视图（逻辑架构、组件关系、关键交互），优先 Mermaid。
-- **Risk-Driven Architecture (Fairbanks)**: 架构投入按风险驱动——先识别哪些设计决策风险最高，对高风险决策投入更多分析和备选方案比较，而非均匀铺开。
-- **YAGNI + Complexity Matching**: 决策必须由当前已确认需求驱动；架构复杂度匹配团队规模和系统规模（solo + 本地运行不引入微服务/消息队列）。
-- **ARC42 (partial)**: 设计文档结构覆盖 ARC42 核心维度：约束、决策、视图、风险/技术债务、 Glossary（通过 spec-template 衔接）。
-- **DDD Strategic Modeling（Phase 0 新增）**: 进入 C4 视图前，先锁定 Bounded Context、Ubiquitous Language、Context Map，让边界先于结构。详见 `references/ddd-strategic-modeling.md`。
-- **DDD Tactical Modeling（Phase 0 新增）**: 在战略建模之后、C4 Component 之前，回答每个 Bounded Context **内部**的 Entity / Value Object / Aggregate / Repository / Domain Service / Application Service / Domain Event。让"写代码前要考虑好模式"落到**领域语义驱动**的选择上，而不是 GoF 直觉驱动。详见 `references/ddd-tactical-modeling.md`。
-- **Emergent vs Upfront Patterns（HF 立场，硬性约束）**: 本 skill 只前置**领域语义驱动**的战术模式（Entity / VO / Aggregate / Repository / Domain Service / Application Service / Domain Event）；**GoF 代码模式**（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）**刻意不在本 skill 前置决策**——它们属于实现层 emergent 浮现，由 `hf-test-driven-dev` 在 REFACTOR 步按 Fowler 重构词汇（Replace Conditional with Polymorphism / Extract Factory Method / ...）浮现处理。强行前置等于 over-abstraction，违反 YAGNI 与 Clean Architecture dependency rule。理由：上游需求 / 真实接入点未稳定时锁定具体扩展点会让"灵活性"绑定到错误的轴上；TDD REFACTOR 阶段的 Two Hats 纪律保证了重构窗口存在；Fowler 重构词汇足以表达后期模式选择。
-- **Event Storming as spec→design bridge（Phase 0 新增）**: 用事件视角把业务流程摊开，Big Picture / Process Modeling 两档按 profile 使用。详见 `references/event-storming.md`。
-- **Quality Attribute Scenarios（Phase 0 承接）**: 承接 `hf-specify` 层的 QAS（ISO 25010 + Source/Stimulus/Environment/Response/Response Measure），把每条 QAS 映射到具体模块 / 机制 / observability / 验证。详见 `references/nfr-checklist.md`。
-- **STRIDE 轻量威胁建模（Phase 0 新增）**: 在激活条件满足时产出最小 STRIDE list，落到具体缓解与 ADR。详见 `references/threat-model-stride.md`。
+## 单一职责与范围纪律
 
-## When to Use
+本技能只解决一个问题：**把规格转成值得长期持有的设计，并把测试设计与下游 TDD 衔接好。**
 
-使用：
+不做什么（堵住膨胀）：
 
-- 需求规格已批准，但设计尚未批准
-- `hf-design-review` 返回 `需修改` 或 `阻塞`，需要按 findings 修订
-- 当前问题已进入 HOW 层，需要明确架构、模块边界、接口、数据流、技术决策和测试策略
+- **不做需求澄清**——需求含糊就回 `hf-specify`，不在设计阶段补规格。
+- **不做任务拆解**——任务细化留给 `hf-tdd` 在设计评审通过后细化。
+- **不前置 GoF 代码模式**——Strategy/Factory/Adapter/Observer 等属于实现层 emergent 浮现，由 `hf-tdd` 在 REFACTOR 步按 Fowler 重构词汇处理；本技能只前置领域语义驱动的职责、契约、依赖与变化轴判断。
+- **不替代项目约定**——项目级模板/原则/路径在目标仓库根 `AGENTS.md` 里，不在本技能里固化。
+- **不裁剪质量门槛**——接口契约六项、错误模型、测试设计在微小修改里仍不可省。
 
-不使用：
+## 设计分两级
 
-- 规格仍是草稿/待评审/待批准 → `hf-specify` / `hf-spec-review`
-- 设计已批准，需要任务计划 → `hf-tasks`
-- 只要求执行设计评审 → `hf-design-review`
-- 阶段不清或证据冲突 → `hf-workflow-router`
+| 级别 | 工件 | 何时需要 | 模板 |
+|---|---|---|---|
+| 组件级设计 | 组件根下 `features/<id>-<slug>/component-design-draft.md` → ship 时 promote 到组件根下 `docs/component-design.md`（或团队覆盖路径） | 工作项影响组件边界：对外接口 / 组件依赖 / 状态机 / 组件职责变化，或组件设计基线缺失、过期 | `references/component-design-template.md` |
+| 工作项级设计 | 组件根下 `features/<id>-<slug>/design.md`（或团队覆盖路径） | 每个工作项（微小修改可按 `using-hf` §6 裁剪） | `references/ar-design-template.md` |
 
-直接调用信号："开始做设计"、"把实现方案写出来"、"设计被打回了"、"先别拆任务，把架构想清楚"。
+**硬性顺序**：影响组件边界时，必须**先**修订组件设计草稿并经评审与模块架构师确认，**再**写工作项设计；工作项设计只能引用组件基线（功能编号、接口契约、软件单元），不得重新定义组件级架构。组件根下 `docs/component-design.md`（或团队覆盖的组件设计基线）不存在而工作项触及组件边界 → 先补建组件设计，不要在工作项设计里"顺便"定义组件架构。
 
-## Chain Contract
+## 工作流
 
-读取：已批准规格（默认 `features/<active>/spec.md`）、feature `progress.md`（默认 `features/<active>/progress.md`）、项目级路径约定（若项目已声明）、其中声明的项目级设计原则锚点（默认 `docs/principles/`，承载**项目自身**的 architecture/product principles 等）、当前架构概述（按 *Minimal docs Tiers*：档 1 读 `docs/architecture.md`，档 2 读 `docs/arc42/`；二者择一存在），外加最少必要技术上下文。当 `hf-ui-design` 被激活时，也读取其最新草稿以标记 peer 依赖条目。
+1. **读 spec 与组件基线**：先读 plan.md 头部记录的组件根与工件根，或按 `using-hf` §7 重新解析；读该组件根下已确认的 `spec.md` 和 `docs/component-design.md`（存在时，或团队覆盖路径），列出本变更触碰的既有模块与新增职责。
+2. **判定设计级别**：按 spec 的接口候选契约与影响面判断是否触及组件边界；触及 → 先按组件模板修订 `component-design-draft.md`，确认后再继续。
+3. **划分模块职责**（见 §职责与边界）。
+4. **设计接口契约与错误模型**（见 §接口契约、§错误模型）。
+5. **记录方案取舍**：有真实可选方案时写 2-3 个选项的对比；只有一个合理方案时写明其他方案为什么不成立（见 §方案取舍）。
+6. **写测试设计**：把 spec 的每条验收标准映射成测试用例表（见 §测试设计）。
+7. **更新追溯**：在组件根下 `features/<id>-<slug>/traceability.md`（或团队覆盖路径）填入每条需求对应的组件设计章节 / 工作项设计章节 / 测试设计用例列。
+8. **自检**（文末清单）通过后只表示作者侧设计产物就绪，下一步必须进入 R2 门禁：派发 `hf-review` 按 design rubric 做**独立评审**并落盘记录（必经节点）；评审 verdict 通过后，attended 模式再把评审记录与 verdict 呈人确认，并更新 plan.md 门禁表。**R2 门禁未通过（含 attended 下未确认）前不进入实现。** 作者不自审、评审者不动手修（`using-hf` §5）。
 
-**read-on-presence**：上述 `docs/` 资产若不存在，视为该资产未启用（项目当前在档 0），不阻塞当前节点；按"项目当前未启用此类资产"作为判断结论，仍可继续设计。
+实现中发现设计有误：停下、回来改 design.md（必要时回到组件设计）、重新评审确认，不在代码里悄悄偏离。
 
-产出：可评审设计草稿（默认 `features/<active>/design.md`）+ 设计层追溯与关键决策；若有 `hf-ui-design` 并行，还需在文档中写明 peer 依赖交接块（本设计依赖对方锁定的条目、本设计已锁定、冲突或待协商）。
+## 职责与边界
 
-**关键决策必须以 ADR 形式落到仓库级 ADR pool（默认 `docs/adr/NNNN-<slug>.md`，4 位顺序号、仓库级唯一、永不复用）**，而不是内联在 `design.md` 内。`design.md` 通过 ADR ID 引用，例如 "see ADR-0042"。新建 ADR 时状态字段写 `proposed`；`hf-design-review` 通过且 `设计真人确认` 完成后翻为 `accepted`。源码化图（Structurizr DSL / PlantUML）允许直接落到 `docs/diagrams/`，与 design review 一并审核 diff。
+### 一句话职责测试
 
-Handoff：`hf-design-review`。
+每个模块（文件/类/组件）的职责必须能用一句不含「和」「以及」的话说清。说不清，或者句子里有两个动词短语，就是两个职责。防止的失败类：上帝模块、一次需求变更横跨多个无关职责（霰弹式修改）。
 
-**联合 design approval**：当 `hf-ui-design` 被激活时，`hf-design-review` 与 `hf-ui-review` 均通过后，父会话才发起 `设计真人确认`。本 skill 的 review 通过不等于可以单独进入 approval。
-
-## Hard Gates
-
-- 设计未评审获批前，不得拆解任务或编写实现代码
-- `hf-design-review` 给出"通过"前，不发起 approval step
-- 未经 `using-hf-workflow` 或 `hf-workflow-router` 入口判断，不直接开始设计
-
-## Design Constraints
-
-### MUST DO
-
-- 用 ADR 记录所有影响后续任务规划的关键决策
-- 逐项处理非功能需求，按 QAS 映射到模块 / 机制 / observability / 验证（见 `references/nfr-checklist.md`）
-- 至少比较两个可行方案，权衡 trade-offs；候选对比需显式评估对 Success Metrics 的影响
-- 分析关键路径的失败模式并给出缓解策略
-- 识别架构模式并说明选择理由和天然限制
-- 提供最少必要的架构视图（优先 Mermaid）
-- 规格存在多概念 / 多角色 / 跨系统交互时，先做 Domain Strategic Modeling（Bounded Context / Ubiquitous Language / Context Map）
-- 战术建模触发条件满足时（Bounded Context ≥ 2 / 单 Context 内多实体 + 一致性约束 / 并发或事务边界 / 领域事件 / 跨聚合不变量），产出 DDD Tactical Model（见 `references/ddd-tactical-modeling.md`）
-- 触发条件满足时产出轻量 STRIDE threat list（见 `references/threat-model-stride.md`）
-
-### MUST NOT DO
-
-- 为假设的未来需求过度设计（YAGNI）
-- 不评估备选方案就选定技术或模式
-- 忽略运维复杂度和部署成本
-- 在没理解需求前就开始画架构图
-- 跳过安全性和隐私考量（Security NFR 存在或跨信任边界存在时，必须产出 STRIDE list）
-- 让模块 / 组件切分与 Bounded Context 不一致却不作解释
-- **把 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）前置决策到 design 阶段**——这类模式属于实现层 emergent 浮现，强行前置等于 over-abstraction，违反 YAGNI 与 Clean Arch dependency rule。战术模式（Entity / VO / Aggregate / Repository / ...）不在此禁令内——它们是**领域语义**选择，必须前置
-- 战术建模触发条件满足却静默跳过（无"本 Context 不做战术建模"说明）
-
-## Workflow
-
-### 1. 阅读已批准规格并提取设计驱动因素
-
-读取 项目级路径约定（若项目已声明）、feature `progress.md`（默认 `features/<active>/progress.md`）当前阶段、已批准规格（默认 `features/<active>/spec.md`）相关部分。
-
-提取：核心范围、成功标准与验收标准、约束、非功能需求、集成点、关键需求编号、显式 assumptions、会影响架构选择的开放问题。
-
-规格中若有阻塞架构判断的未决问题：
-- 会改变范围/验收标准/约束/接口的 → 回到 `hf-workflow-router`
-- 属于实现上下文级澄清、不改变需求边界的 → 可在当前轮次补充确认
-
-### 2. 了解最少必要技术上下文
-
-阅读现有架构 / 项目布局、当前框架与运行时约束、已知部署 / 集成 / 兼容限制、可复用模块与边界。
-
-识别架构模式（按 `references/architecture-patterns.md` 的维度判断）。
-
-不提前进入实现规划。
-
-若用户输入仍是 brainstorming 式实现想法（多种做法混写、优缺点零散、夹带局部技术偏好）：
-- 先归一化为 `候选方案 / 决策驱动因素 / 硬性约束 / 假设 / 明显越界的实现细节`
-- 不把"大家随口提过的方案名"直接当作已比较完成的候选方案
-- 先抽出真正影响方案选择的比较维度，再进入候选方案比较
-
-### 2.5 Domain Strategic Modeling（Phase 0 新增）
-
-进入 C4 视图之前，先回答"哪些边界需要存在"：
-
-- 按 `references/ddd-strategic-modeling.md` 起草 Bounded Context 清单（1–4 个为宜）
-- 为每个 Context 写 Purpose / Core Concepts / Language / Ownership
-- 把 spec section 14 术语扩展为 Ubiquitous Language 的 design 侧入口；显式列出跨 Context 冲突
-- 画 Context Map（用 Mermaid 或紧凑列表）表达 Shared Kernel / Customer-Supplier / ACL / Conformist / Open-Host / Published Language / Separate Ways / Partnership 的真实关系
-- 若项目规模不匹配（单模块脚本、单一稳定 Context），可显式标注"本轮不做战略建模"并说明理由
-
-### 2.6 Event Storming Snapshot（Phase 0 新增，按 profile 分档）
-
-按 `references/event-storming.md` 选择合适深度：
-
-- `lightweight`：一段自然语言描述主要事件 / 命令 / 异常流
-- `standard`：Event Timeline（Mermaid sequence 或文字时序），含异常路径
-- `full`：Event Timeline + Process Modeling（命令 / 策略 / Read Model / 外部系统 / Hotspot 标记）
-
-Hotspot（争议 / 不清楚）应转化为 ADR 候选决策或 STRIDE list 的关注项。事件聚类是候选 Bounded Context 的边界输入。
-
-### 2.7 DDD Tactical Modeling（Phase 0 新增）
-
-在战略建模锁定 Bounded Context 之后、进入候选方案比较之前，回答每个 Context **内部**的领域模型长什么样。
-
-触发条件（任一满足即必须产出；否则显式写明跳过理由）：
-
-- Bounded Context 数量 ≥ 2
-- 单个 Bounded Context 内存在**多实体 + 跨实体一致性约束**
-- 存在**并发修改**或**事务边界**需要回答
-- 存在**领域事件**（业务状态变化需要跨聚合 / Context 感知）
-- 规格中存在跨聚合的业务不变量
-
-产出：按 `references/ddd-tactical-modeling.md` 的最小结构，对每个触发 Context 填写 Aggregates / Value Objects / Repositories / Domain Services / Application Services / Domain Events，落到设计文档 § 4.5。
-
-关键决策（聚合边界切分、Domain Event vs 同步调用、乐观 vs 悲观锁）落到 ADR，不内联。
-
-**边界**：本步骤只处理**领域语义驱动**的模式（Entity / VO / Aggregate / Repository / Domain Service / Application Service / Domain Event）。GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator / Builder / Singleton 等）**不**在本步骤前置决策——它们属于实现层 emergent 浮现，由 `hf-test-driven-dev` 在 REFACTOR 步按 Fowler 重构词汇处理（详见本 skill Methodology 中 *Emergent vs Upfront Patterns*）。
-
-### 3. 提出 2-3 个候选方案并形成结构化决策
-
-对每个候选方案说明：如何工作、适合原因、主要优缺点、对约束和 NFR 的影响、关键风险。
-
-默认应形成一个紧凑的 compare view，而不是只写 prose。至少让 reviewer 能冷读出：
-- 候选方案之间最关键的 trade-offs
-- 选定方案为什么比另外方案更匹配当前轮边界
-- 哪些决策已经稳定，哪些仍待后续澄清
-
-默认 compare view 至少要能回答以下维度；可用表格、矩阵或等价紧凑结构表达：
-- `方案名 / 核心思路`
-- `最适合的场景或约束`
-- `主要收益`
-- `主要代价 / 风险`
-- `对关键 NFR / 约束的匹配度`
-- `对后续 task planning 的影响`
-
-若复用现有架构、历史方案或团队偏好作为候选项之一，仍要把它放进 compare view，而不是只写“沿用旧方案”。
-
-推荐方案时使用 ADR 格式记录关键决策（按 `references/adr-template.md`）。
-
-若是因 `hf-design-review` 打回而重入：先读评审 findings → 修复阻塞问题 → 不重做未受影响的部分。
-
-### 4. 校验设计原则
-
-选定方案后、编写设计文档前，校验以下维度：
-
-若 项目声明了项目级设计原则、architecture principles、soul docs 或等价价值锚点，先按声明路径读取，并把它作为候选方案筛选准则；不要假设固定目录、固定文件名或 Garage 特定路径。
-
-- **YAGNI 校验**：决策是否由当前已确认需求驱动？"未来可能需要"标记为过度工程候选
-- **复杂度适配**：Solo + 本地运行 → 不引入微服务/消息队列/分布式数据库；文档型 → 不引入重型框架；组件 < 10 → 不需要服务发现
-- **模块边界**：依赖单向（内层不依赖外层）、最小知识（接口只暴露最小必要信息）、开闭原则
-- **Bounded Context 一致性（Phase 0 新增）**：C4 Container / Component 切分与 Bounded Context 一致；若不一致，必须在 ADR 中显式解释
-- **Tactical Model 触发判断（Phase 0 新增）**：满足触发条件时，每个 Bounded Context 产出战术模型（Aggregates / VOs / Repositories / Domain Services / Application Services / Domain Events）；不触发时显式写明跳过理由
-- **Emergent vs Upfront 模式边界（Phase 0 新增）**：DDD 战术模式（领域语义驱动）前置决策；GoF 代码模式（实现细节）刻意保持 emergent，不在 design 章节前置列举（详见本 skill Methodology 中 *Emergent vs Upfront Patterns*）
-- **NFR QAS 承接（Phase 0 新增）**：每条 spec 中的 QAS 都有对应设计承接（模块 / 机制 / observability / 验证），见 `references/nfr-checklist.md`
-- **Security / Threat 触发判断（Phase 0 新增）**：若 Security NFR 存在或跨信任边界存在，必须产出 STRIDE list
-- **失败模式**：按 `references/failure-modes.md` 分析关键路径，确认单点故障、错误处理四层次
-- **可测试性**：关键行为可隔离验证；存在 Walking Skeleton 最薄端到端路径
-
-### 5. 编写设计文档
-
-按 `references/design-doc-template.md` 的默认结构（或 项目级覆盖的模板）。
-
-明确区分规格层（做什么）、设计层（如何实现）、任务层（分步实施，属于 `hf-tasks`）。
-
-对非 trivial 设计，提供 2-3 类最少必要视图（逻辑架构、组件/接口关系、关键交互、数据视图），优先 Mermaid。
-
-默认要显式落下以下文档级语义：
-- 候选方案对比与选定理由
-- 测试与验证策略，尤其是后续 `hf-test-driven-dev` 的最薄验证路径
-- task planning readiness：哪些边界、接口、风险已经足够支撑 `hf-tasks`
-- 开放问题的阻塞 / 非阻塞分类
-
-### 6. 评审前自检与 handoff
-
-交 `hf-design-review` 前确认：
-
-- [ ] 设计不是规格复述，也不是实现说明
-- [ ] 至少比较了两个可行方案并说明选定理由；候选对比已显式评估对 Success Metrics 的影响
-- [ ] 关键决策用 ADR 格式记录（含可逆性评估）
-- [ ] **Domain Strategic Model（Phase 0）**：Bounded Context / Ubiquitous Language / Context Map 已产出，或显式标注跳过理由
-- [ ] **DDD Tactical Model（Phase 0）**：触发条件满足时已产出（每个 Context 的 Aggregates / VOs / Repositories / Domain Services / Application Services / Domain Events）；未触发时显式写明跳过理由
-- [ ] **GoF 模式未被前置决策（Phase 0）**：设计文档未列出 Strategy / Factory / Adapter / Observer / Decorator 等实现层模式候选（这些交给 `hf-test-driven-dev` REFACTOR 步 emergent 浮现）
-- [ ] **Event Storming Snapshot（Phase 0）**：按当前 profile 产出（lightweight 自然语言 / standard Event Timeline / full + Process Modeling）
-- [ ] NFR 逐项落实到具体模块 / 机制（按 `references/nfr-checklist.md`），包含 observability 与验证方法
-- [ ] **STRIDE Threat List（Phase 0）**：若 Security NFR 存在或跨信任边界存在，已产出；否则显式标注跳过理由
-- [ ] 失败模式覆盖关键路径
-- [ ] task planning readiness 已明确，不把未定设计硬推给 `hf-tasks`
-- [ ] 开放问题已区分阻塞 / 非阻塞，阻塞项不会污染后续任务拆解
-- [ ] 明确列出排除项和延后项
-- [ ] 设计草稿已保存到 `features/<active>/design.md`（或 项目级覆盖路径）
-- [ ] 关键决策已落到 `docs/adr/NNNN-<slug>.md`，状态写 `proposed`，`design.md` 通过 ADR ID 引用而非内联全文
-- [ ] feature `progress.md` 已按 canonical schema 更新 Current Stage 和 Next Action
-
-准备好后，启动独立 reviewer subagent 执行 `hf-design-review`，不在父会话内联评审。
-
-## Reference Guide
-
-按需加载详细参考内容。任一 reference 未命中其"加载时机"时，不需要提前读取。
-
-| 主题 | Reference | 加载时机 | 最小 profile |
-|------|-----------|---------|--------------|
-| 项目级设计原则锚点 | 项目级约定（查找 design principles / architecture principles / soul docs 的声明路径） | 项目存在这类价值锚点时，先按声明路径加载并用于筛选候选方案 | 全档必读（存在时） |
-| ADR 模板 | `references/adr-template.md` | 记录关键决策时 | 全档必读 |
-| NFR 检查清单（含 QAS 承接 / observability） | `references/nfr-checklist.md` | 处理非功能需求时 | 全档必读（存在 NFR 时） |
-| 失败模式分析 | `references/failure-modes.md` | 分析关键路径韧性时 | standard / full；lightweight 仅关键路径存在时 |
-| 架构模式选择 | `references/architecture-patterns.md` | 识别架构模式时 | standard / full；lightweight 仅明显需要选型时 |
-| 设计文档模板（含 Phase 0 新章节） | `references/design-doc-template.md` | 编写设计文档时；每次会话至少读一次 | 全档必读 |
-| DDD 战略建模 | `references/ddd-strategic-modeling.md` | 进入 C4 前锁边界 / 统一语言 / Context Map；Bounded Context 预计 ≥ 2 时 | full；standard 当跨系统交互或多角色时加载 |
-| DDD 战术建模 | `references/ddd-tactical-modeling.md` | 战略建模之后、候选方案比较之前；触发条件（Bounded Context ≥ 2 / 单 Context 多实体 + 一致性约束 / 并发或事务边界 / 领域事件 / 跨聚合不变量）满足时加载 | standard / full；lightweight 允许显式跳过 |
-| Emergent vs Upfront 模式立场 | 本 skill Methodology 段 *Emergent vs Upfront Patterns*（已内联） | 判断某个模式该前置还是 emergent 时直接读本 skill 内立场 | 全档必读 |
-| Event Storming | `references/event-storming.md` | spec → design 桥接，按 profile 分档 | standard / full；lightweight 允许纯自然语言跳过加载 |
-| 轻量 STRIDE 威胁建模 | `references/threat-model-stride.md` | Security NFR 或跨信任边界激活时 | 全档必读（触发时） |
-
-加载策略：
-
-- `lightweight`：默认读 `design-doc-template.md` + `nfr-checklist.md`，并参考本 skill Methodology 段 *Emergent vs Upfront Patterns* 内联立场；ADR 记录时加 `adr-template.md`；STRIDE 触发时加 `threat-model-stride.md`；其余按命中条件
-- `standard`：在 lightweight 基础上加 `failure-modes.md` 与 `architecture-patterns.md`；跨系统或多角色时加 `ddd-strategic-modeling.md` 与 `event-storming.md`；战术触发时加 `ddd-tactical-modeling.md`
-- `full`：按实际需要加载；Bounded Context 预计 ≥ 2 或存在多 Context 集成时，预读 DDD 战略 + 战术 + Event Storming 三篇
-
-## Red Flags
-
-- 设计文档写成实现伪代码
-- 复制需求规格而无设计决策
-- 只给一个方案不讨论权衡
-- 候选方案只有名称或口号，没有可冷读的 compare view
-- 候选对比未显式评估对 Success Metrics 的影响
-- 设计文档里直接拆任务
-- 只写模块名不写边界、交互和契约
-- NFR 只在概述中出现，没落实到具体模块
-- NFR 承接表缺 observability 手段或验证方法
-- Bounded Context 与 C4 模块切分不一致却无解释
-- Ubiquitous Language 只是抄了一遍 spec 术语表，没有澄清冲突
-- 战术建模触发条件满足却静默省略，或用"本 Context 简单所以跳过"这种模糊理由
-- Aggregate 用 "XxxAggregate" 技术后缀；Repository 服务多个 Aggregate Root；Application Service 里写 if 业务规则（这些都指向战术建模未认真做）
-- 设计文档列出 Strategy / Factory / Adapter / Observer / Decorator 等 GoF 候选模式作为前置决策（这是 over-abstraction；GoF 应 emergent 浮现）
-- "为了通用 / 为了扩展 / 为了未来可能多一种实现"而在 design 阶段引入抽象层，但当前只有 1 种实现
-- Security NFR 存在或跨信任边界存在，却跳过 STRIDE list
-- STRIDE list 只填了两三个字母，其余留空
-- Event Storming 被画成 sequence diagram 的别名（只记交互，不记业务事件）
-- 决策理由含"未来可能需要"而无当前需求支撑
-- 没分析关键路径失败模式
-- handoff 缺失却声称"设计可以直接往下走"
-
-## Output Contract
-
-完成时产出：
-
-- 可评审设计草稿（默认 `features/<active>/design.md`）
-- 关键 ADR（默认 `docs/adr/NNNN-<slug>.md`，状态 `proposed`），design.md 通过 ID 引用
-- 源码化图（如有变更，默认 `docs/diagrams/`）
-- 设计驱动因素、关键决策、边界与最少必要视图
-- feature `README.md` 中 Artifacts 表的 Design 行与 Linked Long-Term Assets 中的 ADRs 行已更新
-- feature `progress.md` 更新：`Current Stage` → `hf-design`；`Next Action Or Recommended Skill` → `hf-design-review`
-
-推荐输出：
-
-```markdown
-设计文档草稿已起草完成，下一步应派发独立 reviewer subagent 执行 `hf-design-review`。
-
-推荐下一步 skill: `hf-design-review`
+```text
+❌ ConfigManager：负责加载配置、校验配置、监听配置变化，以及把变化通知给订阅者
+✅ ConfigStore：持有当前生效配置，提供原子读取
+✅ ConfigLoader：从存储读取并校验配置块
+✅ ConfigNotifier：把配置变化分发给订阅者
 ```
 
-如果设计稿仍未达评审门槛，不伪造 handoff；明确还缺什么，继续修订。
+是否真的要拆成三个文件取决于规模——小就先放一个文件里，但**内部结构按职责组织**，这样将来拆分是搬运而不是手术。
 
-## Common Rationalizations
+### 按变化理由划分，而不是按技术层次
 
-| 借口 | 反驳 / Hard rule |
-|------|-------------------|
-| "DDD 战略 / 战术对小 feature 太重，跳过。" | Hard Gates: bounded context + ubiquitous language 是 design 必需输出；缺位时 hf-design-review 判 fail。 |
-| "我直接套 GoF 模式，不需要在 § 4.5 列战术模式。" | Hard Gates: 实现层 SUT Form `pattern:<name>` 只允许承接 design § 4.5 已批准的 DDD 战术模式（hf-test-driven-dev 的对位约束），GoF 是 emergent 而非 upfront。 |
-| "ADR 留到实现时再补。" | Workflow stop rule: 重大架构决策必须在 design 阶段以 ADR 形式落盘；事后补 ADR 违反 evidence-based routing。 |
-| "STRIDE 风险建模等安全审计阶段做。" | Hard Gates: lightweight STRIDE 是 design 阶段必需输出；v0.2.0 缺 hf-security-hardening 时 design 是唯一安全捕获点。 |
+判断两段代码该不该放一起：**它们是否因同一个理由而变化**。协议格式变化时要改的代码放一起；业务规则变化时要改的代码放一起。反例是「所有回调放 callbacks.c、所有结构体放 types.h」这类按形态分类——一次行为变更要横跨所有文件。
 
-## Verification
+### 耦合的可操作判断
 
-- [ ] 设计草稿已保存到 `features/<active>/design.md`（非规格文件、非任务文件）
-- [ ] 至少两个候选方案已比较，选定理由已用 ADR 格式记录到 `docs/adr/NNNN-<slug>.md`（status: proposed）
-- [ ] 候选方案 compare view 显式评估对 Success Metrics 的影响
-- [ ] 至少保留一个可冷读的候选方案 compare view（表格、矩阵或等价紧凑结构）
-- [ ] **Domain Strategic Model**：Bounded Context / Ubiquitous Language / Context Map 已产出，或显式写明跳过理由
-- [ ] **DDD Tactical Model**：触发条件满足时每个 Context 的 Aggregates / VOs / Repositories / Domain Services / Application Services / Domain Events 已产出；未触发时显式写明跳过理由
-- [ ] **Emergent vs Upfront 模式边界**：设计文档未把 GoF 代码模式（Strategy / Factory / Adapter / Observer / Decorator 等）当作前置决策列入
-- [ ] **Event Storming Snapshot**：按当前 profile 产出；Hotspot（若有）已转化为 ADR 候选或 STRIDE 关注项
-- [ ] NFR 逐项落实到具体模块 / 机制（不是只在概述中出现）；每条关键 NFR 有 observability 手段与验证方法
-- [ ] **STRIDE Threat List**：若 Security NFR 激活或跨信任边界存在，已产出完整 S/T/R/I/D/E 六字母；否则显式写明跳过理由
-- [ ] 关键路径失败模式已分析，缓解策略已给出
-- [ ] task planning readiness 已明确，足以进入 `hf-tasks`
-- [ ] 开放问题已区分阻塞 / 非阻塞，阻塞项已关闭或回上游
-- [ ] feature `progress.md` 已按 canonical schema 更新 Current Stage 和 Next Action
-- [ ] feature `README.md` 中 Design / ADRs 引用已更新
-- [ ] handoff 目标唯一指向 `hf-design-review`
-- [ ] 设计草稿不含任务拆解或实现伪代码
+「低耦合」不是感觉，按下表检查：
+
+| 检查 | 坏信号 | 动作 |
+|---|---|---|
+| 依赖方向 | 底层模块 include 上层头文件；两模块互相 include | 依赖单向：上层依赖下层、具体依赖抽象。互相依赖 → 提取第三方共同依赖或用回调/事件反转 |
+| 知识泄漏 | 调用方需要知道被调方的内部状态/调用顺序才能正确使用（"先调 init 再调 open，但 reset 之后要重新 init"） | 把时序约束收进模块内部，或用状态机显式拒绝非法顺序 |
+| 数据泥团 | 三四个参数总是结伴出现在多个签名里 | 提取成结构体，给这组数据一个名字 |
+| 特性依恋 | 一个函数大量读写另一个模块的数据，却几乎不碰自己模块的 | 函数搬到数据所在的模块 |
+| 扇出过大 | 一个模块 include / 调用 7-8 个以上其他模块 | 它在做协调器还是上帝模块？拆出子职责 |
+| 实现泄漏 | 公共头文件暴露内部结构体字段、私有函数、实现用的宏 | 头文件只放契约；内部细节进 .c / detail 命名空间 |
+
+### 内聚的可操作判断
+
+模块内聚的检验：随机删掉模块里的一个函数，其余函数是否大概率也要跟着改？是 → 内聚好。模块里有一半函数和另一半函数互不引用、不共享数据 → 那是两个模块住在一个文件里。
+
+## 抽象纪律
+
+**抽象必须由真实的重复或真实的变化轴支撑，不由想象支撑。** 防止的失败类：为「以后可能要改」预留的插件框架、单实现接口、配置项，一旦被依赖，纠正成本远高于消除重复。
+
+- **Rule of three**：第三个真实用例出现前，重复通常比错误的抽象便宜。
+- **单实现接口是负债**：只有一个实现的 interface/抽象基类，在没有第二个真实实现（不含测试 mock 的伪需求）或明确的稳定契约要求前，就是纯开销。直接用具体类型。
+- **可配置性不是免费的**：每个"以后可能要改"的配置项/策略钩子/插件点，现在就要文档、测试和维护。spec 里没有的变化轴不要预留。
+
+```c
+/* ❌ 当前只需要写日志到文件，却设计了插件框架 */
+typedef struct {
+    int (*open)(void *ctx);
+    int (*write)(void *ctx, const log_entry_t *e);
+    int (*flush)(void *ctx);
+    int (*close)(void *ctx);
+} log_backend_ops_t;
+int log_register_backend(const log_backend_ops_t *ops, void *ctx);
+
+/* ✅ 满足当前规格的最少结构；将来真有第二个后端再提取接口，
+   届时已知道两个实现的真实差异，抽象才会切在正确的位置 */
+int log_file_open(const char *path);
+int log_file_write(const log_entry_t *e);
+```
+
+什么时候间接层**值得**引入：跨越所有权边界（隔离第三方库、硬件、协议栈，让它们可替换可仿真）；隔离真实的不稳定源（spec 明确说协议版本会变）；切断循环依赖。
+
+## SOLID 翻译表
+
+SOLID 不是新增流程，也不是为了制造抽象。它是设计与重构时识别变化理由、依赖方向和契约稳定性的速查语言；每条都必须落回可检查问题。
+
+| 原则 | 判据 | 常见坏信号 | 默认动作 |
+|---|---|---|---|
+| SRP | 一个模块只有一个变化理由 | 职责句里出现"和/以及"；一次需求变更横跨无关职责 | 拆职责；规模还小时至少按职责组织内部结构 |
+| OCP | 真实变化轴有稳定扩展点 | 每加一种类型要改多处 switch / if 链和调用方 | 先确认变化轴真实，再提取表驱动、策略或多态 |
+| LSP | 替换实现不削弱接口契约 | 子实现改变错误语义、前置条件或失败后状态保证 | 收紧契约，拆接口；不成立时取消继承/抽象 |
+| ISP | 调用方只依赖自己使用的契约 | 公共头文件暴露大而全接口、内部字段、私有宏 | 拆小接口；隐藏内部字段与实现细节 |
+| DIP | 高层策略不依赖底层细节 | 上层知道硬件、协议、存储或第三方库调用细节 | 在真实边界引入端口/适配层；拒绝无第二用例的单实现接口 |
+
+## 接口契约
+
+接口契约描述**可观察行为**，不是函数名列表。每个对外接口（公共头文件函数、服务操作、协议消息）写全六项。防止的失败类：实现者仍要猜错误语义、调用顺序和失败后状态。
+
+1. **输入与前置条件**：参数含义、单位、合法范围、NULL 语义、调用上下文限制（可否在中断里调）
+2. **输出与后置条件**：返回值、出参、成功后系统状态的变化
+3. **错误语义**：每个错误码什么条件下返回、出错后系统状态如何（见 §错误模型）
+4. **副作用**：写了什么状态、发了什么事件、持有了什么资源
+5. **并发与时序**（如适用）：线程安全性、可重入性、阻塞行为、超时
+6. **兼容性**（modify/remove 时）：旧调用方迁移策略、错误码集变化、废弃计划
+
+```c
+/* ❌ 这不是契约，只是签名 */
+int mode_set(int mode);
+
+/* ✅ 可冷读的契约（最终落在头文件注释 + design.md）*/
+/**
+ * 请求切换运行模式。线程安全；不可在中断上下文调用。
+ *
+ * @param mode  目标模式，必须是 MODE_NORMAL 或 MODE_SAFE。
+ * @return OK              已接受请求；下一控制周期内完成切换并发出
+ *                         ModeChanged 事件（见 design.md §事件语义）。
+ *         ERR_INVALID_ARG mode 非法；内部状态不变，不发事件。
+ *         ERR_BUSY        上一次切换尚未完成；调用方应退避重试。
+ * 副作用：成功路径更新 mode 状态并向事件队列投递一条 ModeChanged。
+ */
+int mode_set(mode_t mode);
+```
+
+接口设计的取向：**让误用难以编译通过、让正确用法成为唯一明显写法**。用枚举不用魔法 int；语义不同的量用不同类型（`duration_ms_t` 而不是裸 `uint32_t`）；需要配对调用的资源返回句柄并提供成对 API。
+
+## 错误模型
+
+错误处理是设计决策，不是实现时的临场发挥。设计阶段定三件事：
+
+**1. 错误分类**——不同类别的处理策略不同：
+
+| 类别 | 例子 | 策略 |
+|---|---|---|
+| 调用方编程错误 | 传 NULL、非法枚举、违反调用顺序 | 校验并返回明确错误码（或按项目约定 assert）；不进入降级逻辑 |
+| 可预期的运行时失败 | 资源暂不可用、队列满、超时、外部输入非法 | 返回错误码，调用方有明确的恢复/退避路径 |
+| 环境/硬件故障 | 存储损坏、外设无响应 | 进入设计好的降级模式，上报诊断事件 |
+| 不可恢复的内部矛盾 | 状态机进入"不可能"状态 | 按项目故障策略（安全状态/复位/记录后受控终止） |
+
+**2. 传播策略**：错误在哪一层被翻译、哪一层被处理。底层错误码原样穿透到顶层是泄漏（调用方被迫了解三层之下的细节）；每层都包一遍是噪音。默认：**在模块边界翻译一次**（"flash 写失败" → "配置保存失败"），中间层只透传。
+
+**3. 失败路径的状态保证**：每个可失败操作明确——失败后已发生的副作用是回滚、保留还是半完成？接口契约里写清。「出错后状态未定义」在评审中按 critical 处理。
+
+## 数据所有权与生命周期
+
+每块跨边界的数据（缓冲区、句柄、回调上下文）在设计里明确三个问题：**谁分配、谁释放、指针在调用返回后是否仍可用**。
+
+- 默认取向：**谁分配谁释放**；跨边界传递用复制或显式转移所有权（并在契约里写明）。
+- 回调注册类接口必须写明：注销后是否还可能被回调一次（in-flight callback）、ctx 指针的生命周期由谁保证。
+- 长生命周期模块持有外部传入指针 = 红色信号，改为复制或在契约中写明调用方必须保证的存活期。
+
+## 方案取舍
+
+只在**真实存在多个合理方案**时写选项对比，每个方案至少回答：改动范围、复杂度、对既有调用方的兼容性、失败时回滚成本、长期维护影响。然后**给出推荐和理由**——列完选项不推荐等于把设计工作推给评审者。
+
+只有一个合理方案时，写一段「为什么不是 X」：X 是评审者最可能问的替代方案（通常是"更简单的做法"或"更通用的做法"）。这不是形式——它强迫你检验自己是否真的考虑过更简单的路径。
+
+伪选项是常见造假：三个方案其实是同一方案的不同措辞，或者两个陪跑方案明显荒谬。评审会按风险信号处理。
+
+## 测试设计
+
+设计文档必须含测试设计章节——这是第一层规格通向第二层 TDD 的桥。把 spec 的每条验收标准映射成用例。**canonical 测试设计表只有一张**：工作项设计模板第 6.1 的 Case ID 汇总表（或等价表），它是 `hf-tdd` 细化 plan 的唯一入口；第 6.2+ 子表只能展开步骤、mock、风险覆盖，不得引入无法回指到第 6.1 的新用例。防止的失败类：测试设计只覆盖正向路径，某条验收标准没有对应用例，TDD 阶段才发现规格不可测试。
+
+| Case ID | 覆盖需求 | 场景（Given/When/Then 摘要） | 层级 | 预期结果 |
+|---|---|---|---|---|
+| TC-001 | FR-001 | SAFE 下 SetMode(NORMAL) → 切换+事件 | unit | 返回 OK；周期内 ModeChanged=NORMAL |
+| TC-002 | FR-001 | SetMode(非法值) → 拒绝 | unit | ERR_INVALID_ARG；状态与事件无变化 |
+| TC-003 | NFR-001 | 1000 次切换延迟测量 | integration | p95 ≤ 5ms（QAS 阈值） |
+
+规则：
+
+- 每条 FR/IFR 至少一个正向 + 一个异常/边界用例；每条 NFR 的 QAS Response Measure 对应一个可量化用例
+- `modify` 需求必须有回归用例（旧行为中要保留的部分）；`remove` 必须有删除后语义用例
+- 写明每个用例的层级（unit / integration / simulation）与 mock 边界：只 mock 硬件、外部组件、慢速依赖；内部纯逻辑不 mock
+- Case ID 必须稳定（`TC-xxx`），并能双向追溯：spec Acceptance → Case ID → plan 任务；组件级测试项如需引用，先映射到工作项级 `TC-xxx`
+- 写不出用例的需求 = 规格不可测试 → 回 `hf-specify`
+
+这张表就是 `hf-tdd` 的任务来源：实现时逐用例 RED→GREEN→REFACTOR。
+
+## 风险信号
+
+- 工作项触及对外接口/依赖/状态机，却没有组件设计修订（在工作项设计里"顺便"改了组件架构）
+- 设计文档里只有结构图和文件清单，没有接口契约和错误语义（实现者仍然要猜）
+- 「错误处理：返回错误码」一笔带过（哪些错误码？出错后状态？谁恢复？）
+- 出现"以后可能需要"作为某个抽象层/配置项的唯一理由
+- 单实现接口、单子类继承、只被调用一次的"通用工具"
+- 方案对比是同一方案的三种措辞
+- 测试设计只有正向路径，或某条验收标准没有对应用例
+- 改了对外接口语义却没有兼容性章节
+
+## 反合理化表
+
+| 话术 | 现实 |
+|---|---|
+| 「接口契约写函数签名就够了，错误语义实现时再补。」 | 没有错误语义和失败后状态，实现者就得猜；契约不完整的接口在 R2 评审按 incomplete 处理。 |
+| 「spec 只提到写文件日志，但我顺手设计个插件框架，以后好扩展。」 | 没有第二真实实现的抽象是负债；rule of three：第三个用例出现前，重复比错误抽象便宜。 |
+| 「测试设计等 TDD 阶段再写，反正那时要写用例。」 | 测试设计是 spec→TDD 的桥；写不出用例说明规格不可测试，那要回 hf-specify，不是进 TDD。 |
+| 「这个错误处理很复杂，'出错后状态未定义'先这么写。」 | 「状态未定义」在评审按 critical 处理；失败路径的状态保证是设计决策，不是实现临场发挥。 |
+| 「设计我写的，我自审一下就进 TDD。」 | 作者不能验收自己（`using-hf` §5）；R2 由 `hf-review` 独立产出 verdict。 |
+
+## 自检清单
+
+- [ ] 设计级别判定正确：触及组件边界时组件设计草稿已先行修订并确认
+- [ ] 工作项设计只引用组件基线，未重新定义组件级架构
+- [ ] 每个新增/修改模块的职责能用一句话说清；按变化理由组织
+- [ ] 依赖方向单向；公共头文件无实现泄漏；无新增循环依赖
+- [ ] 每个抽象/间接层指得出真实用例或真实变化轴
+- [ ] 每个对外接口契约六项齐全（输入/输出/错误/副作用/并发/兼容）
+- [ ] 错误模型三件事已定：分类、传播策略、失败路径状态保证
+- [ ] 跨边界数据的分配/释放/存活期已明确
+- [ ] 方案取舍有推荐有理由；单方案写了「为什么不是 X」
+- [ ] 测试设计覆盖全部验收标准，含异常/边界/回归用例与 mock 边界
+- [ ] traceability.md 已填组件设计章节 / 工作项设计章节 / 测试设计用例列
+- [ ] 适用的语言规范（`<language>-coding-standards`）与领域开发技能已读取并体现在契约里；领域技能按各自 description 触发，不依赖固定枚举
+
+## 支撑参考
+
+| 文件 | 用途 |
+|---|---|
+| `references/ar-design-template.md` | 工作项级设计（design.md）模板，含「高质量设计增补」章节 |
+| `references/component-design-template.md` | 组件级设计模板，含「高质量设计增补」章节 |

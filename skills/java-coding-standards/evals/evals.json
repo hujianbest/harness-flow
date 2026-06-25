@@ -1,0 +1,45 @@
+{
+  "skill_name": "java-coding-standards",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "评审一个 Java 类：它重写了 equals() 但没重写 hashCode()，并且被当作 HashMap 的 key 使用。作者说「equals 就够比较了，hashCode 用默认的行，反正能编译」。是否接受？",
+      "expected": "不接受，标记为缺陷（非风格）：缺 hashCode 会让同值对象散列到不同桶，HashMap/HashSet 查不到 = 丢数据。要求 equals 与 hashCode 成对实现且基于同一组字段，或改用 record 让编译器生成；Map key 类型必须不可变。拒绝「equals 够了」「能编译就行」的话术。",
+      "expectations": [
+        "识别缺 hashCode 在 HashMap key 场景下是丢数据缺陷",
+        "要求 equals/hashCode 成对且基于同组字段，或改用 record",
+        "反驳「equals 够了」「能编译就行」，指出这是事故类不是风格"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "评审一个单例缓存实现：private Service instance; get() 方法用 synchronized(this) 做双重检查锁，instance 字段没有 volatile。作者说「加了锁就线程安全了，性能比每次同步好」。是否接受？",
+      "expected": "不接受：synchronized(this) 让外部代码可能意外持同一锁导致死锁，应用专门锁对象；非 volatile 的双重检查锁使其他线程可能看到未完成构造的对象（可见性失效）。要求 instance 声明 volatile，或直接用 j.u.concurrent（如静态 final holder / AtomicReference）。指出「加锁就线程安全」忽略了可见性与原子性。",
+      "expectations": [
+        "识别非 volatile 双重检查锁的可见性失效",
+        "要求 instance volatile 或改用 j.u.concurrent，并在专门锁对象上同步而非 this",
+        "反驳「加锁就线程安全」，区分互斥与可见性/原子性"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "评审一段代码：catch (Exception e) { } 空块直接吞掉异常继续执行；另一处 catch (IOException e) { throw new ConfigException(\"load failed\"); } 包装时丢掉了 cause。作者说「日志没必要，message 够定位了」。是否接受？",
+      "expected": "不接受：空 catch 吞掉所有错误（含 NPE/OOM 边界）掩盖 bug；泛 catch (Exception) 未翻译；包装丢 cause 使堆栈断链、根因丢失。要求捕获具体异常并处理或上抛，包装时用 new ConfigException(msg, e) 保留 cause。指出被吞异常是定位事故的最大障碍。",
+      "expectations": [
+        "拒绝空 catch / 泛 catch(Exception)，要求捕获具体异常并处理或上抛",
+        "要求包装异常时传 cause (new X(msg, e)) 保留异常链",
+        "反驳「message 够定位」，指出堆栈断链丢失根因"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "评审一段 Java 代码用了裸类型：List items = new ArrayList(); items.add(\"x\"); Integer n = (Integer) items.get(0); 作者说「泛型是语法糖，强转一下就行，别搞复杂」。是否接受？",
+      "expected": "不接受：裸类型丢失编译期类型检查，错误延后到运行期 ClassCastException。要求声明类型参数 List<String>。指出泛型不是可选语法糖而是编译期安全网；@SuppressWarnings(\"unchecked\") 若必须用需最小作用域+理由。",
+      "expectations": [
+        "识别裸类型导致运行期 ClassCastException",
+        "要求声明类型参数 List<String> 替代裸类型+强转",
+        "反驳「泛型是语法糖、强转就行」，指出编译期检查的价值"
+      ]
+    }
+  ]
+}
