@@ -1,0 +1,53 @@
+name: news_app
+description: News aggregation app with smart recommendations
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  provider: ^6.1.1
+  riverpod: ^2.4.9
+
+  # HTTP Client
+  dio: ^5.4.0
+
+  # Local Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.1
+
+  # UI Components
+  flutter_svg: ^2.0.9
+  cached_network_image: ^3.3.0
+  shimmer: ^3.0.0
+
+  # Utilities
+  intl: ^0.18.1
+  url_launcher: ^6.2.2
+  share_plus: ^7.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    - family: SourceHanSans
+      fonts:
+        - asset: assets/fonts/SourceHanSansSC-Regular.ttf
+        - asset: assets/fonts/SourceHanSansSC-Bold.ttf
+          weight: 700

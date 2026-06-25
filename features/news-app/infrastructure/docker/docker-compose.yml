@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: newsapp_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-newsapp}
+      POSTGRES_USER: ${POSTGRES_USER:-newsapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-newsapp_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-newsapp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: newsapp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    container_name: newsapp_backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-newsapp}:${POSTGRES_PASSWORD:-newsapp_pass}@db:5432/${POSTGRES_DB:-newsapp}
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../../backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # RQ Dashboard (Optional, for monitoring)
+  rq_dashboard:
+    image: eoranged/rq-dashboard
+    container_name: newsapp_rq_dashboard
+    ports:
+      - "9181:9181"
+    environment:
+      - RQ_REDIS_HOST=redis
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+  redis_data:
