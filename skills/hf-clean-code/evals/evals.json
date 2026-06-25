@@ -1,0 +1,140 @@
+{
+  "skill_name": "hf-clean-code",
+  "scenarios": [
+    {
+      "id": "speculative-abstraction-in-green",
+      "prompt": "During the GREEN step of a task that needs to fetch one device status, the agent also builds a generic DevicePluginRegistry, an IDeviceBackend interface, and a config-driven backend selector, arguing 'we will add more backends later so it is cheaper to design it now'.",
+      "expected": "GREEN must add only the minimum code to turn the RED test green. Speculative abstraction (plugin registry, single-implementation interface, config selector for imaginary backends) belongs to REFACTOR at the earliest, and only when a real second use case exists — route it back to hf-design, not into the GREEN diff.",
+      "expectations": [
+        "rejects adding the registry / interface / config selector in the GREEN diff",
+        "cites the rule of three and the single-implementation-interface-is-debt guidance",
+        "writes only the simplest structure satisfying the current spec, deferring abstraction to REFACTOR and a real second use case",
+        "keeps the behavior-change diff free of structural speculation"
+      ]
+    },
+    {
+      "id": "swallowed-error-critical",
+      "prompt": "A new function persists config via a write call that can fail, but wraps it in an empty catch / ignores the non-OK return code and continues as if it succeeded, because 'logging would clutter the happy path'.",
+      "expected": "Swallowing a failure on a state-changing operation is critical, not a style preference: the caller believes it succeeded while system state may be corrupted. The error must be checked and handled (recover, degrade, or surface).",
+      "expectations": [
+        "classifies the swallowed write failure as critical, not minor",
+        "requires checking the return code / exception and acting on failure (recover, fallback, or return an error)",
+        "demands an error message with context (what, which value, what was expected)",
+        "does not accept a bare log-and-continue as handling"
+      ]
+    },
+    {
+      "id": "test-only-production-backdoor",
+      "prompt": "To make a private retry counter observable from a test, the agent adds a public get_internal_retry_count_for_testing() method on the production class and asserts against it.",
+      "expected": "A test-only entry point in production code pollutes the public API and locks the implementation shape. Observe behavior through the public contract instead; if the contract cannot express it, revisit the design rather than punching a backdoor.",
+      "expectations": [
+        "flags the public test-only method as a critical production-code smell",
+        "requires asserting on observable public behavior, not internal counters",
+        "does not accept access modifiers weakened solely for tests",
+        "routes a genuine observability gap back to hf-design if the contract cannot express the behavior"
+      ]
+    },
+    {
+      "id": "god-object-shotgun-surgery",
+      "prompt": "A diff adds a JobController that parses commands, talks to the transport layer, writes persistent state, schedules retries, and emits UI events. Across the same feature, one behavior change already requires editing six unrelated files.",
+      "expected": "One class holding many reasons to change (god object) plus one change touching many files (shotgun surgery) are both maintainability blockers; route module/ownership re-aggregation back to hf-design, keep any in-task cleanup scoped to the touched surface.",
+      "expectations": [
+        "flags the mixed responsibilities as a god object rather than accepting a broad 'controller' name",
+        "flags the one-change-many-files pattern as shotgun surgery",
+        "keeps in-task cleanup scoped to the touched task or asks to return to hf-design for module boundaries",
+        "recommends extracting/moving functions by reason-to-change"
+      ]
+    },
+    {
+      "id": "green-refactor-mixed-diff",
+      "prompt": "The agent, while making a new test pass, interleaves the new behavior with a large rename pass across the module and reformatting of unrelated code, all in one commit because 'it is all the same area'.",
+      "expected": "GREEN changes behavior, REFACTOR changes expression, formatting changes whitespace — they must never share a diff. A mixed diff makes risk and regressions untraceable. Split into separate commits and review each for its single purpose.",
+      "expectations": [
+        "rejects the behavior change, rename, and reformatting being in one diff",
+        "requires separate commits for behavior change, refactoring, and formatting",
+        "states the discipline: GREEN changes behavior, REFACTOR changes expression, never mixed",
+        "keeps REFACTOR on a fully-green baseline only"
+      ]
+    },
+    {
+      "id": "naming-that-lies",
+      "prompt": "A function named get_config() also performs a network request and writes a cache file as side effects. The author says the name is 'good enough' and proposes adding a comment instead of renaming.",
+      "expected": "A name that hides a side effect is a top-priority fix: callers will reason about it as a cheap getter and incur hidden latency and writes. Rename or split the function; a comment is not a substitute.",
+      "expectations": [
+        "identifies the lying name as a top-priority fix",
+        "proposes renaming or splitting the function so the name matches behavior",
+        "does not accept a comment as a substitute for renaming"
+      ]
+    },
+    {
+      "id": "loaded-language-skills-but-not-clean-code",
+      "prompt": "A HarnessFlow implementer reports loaded_skills containing hf-tdd and cpp-coding-standards, then returns DONE with REFACTOR: N/A because 'the C++ standard was checked', but hf-clean-code is absent.",
+      "expected": "Language coding-standards do not replace the language-neutral third-layer base. loaded_skills must include hf-clean-code before its clean_code_check can be accepted; the N/A must cite concrete clean-code checks, not only language-specific rules.",
+      "expectations": [
+        "rejects DONE because language coding-standards do not replace hf-clean-code",
+        "requires loaded_skills to include hf-clean-code before accepting clean_code_check",
+        "requires REFACTOR: N/A to cite concrete clean-code checks across the dimensions, not only language-specific rules"
+      ]
+    },
+    {
+      "id": "refactor-na-vague-rationale",
+      "prompt": "A task is green and the implementer returns REFACTOR: N/A with clean_code_check: 'looks clean' and no details about names, function shape, control flow, error paths, comments/dead code, or scope discipline.",
+      "expected": "A vague self-check is not evidence. Require a brief but specific conclusion across the clean-code dimensions, and keep the task open until REFACTOR evidence or a concrete N/A rationale exists.",
+      "expectations": [
+        "rejects vague clean-code self-checks ('looks clean') as insufficient evidence",
+        "requires a brief but specific conclusion across the clean-code checklist dimensions",
+        "keeps the task open until concrete REFACTOR evidence or a specific N/A rationale is present"
+      ]
+    },
+    {
+      "id": "severity-style-vs-blocking",
+      "prompt": "A reviewer finds two issues: an optional local variable name could be marginally clearer, and a new function named validate_config() silently writes persistent state and swallows write failures. The author wants both marked minor style.",
+      "expected": "Severity follows reader risk and failure semantics, not author preference. The optional rename stays minor; the lying name plus swallowed persistence failure is blocking (critical or important). Do not demote a blocking issue to a style preference.",
+      "expectations": [
+        "keeps the purely optional local rename as minor",
+        "classifies the lying name plus swallowed persistence failure as blocking (critical or important) by impact",
+        "explains that severity is based on reader risk and failure semantics, not author preference or fix size"
+      ]
+    },
+    {
+      "id": "hot-path-n-plus-one",
+      "prompt": "A new request handler loops through 500 devices and calls device_read_status() once per device over IPC. The design says the handler is on a 100 ms hot path and a batch API already exists.",
+      "expected": "A hot-path N+1 IPC pattern is a performance and maintainability issue, not optional micro-optimization. Use the existing batch API or another simple structure that better expresses the need, and verify with tests.",
+      "expectations": [
+        "treats the N+1 IPC pattern as a performance/maintainability issue, not optional micro-optimization",
+        "suggests the existing batch API or a simpler structure that better expresses the need",
+        "requires verification with tests, and performance evidence where available or a clear N/A reason"
+      ]
+    },
+    {
+      "id": "micro-optimization-without-evidence",
+      "prompt": "The agent wants to replace a clear three-line validation function with bit tricks and a hand-rolled lookup cache because it 'might be faster', but there is no hot-path evidence or benchmark.",
+      "expected": "Without measurement or resource evidence, sacrificing readability for imagined performance is unsupported micro-optimization. Keep the clear implementation; a performance observation may be registered without blocking.",
+      "expectations": [
+        "rejects the change as unsupported micro-optimization that reduces readability",
+        "keeps the clear implementation unless measurement or resource constraints justify complexity",
+        "allows registering a performance observation instead of blocking the task"
+      ]
+    },
+    {
+      "id": "scope-creep-one-diff-one-purpose",
+      "prompt": "While implementing one task, the agent also rewrites neighboring helpers and renames unrelated files in the same diff.",
+      "expected": "One diff, one purpose. Flag the scope creep; require unrelated cleanup to be logged as follow-up rather than done inline, and keep behavior changes and refactoring in separate commits.",
+      "expectations": [
+        "flags scope creep: one diff, one purpose",
+        "requires unrelated cleanup to be logged as follow-up instead of done inline",
+        "keeps behavior changes and refactoring in separate commits"
+      ]
+    },
+    {
+      "id": "pure-refactor-green-baseline-small-steps",
+      "prompt": "The user asks for a behavior-preserving cleanup of a module with long functions and duplicated validation. There is no new feature spec, but tests currently pass.",
+      "expected": "Treat this as a pure refactor: no spec/design expansion, but establish a full passing baseline first, keep refactors small and behavior-preserving, and rerun tests after each logical batch; R3 review still applies.",
+      "expectations": [
+        "treats this as pure refactor: no spec/design expansion, but a tests-first baseline and R3 review still apply",
+        "requires a full passing baseline before changing structure",
+        "keeps refactors small and behavior-preserving, with tests rerun after each logical batch"
+      ]
+    }
+  ]
+}
