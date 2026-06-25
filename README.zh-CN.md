@@ -2,29 +2,31 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**面向 AI 编码 Agent 的 spec-anchored SDD、gated TDD 与基于证据的工作流控制。**
+**三层质量模型（SDD→TDD→Clean Code）+ human-on-the-loop 的 AI 编码 agent 开发流程技能套件。**
 
-HarnessFlow 把严谨 AI 辅助工程中的实践打包成自包含 Markdown skills：产品发现、规格、设计、任务、TDD 实现、独立评审、门禁与 closeout。
+HarnessFlow 把严谨的 AI 辅助工程纪律打包成自包含 Markdown skills：规格、设计、测试先行实现、独立评审、缺陷修复与收尾。它把「产出高质量代码」拆成由外到内的三层——SDD（做对的事）→ TDD（证明做对）→ Clean Code（写得好）——并要求 AI 在环内干活、人站在环上审查。理念见 [`docs/harnessflow-philosophy.md`](docs/harnessflow-philosophy.md)，架构见 [`docs/harnessflow-core-architecture.md`](docs/harnessflow-core-architecture.md)。
 
-![HarnessFlow TDD overview](docs/assets/harnessflow-tdd-overview.png)
+![HarnessFlow 三层质量模型](docs/assets/harnessflow-tdd-overview.png)
 
 ---
 
 ## 命令
 
-Claude Code 提供 7 个 slash commands。OpenCode 和 Cursor 通过自然语言 + `using-hf-workflow` 触达同样意图。
+HarnessFlow 提供 7 个 slash commands 作为薄平台适配。权威工作流在 `skills/<name>/SKILL.md`；命令只表达意图并加载对应技能。
 
-| 你要做什么 | 命令 | 核心原则 |
-|------------|------|----------|
-| 进入或恢复 HF | `/hf` | 从工件路由 |
-| 定义要做什么 | `/spec` | 先 spec 再代码 |
-| 规划怎么做 | `/plan` | 先设计再任务 |
-| 构建一个任务 | `/build` | 单一活跃任务 |
-| 推进前评审 | `/review` | 作者/评审者分离 |
-| 关闭工程工作 | `/ship` | gate 通过再 closeout |
-| 产出 release pack | `/release` | 版本文档，不部署 |
+| 你要做什么 | 命令 | Skill | 核心原则 |
+|------------|------|-------|----------|
+| 进入或恢复 HF | `/hf` | `using-hf` | 从工件恢复进度 |
+| 定义要做什么 | `/spec` | `hf-specify` | 先规格，后代码 |
+| 规划怎么做 | `/plan` | `hf-design` | 先设计，后实现 |
+| 测试先行构建 | `/build` | `hf-tdd` | RED → GREEN → REFACTOR |
+| 评审一个工件 | `/review` | `hf-review` | 作者不自审 |
+| 收尾工程工作 | `/ship` | `hf-ship` | DoD 通过再 closeout |
+| 修复缺陷 | `/fix` | `hf-fix` | 先复现，再修复 |
 
-每个命令都是 bias，不是 bypass。除 `/release` 会 direct invoke 独立 release skill 外，router 仍会先检查仓库工件证据，再选择下一节点。
+`hf-clean-code`、语言标准与领域标准没有独立命令——它们是贯穿设计、实现、评审的质量 overlay。
+
+> **命令是 bias，不是 bypass。** 除 `/fix` 直接走缺陷旁路外，命令仍会先检查仓库工件证据（`plan.md`、`reviews/`），再进入正确阶段。
 
 ---
 
@@ -41,7 +43,7 @@ Claude Code 提供 7 个 slash commands。OpenCode 和 Cursor 通过自然语言
 
 ### OpenCode 和 Cursor
 
-用安装脚本把 HarnessFlow vendoring 到你的项目：
+用安装脚本把 HarnessFlow vendoring 到你的项目（保留 manifest，可干净卸载）：
 
 ```bash
 git clone https://github.com/hujianbest/harness-flow.git /path/to/harness-flow
@@ -61,157 +63,134 @@ bash /path/to/harness-flow/install.sh --target both --host /path/to/your/project
 ### 试一下
 
 ```text
-Use HarnessFlow from this repo. Start with `using-hf-workflow` and route me through the correct HF workflow.
-I want to add rate limiting to our notifications API.
-Do not jump straight to code.
+Use HarnessFlow from this repo. Start with `using-hf` and route me to the right stage.
+I want to add a retry mechanism to the notifications component.
+Clarify the requirements first; do not jump straight to code.
 ```
 
-更多安装细节：
+项目级覆盖：在目标组件仓库根目录创建 `AGENTS.md` 的 `## Project overrides` 段，可覆盖工件路径与模板；不创建时使用 `using-hf` 内置默认值。
 
-- [Claude Code setup](docs/claude-code-setup.md)
-- [OpenCode setup](docs/opencode-setup.md)
-- [Cursor setup](docs/cursor-setup.md)
+更多安装细节：[Claude Code setup](docs/claude-code-setup.md)、[OpenCode setup](docs/opencode-setup.md)、[Cursor setup](docs/cursor-setup.md)。
 
 ---
 
 ## 看它如何工作
 
 ```text
-You:    Use HarnessFlow from this repo. Start with `using-hf-workflow`.
-        I want to add rate limiting to our notifications API.
+You:    Use HarnessFlow from this repo. Add rate limiting to the notifications API.
+        Do not jump straight to code.
 
-HF:     读取仓库工件，选择正确入口，并路由到 discovery 或 `hf-specify`，
-        而不是直接跳到代码。
+HF:     从 `using-hf` 进入，确认运行模式（attended / unattended），解析目标组件根，
+        因为没有已批准规格而路由到 `hf-specify`。
 
-You:    Use HarnessFlow to plan the approved spec.
+You:    规格准备好了，继续。
 
-HF:     用 `hf-design` 产出架构；只有当 spec 声明 UI surface 时才加入
-        `hf-ui-design`；随后用 `hf-tasks` 把设计拆成可评审任务。
+HF:     先跑一次独立 `hf-review`（R1 门禁）。规格通过且运行模式允许推进时，
+        `hf-design` 写组件级 + 工作项级设计、接口契约、错误模型与测试设计。
 
-You:    Use HarnessFlow to build the current active task.
+You:    按批准的设计构建。
 
-HF:     锁定一个 `Current Active Task`，写测试设计，记录 approval，
-        执行 RED -> GREEN -> REFACTOR，更新 `tasks.progress.json`，
-        并写入 wisdom-notebook delta 供跨任务复用。
+HF:     `hf-tdd` 精化 `plan.md`，逐任务实现，留 RED → GREEN → REFACTOR 证据行，
+        应用 `hf-clean-code` 与适用的语言/领域标准，证据落盘。
 
-You:    Use HarnessFlow to verify and close this work.
+You:    验证并收尾。
 
-HF:     运行 test、code、traceability reviews。如果任务触碰前端表面，
-        `hf-browser-testing` 会采集 DOM / console / network 证据，再交给
-        gates 判断下一步。
-
-You:    Use HarnessFlow to ship the completed workflow.
-
-HF:     运行 regression、doc-freshness、completion gates，然后 `hf-finalize`
-        写 `closeout.md` 和 closeout HTML companion。若要切 vX.Y.Z release，
-        `hf-release` 可把已关闭 workflows 汇总成 tag-ready release pack；
-        它仍然不部署到生产。
+HF:     `hf-review` 用独立上下文检查测试与代码（R3 门禁）。`hf-ship` 跑 Definition of
+        Done，把长期资产 promotion 到组件根下 docs/，并写 `closeout.md` 供人最终确认。
 ```
 
-如果架构师显式要求 auto mode，`hf-ultrawork` 可以沿 canonical next actions 自动继续、写 approval records、保留 fast-lane audit trail，同时仍保留 Fagan reviews、gate verdicts、closeout 与 hard stops。
+工作流启动时 HarnessFlow 会记录一个运行模式：默认 `attended`（评审 verdict 通过后停下呈人确认）；`unattended` 在长会话里连续推进，但独立评审、记录、critical 阻塞、后续人工审计一项不少——**unattended 只移除人工停顿，不移除任何质量动作**。
 
 ---
 
-## 全部 30 个 Skills
+## 全部 15 个 Skills
 
-HarnessFlow 当前包含 29 个 `hf-*` skills，加上 `using-hf-workflow` 入口 skill。
+HarnessFlow 当前发布 15 个技能，分四类。overlay 与领域技能靠命名约定与 description 触发，新增 overlay 不必改动阶段技能。
 
-### Meta 与路由
+### 阶段技能（7）
 
-| Skill | 做什么 | 什么时候用 |
-|-------|--------|------------|
-| [using-hf-workflow](skills/using-hf-workflow/SKILL.md) | Public entry shell，用来判断 direct invoke 还是交给 router | 开始会话或表达高层 HF 意图 |
-| [hf-workflow-router](skills/hf-workflow-router/SKILL.md) | 基于证据的 runtime router 和恢复控制器 | 从仓库工件继续，或消费 review/gate 结果 |
-
-### 发现与定义
+有工作流、有产物、有人审把关点。`using-hf` 是入口技能；其余六个是工作流阶段。
 
 | Skill | 做什么 | 什么时候用 |
 |-------|--------|------------|
-| [hf-product-discovery](skills/hf-product-discovery/SKILL.md) | 梳理产品机会、假设、JTBD 和成功信号 | 想法还在产品发现阶段 |
-| [hf-discovery-review](skills/hf-discovery-review/SKILL.md) | 用作者/评审者分离方式评审 discovery 工件 | discovery 输出需要独立 verdict |
-| [hf-experiment](skills/hf-experiment/SKILL.md) | 对 blocking hypotheses 跑最小可用 probe | discovery 或 spec 假设风险太高，不能靠猜 |
-| [hf-specify](skills/hf-specify/SKILL.md) | 把意图转成可测试需求和验收标准 | 写或修订 spec |
-| [hf-spec-review](skills/hf-spec-review/SKILL.md) | 从清晰度、完整性、可测试性评审 spec | spec 准备好独立评审 |
+| [using-hf](skills/using-hf/SKILL.md) | 入口：三层模型、工作流闭环、工件约定、恢复规则、行为准则 | 开始、恢复或询问 HF 下一步该做什么 |
+| [hf-specify](skills/hf-specify/SKILL.md) | 把意图转成可测试规格（EARS + Given/When/Then + NFR QAS）并初始化追溯矩阵 | 一个功能/变更需要先有需求再做设计或代码 |
+| [hf-design](skills/hf-design/SKILL.md) | 产出组件级 + 工作项级设计、边界、契约、错误模型、取舍与测试设计 | 已批准规格需要技术设计 |
+| [hf-tdd](skills/hf-tdd/SKILL.md) | 测试先行实现（RED → GREEN → REFACTOR）、任务证据、断言质量、mock 边界纪律 | 设计已批准、实现开始 |
+| [hf-review](skills/hf-review/SKILL.md) | 用独立上下文评审规格/设计/测试/代码，产出 findings 与 verdict | 一个阶段工件准备好过门禁 |
+| [hf-ship](skills/hf-ship/SKILL.md) | 核验 Definition of Done、promotion 长期资产、写 closeout | 评审已闭环、工程工作准备收尾 |
+| [hf-fix](skills/hf-fix/SKILL.md) | 缺陷路径：复现 → 根因 → 最小修复边界 → TDD 修复 | 出现回归、bug、hotfix 或已发布行为缺陷 |
 
-### 规划
+### Overlay 技能（5）
 
-| Skill | 做什么 | 什么时候用 |
-|-------|--------|------------|
-| [hf-design](skills/hf-design/SKILL.md) | 产出架构、接口、风险和决策 | 已批准 spec 需要技术设计 |
-| [hf-design-review](skills/hf-design-review/SKILL.md) | 评审设计的可追溯性和架构质量 | design draft 准备好 |
-| [hf-ui-design](skills/hf-ui-design/SKILL.md) | 设计 UI flows、IA、states、tokens 和 a11y | spec 声明 UI surface |
-| [hf-ui-review](skills/hf-ui-review/SKILL.md) | 按 UX 和 a11y 标准评审 UI design | UI design 需要独立 verdict |
-| [hf-tasks](skills/hf-tasks/SKILL.md) | 把批准的设计拆成小而有序的任务 | design 已批准，需要任务计划 |
-| [hf-tasks-review](skills/hf-tasks-review/SKILL.md) | 检查任务原子性、依赖和验证清晰度 | task plan 准备好 |
-| [hf-gap-analyzer](skills/hf-gap-analyzer/SKILL.md) | formal review 前的作者侧 gap check | 工件提交评审前需要自检 |
-
-### 构建、验证与评审
+贯穿各阶段的质量约束与判据，被阶段技能引用，自身不是阶段。`hf-clean-code` 是第三层通用内核；语言标准按 `<language>-coding-standards` 命名约定发现。
 
 | Skill | 做什么 | 什么时候用 |
 |-------|--------|------------|
-| [hf-test-driven-dev](skills/hf-test-driven-dev/SKILL.md) | 用测试设计、RED/GREEN 证据和 refactor 纪律实现一个活跃任务 | 单一当前任务已锁定 |
-| [hf-subagent-driven-dev](skills/hf-subagent-driven-dev/SKILL.md) | 通过 fresh implementer subagent 实现一个活跃任务，同时保留 HF reviews 和 gates | 已锁定任务足够自包含，适合 subagent 执行 |
-| [hf-browser-testing](skills/hf-browser-testing/SKILL.md) | 采集浏览器 DOM、console、network 运行时证据 | 前端任务需要 runtime proof |
-| [hf-test-review](skills/hf-test-review/SKILL.md) | 评审测试质量和 fail-first 证据 | tests 准备好独立评审 |
-| [hf-code-review](skills/hf-code-review/SKILL.md) | 评审实现质量、design conformance 和 AI-slop 风险 | code 准备好独立评审 |
-| [hf-traceability-review](skills/hf-traceability-review/SKILL.md) | 检查 spec -> design -> tasks -> code -> verification 对齐 | 实现评审已通过 |
-| [hf-regression-gate](skills/hf-regression-gate/SKILL.md) | 做 impact-based regression 判断 | traceability 已批准 |
-| [hf-doc-freshness-gate](skills/hf-doc-freshness-gate/SKILL.md) | 检查行为变化与文档保持同步 | regression evidence 准备好 |
-| [hf-completion-gate](skills/hf-completion-gate/SKILL.md) | 判断 task/workflow 证据是否足够完成 | reviews 和 gates 需要最终 completion verdict |
+| [hf-clean-code](skills/hf-clean-code/SKILL.md) | 语言无关的整洁代码标准：命名、函数、控制流、错误、注释、重构目录 | 写、重构或评审实现与测试代码 |
+| [c-coding-standards](skills/c-coding-standards/SKILL.md) | C 语言级规则、惯用法、工具纪律与示例 | 工作触碰 C 源码、测试或构建脚本 |
+| [cpp-coding-standards](skills/cpp-coding-standards/SKILL.md) | C++ 语言级规则、惯用法、工具纪律与示例 | 工作触碰 C++ 源码、测试或构建脚本 |
+| [java-coding-standards](skills/java-coding-standards/SKILL.md) | Java 语言级规则、惯用法、工具纪律与示例 | 工作触碰 Java 源码、测试或构建脚本 |
+| [python-coding-standards](skills/python-coding-standards/SKILL.md) | Python 语言级规则、惯用法、工具纪律与示例 | 工作触碰 Python 源码、测试或构建脚本 |
 
-### Closeout、release、支线与加速
+### 领域技能（2）
+
+领域特化的质量维度，按 frontmatter description 触发。
 
 | Skill | 做什么 | 什么时候用 |
 |-------|--------|------------|
-| [hf-finalize](skills/hf-finalize/SKILL.md) | 写 closeout pack 和 HTML companion | completion gate 允许 workflow closeout |
-| [hf-release](skills/hf-release/SKILL.md) | 把已关闭 workflows 汇总成 tag-ready release pack | 切 vX.Y.Z release |
-| [hf-hotfix](skills/hf-hotfix/SKILL.md) | 用 root-cause discipline 处理缺陷恢复 | 请求是生产或已发布行为缺陷 |
-| [hf-increment](skills/hf-increment/SKILL.md) | 为 scope 或 acceptance 变化重新进入 workflow | 既有工件之后需求发生变化 |
-| [hf-wisdom-notebook](skills/hf-wisdom-notebook/SKILL.md) | 维护跨任务 learnings、decisions、issues、verification、problems | 工作需要跨任务复用记忆 |
-| [hf-context-mesh](skills/hf-context-mesh/SKILL.md) | 生成客户端特定的 context skeletons | 项目需要分层 agent instructions |
-| [hf-ultrawork](skills/hf-ultrawork/SKILL.md) | explicit-opt-in fast lane，同时保留 reviews、gates 和 approval records | 架构师要求按 HF 规则自动执行 |
+| [backend-development](skills/backend-development/SKILL.md) | 后端领域设计约束、实现红线与证据要求 | 工作语境匹配后端领域技能的 description |
+| [frontend-development](skills/frontend-development/SKILL.md) | 前端领域设计约束、实现红线与证据要求 | 工作语境匹配前端领域技能的 description |
+
+### 工具技能（1）
+
+| Skill | 做什么 | 什么时候用 |
+|-------|--------|------------|
+| [coding-standards-creator](skills/coding-standards-creator/SKILL.md) | 把团队内部编码规范转化为新的 `<language>-coding-standards` 技能 | 团队需要新增或修订一门语言标准 |
+
+语言标准靠约定扩展：触碰语言 X 的工作可加载 `<x>-coding-standards`（若存在）。新增语言技能遵循共享的[结构契约](skills/coding-standards-creator/references/coding-standards-skill-contract.md)，因此阶段技能无需为每门语言改写。
 
 ---
 
-## The HF Method
+## The HarnessFlow Method（三层质量模型 + 工作流）
 
-HarnessFlow 不是 prompt 集合，而是一套面向 agent 的受控工程工作流。
+HarnessFlow 不是 prompt 集合，而是一套让 AI agent 产出可审查、可信任、可维护代码的证据驱动工作流。三层由外到内递进：先保证做对的事，再证明做对，最后写好。
 
 | 层 | HF 方法 | 为什么重要 |
 |----|---------|------------|
-| Intent | Spec-anchored SDD | 把范围、约束和验收标准留在可评审文件里 |
-| Planning | Design and task gates | 把批准的意图转成架构和原子实现单元 |
-| Execution | Gated TDD | 要求测试设计、RED/GREEN 证据和一次一个活跃任务 |
-| Routing | Artifact-based recovery | 让 agent 从仓库状态恢复，而不是依赖聊天记忆 |
-| Review | Fagan-style separation | 防止 authoring、implementation、judgment 混成一步 |
-| Verification | Regression and completion gates | 把“测试跑过”和“证据足够”分开 |
-| Closeout | Formal handoff | 记录改了什么、通过了什么、还剩什么 |
+| 意图（第一层 SDD） | 规格驱动开发（`hf-specify`） | 防止 agent 靠猜需求 |
+| 规划 | 组件级 + 工作项级设计（`hf-design`） | 在写代码前让边界、契约、错误模型、测试设计显式化 |
+| 执行（第二层 TDD） | 测试驱动开发（`hf-tdd`） | 把「看起来对」与「被测试证明对」分开 |
+| 内在质量（第三层 Clean Code） | Clean Code overlay（`hf-clean-code` + 语言/领域标准） | 让代码可读、简洁、可维护、可审查 |
+| 评审 | 独立门禁（`hf-review`） | 把作者身份与判断分开 |
+| 恢复 | artifact-first 状态（`plan.md` + `reviews/`） | 让另一个 agent 或人能从文件而非聊天记忆续作 |
+| 收尾 | DoD + promotion（`hf-ship`） | 记录改了什么、通过了什么、哪些文档成为长期资产 |
 
-HF 刻意停在 engineering closeout。它可以产出 release-ready pack，但不部署、不做 staged rollout、不监控生产，也不声称 post-launch 成功。
+HarnessFlow 的协作姿态是 **human-on-the-loop**：AI 干活，人审查关键工件与决策。理念与架构见 [`docs/harnessflow-philosophy.md`](docs/harnessflow-philosophy.md) 与 [`docs/harnessflow-core-architecture.md`](docs/harnessflow-core-architecture.md)。
 
 ---
 
 ## Skills 如何工作
 
-每个 skill 都是自包含 workflow：
+每个技能都是自包含的操作规程：
 
 ```text
 SKILL.md
-├── Overview and trigger conditions
-├── Step-by-step workflow
-├── Required artifacts and evidence
-├── Review or gate contract
-├── Red flags
-├── Common rationalizations
-└── Verification checklist
+├── 触发条件
+├── 工作流步骤
+├── 必需工件
+├── 证据与评审契约
+├── 质量规则与示例
+├── 红旗与合理化陷阱
+└── 自检清单
 ```
 
 关键设计选择：
 
-- **Process, not prose.** Skills 是 agent 执行的操作规程。
-- **Evidence over memory.** 路由读取 `progress.md`、reviews、approvals、verification records 等文件。
-- **Author/reviewer separation.** 工件作者不批准自己的工件。
-- **Progressive disclosure.** references、rubrics、scripts、evals 都放在所属 skill 旁边，按需加载。
+- **流程最小化。** 只保留产生质量的部分：阶段产物、人审把关点、TDD 纪律、独立评审；不维护额外节点路由器。
+- **内容最大化。** 每个技能的主体是工程判断：规则 + 正反例 + 自检清单 + 评审 rubric。
+- **证据优于记忆。** 进度从 `plan.md`、`reviews/`、`traceability.md` 与工件本身恢复，不依赖聊天历史。
+- **作者不自审。** 创建工件的 agent 不批准自己的工件。
 
 ---
 
@@ -219,78 +198,58 @@ SKILL.md
 
 ```text
 harness-flow/
-├── skills/                            # 30 skills (29 hf-* + 1 entry skill)
-│   ├── using-hf-workflow/             # Meta: choose entry point
-│   ├── hf-workflow-router/            # Meta: route from artifacts
-│   ├── hf-product-discovery/          # Discover: frame product opportunity
-│   ├── hf-discovery-review/           # Discover: review discovery output
-│   ├── hf-experiment/                 # Discover: probe blocking hypotheses
-│   ├── hf-specify/                    # Define: write or revise specs
-│   ├── hf-spec-review/                # Define: review specs
-│   ├── hf-design/                     # Plan: architecture and decisions
-│   ├── hf-design-review/              # Plan: review architecture
-│   ├── hf-ui-design/                  # Plan: UI surface design
-│   ├── hf-ui-review/                  # Plan: review UI design
-│   ├── hf-tasks/                      # Plan: break work into tasks
-│   ├── hf-tasks-review/               # Plan: review task plan
-│   ├── hf-gap-analyzer/               # Plan: author-side gap check
-│   ├── hf-test-driven-dev/            # Build: one task with TDD
-│   ├── hf-subagent-driven-dev/        # Build: fresh implementer subagent
-│   ├── hf-browser-testing/            # Verify: browser runtime evidence
-│   ├── hf-test-review/                # Review: test quality
-│   ├── hf-code-review/                # Review: implementation quality
-│   ├── hf-traceability-review/        # Review: end-to-end traceability
-│   ├── hf-regression-gate/            # Gate: regression evidence
-│   ├── hf-doc-freshness-gate/         # Gate: docs stay current
-│   ├── hf-completion-gate/            # Gate: completion decision
-│   ├── hf-finalize/                   # Closeout: handoff pack
-│   ├── hf-release/                    # Release: tag-ready release pack
-│   ├── hf-hotfix/                     # Branch: defect recovery
-│   ├── hf-increment/                  # Branch: scope change
-│   ├── hf-wisdom-notebook/            # Knowledge: cross-task memory
-│   ├── hf-context-mesh/               # Context: client rule skeletons
-│   └── hf-ultrawork/                  # Fast lane: explicit auto mode
-├── commands/                       # 7 client-agnostic slash command definitions
-├── agents/                         # HF subagent role definitions
-├── .claude-plugin/                 # Claude Code marketplace plugin metadata
-├── .cursor/rules/                  # Cursor alwaysApply entry rule
-├── .opencode/                      # OpenCode integration assets
+├── skills/                         # 15 skills (7 phase + 5 overlay + 2 domain + 1 tool)
+│   ├── using-hf/                   # 阶段：入口与恢复规则
+│   ├── hf-specify/                 # 阶段：可测试规格与追溯
+│   ├── hf-design/                  # 阶段：组件级 + 工作项级设计
+│   ├── hf-tdd/                     # 阶段：测试先行实现
+│   ├── hf-review/                  # 阶段：独立评审门禁
+│   ├── hf-ship/                    # 阶段：DoD、promotion、closeout
+│   ├── hf-fix/                     # 阶段：缺陷路径
+│   ├── hf-clean-code/              # overlay：语言无关整洁代码
+│   ├── c-coding-standards/         # overlay：C 语言标准
+│   ├── cpp-coding-standards/       # overlay：C++ 语言标准
+│   ├── java-coding-standards/      # overlay：Java 语言标准
+│   ├── python-coding-standards/    # overlay：Python 语言标准
+│   ├── backend-development/        # 领域：后端
+│   ├── frontend-development/       # 领域：前端
+│   └── coding-standards-creator/   # 工具：语言标准生成器
+├── commands/                       # 7 个 slash-style 阶段入口
+├── agents/                         # hf-implementer 与 hf-reviewer 角色
+├── .claude-plugin/                 # Claude Code marketplace plugin 元数据
+├── .cursor/rules/                  # Cursor alwaysApply 入口规则
+├── .opencode/                      # OpenCode 集成 assets
 ├── docs/
+│   ├── harnessflow-philosophy.md   # 核心理念（北极星）
+│   ├── harnessflow-core-architecture.md
 │   ├── claude-code-setup.md
 │   ├── opencode-setup.md
 │   ├── cursor-setup.md
-│   ├── decisions/                  # ADRs
-│   ├── principles/                 # HF design notes
+│   ├── decisions/                  # ADR
 │   └── assets/
-├── examples/writeonce/             # end-to-end demo artifacts
-├── features/                       # HarnessFlow dogfood feature artifacts
-├── tests/                          # Repository-level validators and regressions
-├── scripts/                        # Repository maintenance scripts
+├── scripts/                        # 仓库一致性检查
+├── tests/                          # 仓库级校验与回归
 ├── install.sh / uninstall.sh
 ├── install.ps1 / uninstall.ps1
-└── README.zh-CN.md
+└── README.md
 ```
 
-把 HarnessFlow vendor 到另一个项目时，需要复制 `skills/` 和 `agents/`，或直接使用 `install.sh`。每个 skill 自己拥有 `SKILL.md`、`references/`、`evals/` 和可选 `scripts/`；共享 subagent roles 放在 `agents/`，客户端 slash-command definitions 放在 `commands/`。`docs/principles/` 解释本仓库的设计，但宿主项目运行时不依赖它。
+把 HarnessFlow vendor 到另一个项目时，复制 `skills/` 与 `agents/`，或用 `install.sh`。每个技能自己拥有 `SKILL.md`、`references/`、`evals/` 与可选 `scripts/`；共享 subagent roles 放 `agents/`，slash-command definitions 放 `commands/`。
 
 ---
 
-## Why HarnessFlow?
+## 适用范围
 
-AI 编码 agent 很容易从需求直接跳到实现。HarnessFlow 给它们一条更窄、更硬的路径：先澄清意图，先设计再切任务，用 TDD 证明行为，把评审从作者身份中分离，并用持久工件完成闭环。
-
-这套 pack 适合正确性、可恢复性和可审计性很重要的仓库。它让路由基于文件而不是聊天记忆，让一个活跃任务保持受控，并记录足够证据，让另一个 agent 或 human reviewer 可以不靠猜测继续工作。
-
-HarnessFlow 也明确划定 shipping 边界。它支持 engineering closeout 和 tag-ready release packs；部署、staged rollout、监控、回滚和 post-launch operations 仍由项目自己的生产系统承担。
+HarnessFlow 覆盖**从已接受的需求到评审过的实现与收尾**这一工程段。它**不**覆盖产品发现、发布运维（部署、staged rollout、监控、回滚）、系统集成/验收测试、事件管理或生产发布；也不替团队拍板业务方向、优先级、验收阈值或架构边界。
 
 ---
 
 ## 贡献
 
-见 [CONTRIBUTING.md](CONTRIBUTING.md)。Skills 应当具体、可验证、最小化，并扎根真实工程实践。
+见 [CONTRIBUTING.md](CONTRIBUTING.md)。技能应当具体、可验证、示例驱动，少流程样板。
 
 ---
 
 ## License
 
-MIT - 可在你的项目、团队和工具中使用 HarnessFlow。
+MIT — 可在你的项目、团队与工具中使用 HarnessFlow。

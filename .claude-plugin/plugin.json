@@ -1,6 +1,6 @@
 {
   "name": "harness-flow",
-  "description": "HarnessFlow — From idea to shipped product: high-quality engineering workflows for AI agents. Spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, and formal closeout.",
+  "description": "HarnessFlow — a cross-platform AI coding-agent workflow skill suite: three-layer quality model (SDD -> TDD -> Clean Code) with human-on-the-loop. 15 skills + 7 slash commands (/hf, /spec, /plan, /build, /review, /ship, /fix). Covers accepted-requirement to reviewed-implementation and closeout.",
   "version": "1.0.0",
   "author": {
     "name": "hujianbest"

@@ -461,13 +461,13 @@ write_readme() {
 ## Quick verify
 
 \`\`\`bash
-# 1. count vendored skills (expected ≥ 24)
+# 1. count vendored skills (expected = 15: 7 phase + 5 overlay + 2 domain + 1 tool)
 find .opencode/skills -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l
 
 # 2. check shared agent definitions
 ls agents/hf-implementer.md agents/hf-reviewer.md 2>/dev/null
 ls .opencode/agents/hf-implementer.md .opencode/agents/hf-reviewer.md 2>/dev/null || true
-ls .opencode/commands/hf.md .opencode/commands/build.md .opencode/commands/review.md 2>/dev/null || true
+ls .opencode/commands/hf.md .opencode/commands/spec.md .opencode/commands/plan.md .opencode/commands/build.md .opencode/commands/review.md .opencode/commands/ship.md .opencode/commands/fix.md 2>/dev/null || true
 
 # 3. inspect install manifest
 cat .harnessflow-install-manifest.json
@@ -477,7 +477,7 @@ readlink .opencode/skills 2>/dev/null || true
 
 # 5. (cursor target only) check rule placement and rewritten skill paths
 ls -la .cursor/rules/harness-flow.mdc 2>/dev/null || true
-grep -F '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' .cursor/rules/harness-flow.mdc 2>/dev/null || true
+grep -F '.cursor/harness-flow-skills/using-hf/SKILL.md' .cursor/rules/harness-flow.mdc 2>/dev/null || true
 grep -F '.cursor/harness-flow-agents/' .cursor/rules/harness-flow.mdc 2>/dev/null || true
 \`\`\`
 
@@ -489,9 +489,9 @@ bash <hf-repo>/uninstall.sh --host .
 
 ## Cursor rule note (cursor / both target)
 
-\`.cursor/rules/harness-flow.mdc\` is written with vendored skill paths:
-\`.cursor/harness-flow-skills/using-hf-workflow/SKILL.md\` and
-\`.cursor/harness-flow-skills/hf-workflow-router/SKILL.md\`.
+\`.cursor/rules/harness-flow.mdc\` is written with vendored skill paths under
+\`.cursor/harness-flow-skills/\` (for example \`.cursor/harness-flow-skills/using-hf/SKILL.md\`)
+and agent definitions under \`.cursor/harness-flow-agents/\`.
 EOF
 }
 
