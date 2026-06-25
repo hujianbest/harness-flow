@@ -170,7 +170,10 @@ def validate_coding_standards_length(root: Path = ROOT) -> list[str]:
 
 
 def iter_markdown_files(root: Path):
-    ignored = {".git", "__pycache__", ".cursor", ".idea"}
+    # Link-check shipped content (skills, commands, agents, user-facing docs,
+    # READMEs) — not internal planning artifacts (docs/superpowers specs/plans,
+    # which carry code examples) or repo governance (.github).
+    ignored = {".git", "__pycache__", ".cursor", ".idea", "superpowers", ".github"}
     for path in root.rglob("*.md"):
         if ignored.intersection(path.parts):
             continue

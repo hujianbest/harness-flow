@@ -146,6 +146,20 @@ def test_markdown_link_checker_reports_missing_relative_links(tmp_path):
     assert "missing.md" in result[0]
 
 
+def test_link_checker_skips_internal_planning_and_governance(tmp_path):
+    validator = load_validator()
+    # A literal link inside a planning doc's code example (docs/superpowers/)
+    # and an illustrative link in .github/ must NOT be flagged.
+    plan = tmp_path / "docs" / "superpowers" / "plans" / "p.md"
+    plan.parent.mkdir(parents=True)
+    plan.write_text("example: [missing](missing.md)\n", encoding="utf-8")
+    gov = tmp_path / ".github" / "PULL_REQUEST_TEMPLATE.md"
+    gov.parent.mkdir(parents=True)
+    gov.write_text("- [ ] links ([...](...)) resolve\n", encoding="utf-8")
+
+    assert validator.validate_markdown_links(tmp_path) == []
+
+
 def test_run_all_returns_empty_on_clean_repo(tmp_path):
     validator = load_validator()
     for name in validator.EXPECTED_SKILLS:
