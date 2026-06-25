@@ -136,7 +136,7 @@ scenario_1() { # opencode copy + git-path manifest fields (F5 fix) + per-skill c
     bash "$INSTALL" --target opencode --host "$host" >/dev/null || return 1
     local n
     n=$(count_skill_md_in "$host/.opencode/skills")
-    assert_ge "$n" 24 "skills count" || return 1
+    assert_ge "$n" 15 "skills count" || return 1
     assert_file "$host/.harnessflow-install-manifest.json" "manifest exists" || return 1
     assert_file "$host/.harnessflow-install-readme.md" "readme exists" || return 1
     assert_file "$host/agents/hf-implementer.md" "hf-implementer agent" || return 1
@@ -146,7 +146,7 @@ scenario_1() { # opencode copy + git-path manifest fields (F5 fix) + per-skill c
     assert_file "$host/.opencode/commands/hf.md" "opencode hf command" || return 1
     assert_file "$host/.opencode/commands/build.md" "opencode build command" || return 1
     local mf="$host/.harnessflow-install-manifest.json"
-    manifest_has_path "$mf" ".opencode/skills/hf-finalize" \
+    manifest_has_path "$mf" ".opencode/skills/hf-ship" \
         || { printf '  ❌ manifest lacks per-skill entry\n' >&2; return 1; }
     manifest_has_path "$mf" "agents/hf-implementer.md" \
         || { printf '  ❌ manifest lacks hf-implementer entry\n' >&2; return 1; }
@@ -164,10 +164,11 @@ scenario_1() { # opencode copy + git-path manifest fields (F5 fix) + per-skill c
         || { printf '  ❌ hf_version not parsed from CHANGELOG\n' >&2; return 1; }
     grep -q '"target": "opencode"' "$mf" || { printf '  ❌ target field wrong\n' >&2; return 1; }
     grep -q '"topology": "copy"' "$mf" || { printf '  ❌ topology field wrong\n' >&2; return 1; }
-    # F6: per-skill entries should be ≥ 25 (24 hf-* + using-hf-workflow)
+    # F6: per-skill entries should be ≥ 15 (the full 15-skill set: 7 phase +
+    # 5 overlay + 2 domain + 1 tool, vendored verbatim from skills/).
     local entry_count
     entry_count=$(grep -cE '"path"[[:space:]]*:[[:space:]]*"\.opencode/skills/[^"]+"' "$mf")
-    assert_ge "$entry_count" 25 "per-skill manifest entries" || return 1
+    assert_ge "$entry_count" 15 "per-skill manifest entries" || return 1
 }
 
 scenario_2() { # opencode symlink
@@ -188,13 +189,13 @@ scenario_3() { # cursor copy
     bash "$INSTALL" --target cursor --host "$host" >/dev/null || return 1
     local n
     n=$(count_skill_md_in "$host/.cursor/harness-flow-skills")
-    assert_ge "$n" 24 "cursor skills count" || return 1
+    assert_ge "$n" 15 "cursor skills count" || return 1
     assert_file "$host/agents/hf-implementer.md" "hf-implementer agent" || return 1
     assert_file "$host/agents/hf-reviewer.md" "hf-reviewer agent" || return 1
     assert_file "$host/.cursor/harness-flow-agents/hf-implementer.md" "cursor hf-implementer agent" || return 1
     assert_file "$host/.cursor/harness-flow-agents/hf-reviewer.md" "cursor hf-reviewer agent" || return 1
     assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rule" || return 1
-    grep -F -q '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
+    grep -F -q '.cursor/harness-flow-skills/using-hf/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
         || { printf '  ❌ cursor rule was not rewritten to vendored skills path\n' >&2; return 1; }
     grep -F -q '.cursor/harness-flow-agents/' "$host/.cursor/rules/harness-flow.mdc" \
         || { printf '  ❌ cursor rule was not rewritten to vendored agents path\n' >&2; return 1; }
@@ -209,7 +210,7 @@ scenario_4() { # cursor symlink (+ F8 manifest entries verification)
     assert_symlink_to "$host/.cursor/harness-flow-agents" "$HF_REPO/agents" "cursor agents symlink" || return 1
     assert_symlink_to "$host/agents" "$HF_REPO/agents" "agents symlink" || return 1
     assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rewritten rule file" || return 1
-    grep -F -q '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
+    grep -F -q '.cursor/harness-flow-skills/using-hf/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
         || { printf '  ❌ cursor symlink rule was not rewritten to vendored skills path\n' >&2; return 1; }
     grep -F -q '.cursor/harness-flow-agents/' "$host/.cursor/rules/harness-flow.mdc" \
         || { printf '  ❌ cursor symlink rule was not rewritten to vendored agents path\n' >&2; return 1; }
@@ -229,10 +230,10 @@ scenario_4() { # cursor symlink (+ F8 manifest entries verification)
 scenario_5() { # both copy
     local host="$1"
     bash "$INSTALL" --target both --host "$host" >/dev/null || return 1
-    assert_ge "$(count_skill_md_in "$host/.opencode/skills")" 24 "opencode skills" || return 1
+    assert_ge "$(count_skill_md_in "$host/.opencode/skills")" 15 "opencode skills" || return 1
     assert_file "$host/.opencode/agents/hf-implementer.md" "opencode hf-implementer agent" || return 1
     assert_file "$host/.opencode/commands/hf.md" "opencode hf command" || return 1
-    assert_ge "$(count_skill_md_in "$host/.cursor/harness-flow-skills")" 24 "cursor skills" || return 1
+    assert_ge "$(count_skill_md_in "$host/.cursor/harness-flow-skills")" 15 "cursor skills" || return 1
     assert_file "$host/.cursor/harness-flow-agents/hf-implementer.md" "cursor hf-implementer agent" || return 1
     assert_file "$host/agents/hf-implementer.md" "hf-implementer agent" || return 1
     assert_file "$host/agents/hf-reviewer.md" "hf-reviewer agent" || return 1
@@ -249,7 +250,7 @@ scenario_6() { # both symlink
     assert_symlink_to "$host/.cursor/harness-flow-agents" "$HF_REPO/agents" "cursor agents symlink" || return 1
     assert_symlink_to "$host/agents" "$HF_REPO/agents" "agents symlink" || return 1
     assert_file "$host/.cursor/rules/harness-flow.mdc" "cursor rewritten rule file" || return 1
-    grep -F -q '.cursor/harness-flow-skills/using-hf-workflow/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
+    grep -F -q '.cursor/harness-flow-skills/using-hf/SKILL.md' "$host/.cursor/rules/harness-flow.mdc" \
         || { printf '  ❌ both symlink cursor rule was not rewritten\n' >&2; return 1; }
 }
 
@@ -265,7 +266,7 @@ scenario_7() { # HYP-002 Blocking: user-skill survives uninstall
     assert_file "$host/.opencode/skills/my-own-skill/SKILL.md" "user-skill preserved" || return 1
     assert_file "$host/.opencode/agents/my-agent.md" "user agent preserved" || return 1
     assert_file "$host/.opencode/commands/my-command.md" "user command preserved" || return 1
-    if [ -d "$host/.opencode/skills/hf-finalize" ]; then
+    if [ -d "$host/.opencode/skills/hf-ship" ]; then
         printf '  ❌ HF skill still present after uninstall\n' >&2
         return 1
     fi
@@ -325,14 +326,14 @@ scenario_9() { # force re-install (F3 fix: verify --force真的清理了上次 i
     # F3: drop a sentinel inside an HF skill subtree. --force should delete it
     # (because the skill subtree gets rm -rf'd) but NOT a sibling user-skill (#7 already
     # covers that for uninstall; here we focus on --force's own cleanup).
-    printf 'sentinel-from-first-install\n' > "$host/.opencode/skills/hf-finalize/SENTINEL.txt"
+    printf 'sentinel-from-first-install\n' > "$host/.opencode/skills/hf-ship/SENTINEL.txt"
     # Capture old manifest installed_at for ordering check.
     local old_at
     old_at=$(grep '"installed_at"' "$host/.harnessflow-install-manifest.json" | head -n1)
     sleep 1  # ensure new installed_at is strictly later
     bash "$INSTALL" --target opencode --host "$host" --force >/dev/null || return 1
     assert_file "$host/.harnessflow-install-manifest.json" "manifest after --force" || return 1
-    if [ -f "$host/.opencode/skills/hf-finalize/SENTINEL.txt" ]; then
+    if [ -f "$host/.opencode/skills/hf-ship/SENTINEL.txt" ]; then
         printf '  ❌ --force did not actually re-vendor (sentinel survived)\n' >&2
         return 1
     fi
