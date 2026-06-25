@@ -1,20 +1,12 @@
 ---
-description: Bias toward the HarnessFlow planning stage — design (and UI design when the spec declares a UI surface) plus task breakdown. The router decides whether to enter hf-design, hf-ui-design, or hf-tasks based on artifact evidence.
+description: HarnessFlow 设计阶段——基于已确认规格做软件设计，含接口契约、错误模型与测试设计
 ---
 
-Bias toward the HarnessFlow planning stage. This single command covers **both** architecture/UI design and task breakdown — it is intentionally not split into `/design` and `/tasks` (see ADR-001 D4).
+执行 HarnessFlow 设计阶段。
 
-Steps:
+1. 前置检查：先从 plan.md 或 `using-hf` 解析目标组件根与工件根；该组件根下 `features/<id>/spec.md`（或团队覆盖路径）存在且 R1 评审门禁通过（plan.md 门禁表 + reviews/ 记录可核）；否则回 `/spec` 或 `/review`。
+2. 读取 `skills/hf-design/SKILL.md` 并按其工作流执行：影响组件边界时先修订 component-design-draft.md；再写工作项级 design.md（职责、接口契约、错误模型、方案取舍、测试设计）。
+3. 叠加适用的语言规范（`<language>-coding-standards`）与命中 description 的领域开发技能；不在命令中维护具体扩展清单。
+4. 产出目标组件根下 `features/<id>/design.md`（或团队覆盖路径）。完成后进入 R2 门禁：`/review` 独立评审设计并落盘记录（必经节点）；attended 模式下经人确认后才进入实现。
 
-1. Enter via `skills/using-hf-workflow/SKILL.md` and hand off to `skills/hf-workflow-router/SKILL.md`.
-2. Tell the router that the user's intent is "planning" (design and/or task breakdown).
-3. The router inspects on-disk artifacts and decides:
-   - if the spec is not approved, it routes back to `hf-specify` / `hf-spec-review`,
-   - if the spec is approved but no design exists, it routes into `skills/hf-design/SKILL.md` (and in parallel `skills/hf-ui-design/SKILL.md` when the spec declares a UI surface — see `skills/hf-workflow-router/references/ui-surface-activation.md`),
-   - if design is approved but tasks are missing, it routes into `skills/hf-tasks/SKILL.md`,
-   - reviews (`hf-design-review`, `hf-ui-review`, `hf-tasks-review`) are independent nodes and must be respected.
-4. Follow whichever leaf skill the router selected.
-
-Hard rule: do not start `hf-test-driven-dev` from this command — that is `/build`'s job and only runs when a single `Current Active Task` is locked.
-
-The user request following this command is the planning intent or specific design / tasks question.
+命令是 bias 不是 bypass：仍按 on-disk 工件决定真实下一步。

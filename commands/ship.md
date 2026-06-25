@@ -1,19 +1,12 @@
 ---
-description: Ask the HarnessFlow completion gate whether the current task or workflow can be closed out, then enter hf-finalize if the gate allows.
+description: HarnessFlow 收尾阶段——DoD 核验、promotion 长期资产、closeout，先核验后关闭
 ---
 
-Bias toward HarnessFlow's closeout chain: `hf-completion-gate` -> `hf-finalize`.
+执行 HarnessFlow 收尾阶段。
 
-Steps:
+1. 前置检查：先从 plan.md 读取组件根与工件根；plan.md 全部任务完成且门禁表 R1/R2/R3 均通过、同一工件根下 reviews/ 记录齐全且 findings 全部有 Resolution；否则回对应阶段。
+2. 读取 `skills/hf-ship/SKILL.md` 并按其工作流执行：DoD 逐项核验 → traceability 终验 → promotion（spec/design/组件设计 → 同一组件根下 docs/ 长期资产或团队覆盖路径，保留原模板并做最小清理）→ closeout.md。
+3. 核验发现缺口 → 返工对应阶段，补完再回来；不解释缺口、不带病关闭。
+4. 把 closeout 呈给用户做最终确认；确认后工作项关闭，同一组件根/工件根下 `features/<id>/`（或团队覆盖路径）原地保留。
 
-1. Enter via `skills/using-hf-workflow/SKILL.md` and hand off to `skills/hf-workflow-router/SKILL.md`.
-2. Tell the router that the user's intent is "closeout / finalize".
-3. The router routes into `skills/hf-completion-gate/SKILL.md` first.
-4. The completion gate evaluates the evidence bundle (regression evidence, doc freshness, traceability, reviewer verdicts) against the Definition of Done.
-5. Outcome:
-   - if the gate's verdict allows finalize, the router routes into `skills/hf-finalize/SKILL.md`,
-   - if not, the router routes back to the missing upstream node (often `hf-regression-gate`, `hf-doc-freshness-gate`, or a specific reviewer / implementation node).
-
-Scope honesty (ADR-001 D1): HarnessFlow's main chain ends at `hf-finalize`, which is **engineering-level closeout** (state sync, release notes, handoff pack). It is **not** production deployment, observability, incident response, or post-launch ops — those are not first-class stages in v0.1.0. Surface this gap to the user instead of treating "merged" as "shipped".
-
-The user request following this command is optional context (e.g. "close TASK-003" or "close the workflow"). The router uses on-disk state to decide which closeout scope applies.
+命令是 bias 不是 bypass：仍按 on-disk 工件决定真实下一步。
