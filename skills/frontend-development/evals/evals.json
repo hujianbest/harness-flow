@@ -1,0 +1,56 @@
+{
+  "skill_name": "frontend-development",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "A component test mocks the entire api module and the global store, then asserts on the store's internal state array length. The test is green. The author says mocking internals makes the test fast and stable, and since it passes the UI must be correct.",
+      "expected": "Rejects the test as evidence of correctness: mocking the runtime behavior under test (the api layer / internal store) hides real failures, so a green test proves nothing about the real UI. Requires asserting on real DOM the user sees (via accessibility roles/labels), mocking only at the boundary to isolate the real backend, and adding a black-box browser smoke (real UI entry + networkidle + real DOM) for the key flow.",
+      "expectations": [
+        "identifies mocking-the-internals as producing a false-green test that hides real runtime failures",
+        "requires asserting on real DOM the user sees (accessibility roles/labels), not internal store/module state",
+        "requires mocks only at the boundary (to isolate the real backend), not mocking away the runtime behavior under test",
+        "requires a black-box browser smoke for the key flow: real UI entry, networkidle (not fixed sleep), real DOM assertions"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A data-fetching component only renders the success case; loading and error states are deferred ('we'll add them later'). On a flaky network the user sees a blank screen when the request fails.",
+      "expected": "Requires loading/error/empty/success states to be designed (in hf-specify/hf-design) and handled in implementation, with stale responses discarded on parameter change. Treats missing error/empty handling as a real defect causing blank screens, not a follow-up.",
+      "expectations": [
+        "requires all four states (loading/error/empty/success) to have UI and tests, not just success",
+        "requires discarding stale responses to avoid race conditions when parameters change",
+        "treats missing error/empty handling as a real defect (blank screen on failure), not a deferred follow-up"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A component kicks off a network request directly inside the render body and mutates a module-level variable during render 'to cache the result'. The author says it works because the request resolves fast.",
+      "expected": "Rejects side effects in the render phase: render must be a pure function — no requests, no external mutation, no DOM reads/writes during render. Side effects belong in controlled effects (useEffect) or event handlers. Render-phase side effects cause hard-to-trace bugs, potential infinite loops, and SSR breakage.",
+      "expectations": [
+        "identifies render-phase side effects (request / external mutation) as a defect; render must be pure",
+        "requires moving side effects into controlled effects (useEffect) or event handlers, not the render body",
+        "cites the failure class: render-phase side effects cause untraceable bugs, infinite loops, and SSR breakage"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "A clickable card uses a div with onClick, a form field's required indicator is a visual-only asterisk with no associated label, and validation errors are shown as detached text. The author says 'it looks and works fine with a mouse'.",
+      "expected": "Requires semantic interactive elements (button/a), not div+onClick, so keyboard and screen readers can use them. Requires label/htmlFor pairing and aria-describedby/role=alert for errors. Treats a11y as a design input (in spec/design), not a pre-launch patch; cites axe/jsx-a11y evidence.",
+      "expectations": [
+        "requires semantic button/a for interactive elements, not div+onClick (keyboard + screen reader access)",
+        "requires label/htmlFor pairing and aria-describedby/role=alert for errors, not detached text or visual-only asterisks",
+        "treats a11y as a design input written into spec, not a pre-launch patch; requires axe/jsx-a11y evidence"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A page is one giant component marked \"use client\" that fetches data, runs business calculations inline, and renders; it calls fetch with a hardcoded absolute URL and throws the raw backend error text to the user.",
+      "expected": "Requires splitting responsibilities, extracting data/business logic into hooks/lib, and pushing the client interactivity boundary down to leaf components instead of marking the whole page client. Requires a centralized API client layer with base URL from an env var and centrally injected auth, not scattered fetch with hardcoded URLs. Requires mapping backend errors to user-facing messages (retry only 5xx), not exposing raw error text.",
+      "expectations": [
+        "requires splitting responsibilities: data/business into hooks/lib, client boundary pushed to leaves, not whole-page client",
+        "requires a centralized API client layer (env base URL + centrally injected auth), not scattered fetch with hardcoded URLs",
+        "requires mapping backend errors to user-facing messages (retry only 5xx, not 4xx), not exposing raw error text"
+      ]
+    }
+  ]
+}
