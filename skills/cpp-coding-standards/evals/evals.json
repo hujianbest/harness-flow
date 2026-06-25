@@ -1,0 +1,46 @@
+{
+  "skill_name": "cpp-coding-standards",
+  "scenarios": [
+    {
+      "id": 1,
+      "prompt": "评审一个 C++ 函数：const std::string& name() { std::string s = build(); return s; }。作者说返回引用省一次拷贝，性能更好。",
+      "expected": "标记为 critical：返回局部变量引用是立即悬垂（Core Guidelines F.43）。要求按值返回（RVO/move 已解决拷贝顾虑）。反驳「省拷贝」——悬垂比拷贝贵得多。",
+      "expectations": [
+        "识别返回局部引用为悬垂（dangling）",
+        "要求按值返回而非引用",
+        "反驳「返回引用省拷贝」话术，引用 F.43/RVO"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "评审一个类，move 构造与析构都没标 noexcept。作者说这个类不会抛异常，noexcept 无所谓。",
+      "expected": "标记：move 与析构必须 noexcept——容器在强异常保证下据此选择 move 还是 copy，漏标会让容器退化为昂贵的 copy。要求显式标 noexcept（或 =default 让编译器推导）。",
+      "expectations": [
+        "识别 move/析构缺 noexcept 会影响容器行为",
+        "要求 move 操作与析构标 noexcept",
+        "反驳「反正不抛」——容器需要 noexcept 作为契约信号，与是否真的抛无关"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "评审一个 C++ diff 用 auto *buf = new uint8_t[kFrameSize]; 配手动 mutex_.lock()/unlock()，中间有提前 return。作者说 make_unique 麻烦、lock_guard 多余。",
+      "expected": "标记为 critical：裸 new 在提前返回路径泄漏，裸 lock/unlock 在提前返回路径死锁。要求容器/`std::make_unique` + `std::lock_guard`（RAII 结构保证）。指出 RAII 不依赖异常，提前 return 同样泄漏。",
+      "expectations": [
+        "识别裸 new + 提前 return 的泄漏",
+        "识别裸 lock/unlock + 提前 return 的死锁",
+        "要求 RAII（容器/make_unique/lock_guard），反驳「make_unique 麻烦」",
+        "检查触碰类的规则零/规则五完整性"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "评审一段 std::vector<int> v = {1, 2, 30000, -1}; 作者说这是配置常量初始化。",
+      "expected": "标记：聚合初始化 `{}` 会做窄化检查，但 vector<int> 的 initializer_list 重载不做窄化诊断，大值/负数静默丢数据。要求确认意图，或用显式构造逐个 push 以暴露类型问题，或改用不会窄化的类型。",
+      "expectations": [
+        "识别 initializer_list 初始化中的窄化（narrowing）风险",
+        "要求确认大值/负数到 int 的意图",
+        "指出统一初始化 {} 在 initializer_list 场景下的窄化诊断局限"
+      ]
+    }
+  ]
+}
