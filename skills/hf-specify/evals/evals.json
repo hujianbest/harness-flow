@@ -1,225 +1,61 @@
 {
   "skill_name": "hf-specify",
-  "evals": [
-    {
-      "id": 0,
-      "prompt": "我先把一些零散想法倒给你：也许要员工发起审批、主管审批、抄送财务、自动催办、支持 Slack 通知、最好还能按部门配置流程，另外接口可能叫 `/api/approve/create`，数据库里可能要加 `approval_flow_rules` 表。我们先别做设计，但你帮我把这些 brainstorming notes 按规格阶段正确推进。",
-      "expected_output": "应先把 brainstorming notes 归一化为候选能力、待确认假设、明显设计决策和 deferred 候选，再围绕当前轮范围、成功标准和关键边界发起最小澄清；不得把接口名、表名等实现词汇直接抄成规格正文。",
-      "files": [],
-      "expectations": [
-        "先对零散想法做归纳，而不是逐条照抄成需求",
-        "明确区分候选业务需求、待确认假设与明显设计决策",
-        "不把 `/api/approve/create` 或 `approval_flow_rules` 直接写进规格需求",
-        "优先追问哪些能力进入当前轮、哪些应延后或保留为待确认项"
-      ]
-    },
+  "scenarios": [
     {
       "id": 1,
-      "prompt": "我们要做一个内部发布审批系统。先别设计方案，先帮我把需求弄清楚。第一期只支持员工发起申请、直属主管审批、审批通过后通知申请人。",
-      "expected_output": "围绕范围、用户、约束、验收标准进行澄清，并准备需求规格草稿，而不是直接进入设计。",
-      "files": [],
+      "prompt": "用户说'让通知组件更健壮一点'，要求你据此写出规格。看似简单的改进，照字面改即可。",
+      "expected": "不直接把这句话改写成需求条目。先用 Capture→Challenge→Clarify 提问澄清范围、成功标准、失败路径，每条产出的 FR 都带 EARS Statement 和能失败的 Given/When/Then Acceptance；答不上来的业务问题列为 blocking Open Question，不自己编。",
       "expectations": [
-        "优先澄清需求而不是直接设计",
-        "主动询问范围外内容或验收标准",
-        "不输出实现架构或接口设计",
-        "最终把草稿交给 hf-spec-review"
+        "对'更健壮'提问澄清，而不是逐句抄成 FR",
+        "每条 FR 有 EARS 句式 Statement，主体是本组件/该模块",
+        "每条 FR 有至少一个正向 + 一个异常/边界 Acceptance，可落成 RED 用例",
+        "未答出的业务规则、优先级、阈值进入 blocking Open Questions，由需求负责人闭合",
+        "不把数据结构、函数名、库选择写进 Statement/Acceptance"
       ]
     },
     {
       "id": 2,
-      "prompt": "这个功能很简单，你直接帮我把需求规格写个草稿，但不要顺手给技术方案。",
-      "expected_output": "即使需求看起来简单，也应保持在规格阶段，输出需求文档结构，不混入设计决策。",
-      "files": [],
+      "prompt": "一个'新功能'改变了既有 API 路径返回的错误码（从 ERR_UNSUPPORTED_MODE 改为 ERR_INVALID_ARG）。文档草稿把它标成 Change Type = new，理由是'这是本工作项新引入的'。按这个标法继续。",
+      "expected": "拒绝按 new 标注。改为 Change Type = modify，补上 Existing Behavior 基线（旧返回 ERR_UNSUPPORTED_MODE）和回归验收；若同一条同时含新增能力与修改既有语义，拆成两条，不能拆的按更高风险的 modify 归类。",
       "expectations": [
-        "不因功能简单而跳过规格阶段",
-        "规格内容中不混入 class、endpoint、table 等设计语言",
-        "明确范围和范围外内容",
-        "下一步为 hf-spec-review"
+        "把该条重新归类为 modify，不是 new",
+        "写出旧行为基线 ERR_UNSUPPORTED_MODE 及来源锚点",
+        "补回归验收覆盖要保留/破坏的语义",
+        "对混合 new/modify 信号的条目做拆分或按更高风险归类",
+        "不因'改动小'而放过伪装的 new"
       ]
     },
     {
       "id": 3,
-      "prompt": "我只知道老板要一个审批系统，其他细节都没定。你按正确方式推进。",
-      "expected_output": "应优先提出聚焦澄清问题，识别未知项和阻塞点，而不是臆造完整规格或提前设计。",
-      "files": [],
+      "prompt": "输入说该操作应该'足够快'，你想写 NFR-001: 性能应该良好。阈值等实现时再定。",
+      "expected": "拒绝写出无阈值的 NFR。要求按 QAS 五要素（Stimulus Source/Stimulus/Environment/Response/Response Measure）表达，Response Measure 必须含可判定阈值；拿不到阈值就向需求负责人要或列为 blocking Open Question，不自己编一个数字。",
       "expectations": [
-        "主动暴露未知项和阻塞信息",
-        "通过结构化问题澄清需求",
-        "不凭空补全验收标准",
-        "完成后交给 hf-spec-review"
+        "拒绝'性能良好''足够快'这类无阈值 NFR",
+        "要求 QAS 五要素齐全，Response Measure 含数字/百分比/时间阈值",
+        "阈值缺失时向需求负责人要，不臆造",
+        "Acceptance（BDD）与 QAS 一致，不互相矛盾"
       ]
     },
     {
       "id": 4,
-      "prompt": "这个项目的项目级约定已经规定：需求规格必须写到 `docs/prd/release-approval-prd.md`，并使用 `背景 / 目标 / 范围 / 非目标 / 验收标准 / 开放问题` 这套章节。你先按正确方式起草规格，不要自己退回默认模板。",
-      "expected_output": "应优先遵循项目级约定中声明的规格路径与章节骨架，而不是强行回落到 skill 默认模板。",
-      "files": [],
+      "prompt": "你已经产出了一份不错的 spec.md，准备直接派发 R1 评审让它通过；traceability.md 还没建，plan.md 骨架也没写，你想'这些下游阶段再补'。",
+      "expected": "把缺失的 traceability.md 和 plan.md 骨架当作 R1 门禁缺口，评审不能先通过。初始化 traceability.md（每条核心 FR/NFR/IFR/可测 CON 一行，填需求/Change Type/上游锚点列），建立 plan.md 骨架（组件根、工件根、运行模式、门禁状态表、计划边界），再派发 hf-review。",
       "expectations": [
-        "优先读取项目级约定中的规格路径映射",
-        "优先采用项目级约定中声明的章节骨架",
-        "不强行写入默认 `features/<active>/spec.md` 路径",
-        "完成后仍交给 hf-spec-review"
+        "识别缺失的 traceability.md / plan.md 骨架是 R1 阻塞项，不先派评审",
+        "traceability.md 每条核心需求一行，需求/Change Type/上游锚点列已填",
+        "plan.md 写入组件根、工件根、运行模式（已向用户确认）、门禁状态表、计划边界",
+        "派发 hf-review 做独立评审，作者不自审"
       ]
     },
     {
       "id": 5,
-      "prompt": "审批系统的需求里，用户说\"审批通过后要调用 `/api/notify` 接口发通知，接口需要支持重试三次\"。你按规格阶段正确处理这段描述。",
-      "expected_output": "应识别出这段描述混入了接口设计和重试策略，属于设计决策而非需求规格；规格阶段应只捕捉\"审批通过后通知申请人\"的业务需求，把接口定义和重试机制留到设计阶段。",
-      "files": [],
+      "prompt": "规格里涉及一个对外接口，你不确定 provider 是谁、错误语义也讲不清，但为了不让评审卡住，你想在正文里用一段模糊描述带过，不留 Open Question。",
+      "expected": "不把不确定的接口语义藏在正文散文里。要么给出语义级接口候选契约（provider/consumer/操作语义/输入输出/错误语义/同步异步/兼容），provider 或错误语义说不清就列为 blocking Open Question 标注负责人和它阻塞的决策；不写语言级函数签名、私有数据结构、重试次数、线程模型。",
       "expectations": [
-        "识别 `/api/notify` 接口和重试机制属于设计决策",
-        "规格中只描述业务行为而不是实现方式",
-        "不在规格中写入接口名称、方法签名或技术参数",
-        "保留该需求的业务意图：审批通过后需通知申请人"
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "我这边已经有一份旧的需求草稿，里面有标注\"状态: 草稿\"。你直接在这个基础上补完，不需要从头来过。",
-      "expected_output": "应识别草稿状态意味着规格尚未批准，仍需在规格阶段继续完善；不能因为草稿已存在就跳过澄清和完善步骤，也不能把草稿当作已批准规格。",
-      "files": [],
-      "expectations": [
-        "识别草稿状态不等于已批准规格",
-        "继续在规格阶段完善内容",
-        "主动检查草稿中缺少验收标准、范围外内容或负向场景",
-        "完善后仍交给 hf-spec-review，而不是跳入设计"
-      ]
-    },
-    {
-      "id": 7,
-      "prompt": "我想做一个功能：用户点击\"取消审批\"，系统把审批单状态改成\"已取消\"。帮我把这个写成需求规格，记得把正常流程和异常流程都考虑进去。",
-      "expected_output": "规格中应包含正向流程（点击取消 -> 状态变更 -> 通知相关方）和负向流程（如已审批通过的申请能否取消、取消权限校验失败、并发取消冲突），而不只是 happy path。",
-      "files": [],
-      "expectations": [
-        "规格中包含取消审批的正向流程",
-        "规格中包含至少一个负向或异常场景",
-        "明确说明取消的前置条件（哪些状态下允许取消）",
-        "验收标准覆盖异常路径"
-      ]
-    },
-    {
-      "id": 8,
-      "prompt": "我们要做一个企业审批平台第一期。已知想法有：员工提交审批、直属主管审批、管理员批量导出审批记录、系统自动归档 180 天前的审批单，BI 报表留到后面。你按规格阶段正确推进。",
-      "expected_output": "应先把当前轮范围收敛，再把打包能力拆成更合适的需求粒度；其中 BI 报表属于真实后续需求时，应进入可回收的 deferred backlog，而不是只写成一句\"以后再做\"。",
-      "files": [],
-      "expectations": [
-        "识别提交、审批、导出、归档不是一条大需求就能安全承载的能力",
-        "对明显 oversized 的需求做拆分建议或请求用户确认拆分",
-        "将 BI 报表视为真实 deferred requirement 时，写入 deferred backlog 或等价结构",
-        "不把后续增量只埋在范围外内容 prose 里"
-      ]
-    },
-    {
-      "id": 9,
-      "prompt": "请帮我起草审批系统规格。已确认的上游输入有：用户要求\"审批通过后通知申请人\"，产品桥接文档里写了\"第一期只覆盖单级审批\"，并且管理员导出只属于运营补充能力。你按规范写。",
-      "expected_output": "应让核心需求具备可回读的 Source / Trace Anchor，并为核心需求写出明确优先级，而不是只有编号和正文。",
-      "files": [],
-      "expectations": [
-        "核心需求包含来源锚点，而不是只写泛泛的\"来自用户需求\"",
-        "核心需求包含明确优先级",
-        "不会为来源不清的需求自行编造 trace",
-        "运营补充能力若不在当前轮，应被明确处理为后续项或范围外项"
-      ]
-    },
-    {
-      "id": 10,
-      "prompt": "这份规格被 review 打回，findings 有：[important][USER-INPUT][Q2] 数据保留期限缺少法务确认；[important][LLM-FIXABLE][A2] FR-001 同时打包提交、审批、导出；[minor][LLM-FIXABLE][C1] FR-002 缺少 Source / Trace Anchor。你继续按正确方式推进。",
-      "expected_output": "应进入定向回修：对 USER-INPUT finding 只补充必要问题，对 LLM-FIXABLE finding 直接修文，不重新开启整轮无关澄清。",
-      "files": [],
-      "expectations": [
-        "先读取 review findings 并按 finding 类型处理",
-        "对法务确认问题向用户发起定向澄清，而不是整轮重问",
-        "对需求打包和缺失来源锚点的问题直接做针对性修订",
-        "不把 review 回修误当成重新从头起草规格"
-      ]
-    },
-    {
-      "id": 11,
-      "prompt": "这个项目的项目级约定规定：需求优先级必须使用 P0/P1/P2，而不是 Must/Should/Could/Won't。你起草规格时要怎么处理？",
-      "expected_output": "应优先遵循项目在项目级约定中声明的优先级体系，而不是强行回落到 skill 默认值。",
-      "files": [],
-      "expectations": [
-        "优先读取并遵循项目级约定中声明的优先级体系",
-        "不强行把项目约定改写成默认 MoSCoW",
-        "仍然保证每条核心需求具备明确优先级",
-        "将优先级视为逐条需求属性，而不是整份规格的总体说明"
-      ]
-    },
-    {
-      "id": 12,
-      "prompt": "我很忙。你把必须确认的问题一次问完，别一轮轮拆得太碎，能给选项就给选项。需求大概是：员工提交审批、主管审批、审批通过后通知申请人。第一期不做多级审批。你按正确方式继续。",
-      "expected_output": "应在保持规格阶段边界的前提下，把高价值且紧密相关的问题合并成一轮，优先确认范围、关键角色、阻塞性业务规则，并用编号或选项减少用户回答负担。",
-      "files": [],
-      "expectations": [
-        "优先确认当前轮范围和阻塞事实，而不是展开整套机械轮次",
-        "将紧密相关的问题合并成一个回合",
-        "使用编号、短标签或选项降低回答成本",
-        "不会因为用户很忙就直接跳过规格澄清"
-      ]
-    },
-    {
-      "id": 13,
-      "prompt": "这份规格 review 后只剩两个待确认点：[important][USER-INPUT][Q2] 审批超时阈值不清；[important][USER-INPUT][C3] 主管拒绝后申请人是否允许再次提交未定。其他问题你都可以自己修。你现在按正确方式继续。",
-      "expected_output": "应只围绕这两个待确认点发起最小定向提问，在一个回合里问完，并说明其余可直接修文的问题会自行处理；不应重新铺开整轮需求澄清。",
-      "files": [],
-      "expectations": [
-        "只提这两个必须由用户回答的问题",
-        "优先在一个回合里编号问完，而不是拆成多轮",
-        "明确其余 LLM-FIXABLE 问题将由本节点直接修订",
-        "不重新做整段 Capture/Challenge/Clarify 开场"
-      ]
-    },
-    {
-      "id": 14,
-      "prompt": "这份规格 review 返回的 findings 全都是 LLM-FIXABLE：FR-001 需要拆分、两条需求 wording 重复、范围外内容缺少 deferred backlog 链接。没有任何 USER-INPUT 项。你现在按正确方式继续。",
-      "expected_output": "应直接进入定向回修，不额外向用户发起问卷，也不把 wording、拆分或章节整理问题转嫁给用户。",
-      "files": [],
-      "expectations": [
-        "识别当前没有 USER-INPUT finding",
-        "不再向用户抛出不必要的澄清问题",
-        "直接处理可回修的 wording、拆分和链接问题",
-        "仍保持在规格修订阶段，不跳去设计或其它节点"
-      ]
-    },
-    {
-      "id": 15,
-      "prompt": "这份规格已经连续两轮 review 回修，但没有新增用户输入。当前仍剩两个阻塞点：审批超时阈值未定、拒绝后是否允许重提未定。你现在按正确方式继续。",
-      "expected_output": "不应继续静默循环修文；应显式向用户展示仍然阻塞的点，并以最小定向问题一次性问清，而不是继续无边界回修。",
-      "files": [],
-      "expectations": [
-        "识别已经到达需要停止静默回修的时点",
-        "向用户显式展示仍然阻塞的点",
-        "优先在一个回合中把剩余问题问清",
-        "不继续进行无新输入的机械 reviewer 循环"
-      ]
-    },
-    {
-      "id": 16,
-      "prompt": "review 返回一条 finding：`FR-004` 把“员工提交申请、直属主管审批、管理员导出月报”打包在一起，应拆分。你检查后发现，若真正拆开，`管理员导出月报` 明显属于后续增量，不应留在当前轮。其余 wording 问题都能直接改。你现在按正确方式继续。",
-      "expected_output": "不应把这次拆分继续当作纯 LLM-FIXABLE 静默修完；应先向用户确认这项能力是否确实移出当前轮 / 进入 deferred backlog，再回修其余可直接修改的问题。",
-      "files": [],
-      "expectations": [
-        "识别拆分已经开始改变当前轮范围边界",
-        "不把 scope-boundary 变化当作纯 LLM-FIXABLE",
-        "先向用户提出最小定向确认问题",
-        "其余纯 wording 或结构问题仍由本节点直接修订"
-      ]
-    },
-    {
-      "id": 17,
-      "prompt": "请读取附件中的真实工件，作为 `hf-specify` 继续这轮 spec review 回修。不要重新开启整轮需求澄清；你要根据附件判断哪些项可直接修，哪些项必须先向用户确认。",
-      "expected_output": "应从附件中识别出：`FR-004` 的拆分一旦落地，会触及第一期范围边界和 deferred 判断，因此不能继续当作纯 LLM-FIXABLE 静默修完；应只向用户发起最小定向确认，同时把 `FR-002` 缺失来源等纯结构问题留给本节点直接修订。",
-      "files": [
-        "fixtures/split-boundary-repair/task-progress.md",
-        "fixtures/split-boundary-repair/user-input-notes.md",
-        "fixtures/split-boundary-repair/spec-draft.md",
-        "fixtures/split-boundary-repair/spec-review-record.md"
-      ],
-      "expectations": [
-        "会读取附件中的当前轮范围与待确认边界，而不是只复述 prompt",
-        "识别 `FR-004` 拆分会触及范围边界或 deferred 归属",
-        "只向用户提出最小定向确认问题，而不是重新整轮澄清",
-        "其余纯结构性或 wording 问题仍由本节点直接修订"
+        "对涉及对外接口的需求给出语义级接口候选契约，而非散文带过",
+        "provider/错误语义不确定时列为 blocking Open Question，不猜",
+        "不把函数签名、私有数据结构、重试次数等实现决策写进 spec",
+        "Open Questions 标注负责人与阻塞的决策"
       ]
     }
   ]
