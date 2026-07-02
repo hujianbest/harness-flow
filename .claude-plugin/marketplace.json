@@ -4,7 +4,7 @@
     "name": "hujianbest"
   },
   "metadata": {
-    "description": "HarnessFlow — From idea to shipped product: high-quality engineering workflows for AI agents. Spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, and formal closeout."
+    "description": "HarnessFlow — a three-layer skill suite for high-quality AI coding: spec-driven development (SDD), gated test-driven development (TDD), and pluggable ext-* domain extensions."
   },
   "plugins": [
     {
@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow v1.0.0 skill pack: 29 hf-* skills plus using-hf-workflow, covering discovery -> spec -> design -> tasks -> TDD/subagent-driven implementation -> reviews -> browser evidence -> gates -> finalize -> release, with evidence-based routing and Fagan author/reviewer separation. v1.0.0 promotes shared subagent roles to top-level agents/ (hf-implementer uses hf-test-driven-dev; hf-reviewer covers every hf-*review node), moves slash command definitions to top-level commands/, and keeps Claude Code / OpenCode / Cursor support. hf-release remains engineer-level tag readiness only: no deployment, staged rollout, monitoring, rollback, or automatic git tag."
+      "description": "HarnessFlow v2.0.0: 6 core skills own the main chain specify -> review -> design -> review -> tdd -> review -> ship (hf-workflow entry + state recovery, hf-specify, hf-design, hf-review with three stage checklists, hf-tdd, hf-ship). Domain skills plug in as ext-* extensions loaded per stage (ext-ui-design and ext-cpp ship as seeds). All process state lives in features/<NNN>-<slug>/ artifacts; author/reviewer separation and stage gates are hard rules."
     }
   ]
 }

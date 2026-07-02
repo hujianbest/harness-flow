@@ -6,7 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v1.0.0 已切版；下一版本切片前，新增内容写在此处）
+（empty — v2.0.0 已切版；下一版本切片前，新增内容写在此处）
+
+## [2.0.0] - 2026-07-02
+
+> **Complete rewrite.** HarnessFlow v2 用三层结构完全重写了技能套件:第一层 SDD(规范驱动)、第二层 TDD(测试驱动)构成固定主链 `specify → review → design → review → tdd → review → ship`,第三层是按阶段自动加载的 `ext-*` 领域扩展。v1.x 的 30 个技能收敛为 6 个核心技能 + 2 个种子扩展,总体量从约 240 个文件降到 15 个文件。
+
+### Added
+
+- **6 个核心技能** — `hf-workflow`(入口:主链、工件布局、门禁、磁盘状态恢复、扩展加载)、`hf-specify`(可测试规格)、`hf-design`(技术设计 + 有序任务清单,吸收原 hf-tasks)、`hf-review`(单一评审协议 + spec/design/code 三份 checklist,取代原 8 个 review 技能)、`hf-tdd`(逐任务红-绿-重构)、`hf-ship`(逐条需求验收闭环 + 收尾)。
+- **`ext-*` 扩展机制** — 领域技能在 frontmatter description 声明绑定阶段与触发条件,由 `hf-workflow` 在每个阶段开始前扫描加载;只能收紧、不能放松主链门禁。编写指南见 `skills/hf-workflow/references/extension-authoring.md`。
+- **2 个种子扩展** — `ext-ui-design`(UI 特性:信息架构、交互三态、design token、WCAG、反 AI 默认审美)、`ext-cpp`(C++ 项目:GoogleTest 纪律、RAII、测试反模式)。
+- **`scripts/validate_skills.py`** — 校验 frontmatter、目录命名、正文行数上限与引用文件存在性。
+
+### Removed
+
+- **v1.x 全部 30 个技能与元机制** — router FSM、entry shell、Workflow Profile 三档、Execution Mode/Workspace Isolation 状态机、wisdom-notebook、ultrawork、context-mesh、gap-analyzer、subagent-driven-dev、product-discovery 系、hotfix/increment/release/finalize 系、8 个独立 review 技能等。
+- **旧外围设施** — `agents/`、`commands/`(7 个 slash command)、审计脚本与旧测试、dogfood feature 工件、writeonce 示例、`thoughts/`、旧 `docs/`(含 12 份 ADR)、install/uninstall 脚本(v2 安装即复制 `skills/`)。
+
+### Changed
+
+- **执行模式简化** — 仅保留 `interactive`(默认,评审通过后等用户确认)与 `auto`(评审通过自动确认并记录),不再有 approval record schema。
+- **状态恢复简化** — 由 `features/<NNN>-<slug>/` 下工件的存在性与评审结论直接判定当前阶段,`progress.md` 退化为极简状态文件。
+- **Cursor 规则、README、CONTRIBUTING、插件元数据** — 全部按 v2 结构重写。
 
 ## [1.0.0] - 2026-05-23
 
