@@ -63,14 +63,14 @@ features/<NNN>-<slug>/
 | 磁盘证据 | 当前阶段 |
 |---------|---------|
 | 无 `spec.md` | specify |
-| 有 `spec.md`,无通过的 spec-review | spec-review |
+| 有 `spec.md`,无通过的 spec-review 或缺用户确认记录 | spec-review |
 | spec 已批准,无 `design.md` | design |
-| 有 `design.md`,无通过的 design-review | design-review |
+| 有 `design.md`,无通过的 design-review 或缺用户确认记录 | design-review |
 | design 已批准,任务清单未全部完成 | tdd(锁定首个未完成任务) |
 | 任务全完成,无通过的 code-review | code-review |
 | code-review 通过,未收尾 | ship |
 
-`progress.md` 与工件冲突时,以工件为准并修正 `progress.md`。
+"已批准" = 对应 review 记录结论为"通过"**且**记录中含确认行(`- 用户确认: <日期>` 或 `- 用户确认: auto-approved <日期>`,由 `hf-review` 在结论处理时写入)。以 review 记录为准,不采信工件自标的"已批准"状态。`progress.md` 与工件冲突时,以工件为准并修正 `progress.md`。
 
 ## 硬性规则
 
@@ -78,6 +78,7 @@ features/<NNN>-<slug>/
 - **作者与评审者分离**:产出工件的一方不能给自己评审结论,见 `hf-review`。
 - **单任务推进**:tdd 阶段同一时间只做一个任务,做完勾掉再取下一个。
 - **证据落盘**:评审结论、任务勾选、测试命令都写入特性目录,让任何新会话可以冷启动接续。
+- **压力不是豁免**:"时间紧""直接写代码"不构成跳过门禁的理由。用户明确坚持跳过某道门禁时,先说明风险,并在 `progress.md` 记录 `用户豁免 <门禁> <日期>` 后才可继续;口头催促不算豁免。
 
 ## 执行模式
 
@@ -95,7 +96,7 @@ features/<NNN>-<slug>/
 进入每个阶段前:
 
 1. 列出 `skills/` 下所有 `ext-*` 目录,读取各自 frontmatter 的 `description`。
-2. 触发条件与当前特性匹配(如:特性含 UI 界面、项目是 C++ 技术栈)且绑定阶段等于当前阶段的,加载其 SKILL.md 并遵循。
-3. 把已加载的扩展记入 `progress.md` 的"已加载扩展",后续阶段保持一致。
+2. 触发条件与当前特性匹配(如:特性含 UI 界面、项目是 C++ 技术栈)且绑定阶段**包含**当前阶段的,加载其 SKILL.md 并遵循。frontmatter description 是加载判定的唯一依据;与正文不一致时以 description 为准。触发条件拿不准时倾向加载(扩展只会收紧要求),并在 `progress.md` 注明判定理由。
+3. 把已加载的扩展记入 `progress.md` 的"已加载扩展"。每个阶段开始前都重新执行本判定;绑定多个阶段的扩展在其每个绑定阶段都生效。
 
 扩展只能收紧要求(追加检查项、规范、产出章节),不能放松主链门禁。编写新扩展见 `references/extension-authoring.md`。
