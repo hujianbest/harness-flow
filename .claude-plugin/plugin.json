@@ -1,12 +1,11 @@
 {
   "name": "harness-flow",
-  "description": "HarnessFlow — From idea to shipped product: high-quality engineering workflows for AI agents. Spec-anchored SDD, gated TDD, evidence-based routing, independent reviews, and formal closeout.",
-  "version": "1.0.0",
+  "description": "HarnessFlow — a three-layer skill suite for high-quality AI coding: spec-driven development (SDD), gated test-driven development (TDD), and pluggable ext-* domain extensions, along the main chain specify -> review -> design -> review -> tdd -> review -> ship.",
+  "version": "2.0.0",
   "author": {
     "name": "hujianbest"
   },
   "homepage": "https://github.com/hujianbest/harness-flow",
   "repository": "https://github.com/hujianbest/harness-flow",
-  "license": "MIT",
-  "commands": "./commands"
+  "license": "MIT"
 }

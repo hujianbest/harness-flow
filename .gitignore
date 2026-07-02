@@ -1,12 +1,6 @@
 /.idea/
 /.agents/
 
-# Python bytecode (added by R1 anatomy audit)
+# Python bytecode
 __pycache__/
 *.pyc
-
-# WriteOnce demo (Node.js)
-examples/writeonce/node_modules/
-examples/writeonce/dist/
-examples/writeonce/coverage/
-examples/writeonce/.vitest-cache/
