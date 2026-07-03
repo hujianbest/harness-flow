@@ -1,13 +1,13 @@
 ---
 name: ext-cpp
-description: C++ 编程规范扩展。绑定阶段: tdd。触发条件: 项目主要语言为 C++(存在 CMakeLists.txt / *.cpp 主体代码)。约束 C++ 项目在 TDD 阶段的测试组织(GoogleTest)、资源管理与常见测试反模式。
+description: C++ 编程规范扩展。绑定阶段: build。触发条件: 项目主要语言为 C++(存在 CMakeLists.txt / *.cpp 主体代码)。约束 C++ 项目在实现阶段的测试组织(GoogleTest)、资源管理与常见测试反模式。
 ---
 
 # C++ 规范扩展
 
 ## 绑定
 
-- 绑定阶段: tdd
+- 绑定阶段: build
 - 触发条件: 项目主要语言为 C++
 
 ## 测试组织 (GoogleTest)
@@ -19,7 +19,7 @@ description: C++ 编程规范扩展。绑定阶段: tdd。触发条件: 项目�
 
 ## 测试反模式(发现即重写)
 
-- 为测试暴露私有成员(`friend class XxxTest`、`#define private public`)→ 测公共行为,测不到说明设计有问题,回 `hf-design`
+- 为测试暴露私有成员(`friend class XxxTest`、`#define private public`)→ 测公共行为,测不到说明设计有问题,回 `hf-plan`
 - 在产品类里加只给测试用的方法/构造函数
 - mock 具体类而非接口边界;mock 值对象
 - 测试依赖执行顺序或共享可变全局状态

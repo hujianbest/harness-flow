@@ -18,7 +18,7 @@ skills/ext-<领域名>/
 ```markdown
 ---
 name: ext-<领域名>
-description: <一句话说明领域> 绑定阶段: <design / tdd / ship 的子集>。触发条件: <hf-workflow 判断是否加载的依据,如"特性含用户界面""项目主要语言为 Java">。
+description: <一句话说明领域> 绑定阶段: <frame / plan / build / verify / ship 的子集>。触发条件: <hf-workflow 判断是否加载的依据,如"特性含用户界面""项目主要语言为 Java">。
 ---
 
 # <标题>
@@ -28,7 +28,7 @@ description: <一句话说明领域> 绑定阶段: <design / tdd / ship 的子�
 - 触发条件: <与 description 一致,可展开>
 
 ## 规则
-<对绑定阶段的增量要求:必须做什么、禁止做什么、产出物增加哪些章节或检查项>
+<对绑定阶段的增量要求:必须做什么、禁止做什么、产出物增加哪些章节、evidence/ 增加哪些证据>
 
 ## 评审检查项(可选)
 <若领域要求需要被 hf-review 把关,列出追加到对应阶段 checklist 的条目>
@@ -36,22 +36,23 @@ description: <一句话说明领域> 绑定阶段: <design / tdd / ship 的子�
 
 ## 硬性约束
 
-- **description 必须包含"绑定阶段"和"触发条件"**——`hf-workflow` 只读 frontmatter 决定是否加载,写不清就不会被加载。
-- **只收紧,不放松**:扩展可以追加要求、检查项、产出章节,不得跳过或弱化主链门禁(评审、TDD 铁律、用户确认)。
+- **description 必须包含"绑定阶段"和"触发条件"**,且绑定阶段只能取 `frame / plan / build / verify / ship`——`hf-workflow` 只读 frontmatter 决定是否加载,写不清就不会被加载。
+- **只收紧,不放松**:扩展可以追加要求、检查项、证据、产出章节,不得跳过或弱化主链门禁(评审、TDD 铁律、hf_gate.py 校验、用户确认)。
+- **证据走机械门禁**:扩展要求的可执行验证(渲染检查、静态分析等)一律通过 `hf_gate.py run` 落盘,不引入平行的证据渠道。
 - **保持精简**:SKILL.md 正文控制在 150 行以内;超过 100 行的参考资料移入 `references/` 并在正文注明加载时机。
 - **规则要可判定**:写"颜色必须来自 design token,禁止硬编码色值",不写"注意视觉一致性"。
-- **不复述主链**:不要在扩展里重复 TDD 流程、评审协议等主链内容,只写领域增量。
+- **不复述主链**:不要在扩展里重复 TDD 流程、评审协议、gate 用法等主链内容,只写领域增量。
 
 ## 两类典型扩展
 
 | 类型 | 例子 | 通常绑定 |
 |------|------|---------|
-| 阶段增强:为某类特性追加设计/验收维度 | `ext-ui-design`(UI 特性) | design + tdd |
-| 领域规范:约束某技术栈的实现方式 | `ext-cpp`(C++ 项目) | tdd |
+| 阶段增强:为某类特性追加设计/验收维度 | `ext-ui-design`(UI 特性) | plan + build + verify |
+| 领域规范:约束某技术栈的实现方式 | `ext-cpp`(C++ 项目) | build |
 
 ## 发布前自检
 
-- [ ] frontmatter 的 description 含绑定阶段与触发条件
+- [ ] frontmatter 的 description 含绑定阶段(仅用 frame/plan/build/verify/ship)与触发条件
 - [ ] 用一个真实场景测试:给模型主链 + 本扩展,确认规则被遵守;不给扩展时确认问题确实出现(证明扩展有必要)
 - [ ] 无与主链或其他扩展重复的内容
-- [ ] 正文 ≤ 150 行
+- [ ] 正文 ≤ 150 行,`python3 scripts/validate_skills.py` 通过
