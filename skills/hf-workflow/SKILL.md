@@ -1,102 +1,113 @@
 ---
 name: hf-workflow
-description: HarnessFlow 主工作流入口。凡是开发新功能、修改已有行为、修复缺陷,或用户提到"开始开发""继续""恢复进度""harness-flow"时,必须先加载本技能。它定义 specify → review → design → review → tdd → review → ship 主链、工件布局、阶段门禁、状态恢复规则,以及领域扩展技能 (ext-*) 的加载方式。不适用于纯问答、代码阅读等不产生代码变更的请求。
+description: HarnessFlow 主工作流入口。凡是开发新功能、修改已有行为、修复缺陷,或用户提到"开始开发""继续""恢复进度""harness-flow"时,必须先加载本技能。它定义主链 frame → plan → build → verify → ship、风险分级、工件与证据布局、机械门禁 hf_gate.py 的用法、状态恢复规则,以及领域扩展技能 (ext-*) 的加载方式。不适用于纯问答、代码阅读等不产生代码变更的请求。
 ---
 
 # HarnessFlow 主工作流
 
-HarnessFlow 用一条固定的主链约束 AI 编码工作,分三层:
+核心假设:**模型是系统里最不可靠的组件。** HarnessFlow 用三层把不可靠的生成能力约束成可靠的交付:
 
-1. **SDD 层(规范驱动)**:先把"要做什么"写成可评审、可验收的规格,再谈实现。
-2. **TDD 层(测试驱动)**:实现必须由失败的测试驱动,交付时每条需求都有通过的测试作证据。
-3. **扩展层(领域技能)**:UI 设计、语言规范等 `ext-*` 技能在对应阶段被加载,增强但不替代主链。
+1. **主链纪律**:`frame → plan → build → verify → ship`,规格驱动 (SDD) + 测试驱动 (TDD)。
+2. **机械门禁**:阶段推进由 `skills/hf-workflow/scripts/hf_gate.py` 机械裁决;证据 = 命令原始输出落盘,叙述不算证据。
+3. **领域扩展**:`ext-*` 技能按阶段自动加载,只收紧、不放松主链。
 
-## 主链
+## 主链与风险分级
 
 ```
-specify → review → design → review → tdd → review → ship
+frame → plan → build → verify → ship
 ```
 
-| # | 阶段 | 技能 | 产出 | 通过门禁 |
-|---|------|------|------|----------|
-| 1 | 规格 | `hf-specify` | `spec.md` | 规格评审通过 + 用户确认 |
-| 2 | 规格评审 | `hf-review` | `reviews/spec-review.md` | 结论为"通过" |
-| 3 | 设计 | `hf-design` | `design.md`(含任务清单) | 设计评审通过 + 用户确认 |
-| 4 | 设计评审 | `hf-review` | `reviews/design-review.md` | 结论为"通过" |
-| 5 | 实现 | `hf-tdd` | 代码 + 测试 + 任务勾选 | 全部任务完成,测试全绿 |
-| 6 | 代码评审 | `hf-review` | `reviews/code-review.md` | 结论为"通过" |
-| 7 | 交付 | `hf-ship` | 验收报告 + 收尾 | 验收标准逐条闭合 |
+流程开销随风险缩放。frame 阶段定档(判据见 `hf-frame`),定错档会被评审打回:
 
-到达某一阶段时,读取并遵循对应技能的 `SKILL.md`,不要凭印象执行。
+| 档位 | 适用 | plan 形态 | 评审轮次 |
+|------|------|-----------|----------|
+| 1 微改 | 单点小改,可逆,不碰数据/安全/公共接口 | 无(frame 即计划) | 仅代码评审 |
+| 2 标准 | 常规特性、行为变更、缺陷修复(默认档) | 一份 `plan.md` | plan 评审 + 代码评审 |
+| 3 高危 | 数据迁移、安全面、跨模块架构、破坏性接口 | `spec.md` + `design.md` 分离 | spec、design、代码三轮评审 |
 
-## 工件布局
+| 阶段 | 技能 | 产出 | 推进门禁 |
+|------|------|------|----------|
+| frame | `hf-frame` | frame.md + 环境基线证据 | `gate check --to plan`(档位1: `--to build`) |
+| plan | `hf-plan` | plan.md 或 spec.md + design.md | 评审通过+确认落盘, `gate check --to build` |
+| build | `hf-build` | 代码 + 测试 + 逐任务 red/green 证据 | 任务全勾, `gate check --to verify` |
+| verify | `hf-verify` | 冒烟证据 + 独立代码评审 | `gate check --to ship` |
+| ship | `hf-ship` | 验收报告 + 收尾 | 需求逐条闭合 |
 
-每个特性一个目录,所有阶段产物落盘于此:
+到达某阶段时,读取并遵循对应技能的 SKILL.md,不要凭印象执行。
+
+## 工件与证据布局
+
+每个特性一个目录,所有阶段产物与证据落盘于此。`<NNN>` 取 `features/` 下已有编号的下一个,从 `001` 开始:
 
 ```
 features/<NNN>-<slug>/
-  spec.md          # 需求规格 (hf-specify)
-  design.md        # 技术设计 + 任务清单 (hf-design)
-  progress.md      # 状态文件:当前阶段、任务进度、下一步
-  reviews/         # 评审记录 (hf-review)
+  frame.md           # 意图、风险档位、环境基线 (hf-frame)
+  plan.md            # 档位 2: 需求+设计+任务清单 (hf-plan)
+  spec.md  design.md # 档位 3: 规格与设计分离 (hf-plan)
+  progress.md        # 薄状态文件:阶段指针与下一步
+  evidence/          # 原始命令输出日志,只能由 hf_gate.py run 产生
+  reviews/           # 评审记录 (hf-review)
 ```
 
-`<NNN>` 取 `features/` 下已有编号的下一个,从 `001` 开始。`progress.md` 最小格式:
+任务勾选状态**只**存在于 plan.md / design.md 的任务清单(唯一事实源),progress.md 不复制任务状态。progress.md 最小格式:
 
 ```markdown
 # 进度
 
 - 特性: <NNN>-<slug>
-- 当前阶段: specify | spec-review | design | design-review | tdd | code-review | ship | done
+- 当前阶段: frame | plan | build | verify | ship | done
 - 执行模式: interactive | auto
 - 已加载扩展: <ext-* 列表或"无">
 - 下一步: <一句话>
-
-## 任务进度
-<tdd 阶段起,从 design.md 任务清单同步,逐项勾选并附测试命令>
+- 门禁输出: <最近一次 gate check 的 RESULT 行>
 ```
+
+## 机械门禁 (第二层)
+
+两条命令贯穿全流程:
+
+```bash
+# 产生证据 —— 测试/构建/冒烟运行的唯一合法方式:
+python3 skills/hf-workflow/scripts/hf_gate.py run \
+  --feature features/<NNN>-<slug> --label <label> -- <命令...>
+
+# 校验能否进入目标阶段:
+python3 skills/hf-workflow/scripts/hf_gate.py check \
+  --feature features/<NNN>-<slug> --to <plan|design|build|verify|ship>
+```
+
+- **进入任何阶段前必须运行 check,并把 RESULT 行写进 progress.md。** check FAIL 时不得进入,输出会列出缺失项,先补齐。
+- 证据标签约定:`baseline`(环境基线)、`t<N>-red` / `t<N>-green`(逐任务红绿)、`suite`(全量测试)、`smoke`(运行时冒烟)。
+- **手工创建或编辑 `evidence/` 下的日志 = 造假**,等同伪造测试结果。截图等非日志证据可直接放入 evidence/(命名 `smoke-*`)。
+- gate 只做机械裁决(文件存在性、结论行、退出码、时间戳),不理解语义;语义质量由 `hf-review` 把关。二者缺一不可。
 
 ## 状态恢复
 
-**从磁盘工件恢复状态,不依赖聊天记忆。** 用户说"继续"或开启新会话时,按下表判定:
-
-| 磁盘证据 | 当前阶段 |
-|---------|---------|
-| 无 `spec.md` | specify |
-| 有 `spec.md`,无通过的 spec-review 或缺用户确认记录 | spec-review |
-| spec 已批准,无 `design.md` | design |
-| 有 `design.md`,无通过的 design-review 或缺用户确认记录 | design-review |
-| design 已批准,任务清单未全部完成 | tdd(锁定首个未完成任务) |
-| 任务全完成,无通过的 code-review | code-review |
-| code-review 通过,未收尾 | ship |
-
-"已批准" = 对应 review 记录结论为"通过"**且**记录中含确认行(`- 用户确认: <日期>` 或 `- 用户确认: auto-approved <日期>`,由 `hf-review` 在结论处理时写入)。以 review 记录为准,不采信工件自标的"已批准"状态。`progress.md` 与工件冲突时,以工件为准并修正 `progress.md`。
+**从磁盘工件恢复状态,不依赖聊天记忆。** 用户说"继续"或开启新会话时:按 plan → design → build → verify → ship 的顺序依次运行 `gate check --to <阶段>`,**第一个 FAIL 的目标即当前所在阶段**,FAIL 明细就是待办清单。progress.md 与 gate 输出冲突时,以 gate 为准并修正 progress.md。
 
 ## 硬性规则
 
-- **门禁不可跳过**:上一阶段未通过评审(及用户确认)前,不进入下一阶段。评审结论为"需修改"时回到作者阶段修订,再评审。
-- **作者与评审者分离**:产出工件的一方不能给自己评审结论,见 `hf-review`。
-- **单任务推进**:tdd 阶段同一时间只做一个任务,做完勾掉再取下一个。
-- **证据落盘**:评审结论、任务勾选、测试命令都写入特性目录,让任何新会话可以冷启动接续。
-- **压力不是豁免**:"时间紧""直接写代码"不构成跳过门禁的理由。用户明确坚持跳过某道门禁时,先说明风险,并在 `progress.md` 记录 `用户豁免 <门禁> <日期>` 后才可继续;口头催促不算豁免。
+- **门禁不可跳过**:gate check FAIL 时不进下一阶段;评审结论"需修改"时回作者阶段只修 findings,再评审。
+- **作者/评审分离**:评审只承认 subagent 或全新会话;主会话冷读是降级路径且不得自我确认,见 `hf-review`。
+- **证据即机器输出**:一切"测试通过/构建成功/能运行"的声明必须有 evidence/ 日志支撑;"测试全绿"四个字不是证据。
+- **单任务推进**:build 阶段同一时间只做一个任务,做完勾掉再取下一个。
+- **压力不是豁免**:"时间紧""直接写代码"不构成跳过门禁的理由。用户明确坚持跳过某道门禁时,先说明风险,并在 progress.md 记录 `用户豁免 <门禁> <日期>` 后才可继续;口头催促不算豁免。
 
 ## 执行模式
 
-- `interactive`(默认):spec 与 design 的评审通过后,向用户展示结论并等待确认,用户确认后才进入下一阶段。
-- `auto`:用户明确说"自动执行/不用等我确认"时启用。评审通过即视为确认并在 `progress.md` 记录 `auto-approved`,连续推进直到 ship 完成或评审失败需要用户输入。auto 不删除任何评审与门禁。
+- `interactive`(默认):plan 层评审(plan/spec/design)通过后,向用户展示结论并等待确认,确认后才进下一阶段。
+- `auto`:用户明确说"自动执行/不用等我确认"时启用。评审通过 + gate check PASS 即可推进,确认行写 `auto-approved <日期>`。auto 模式两条底线:评审必须由 subagent/新会话执行(降级评审在 auto 下是硬停点,必须等用户);gate check 不可绕过。auto 不删除任何评审与门禁。
 
 ## 轻量通道
 
-仅限**微小改动**(文档、注释、typo、单行低风险修复):向用户说明后可压缩为 tdd → review → ship,由一段简短的 `progress.md` 记录改动意图代替 spec/design。用户不同意或改动触碰行为边界时,走完整主链。
+纯文档、注释、typo 级改动:向用户说明后走档位 1(frame → 改动 → verify 代码评审 → ship)。TDD 铁律对纯文档改动不适用,但改动意图记入 frame.md。改动触碰行为边界时,回到正常档位判定。
 
 ## 加载扩展技能 (第三层)
 
-扩展技能放在 `skills/ext-*/`,每个扩展在 SKILL.md 开头声明**绑定阶段**与**触发条件**。
+扩展放在 `skills/ext-*/`,frontmatter description 声明**绑定阶段**(frame/plan/build/verify/ship 的子集)与**触发条件**。进入每个阶段前:
 
-进入每个阶段前:
+1. 列出 `skills/` 下所有 `ext-*` 目录,读取各自 frontmatter 的 description。
+2. 触发条件与当前特性匹配(如:特性含 UI、项目是 C++)且绑定阶段包含当前阶段的,加载其 SKILL.md 并遵循。description 是加载判定的唯一依据。触发条件拿不准时倾向加载(扩展只会收紧要求),判定理由记入 progress.md。
+3. 已加载扩展记入 progress.md 的"已加载扩展";每个阶段开始前重新执行本判定。
 
-1. 列出 `skills/` 下所有 `ext-*` 目录,读取各自 frontmatter 的 `description`。
-2. 触发条件与当前特性匹配(如:特性含 UI 界面、项目是 C++ 技术栈)且绑定阶段**包含**当前阶段的,加载其 SKILL.md 并遵循。frontmatter description 是加载判定的唯一依据;与正文不一致时以 description 为准。触发条件拿不准时倾向加载(扩展只会收紧要求),并在 `progress.md` 注明判定理由。
-3. 把已加载的扩展记入 `progress.md` 的"已加载扩展"。每个阶段开始前都重新执行本判定;绑定多个阶段的扩展在其每个绑定阶段都生效。
-
-扩展只能收紧要求(追加检查项、规范、产出章节),不能放松主链门禁。编写新扩展见 `references/extension-authoring.md`。
+扩展只能收紧要求(追加检查项、证据要求、产出章节),不能放松主链门禁。编写新扩展见 `references/extension-authoring.md`。

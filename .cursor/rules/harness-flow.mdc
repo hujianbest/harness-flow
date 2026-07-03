@@ -5,19 +5,20 @@ alwaysApply: true
 
 # HarnessFlow on Cursor
 
-This workspace ships HarnessFlow: a three-layer skill suite for spec-driven (SDD) + test-driven (TDD) development with pluggable domain extensions.
+This workspace ships HarnessFlow: a three-layer skill suite for stable AI coding — main-chain discipline (SDD + TDD), mechanical gates, and pluggable domain extensions.
 
 ## On every development task
 
-1. Load `skills/hf-workflow/SKILL.md` first. It defines the main chain `specify → review → design → review → tdd → review → ship`, the artifact layout under `features/<NNN>-<slug>/`, and how to recover the current stage from on-disk artifacts.
-2. Follow the skill for the current stage: `hf-specify`, `hf-design`, `hf-review`, `hf-tdd`, `hf-ship` — read the stage skill's `SKILL.md` when you enter that stage.
+1. Load `skills/hf-workflow/SKILL.md` first. It defines the main chain `frame → plan → build → verify → ship`, risk tiers, the artifact/evidence layout under `features/<NNN>-<slug>/`, and the mechanical gate `skills/hf-workflow/scripts/hf_gate.py`.
+2. Follow the skill for the current stage: `hf-frame`, `hf-plan`, `hf-build`, `hf-verify`, `hf-ship`, with `hf-review` at every review gate — read the stage skill's `SKILL.md` when you enter that stage.
 3. Before each stage, check `skills/ext-*/` descriptions and load extensions whose binding stage and trigger conditions match.
 
 ## Hard rules
 
-- Do not skip stage gates: a stage artifact must pass `hf-review` (and user confirmation in `interactive` mode) before the next stage starts.
-- Author/reviewer separation: whoever wrote an artifact must not approve it — dispatch an independent review per `hf-review`.
-- One task at a time in the tdd stage; no implementation code before a failing test.
-- Recover state from `features/<NNN>-<slug>/` artifacts, not chat memory.
+- Run `hf_gate.py check --to <stage>` before entering any stage and record the RESULT line in `progress.md`; a FAIL means you may not proceed.
+- Evidence is machine output only: every test/build/smoke run goes through `hf_gate.py run` into `features/<id>/evidence/`. Hand-writing or editing evidence logs is fabrication.
+- Author/reviewer separation: reviews run in a subagent or fresh session; a same-session (degraded) review may not verdict "通过" and may never self-approve.
+- One task at a time in the build stage; no implementation code before a failing test (red log with nonzero exit).
+- Recover state by probing `hf_gate.py check` per stage, not from chat memory.
 
 Pure Q&A or code-reading requests that produce no code changes do not need HarnessFlow.

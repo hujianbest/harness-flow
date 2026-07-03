@@ -1,18 +1,18 @@
 ---
 name: ext-ui-design
-description: UI 设计领域扩展。绑定阶段: design、tdd。触发条件: 特性包含用户界面(页面、组件、可视交互)。为设计阶段追加 UI 设计章节要求(信息架构、交互状态、design token、可访问性),为实现阶段追加前端验收纪律。
+description: UI 设计领域扩展。绑定阶段: plan、build、verify。触发条件: 特性包含用户界面(页面、组件、可视交互)。为计划阶段追加 UI 设计章节要求(信息架构、交互状态、design token、可访问性),为实现与验证阶段追加前端验收纪律(交互三态测试、真实渲染冒烟证据)。
 ---
 
 # UI 设计扩展
 
 ## 绑定
 
-- 绑定阶段: design、tdd
+- 绑定阶段: plan、build、verify
 - 触发条件: 特性包含用户界面(页面 / 组件 / 可视交互)
 
-## 设计阶段规则
+## 计划阶段 (plan) 规则
 
-`design.md` 追加 **"UI 设计"** 一节(置于测试策略之后、任务清单之前),必须覆盖:
+`plan.md`(或档位 3 的 `design.md`)追加 **"UI 设计"** 一节(置于测试策略之后、任务清单之前),必须覆盖:
 
 ### 信息架构与交互先行
 
@@ -32,7 +32,7 @@ description: UI 设计领域扩展。绑定阶段: design、tdd。触发条件: 
 
 - 无理由的紫色/紫蓝渐变主色、Inter/Roboto 默认字体
 - 千篇一律的"左彩条 + 圆角卡片" callout、emoji 当图标
-- 规格没要求的装饰性动效、glassmorphism、多套阴影混用
+- 需求没要求的装饰性动效、glassmorphism、多套阴影混用
 - 未回指真实需求的 section、文案、数字徽标(每个元素要能说出对应哪条需求)
 
 ### 可访问性
@@ -40,17 +40,21 @@ description: UI 设计领域扩展。绑定阶段: design、tdd。触发条件: 
 - 文本对比度满足 WCAG AA;交互元素键盘可达、焦点可见
 - 语义化 HTML / 正确的 ARIA;触控目标 ≥ 44×44px
 
-## 实现阶段 (tdd) 规则
+## 实现阶段 (build) 规则
 
 - UI 相关任务的测试设计需覆盖交互三态(loading/empty/error)的可验证行为
 - token 纪律延续到代码:发现硬编码色值/字号即在 REFACTOR 步清理
-- 任务收尾时在真实运行环境(浏览器/模拟器)确认渲染结果,截图或描述性证据记入 `progress.md`
+
+## 验证阶段 (verify) 规则
+
+- 运行时冒烟必须包含**真实渲染证据**:浏览器/模拟器中的截图存为 `evidence/smoke-<描述>.png`,或可自动化的渲染检查经 `hf_gate.py run --label smoke` 落盘;只有单元测试不构成 UI 冒烟
+- 交互三态至少各有一份可核对的证据(截图或断言三态的测试)
 
 ## 评审检查项
 
 以下条目追加到对应阶段 checklist:
 
-- [ ] (design) UI 章节存在,关键交互覆盖三态,视觉决策落到 token 而非口号
-- [ ] (design) 复用了既有 Design System,或偏离处有显式理由
+- [ ] (plan) UI 章节存在,关键交互覆盖三态,视觉决策落到 token 而非口号
+- [ ] (plan) 复用了既有 Design System,或偏离处有显式理由
 - [ ] (code) 无硬编码视觉样式;可访问性要求有落实证据
-- [ ] (code) UI 任务有真实渲染验证证据,不只有单元测试
+- [ ] (code) evidence/ 中有真实渲染的 smoke 证据,不只有单元测试
