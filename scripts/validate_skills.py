@@ -5,9 +5,10 @@ Checks every skills/*/SKILL.md for:
 - YAML frontmatter with exactly `name` and `description`
 - `name` matching the directory name
 - description length <= 1024 chars and non-empty
-- ext-* descriptions declaring binding stage and trigger condition
+- ext-* descriptions declaring binding stage (valid v3 stage names only)
+  and trigger condition
 - body line limits (core <= 200, ext <= 150)
-- referenced `references/...` paths existing on disk
+- referenced `references/...` and `skills/*/scripts/...` paths existing on disk
 
 Exit code 0 = all good, 1 = violations found.
 """
@@ -20,6 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
 CORE_BODY_LIMIT = 200
 EXT_BODY_LIMIT = 150
+VALID_STAGES = {"frame", "plan", "build", "verify", "ship"}
 
 errors: list[str] = []
 
@@ -57,6 +59,16 @@ def check_skill(skill_dir: Path) -> None:
     if is_ext:
         if "绑定阶段" not in desc:
             errors.append(f"{skill_dir.name}: ext skill description must declare 绑定阶段")
+        else:
+            stage_seg = re.search(r"绑定阶段:\s*([^。]*)", desc)
+            stages = set(re.findall(r"[a-z]+", stage_seg.group(1))) if stage_seg else set()
+            if not stages:
+                errors.append(f"{skill_dir.name}: 绑定阶段 declares no stage names")
+            elif not stages <= VALID_STAGES:
+                errors.append(
+                    f"{skill_dir.name}: invalid stage(s) {sorted(stages - VALID_STAGES)}; "
+                    f"valid: {sorted(VALID_STAGES)}"
+                )
         if "触发条件" not in desc:
             errors.append(f"{skill_dir.name}: ext skill description must declare 触发条件")
 
@@ -65,7 +77,11 @@ def check_skill(skill_dir: Path) -> None:
     if body_lines > limit:
         errors.append(f"{skill_dir.name}: body {body_lines} lines exceeds limit {limit}")
 
-    for ref in re.findall(r"`((?:skills/)?references?/[\w./-]+|skills/[\w-]+/references/[\w./-]+)`", text):
+    for ref in re.findall(
+        r"`((?:skills/)?references?/[\w./-]+"
+        r"|skills/[\w-]+/(?:references|scripts)/[\w./-]+)`",
+        text,
+    ):
         base = ROOT if ref.startswith("skills/") else skill_dir
         if not (base / ref).is_file():
             errors.append(f"{skill_dir.name}: referenced file not found: {ref}")
