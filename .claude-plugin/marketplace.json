@@ -4,7 +4,7 @@
     "name": "hujianbest"
   },
   "metadata": {
-    "description": "HarnessFlow — a three-layer skill suite for high-quality AI coding: spec-driven development (SDD), gated test-driven development (TDD), and pluggable ext-* domain extensions."
+    "description": "HarnessFlow — a three-layer skill suite for stable AI coding: main-chain discipline (SDD + TDD), mechanical gates (evidence logs + stage adjudication), and pluggable ext-* domain extensions."
   },
   "plugins": [
     {
@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow v2.0.0: 6 core skills own the main chain specify -> review -> design -> review -> tdd -> review -> ship (hf-workflow entry + state recovery, hf-specify, hf-design, hf-review with three stage checklists, hf-tdd, hf-ship). Domain skills plug in as ext-* extensions loaded per stage (ext-ui-design and ext-cpp ship as seeds). All process state lives in features/<NNN>-<slug>/ artifacts; author/reviewer separation and stage gates are hard rules."
+      "description": "HarnessFlow v3.0.0: 7 core skills own the risk-tiered main chain frame -> plan -> build -> verify -> ship (hf-workflow entry, hf-frame with environment baseline, hf-plan, hf-build TDD, hf-verify runtime smoke, hf-review with independent-context discipline, hf-ship). A stdlib-only mechanical gate (skills/hf-workflow/scripts/hf_gate.py) produces tamper-evident evidence logs and adjudicates every stage transition from files, verdict lines, exit codes and timestamps. Domain skills plug in as ext-* extensions loaded per stage (ext-ui-design and ext-cpp ship as seeds)."
     }
   ]
 }

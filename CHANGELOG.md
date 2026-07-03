@@ -6,7 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v2.0.0 已切版；下一版本切片前，新增内容写在此处）
+（empty — v3.0.0 已切版；下一版本切片前，新增内容写在此处）
+
+## [3.0.0] - 2026-07-03
+
+> **执行基底重写。** v2 的门禁全部是"模型写下的散文"（评审结论、确认行、任务勾选、测试摘要），会写假测试的模型同样会写假的"结论: 通过"。v3 保留三层结构与主链纪律，把执行基底从"纪律靠文本约定"换成"纪律靠证据文件 + 机械校验"：新主链 `frame → plan → build → verify → ship`，新增机械门禁脚本 `hf_gate.py`（证据日志 + 阶段推进裁决），流程开销按风险三档缩放。核心技能 6 → 7。
+
+### Added
+
+- **`skills/hf-workflow/scripts/hf_gate.py`** — stdlib-only 机械门禁，两个子命令：`run` 包装执行命令并把原始输出、命令、时间戳、退出码落盘为 `evidence/<label>-<ts>.log`（测试/构建/冒烟证据的唯一合法产生方式）；`check --to <plan|design|build|verify|ship>` 依据文件存在性、评审结论行、red/green 日志退出码、时间戳新旧机械裁决阶段推进。机械拦截的造假模式：无失败记录的 RED、最新一份仍失败的 GREEN、改代码后未重跑的 suite、缺失冒烟证据、降级评审 auto-approved 自我确认。配 30 个 stdlib unittest（`test_hf_gate.py`，先红后绿产出）。脚本放在 `skills/` 内随 vendoring 走（吸取 v0.5.1 ADR-006 教训）。
+- **`hf-frame`（新阶段技能）** — 主链入口：一页 frame.md 定格意图、定风险档位（1 微改 / 2 标准 / 3 高危，判据表 + 理由落盘、评审复核）、建环境基线（用 `hf_gate.py run --label baseline` 真实运行全量测试；基线跑不通则"恢复可验证性"优先，之前一切 TDD 证据不成立）。
+- **风险分级** — 流程开销随爆炸半径缩放：档位 1 走 frame → build → verify → ship；档位 2（默认）单份 plan.md 一轮评审；档位 3（数据迁移/安全面/跨模块/破坏性接口）才拆分 spec.md + design.md 三轮评审。替代 v2 "微小改动轻量通道 + 其余一律全流程"的二分。
+- **`hf-verify`（新阶段技能）** — 三层验证：运行时冒烟（真实运行最薄端到端路径并留证——单测全绿 ≠ 产品稳定，主链硬门禁而非 UI 扩展赠品）、独立代码评审（评审者必须自己重跑测试、自己读 git diff，不采信 progress.md 叙述）、`gate check --to ship` 机械收口。
+
+### Changed
+
+- **`hf-review` 独立性收紧** — 评审只承认 subagent / 全新会话两种完整效力方式；v2 的"主会话冷读"降级为：结论只能是"待独立复核/需修改"、不得给"通过"、interactive 下由用户裁决、auto 下是硬停点、确认行禁止 auto-approved（gate 机械拦截）。评审记录增加机器可读行 `- 评审方式:`。checklist 从 spec/design/code 三份调整为 requirements/design/code 三份，requirements+design 复用于档位 2 的 plan.md 单轮评审；新增反幻觉检查段与风险档位复核项。
+- **`hf-specify` + `hf-design` → `hf-plan`** — 合并为单一计划技能：档位 2 产出一份 plan.md（需求+设计+任务清单），档位 3 维持 spec/design 分离与两轮评审。新增**禁止槽位幻觉**规则：模板任何小节可写"不适用: 理由"，严禁为填模板发明需求、约束或数字；NFR 必须有真实出处（用户原话/既有 SLA/现存问题）。任务清单改为机器可读 checkbox 格式（`- [ ] T-1 ...`），勾选状态唯一事实源（progress.md 不再复制任务状态，消除 v2 双写）。
+- **`hf-tdd` → `hf-build`** — 红绿重构循环不变，新增第二条铁律"没有 evidence/ 日志，就没有发生过测试运行"：RED 与 GREEN 每次运行经 `hf_gate.py run --label t<N>-{red,green}` 落盘（RED 须 exit 非 0 且失败原因是行为缺失；GREEN 校验最新一份日志；重构改代码必须重跑留证），红绿转换首次可事后审计。
+- **状态恢复机制** — 从 v2 的"工件存在性对照表"改为"按阶段依次运行 `gate check`，第一个 FAIL 即当前阶段，FAIL 明细即待办清单"。
+- **auto 模式底线** — v2 auto 下整条链是模型自言自语；v3 auto 下评审必须 subagent/新会话（降级评审硬停等用户），gate check 不可绕过，确认行 auto-approved 仅在评审方式非降级时合法。
+- **`ext-ui-design`** — 绑定阶段 design/tdd → plan/build/verify；verify 阶段要求真实渲染证据（截图入 evidence/ 或渲染检查经 gate run 落盘）。**`ext-cpp`** — 绑定阶段 tdd → build。扩展编写指南同步 v3 阶段名，新增"扩展证据一律走 hf_gate.py run"约束。
+- **`scripts/validate_skills.py`** — ext 绑定阶段只允许 frame/plan/build/verify/ship 五个合法阶段名；backtick 引用校验扩展到 `skills/*/scripts/*` 路径。
+- **Cursor 规则、README、README.zh-CN、CONTRIBUTING、插件元数据** — 全部按 v3 结构重写/同步。
+
+### Removed
+
+- **`hf-specify`、`hf-design`、`hf-tdd` 技能目录** — 职责由 `hf-frame`、`hf-plan`、`hf-build` 承接（模板迁至 `skills/hf-plan/references/`）。
+- **`spec-checklist.md`** — 由 `requirements-checklist.md` 取代（适用于 spec.md 或 plan.md 需求章节）。
+- **NFR 无条件量化要求** — v2 模板强制每条 NFR 有阈值，实际效果是逼模型编造"P95 < 200ms"式幻觉数字；v3 改为"仅当有真实来源时才写 NFR，写则必须给出处"。
 
 ## [2.0.0] - 2026-07-02
 
@@ -508,7 +536,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/hujianbest/harness-flow/releases/tag/v3.0.0
 [0.5.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.1
 [0.5.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.0
 [0.4.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.4.0
