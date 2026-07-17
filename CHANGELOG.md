@@ -6,7 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v3.0.0 已切版；下一版本切片前，新增内容写在此处）
+（empty — v3.1.0 已切版；下一版本切片前，新增内容写在此处）
+
+## [3.1.0] - 2026-07-17
+
+### Added
+
+- **Cursor/OpenCode install scripts** — added stdlib-only `scripts/install.py` with `--target cursor|opencode|both` and `--mode copy|symlink`. Cursor installs write `.cursor/harness-flow-skills/` plus a path-rewritten `.cursor/rules/harness-flow.mdc`; OpenCode installs sync HarnessFlow skills into `.opencode/skills/` while preserving user-defined skills.
+- **Thin wrappers** — added `install.sh` and `install.ps1` so users can install without remembering the Python script path.
+
+### Changed
+
+- **README / README.zh-CN / plugin metadata** — documented the installer commands and bumped release metadata to v3.1.0.
 
 ## [3.0.0] - 2026-07-03
 
@@ -536,7 +547,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/hujianbest/harness-flow/releases/tag/v3.0.0
 [0.5.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.1
 [0.5.0]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.0

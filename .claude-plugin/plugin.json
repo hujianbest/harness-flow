@@ -1,7 +1,7 @@
 {
   "name": "harness-flow",
   "description": "HarnessFlow — a three-layer skill suite for stable AI coding: main-chain discipline (SDD + TDD) along frame -> plan -> build -> verify -> ship, mechanical gates (hf_gate.py evidence logs + stage adjudication), and pluggable ext-* domain extensions.",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "author": {
     "name": "hujianbest"
   },

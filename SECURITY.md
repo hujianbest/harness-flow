@@ -2,10 +2,11 @@
 
 ## Scope
 
-HarnessFlow is a Markdown-based skill suite for AI coding agents. It does **not** ship runtime code that touches user machines, networks, or data on its own — agents that load these skills do. The security surface that this policy covers is therefore narrow:
+HarnessFlow is a Markdown-based skill suite for AI coding agents plus a small stdlib-only installer and validation toolchain. The security surface that this policy covers is narrow:
 
 - Skill content authored under `skills/` (core `hf-*` skills and `ext-*` extensions)
 - The `skills/hf-workflow/scripts/hf_gate.py` mechanical gate script (it executes user-supplied commands via its `run` subcommand and writes logs into the feature directory)
+- The `scripts/install.py` installer and its writes into HarnessFlow-managed `.cursor/` and `.opencode/` paths in a user-selected project
 - The `scripts/validate_skills.py` validation script
 - The `.claude-plugin/` plugin manifest registered with Claude Code's marketplace
 - The `.cursor/rules/harness-flow.mdc` rule loaded by Cursor's rules system
@@ -14,11 +15,12 @@ Runtime behavior of any agent (Claude Code, OpenCode, Cursor, etc.) that loads H
 
 ## Supported Versions
 
-HarnessFlow follows SemVer. `v3.0.0` is the current stable release (see [`CHANGELOG.md`](CHANGELOG.md)).
+HarnessFlow follows SemVer. `v3.1.0` is the current stable release (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 | Version | Supported for security fixes |
 |---|---|
-| `3.0.x` (current stable) | Supported; fixes shipped via patch releases on the `main` branch |
+| `3.1.x` (current stable) | Supported; fixes shipped via patch releases on the `main` branch |
+| `3.0.x` | Security-only; users encouraged to upgrade to `3.1.x` |
 | `2.0.x` and older | Best-effort, security-only; users encouraged to upgrade to `3.0.x` |
 
 ## Reporting a Vulnerability

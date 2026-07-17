@@ -1,0 +1,30 @@
+# hf-gate-run
+# label: t4-red
+# command: python -m unittest tests.test_install.InstallWrapperAndSymlinkTests
+# started: 2026-07-17T09:22:12+00:00
+EF
+======================================================================
+ERROR: test_both_target_symlinks_cursor_and_opencode_skills (tests.test_install.InstallWrapperAndSymlinkTests.test_both_target_symlinks_cursor_and_opencode_skills)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\workspace\harness-flow\tests\test_install.py", line 55, in test_both_target_symlinks_cursor_and_opencode_skills
+    install.install(target="both", dest=dest, mode="symlink", source=ROOT)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\harness-flow\scripts\install.py", line 21, in install
+    raise ValueError(f"unsupported target: {target}")
+ValueError: unsupported target: both
+
+======================================================================
+FAIL: test_wrapper_scripts_delegate_to_python_installer (tests.test_install.InstallWrapperAndSymlinkTests.test_wrapper_scripts_delegate_to_python_installer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\workspace\harness-flow\tests\test_install.py", line 69, in test_wrapper_scripts_delegate_to_python_installer
+    self.assertTrue(shell_wrapper.is_file())
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.006s
+
+FAILED (failures=1, errors=1)
+# exit: 1

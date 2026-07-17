@@ -1,0 +1,14 @@
+# hf-gate-run
+# label: suite
+# command: cmd /c python scripts\validate_skills.py && python -m unittest skills\hf-workflow\scripts\test_hf_gate.py tests.test_install
+# started: 2026-07-17T09:28:33+00:00
+OK: 9 skills validated (ext-cpp, ext-ui-design, hf-build, hf-frame, hf-plan, hf-review, hf-ship, hf-verify, hf-workflow)
+.............................usage: hf_gate.py check [-h] --feature FEATURE
+                        --to {plan,design,build,verify,ship}
+hf_gate.py check: error: argument --to: invalid choice: 'nonsense' (choose from plan, design, build, verify, ship)
+......
+----------------------------------------------------------------------
+Ran 35 tests in 1.011s
+
+OK
+# exit: 0

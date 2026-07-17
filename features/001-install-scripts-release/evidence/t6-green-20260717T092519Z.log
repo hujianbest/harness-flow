@@ -1,0 +1,5 @@
+# hf-gate-run
+# label: t6-green
+# command: python -c import json, subprocess, sys, tempfile; from pathlib import Path; root=Path.cwd(); dest=Path(tempfile.mkdtemp())/'project'; subprocess.check_call([sys.executable, str(root/'scripts'/'install.py'), '--target', 'both', '--dest', str(dest)]); assert (dest/'.cursor'/'rules'/'harness-flow.mdc').is_file(); assert (dest/'.cursor'/'harness-flow-skills'/'hf-workflow'/'SKILL.md').is_file(); assert (dest/'.opencode'/'skills'/'hf-workflow'/'SKILL.md').is_file(); assert json.loads((root/'.claude-plugin'/'plugin.json').read_text(encoding='utf-8'))['version'] == '3.1.0'; assert '[3.1.0]' in (root/'CHANGELOG.md').read_text(encoding='utf-8')
+# started: 2026-07-17T09:25:19+00:00
+# exit: 0

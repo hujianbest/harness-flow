@@ -1,0 +1,9 @@
+# hf-gate-run
+# label: baseline
+# command: cmd /c python scripts\validate_skills.py && python -m unittest skills\hf-workflow\scripts\test_hf_gate.py
+# started: 2026-07-07T14:11:56+00:00
+FAIL: 3 violation(s)
+  - hf-closeout: missing SKILL.md
+  - hf-quality-gate: missing SKILL.md
+  - hf-spec: missing SKILL.md
+# exit: 1

@@ -62,11 +62,21 @@ To write your own, see [extension authoring](skills/hf-workflow/references/exten
 
 ## Install
 
-HarnessFlow is plain Markdown plus one stdlib-only Python script (it travels inside `skills/`, zero dependencies). Copy (or submodule) this repo's `skills/` directory into your project, then wire up your client:
+HarnessFlow is plain Markdown plus stdlib-only Python scripts (they travel inside this repo, zero dependencies). The recommended path for Cursor and OpenCode is the installer:
 
-- **Cursor**: also copy `.cursor/rules/harness-flow.mdc` into your project's `.cursor/rules/`. The rule loads `hf-workflow` on every development task.
+```bash
+python scripts/install.py --target cursor --dest /path/to/project
+python scripts/install.py --target opencode --dest /path/to/project
+python scripts/install.py --target both --dest /path/to/project
+./install.sh --target both --dest /path/to/project
+./install.ps1 -Target both -Dest C:\path\to\project
+```
+
+By default the installer copies HarnessFlow assets. Add `--mode symlink` (or `-Mode symlink` in PowerShell) when you want the target project to follow this checkout.
+
+- **Cursor**: installs vendored skills under `.cursor/harness-flow-skills/` and writes `.cursor/rules/harness-flow.mdc` with paths rewritten for that layout.
 - **Claude Code**: install as a plugin (`/plugin marketplace add <this repo>`), or vendor `skills/` into your project — skills are discovered by their frontmatter descriptions.
-- **OpenCode / other clients**: point the client's skill directory at `skills/` (this repo keeps `.opencode/skills` as a symlink for that purpose).
+- **OpenCode / other clients**: installs HarnessFlow skills under `.opencode/skills/` while preserving any user-defined skills already there.
 
 Then just ask for work naturally: *"Use HarnessFlow: I want to add rate limiting to the notifications API."* The agent enters `hf-workflow`, recovers the stage via the gate, and proceeds.
 

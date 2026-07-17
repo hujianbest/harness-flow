@@ -62,11 +62,21 @@ gate 机械拦截的典型造假:没有失败记录的"红"、最新一次仍是
 
 ## 安装
 
-HarnessFlow 是纯 Markdown + 一个 stdlib Python 脚本(随 `skills/` 一起走,无任何依赖)。把本仓库的 `skills/` 目录复制(或以 submodule 引入)到你的项目,再接好客户端:
+HarnessFlow 是纯 Markdown + stdlib Python 脚本(随仓库一起走,无任何依赖)。Cursor 和 OpenCode 推荐直接使用安装器:
 
-- **Cursor**:同时把 `.cursor/rules/harness-flow.mdc` 复制到项目的 `.cursor/rules/`,该规则会在每个开发任务时加载 `hf-workflow`。
+```bash
+python scripts/install.py --target cursor --dest /path/to/project
+python scripts/install.py --target opencode --dest /path/to/project
+python scripts/install.py --target both --dest /path/to/project
+./install.sh --target both --dest /path/to/project
+./install.ps1 -Target both -Dest C:\path\to\project
+```
+
+默认安装方式是复制 HarnessFlow 资产。需要目标项目跟随当前 checkout 时,可追加 `--mode symlink`(PowerShell 使用 `-Mode symlink`)。
+
+- **Cursor**:安装到 `.cursor/harness-flow-skills/`,并写入路径已重写的 `.cursor/rules/harness-flow.mdc`。
 - **Claude Code**:作为插件安装(`/plugin marketplace add <本仓库>`),或直接 vendor `skills/`——技能靠 frontmatter description 被发现。
-- **OpenCode / 其他客户端**:把客户端的技能目录指向 `skills/`(本仓库的 `.opencode/skills` 就是这样一个符号链接)。
+- **OpenCode / 其他客户端**:安装到 `.opencode/skills/`,并保留用户已经放在该目录下的自定义 skills。
 
 然后自然地提需求即可:"用 HarnessFlow:我要给通知 API 加限流。" 代理会进入 `hf-workflow`,用 gate 恢复阶段并推进。
 

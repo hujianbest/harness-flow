@@ -1,0 +1,25 @@
+# hf-gate-run
+# label: baseline
+# command: powershell -NoProfile -Command python scripts/validate_skills.py; if ( -ne 0) { exit  }; python -m unittest skills/hf-workflow/scripts/test_hf_gate.py
+# started: 2026-07-07T14:11:33+00:00
+FAIL: 3 violation(s)
+  - hf-closeout: missing SKILL.md
+  - hf-quality-gate: missing SKILL.md
+  - hf-spec: missing SKILL.md
+-ne : 无法将“-ne”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确，然后再
+试一次。
+所在位置 行:1 字符: 41
++ python scripts/validate_skills.py; if ( -ne 0) { exit  }; python -m u ...
++                                         ~~~
+    + CategoryInfo          : ObjectNotFound: (-ne:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+.............................usage: hf_gate.py check [-h] --feature FEATURE
+                        --to {plan,design,build,verify,ship}
+hf_gate.py check: error: argument --to: invalid choice: 'nonsense' (choose from plan, design, build, verify, ship)
+.
+----------------------------------------------------------------------
+Ran 30 tests in 0.919s
+
+OK
+# exit: 0

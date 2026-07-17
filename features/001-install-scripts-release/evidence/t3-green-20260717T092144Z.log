@@ -1,0 +1,10 @@
+# hf-gate-run
+# label: t3-green
+# command: python -m unittest tests.test_install.InstallCursorTests tests.test_install.InstallOpenCodeTests
+# started: 2026-07-17T09:21:44+00:00
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.289s
+
+OK
+# exit: 0
