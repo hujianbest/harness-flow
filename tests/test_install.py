@@ -20,14 +20,15 @@ class InstallCursorTests(unittest.TestCase):
             cursor_skills = dest / ".cursor" / "harness-flow-skills"
             rule = dest / ".cursor" / "rules" / "harness-flow.mdc"
 
-            self.assertTrue((cursor_skills / "hf-workflow" / "SKILL.md").is_file())
-            self.assertTrue((cursor_skills / "hf-workflow" / "scripts" / "hf_gate.py").is_file())
+            self.assertTrue((cursor_skills / "harness" / "SKILL.md").is_file())
+            self.assertTrue((cursor_skills / "harness" / "scripts" / "harness.py").is_file())
+            self.assertTrue((cursor_skills / "harness" / "references" / "building.md").is_file())
             self.assertTrue(rule.is_file())
 
             rule_text = rule.read_text(encoding="utf-8")
-            self.assertIn(".cursor/harness-flow-skills/hf-workflow/SKILL.md", rule_text)
-            self.assertIn(".cursor/harness-flow-skills/hf-workflow/scripts/hf_gate.py", rule_text)
-            self.assertNotIn("`skills/hf-workflow/SKILL.md`", rule_text)
+            self.assertIn(".cursor/harness-flow-skills/harness/SKILL.md", rule_text)
+            self.assertIn(".cursor/harness-flow-skills/harness/scripts/harness.py", rule_text)
+            self.assertNotIn("`skills/harness/SKILL.md`", rule_text)
 
 
 class InstallOpenCodeTests(unittest.TestCase):
@@ -43,8 +44,8 @@ class InstallOpenCodeTests(unittest.TestCase):
 
             opencode_skills = dest / ".opencode" / "skills"
 
-            self.assertTrue((opencode_skills / "hf-workflow" / "SKILL.md").is_file())
-            self.assertTrue((opencode_skills / "hf-workflow" / "scripts" / "hf_gate.py").is_file())
+            self.assertTrue((opencode_skills / "harness" / "SKILL.md").is_file())
+            self.assertTrue((opencode_skills / "harness" / "scripts" / "harness.py").is_file())
             self.assertTrue((opencode_skills / "custom-skill" / "SKILL.md").is_file())
 
 
@@ -55,8 +56,8 @@ class InstallWrapperAndSymlinkTests(unittest.TestCase):
 
             install.install(target="both", dest=dest, mode="symlink", source=ROOT)
 
-            cursor_skill = dest / ".cursor" / "harness-flow-skills" / "hf-workflow"
-            opencode_skill = dest / ".opencode" / "skills" / "hf-workflow"
+            cursor_skill = dest / ".cursor" / "harness-flow-skills" / "harness"
+            opencode_skill = dest / ".opencode" / "skills" / "harness"
 
             self.assertTrue(cursor_skill.is_symlink())
             self.assertTrue((cursor_skill / "SKILL.md").is_file())
@@ -74,7 +75,7 @@ class InstallWrapperAndSymlinkTests(unittest.TestCase):
 
 
 class ReleaseDocsTests(unittest.TestCase):
-    def test_release_docs_and_metadata_include_install_scripts(self):
+    def test_release_docs_and_metadata_are_consistent(self):
         plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
         marketplace = (ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -82,24 +83,21 @@ class ReleaseDocsTests(unittest.TestCase):
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
 
-        self.assertEqual("3.1.0", plugin["version"])
-        self.assertIn("HarnessFlow v3.1.0", marketplace)
-        self.assertIn("install.py", marketplace)
+        self.assertEqual("4.0.0", plugin["version"])
+        self.assertIn("HarnessFlow v4.0.0", marketplace)
+        self.assertIn("harness.py", marketplace)
 
-        self.assertIn("python scripts/install.py --target cursor", readme)
-        self.assertIn("python scripts/install.py --target opencode", readme)
-        self.assertIn("install.ps1 -Target both", readme)
+        for text in (readme, readme_zh):
+            self.assertIn("python scripts/install.py --target cursor", text)
+            self.assertIn("python scripts/install.py --target opencode", text)
+            self.assertIn("install.ps1 -Target both", text)
+            self.assertIn("skills/harness/scripts/harness.py", text)
 
-        self.assertIn("python scripts/install.py --target cursor", readme_zh)
-        self.assertIn("python scripts/install.py --target opencode", readme_zh)
-        self.assertIn("install.ps1 -Target both", readme_zh)
+        self.assertIn("## [4.0.0] - 2026-07-21", changelog)
+        self.assertIn("[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...HEAD", changelog)
+        self.assertIn("[4.0.0]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...v4.0.0", changelog)
 
-        self.assertIn("## [3.1.0] - 2026-07-17", changelog)
-        self.assertIn("install scripts", changelog)
-        self.assertIn("[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...HEAD", changelog)
-        self.assertIn("[3.1.0]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...v3.1.0", changelog)
-
-        self.assertIn("scripts/install.py", security)
+        self.assertIn("skills/harness/scripts/harness.py", security)
         self.assertIn(".cursor/", security)
         self.assertIn(".opencode/", security)
 
