@@ -1,6 +1,0 @@
-# hf-gate-run
-# label: smoke
-# command: python -c import subprocess, sys, tempfile; from pathlib import Path; root=Path.cwd(); dest=Path(tempfile.mkdtemp())/'project'; subprocess.check_call([sys.executable, str(root/'scripts'/'install.py'), '--target', 'both', '--dest', str(dest)]); assert (dest/'.cursor'/'rules'/'harness-flow.mdc').is_file(); assert (dest/'.cursor'/'harness-flow-skills'/'hf-workflow'/'scripts'/'hf_gate.py').is_file(); assert (dest/'.opencode'/'skills'/'hf-workflow'/'SKILL.md').is_file(); print(dest)
-# started: 2026-07-17T09:28:44+00:00
-C:\Users\ADMINI~1\AppData\Local\Temp\2\tmpiceah7lo\project
-# exit: 0
