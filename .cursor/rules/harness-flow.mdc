@@ -1,24 +1,20 @@
 ---
-description: HarnessFlow entry rule — load skills/hf-workflow/SKILL.md before any development task and follow its stage gates.
+description: HarnessFlow entry rule — load skills/harness/SKILL.md (the constitution) before any change to the product, and work freely within its invariants.
 alwaysApply: true
 ---
 
 # HarnessFlow on Cursor
 
-This workspace ships HarnessFlow: a three-layer skill suite for stable AI coding — main-chain discipline (SDD + TDD), mechanical gates, and pluggable domain extensions.
+This workspace ships HarnessFlow: a constraint-based workflow for building software products. It does not script your steps — it defines seven invariants, three user checkpoints, and a product truth layout, then leaves the method to you.
 
-## On every development task
+## On every task that changes the product
 
-1. Load `skills/hf-workflow/SKILL.md` first. It defines the main chain `frame → plan → build → verify → ship`, risk tiers, the artifact/evidence layout under `features/<NNN>-<slug>/`, and the mechanical gate `skills/hf-workflow/scripts/hf_gate.py`.
-2. Follow the skill for the current stage: `hf-frame`, `hf-plan`, `hf-build`, `hf-verify`, `hf-ship`, with `hf-review` at every review gate — read the stage skill's `SKILL.md` when you enter that stage.
-3. Before each stage, check `skills/ext-*/` descriptions and load extensions whose binding stage and trigger conditions match.
+1. Load `skills/harness/SKILL.md` first. It is the only binding document: invariants, checkpoints, the `product/` + `work/` truth layout, and the evidence protocol `skills/harness/scripts/harness.py`.
+2. Cold-start from disk: read `product/` (intent, state, decisions, backlog), then unfinished lines under `work/`. Chat history is scratch paper, not memory. If `product/` does not exist yet, run `harness.py init` and start from the intent checkpoint.
+3. Playbooks under `skills/harness/references/` (shaping, building, reviewing, releasing) are advice — deviating from them needs no approval; violating an invariant is never allowed.
 
-## Hard rules
+## The invariants, in one breath
 
-- Run `hf_gate.py check --to <stage>` before entering any stage and record the RESULT line in `progress.md`; a FAIL means you may not proceed.
-- Evidence is machine output only: every test/build/smoke run goes through `hf_gate.py run` into `features/<id>/evidence/`. Hand-writing or editing evidence logs is fabrication.
-- Author/reviewer separation: reviews run in a subagent or fresh session; a same-session (degraded) review may not verdict "通过" and may never self-approve.
-- One task at a time in the build stage; no implementation code before a failing test (red log with nonzero exit).
-- Recover state by probing `hf_gate.py check` per stage, not from chat memory.
+Truth lives on disk; claims need machine evidence (`harness.py run` into `work/<slug>/evidence/`, hand-editing logs is fabrication); a falsifiable success signal exists in `work/<slug>/signal.md` before the product changes; the verification entry in `product/state.md` always actually runs; the user owns what/whether (intent, tradeoffs, irreversible actions — the three checkpoints), you own how; nothing is declared done without an independent perspective (`work/<slug>/review.md`); prefer reversible moves.
 
-Pure Q&A or code-reading requests that produce no code changes do not need HarnessFlow.
+Pure Q&A or code-reading requests that change nothing do not need HarnessFlow.

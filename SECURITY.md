@@ -2,10 +2,10 @@
 
 ## Scope
 
-HarnessFlow is a Markdown-based skill suite for AI coding agents plus a small stdlib-only installer and validation toolchain. The security surface that this policy covers is narrow:
+HarnessFlow is a Markdown-based constitution for AI coding agents plus a small stdlib-only toolchain. The security surface that this policy covers is narrow:
 
-- Skill content authored under `skills/` (core `hf-*` skills and `ext-*` extensions)
-- The `skills/hf-workflow/scripts/hf_gate.py` mechanical gate script (it executes user-supplied commands via its `run` subcommand and writes logs into the feature directory)
+- Skill content authored under `skills/` (the `harness` constitution and its `references/` playbooks)
+- The `skills/harness/scripts/harness.py` evidence protocol script (it executes user-supplied commands via its `run` subcommand and writes logs into `work/<slug>/evidence/`)
 - The `scripts/install.py` installer and its writes into HarnessFlow-managed `.cursor/` and `.opencode/` paths in a user-selected project
 - The `scripts/validate_skills.py` validation script
 - The `.claude-plugin/` plugin manifest registered with Claude Code's marketplace
@@ -15,13 +15,12 @@ Runtime behavior of any agent (Claude Code, OpenCode, Cursor, etc.) that loads H
 
 ## Supported Versions
 
-HarnessFlow follows SemVer. `v3.1.0` is the current stable release (see [`CHANGELOG.md`](CHANGELOG.md)).
+HarnessFlow follows SemVer. `v4.0.0` is the current stable release (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 | Version | Supported for security fixes |
 |---|---|
-| `3.1.x` (current stable) | Supported; fixes shipped via patch releases on the `main` branch |
-| `3.0.x` | Security-only; users encouraged to upgrade to `3.1.x` |
-| `2.0.x` and older | Best-effort, security-only; users encouraged to upgrade to `3.0.x` |
+| `4.0.x` (current stable) | Supported; fixes shipped via patch releases on the `main` branch |
+| `3.1.x` and older | Best-effort, security-only; users encouraged to upgrade to `4.0.x` |
 
 ## Reporting a Vulnerability
 
@@ -45,7 +44,7 @@ The following are **not** security issues for this repository, even though they 
 
 - An agent (Claude Code, OpenCode, Cursor, etc.) misinterpreting a skill or producing unsafe code at runtime — that is an agent-vendor or user-prompt issue.
 - A user vendoring HarnessFlow into a private workspace and then exposing secrets via their own configuration.
-- The fact that HarnessFlow deliberately stops at engineering delivery (`hf-ship`) and ships no deployment / monitoring / rollback skills. This is a documented scope choice, not a security gap.
+- The evidence hash in `harness.py` logs being reproducible by a determined forger. The hash exists to make *careless* tampering loudly visible, not to be a cryptographic signature; semantic honesty is owned by the independent-perspective invariant.
 
 ## Coordination
 

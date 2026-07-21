@@ -1,27 +1,27 @@
 # Contributing to HarnessFlow
 
-HarnessFlow is a small, deliberately minimal skill suite: 7 core skills own the main chain (`frame → plan → build → verify → ship`, with `hf-review` at every gate), one stdlib-only gate script (`skills/hf-workflow/scripts/hf_gate.py`) owns mechanical enforcement, and everything domain-specific belongs in `ext-*` extensions.
+HarnessFlow is deliberately minimal: one binding constitution (`skills/harness/SKILL.md`, under 120 lines) defines seven invariants and three user checkpoints; one stdlib-only script (`skills/harness/scripts/harness.py`) owns the evidence protocol; four advisory playbooks live in `skills/harness/references/`. Everything else — stages, templates, tier tables, routers — was removed on purpose in v4.
 
 ## What lands easily
 
-- Bug fixes: broken links, typos, factual errors in `SKILL.md` files, gate script bugs (with a failing test first).
-- New `ext-*` extensions that follow [the authoring guide](skills/hf-workflow/references/extension-authoring.md): declare binding stages (frame/plan/build/verify/ship) + trigger conditions in the description, only tighten (never relax) main-chain gates, keep the body ≤ 150 lines.
-- Sharper checklist items in `skills/hf-review/references/` backed by a real failure they would have caught.
-- New mechanical checks in `hf_gate.py` that catch a real fabrication pattern — must come with unit tests in `skills/hf-workflow/scripts/test_hf_gate.py`.
+- Bug fixes: broken links, typos, factual errors in skill files, `harness.py` bugs (with a failing test first in `test_harness.py`).
+- Sharper playbook advice in `skills/harness/references/` backed by a real failure it would have prevented. Playbooks are advisory, so they can grow more freely than the constitution.
+- Better wording of an existing invariant or checkpoint that keeps its meaning but improves decidability.
 
 ## What needs an issue first
 
-- New core skills or changes to the main chain. The 7-skill shape is intentional — most "missing stage" proposals are better expressed as an extension, a checklist item, or a gate check.
-- Anything that adds meta-machinery (routers, profiles, state schemas). HarnessFlow v2 removed these on purpose and v3 kept them out.
-- Gate checks that require non-stdlib dependencies. The gate script must stay stdlib-only so it travels with `skills/`.
+- Adding, removing, or materially changing an invariant or checkpoint. The seven-plus-three shape is the product; most proposals are better expressed as playbook advice.
+- Anything that reintroduces step control: stage gates, mandatory templates, risk tier tables, per-step approvals. v4's core claim is that these are the wrong constraints.
+- New subcommands or checks in `harness.py` that adjudicate process rather than record evidence. The script records; it does not judge.
+- Non-stdlib dependencies anywhere. Scripts must travel with `skills/` dependency-free.
 
 ## Quality bar for edits
 
-- Frontmatter: `name` matches the directory; `description` says what the skill does **and** when to use it.
-- Keep `SKILL.md` bodies short (core ≤ 200 lines, extensions ≤ 150); move heavy reference material to `references/`.
-- Rules must be decidable ("acceptance criteria in Given/When/Then") rather than aspirational ("write good requirements").
-- Run `python3 scripts/validate_skills.py` and `python3 skills/hf-workflow/scripts/test_hf_gate.py` before opening a PR; paste the output in the PR description.
-- Test behavior, not prose: give an agent a realistic task with your changed skill and confirm it follows the rule; ideally also confirm it fails without the change.
+- Frontmatter: `name` matches the directory; `description` says what the skill does **and** when to load it.
+- The constitution body stays ≤ 120 lines; heavy material moves to `references/`.
+- Constraints must be decidable ("evidence log exists with exit code 0") rather than aspirational ("test thoroughly").
+- Run `python3 scripts/validate_skills.py`, `python3 skills/harness/scripts/test_harness.py` and `python3 -m unittest discover tests` before opening a PR; paste the output in the PR description.
+- Test behavior, not prose: give an agent a realistic task with your changed skill and confirm the constraint holds; ideally also confirm it fails without the change.
 
 ## Process
 

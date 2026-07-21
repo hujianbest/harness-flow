@@ -1,7 +1,7 @@
 {
   "name": "harness-flow",
-  "description": "HarnessFlow — a three-layer skill suite for stable AI coding: main-chain discipline (SDD + TDD) along frame -> plan -> build -> verify -> ship, mechanical gates (hf_gate.py evidence logs + stage adjudication), and pluggable ext-* domain extensions.",
-  "version": "3.1.0",
+  "description": "HarnessFlow — a constraint-based workflow for building software products with AI agents: seven invariants (truth on disk, claims need machine evidence, signal before build, green trunk, layered decision rights, independent perspective, reversibility first), three user checkpoints (intent / tradeoff / release), a product truth layout (product/ + work/), and the stdlib-only evidence protocol harness.py. Method is deliberately unprescribed — good workflows emerge inside the constraints.",
+  "version": "4.0.0",
   "author": {
     "name": "hujianbest"
   },

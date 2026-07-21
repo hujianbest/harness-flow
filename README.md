@@ -2,67 +2,72 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**A three-layer skill suite that drives AI coding agents toward stable delivery: main-chain discipline (SDD + TDD) + mechanical gates + pluggable domain extensions.**
+**A constraint-based workflow for building software products with AI agents: seven invariants, three user checkpoints, a product truth layout on disk — and full freedom of method inside those walls.**
 
-Core assumption: **the model is the least reliable component in the system.** A model that writes fake tests will just as happily write a fake "review passed". So HarnessFlow v3 does not entrust discipline to the model's goodwill — every gate that can be decided mechanically is decided by a script; every "tests pass / it runs" claim must be backed by raw command output on disk; every review must happen in an independent context that never saw the author's reasoning.
+HarnessFlow v4 is built on one first-principles observation: **constrain where verification is cheap, free where verification is expensive.** Whether a file exists on disk, whether a command exited 0, whether the user approved a decision — cheap to verify, so these become hard constraints. Whether the agent planned in the "right" order, used the "right" template, followed step 3.2 — expensive to verify and barely correlated with product quality, so v4 deliberately does not prescribe any of it. Given the right constraints, good ways of working emerge on their own; nobody needs to script them.
 
-1. **Layer 1 — main-chain discipline**: `frame → plan → build → verify → ship`, spec-driven + test-driven, with process overhead scaled by risk tier.
-2. **Layer 2 — mechanical gates**: `hf_gate.py` adjudicates stage transitions from files, verdict lines, exit codes and timestamps; evidence can only be produced by wrapping real command runs.
-3. **Layer 3 — extensions**: domain skills (UI design, language standards, …) load into the main chain per stage; they may only tighten, never relax.
+## The seven invariants
 
-## The main chain and risk tiers
+The constitution ([skills/harness/SKILL.md](skills/harness/SKILL.md)) is the only binding document. At any moment, restoring a violated invariant is the highest-priority work:
+
+1. **Truth lives on disk.** Every persistent fact about the product — intent, state, decisions, evidence — lives in `product/` and `work/` files. Chat is scratch paper; any new session cold-starts from disk alone.
+2. **Claims need evidence.** Every "it works / tests pass / it's fixed" must point to machine output produced by `harness.py run`, with a reproducible command. A claim without evidence did not happen.
+3. **Signal before build.** Before the product changes, a falsifiable success signal exists in `work/<slug>/signal.md`. Its form is free — tests, smoke scripts, checkable UI states — but it precedes the implementation.
+4. **The trunk stays green.** The verification entry recorded in `product/state.md` actually runs at all times. If it breaks, fixing it beats all new work.
+5. **Decision rights are layered.** The user owns *what and whether* (intent, tradeoffs, external commitments, irreversible actions); the agent owns *how* (design, tools, order, method) and records significant choices in `product/decisions.md`. When ownership is unclear, it belongs to the user.
+6. **Independent perspective.** Nothing is declared done until a perspective that did not produce it has examined it — a fresh-context review or the user — with the verdict in `work/<slug>/review.md`. Authors don't grade their own homework.
+7. **Reversibility first.** Prefer rollbackable paths; irreversible actions must pass the release checkpoint.
+
+## The three checkpoints (all of user sovereignty)
+
+| Checkpoint | When | What the agent brings |
+|---|---|---|
+| Intent | starting a product, or materially changing `product/intent.md` | the intent draft/diff, awaiting confirmation |
+| Tradeoff | a choice will change user-visible behavior or conflicts with intent | options + a recommendation, awaiting the pick |
+| Release | before anything irreversible or external | action + evidence + rollback plan, awaiting go |
+
+Outside these three, the agent never asks permission — it acts. In auto mode the agent may exercise intent/tradeoff on the user's behalf per `intent.md` (recorded in `decisions.md`); the release checkpoint always waits for the user.
+
+## Product truth layout
 
 ```
-frame → plan → build → verify → ship
+product/
+  intent.md     who it's for, what problem, success markers, explicit non-goals — user-owned
+  state.md      what the product does now, how to run it, the verification entry, known issues
+  decisions.md  append-only decision log (date, decision, why, reversibility)
+  backlog.md    candidate work and open questions
+work/<slug>/    one directory per line of work
+  signal.md     the falsifiable success signal (exists before implementation)
+  evidence/     machine output from harness.py run (hand-editing = fabrication)
+  review.md     the independent perspective's verdict
 ```
 
-| Stage | Skill | Output | Gate |
-|-------|-------|--------|------|
-| Frame | `hf-frame` | `frame.md` — intent, risk tier, environment baseline evidence | `gate check` |
-| Plan | `hf-plan` | `plan.md` (tier 2) or `spec.md` + `design.md` (tier 3) | independent review + user confirmation + `gate check` |
-| Build | `hf-build` | code + tests, one task at a time, red→green→refactor with per-task logs | all tasks checked + `gate check` |
-| Verify | `hf-verify` | runtime smoke evidence + independent code review | `gate check` |
-| Ship | `hf-ship` | acceptance traced to every requirement, closeout report | all criteria closed |
+No file has a required internal format — write for the next cold-starting reader, not for a template.
 
-Process overhead scales with risk: **tier 1** (micro changes) runs frame → build → verify → ship; **tier 2** (default) uses a single `plan.md`; only **tier 3** (data / security / cross-module) splits spec from design with three review rounds. Under-tiering is a blocking review finding.
+## The evidence protocol
 
-All artifacts and evidence live in `features/<NNN>-<slug>/` (`frame.md`, `plan.md`, `progress.md`, `evidence/`, `reviews/`). Any new session recovers the current stage by probing with `gate check` — never from chat memory.
-
-## Mechanical gates
+One stdlib-only script, [skills/harness/scripts/harness.py](skills/harness/scripts/harness.py), which records but never adjudicates:
 
 ```bash
-# Produce evidence — the only legitimate way to run tests/builds/smoke (raw output + exit code on disk):
-python3 skills/hf-workflow/scripts/hf_gate.py run --feature features/001-x --label t1-red -- pytest tests/
+# Create the product truth skeleton (never overwrites):
+python3 skills/harness/scripts/harness.py init
 
-# Check whether a stage transition is allowed (files, review verdicts, red/green logs, exit codes, timestamps):
-python3 skills/hf-workflow/scripts/hf_gate.py check --feature features/001-x --to build
+# Run any command that backs a claim; raw output + exit code + content hash land on disk:
+python3 skills/harness/scripts/harness.py run --work work/rate-limit --label signal-red -- pytest tests/
+
+# Verify evidence integrity (recomputed hash must match; careless tampering fails loudly):
+python3 skills/harness/scripts/harness.py check --work work/rate-limit
 ```
 
-Typical fabrications the gate blocks mechanically: a "red" with no failing run on record, a "green" whose latest run still fails, a full suite that was never rerun after the last change, missing smoke evidence, and a degraded (same-session) review auto-approving itself. The gate checks form only; semantic quality is owned by independent review — you need both.
+There is no `gate check --to <stage>` anymore — there are no stages. Risk scaling is emergent: a typo fix pays near-zero invariant cost; a data migration is naturally forced into specs, reviews and rollback plans by invariants 3, 6 and 7. That's a property of the constraint design, not a tier table.
 
-## Skills
+## Playbooks (advice, never law)
 
-| Skill | Role |
-|-------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry point: main chain, risk tiers, artifact/evidence layout, gate usage, state recovery, extension loading |
-| [hf-frame](skills/hf-frame/SKILL.md) | Pin down intent, risk tier, and the environment baseline (can this project actually be verified?) |
-| [hf-plan](skills/hf-plan/SKILL.md) | Testable requirements + design + machine-readable task list; template-slot hallucination forbidden |
-| [hf-build](skills/hf-build/SKILL.md) | Red-green-refactor per task, every run logged via `hf_gate.py run` (TDD) |
-| [hf-verify](skills/hf-verify/SKILL.md) | Three-layer verification: runtime smoke, independent code review, mechanical gate |
-| [hf-review](skills/hf-review/SKILL.md) | Review protocol: subagent/fresh-session only, degraded reviews cannot self-approve; code reviewers rerun tests themselves |
-| [hf-ship](skills/hf-ship/SKILL.md) | Final acceptance, docs, closeout |
-| [ext-ui-design](skills/ext-ui-design/SKILL.md) | Extension: UI features (IA, interaction states, design tokens, a11y, real-render evidence) |
-| [ext-cpp](skills/ext-cpp/SKILL.md) | Extension: C++ projects (GoogleTest discipline, RAII, test anti-patterns) |
-
-## Extensions (layer 3)
-
-Extensions live in `skills/ext-*/` and declare **binding stages** (a subset of frame/plan/build/verify/ship) and **trigger conditions** in their frontmatter description. Before each stage, `hf-workflow` scans them and loads the ones that match the current feature (e.g. "feature has a UI", "project is C++"). Extensions may only tighten requirements — they can never relax the main-chain gates.
-
-To write your own, see [extension authoring](skills/hf-workflow/references/extension-authoring.md).
+`skills/harness/references/` ships four playbooks: [shaping](skills/harness/references/shaping.md) (idea → intent.md), [building](skills/harness/references/building.md) (increments & signals), [reviewing](skills/harness/references/reviewing.md) (how independent review works), [releasing](skills/harness/references/releasing.md) (release & consolidation). Deviating from a playbook needs no approval; violating an invariant is never allowed.
 
 ## Install
 
-HarnessFlow is plain Markdown plus stdlib-only Python scripts (they travel inside this repo, zero dependencies). The recommended path for Cursor and OpenCode is the installer:
+HarnessFlow is plain Markdown plus one stdlib-only Python script. For Cursor and OpenCode use the installer:
 
 ```bash
 python scripts/install.py --target cursor --dest /path/to/project
@@ -72,26 +77,21 @@ python scripts/install.py --target both --dest /path/to/project
 ./install.ps1 -Target both -Dest C:\path\to\project
 ```
 
-By default the installer copies HarnessFlow assets. Add `--mode symlink` (or `-Mode symlink` in PowerShell) when you want the target project to follow this checkout.
+Add `--mode symlink` to have the target project follow this checkout.
 
-- **Cursor**: installs vendored skills under `.cursor/harness-flow-skills/` and writes `.cursor/rules/harness-flow.mdc` with paths rewritten for that layout.
-- **Claude Code**: install as a plugin (`/plugin marketplace add <this repo>`), or vendor `skills/` into your project — skills are discovered by their frontmatter descriptions.
-- **OpenCode / other clients**: installs HarnessFlow skills under `.opencode/skills/` while preserving any user-defined skills already there.
+- **Cursor**: installs skills under `.cursor/harness-flow-skills/` and writes a path-rewritten `.cursor/rules/harness-flow.mdc`.
+- **Claude Code**: install as a plugin (`/plugin marketplace add <this repo>`), or vendor `skills/`.
+- **OpenCode / others**: installs under `.opencode/skills/`, preserving user-defined skills.
 
-Then just ask for work naturally: *"Use HarnessFlow: I want to add rate limiting to the notifications API."* The agent enters `hf-workflow`, recovers the stage via the gate, and proceeds.
-
-## Execution modes
-
-- `interactive` (default): after plan-layer reviews pass, the agent shows the verdict and waits for your confirmation.
-- `auto`: say "auto mode / don't wait for me" and passing reviews + a passing gate advance automatically. Two hard floors remain: reviews must run in a subagent/fresh session (a degraded review is a hard stop in auto), and the gate can never be bypassed.
+Then just ask naturally: *"I want a CLI that publishes Markdown to my blog."* The agent loads the constitution, cold-starts from `product/`, and works freely within the invariants.
 
 ## Design principles
 
-- **Evidence is machine output.** "All tests green" is not evidence; a raw log with an exit code in `evidence/` is.
-- **Machines judge form, reviews judge substance.** Anything mechanically decidable is never left to the model's discipline; anything requiring judgment happens in a clean context.
-- **Process overhead scales with risk.** Micro changes don't pay the full-ceremony tax; risky changes can't escape three review rounds.
-- **Process lives on disk.** Verdicts, approvals, and evidence logs are files, so any session can cold-start.
-- **Extensions are conventions, not code.** Adding a domain skill never requires touching the main chain.
+- **Constrain outcomes, not steps.** The framework verifies what's cheap to verify (files, exit codes, user approvals) and stays silent about method.
+- **Evidence is machine output.** "All tests green" is prose; a hash-sealed log with an exit code is evidence.
+- **Sovereignty is enumerable.** Exactly three checkpoints belong to the user; everything else is the agent's to decide — which is what makes autonomy safe.
+- **Process overhead is emergent, not configured.** No risk tiers, no stage gates; the invariants price risk automatically.
+- **The whole law fits in one read.** One constitution under 120 lines; playbooks are optional reading.
 
 ## License
 

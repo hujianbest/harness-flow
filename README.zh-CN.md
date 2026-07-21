@@ -2,67 +2,72 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**驱动 AI 编码代理稳定交付的三层技能套件:主链纪律 (SDD + TDD) + 机械门禁 + 可插拔领域扩展。**
+**用约束涌现的方式与 AI 代理一起做软件产品：七条不变量、三个用户检查点、落盘的产品事实源——墙内方法完全自由。**
 
-核心假设:**模型是系统里最不可靠的组件。** 会写假测试的模型,同样会写假的"评审通过"。所以 HarnessFlow v3 不把纪律寄托在模型的自觉上——凡是能机械裁决的门禁,都交给脚本;凡是"测试通过/能运行"的声明,都必须有落盘的命令原始输出作证据;凡是评审,都必须发生在不带作者上下文的独立会话里。
+HarnessFlow v4 建立在一条第一性原理之上：**在验证便宜的地方设约束，在验证昂贵的地方给自由。** 文件是否在盘上、命令是否退出 0、用户是否批准了决定——验证便宜，所以成为硬约束；代理是否按"正确顺序"计划、是否用了"正确模板"、是否走了第 3.2 步——验证昂贵且与产品质量几乎无关，所以 v4 刻意一概不规定。约束选对了，好的工作方式会自己涌现，不需要有人替代理写剧本。
 
-1. **第一层 — 主链纪律**:`frame → plan → build → verify → ship`,规格驱动 + 测试驱动,流程开销随风险分级缩放。
-2. **第二层 — 机械门禁**:`hf_gate.py` 用文件、结论行、退出码、时间戳机械裁决阶段推进;证据只能由它包装真实命令产生。
-3. **第三层 — 扩展**:UI 设计、语言规范等 `ext-*` 领域技能按阶段加载进主链,只收紧、不放松。
+## 七条不变量
 
-## 主链与风险分级
+宪法（[skills/harness/SKILL.md](skills/harness/SKILL.md)）是唯一有约束力的文件。任何时刻违反任何一条，恢复它就是最优先的工作：
+
+1. **真相在盘上。** 关于产品的一切持久事实——意图、现状、决策、证据——存在于 `product/` 与 `work/` 的文件里。聊天是草稿纸；任何新会话只靠磁盘冷启动。
+2. **主张须有证据。** 任何"能用 / 通过 / 已修复"必须指向 `harness.py run` 产生的机器输出，附可复现命令。没有证据的主张视为未发生。
+3. **先立信号，后动产品。** 改产品之前，可证伪的成功信号已写在 `work/<slug>/signal.md`。形式自由——测试、冒烟脚本、可核对的界面状态——但必须先于实现存在。
+4. **主线常青。** `product/state.md` 记录的验证入口任何时刻真实可跑。它坏了，修它优先于一切新工作。
+5. **决策权分层。** 用户拥有"做什么、要不要"（意图、取舍、对外承诺、不可逆动作）；代理拥有"怎么做"（设计、工具、顺序、方法），重要选择记入 `product/decisions.md`。归属不明的决定归用户。
+6. **独立视角。** 未经"未参与产出的视角"检验（新上下文评审或用户），任何工作不得宣告完成，结论落盘 `work/<slug>/review.md`。作者不给自己的作业打分。
+7. **可逆优先。** 优先可回滚路径；不可逆动作必经放行检查点。
+
+## 三个检查点（用户主权的全部）
+
+| 检查点 | 触发时机 | 代理交出什么 |
+|---|---|---|
+| 意图 | 开始新产品，或实质改变 `product/intent.md` | intent 草稿或差异，等确认 |
+| 取舍 | 选择将改变用户可见行为，或与意图冲突 | 选项 + 推荐，等选择 |
+| 放行 | 任何不可逆或对外动作之前 | 动作 + 证据 + 回滚方案，等放行 |
+
+三个检查点之外，代理从不请求许可——直接做。自动模式下，意图与取舍可由代理按 intent.md 代行（记入 decisions.md）；放行永远等用户。
+
+## 产品事实源
 
 ```
-frame → plan → build → verify → ship
+product/
+  intent.md     为谁、解决什么、成功标志、明确不做什么 —— 用户主权文件
+  state.md      产品现在能做什么、如何运行、验证入口、已知问题
+  decisions.md  追加式决策日志（日期、决策、理由、可逆性）
+  backlog.md    候选工作与未决问题
+work/<slug>/    一条工作线一个目录
+  signal.md     可证伪的成功信号（先于实现存在）
+  evidence/     harness.py run 产生的机器输出（手工编辑 = 造假）
+  review.md     独立视角的检验结论
 ```
 
-| 阶段 | 技能 | 产出 | 门禁 |
-|------|------|------|------|
-| 定格 | `hf-frame` | `frame.md` — 意图、风险档位、环境基线证据 | `gate check` |
-| 计划 | `hf-plan` | `plan.md`(档位 2)或 `spec.md` + `design.md`(档位 3) | 独立评审 + 用户确认 + `gate check` |
-| 实现 | `hf-build` | 代码 + 测试,单任务红→绿→重构,逐任务 red/green 日志 | 任务全勾 + `gate check` |
-| 验证 | `hf-verify` | 运行时冒烟证据 + 独立代码评审 | `gate check` |
-| 交付 | `hf-ship` | 逐条需求验收闭环 + 收尾报告 | 验收标准全部闭合 |
+所有文件不限定内部格式——写给下一个冷启动的读者，而不是写给模板。
 
-流程开销随风险缩放:**档位 1**(微改)只走 frame → build → verify → ship;**档位 2**(默认)用一份 `plan.md`;**档位 3**(数据/安全/跨模块)才拆分 spec 与 design、走三轮评审。定错档会被评审打回。
+## 证据协议
 
-所有工件与证据放在 `features/<NNN>-<slug>/`(`frame.md`、`plan.md`、`progress.md`、`evidence/`、`reviews/`)。任何新会话用 `gate check` 逐阶段探测即可恢复进度——从不依赖聊天记忆。
-
-## 机械门禁
+唯一的脚本 [skills/harness/scripts/harness.py](skills/harness/scripts/harness.py)（纯 stdlib），只记录、不裁决：
 
 ```bash
-# 产生证据 —— 测试/构建/冒烟运行的唯一合法方式(原始输出 + 退出码落盘):
-python3 skills/hf-workflow/scripts/hf_gate.py run --feature features/001-x --label t1-red -- pytest tests/
+# 建立产品事实源骨架（从不覆盖已有文件）：
+python3 skills/harness/scripts/harness.py init
 
-# 校验能否进入目标阶段(文件、评审结论、红绿日志、退出码、时间戳全部机械判定):
-python3 skills/hf-workflow/scripts/hf_gate.py check --feature features/001-x --to build
+# 运行任何用于支撑主张的命令，原始输出 + 退出码 + 内容哈希落盘：
+python3 skills/harness/scripts/harness.py run --work work/rate-limit --label signal-red -- pytest tests/
+
+# 校验证据完整性（重算哈希必须匹配，随手篡改会被大声暴露）：
+python3 skills/harness/scripts/harness.py check --work work/rate-limit
 ```
 
-gate 机械拦截的典型造假:没有失败记录的"红"、最新一次仍是失败的"绿"、代码改完没重跑的全量测试、缺失的冒烟证据、降级评审给自己写 auto-approved。gate 只看形式,语义质量由独立评审把关——二者缺一不可。
+不再有 `gate check --to <stage>`——因为不再有阶段。风险缩放是涌现的：改 typo 时不变量成本近乎为零；数据迁移会被不变量 3、6、7 自然逼出规格、评审与回滚方案。这是约束设计的性质，不是档位表的条文。
 
-## 技能清单
+## 手册（建议，永远不是法律）
 
-| 技能 | 职责 |
-|------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口:主链、风险分级、工件与证据布局、gate 用法、状态恢复、扩展加载 |
-| [hf-frame](skills/hf-frame/SKILL.md) | 定格意图、定风险档位、建环境基线(项目能不能真实验证) |
-| [hf-plan](skills/hf-plan/SKILL.md) | 计划:可测需求 + 设计 + 机器可读任务清单;禁止槽位幻觉 |
-| [hf-build](skills/hf-build/SKILL.md) | 逐任务红-绿-重构,每次运行经 `hf_gate.py run` 留证 (TDD) |
-| [hf-verify](skills/hf-verify/SKILL.md) | 三层验证:运行时冒烟、独立代码评审、机械门禁收口 |
-| [hf-review](skills/hf-review/SKILL.md) | 评审协议:只承认 subagent/新会话,降级不得自我确认;代码评审者自己跑测试 |
-| [hf-ship](skills/hf-ship/SKILL.md) | 最终验收、文档、收尾 |
-| [ext-ui-design](skills/ext-ui-design/SKILL.md) | 扩展:UI 特性(信息架构、交互三态、design token、可访问性、真实渲染证据) |
-| [ext-cpp](skills/ext-cpp/SKILL.md) | 扩展:C++ 项目(GoogleTest 纪律、RAII、测试反模式) |
-
-## 扩展 (第三层)
-
-扩展放在 `skills/ext-*/`,在 frontmatter description 中声明**绑定阶段**(frame/plan/build/verify/ship 的子集)与**触发条件**。每个阶段开始前,`hf-workflow` 扫描扩展并加载与当前特性匹配的(如"特性含用户界面""项目是 C++")。扩展只能收紧要求——永远不能放松主链门禁。
-
-编写自己的扩展见 [扩展编写指南](skills/hf-workflow/references/extension-authoring.md)。
+`skills/harness/references/` 附四份手册：[塑形](skills/harness/references/shaping.md)（想法 → intent.md）、[构建](skills/harness/references/building.md)（增量与信号）、[评审](skills/harness/references/reviewing.md)（独立评审怎么做）、[放行](skills/harness/references/releasing.md)（发布与沉淀）。偏离手册不需要批准；违反不变量永远不行。
 
 ## 安装
 
-HarnessFlow 是纯 Markdown + stdlib Python 脚本(随仓库一起走,无任何依赖)。Cursor 和 OpenCode 推荐直接使用安装器:
+HarnessFlow 是纯 Markdown + 一个 stdlib Python 脚本。Cursor 与 OpenCode 推荐使用安装器：
 
 ```bash
 python scripts/install.py --target cursor --dest /path/to/project
@@ -72,26 +77,21 @@ python scripts/install.py --target both --dest /path/to/project
 ./install.ps1 -Target both -Dest C:\path\to\project
 ```
 
-默认安装方式是复制 HarnessFlow 资产。需要目标项目跟随当前 checkout 时,可追加 `--mode symlink`(PowerShell 使用 `-Mode symlink`)。
+追加 `--mode symlink` 可让目标项目跟随当前 checkout。
 
-- **Cursor**:安装到 `.cursor/harness-flow-skills/`,并写入路径已重写的 `.cursor/rules/harness-flow.mdc`。
-- **Claude Code**:作为插件安装(`/plugin marketplace add <本仓库>`),或直接 vendor `skills/`——技能靠 frontmatter description 被发现。
-- **OpenCode / 其他客户端**:安装到 `.opencode/skills/`,并保留用户已经放在该目录下的自定义 skills。
+- **Cursor**：安装到 `.cursor/harness-flow-skills/`，并写入路径已重写的 `.cursor/rules/harness-flow.mdc`。
+- **Claude Code**：作为插件安装（`/plugin marketplace add <本仓库>`），或直接 vendor `skills/`。
+- **OpenCode / 其他**：安装到 `.opencode/skills/`，保留用户自定义 skills。
 
-然后自然地提需求即可:"用 HarnessFlow:我要给通知 API 加限流。" 代理会进入 `hf-workflow`,用 gate 恢复阶段并推进。
-
-## 执行模式
-
-- `interactive`(默认):plan 层评审通过后,代理展示结论并等待你确认。
-- `auto`:说"自动执行/不用等我确认"后,评审通过 + gate PASS 即自动推进。两条底线不变:评审必须由 subagent/新会话执行(降级评审在 auto 下是硬停点),gate 不可绕过。
+然后自然地提需求即可："我想要一个把 Markdown 发布到博客的 CLI。" 代理加载宪法，从 `product/` 冷启动，在不变量之内自由工作。
 
 ## 设计原则
 
-- **证据即机器输出。** "测试全绿"四个字不是证据,`evidence/` 里带退出码的原始日志才是。
-- **机器管形式,评审管语义。** 能机械裁决的绝不交给模型自觉;需要判断的必须在干净上下文里判断。
-- **流程开销随风险缩放。** 微改不付大流程的税,高危改动跑不掉三轮评审。
-- **过程落盘。** 评审结论、确认记录、证据日志都是文件,任何会话可以冷启动。
-- **扩展靠约定,不靠改代码。** 新增领域技能永远不需要动主链。
+- **约束结果，不约束步骤。** 框架只校验验证便宜的东西（文件、退出码、用户批准），对方法保持沉默。
+- **证据即机器输出。** "测试全绿"是散文；带退出码、哈希封口的日志才是证据。
+- **主权可枚举。** 恰好三个检查点属于用户，其余一切归代理裁量——这正是自治可以安全的原因。
+- **流程开销是涌现的，不是配置的。** 没有风险档位、没有阶段门禁；不变量自动为风险定价。
+- **全部法律一口气读完。** 一份不到 120 行的宪法；手册是选读。
 
 ## License
 

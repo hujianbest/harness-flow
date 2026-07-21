@@ -4,7 +4,7 @@
     "name": "hujianbest"
   },
   "metadata": {
-    "description": "HarnessFlow — a three-layer skill suite for stable AI coding: main-chain discipline (SDD + TDD), mechanical gates (evidence logs + stage adjudication), and pluggable ext-* domain extensions."
+    "description": "HarnessFlow — a constraint-based workflow for building software products with AI agents: seven invariants, three user checkpoints, a product truth layout on disk, and full freedom of method inside those walls."
   },
   "plugins": [
     {
@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow v3.1.0: 7 core skills own the risk-tiered main chain frame -> plan -> build -> verify -> ship (hf-workflow entry, hf-frame with environment baseline, hf-plan, hf-build TDD, hf-verify runtime smoke, hf-review with independent-context discipline, hf-ship). A stdlib-only mechanical gate (skills/hf-workflow/scripts/hf_gate.py) produces tamper-evident evidence logs and adjudicates every stage transition from files, verdict lines, exit codes and timestamps. v3.1.0 adds stdlib install.py support for Cursor and OpenCode project installs, with copy/symlink modes and thin install.sh/install.ps1 wrappers. Domain skills plug in as ext-* extensions loaded per stage (ext-ui-design and ext-cpp ship as seeds)."
+      "description": "HarnessFlow v4.0.0: a paradigm rewrite from process control to constraint emergence. One binding constitution (skills/harness/SKILL.md, under 120 lines) defines seven invariants and exactly three user checkpoints (intent / tradeoff / release); everything else — planning, ordering, testing strategy, review depth — is the agent's to decide. Product truth lives on disk in product/ (intent, state, decisions, backlog) and work/<slug>/ (signal, evidence, review). The stdlib-only evidence protocol (skills/harness/scripts/harness.py) records raw command output with exit codes and sha256 content hashes and verifies integrity, but never adjudicates stages — risk scaling is emergent, not configured. Four advisory playbooks (shaping, building, reviewing, releasing) ship as references."
     }
   ]
 }

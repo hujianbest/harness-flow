@@ -6,7 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v3.1.0 已切版；下一版本切片前，新增内容写在此处）
+（empty — v4.0.0 已切版；下一版本切片前，新增内容写在此处）
+
+## [4.0.0] - 2026-07-21
+
+> **范式重写：从流程控制到约束涌现。** v3 及之前的所有版本都在做同一件事——用越来越精细的阶段、模板与门禁去控制模型的每一步输出。v4 承认这条路的天花板：步骤合规验证昂贵、且与产品质量几乎无关。新的第一性原理是**在验证便宜的地方设约束（盘上的文件、命令退出码、用户批准），在验证昂贵的地方给自由（计划、顺序、工具、方法）**，让好的工作方式在约束内自行涌现。同时把目标从"交付特性"升级为"做出软件产品"。
+
+### Added
+
+- **`skills/harness/SKILL.md`（宪法）** — 唯一有约束力的文件（< 120 行）：七条不变量（真相在盘上 / 主张须有证据 / 先立信号后动产品 / 主线常青 / 决策权分层 / 独立视角 / 可逆优先）、三个用户检查点（意图 / 取舍 / 放行——用户主权的完整枚举，之外代理从不请求许可）、产品事实源布局、证据协议、冷启动规则，以及一节明确授权的"你的自由"。
+- **产品事实源布局** — `product/`（`intent.md` 用户主权意图、`state.md` 现状与验证入口、`decisions.md` 追加式决策日志、`backlog.md` 候选与未决）+ `work/<slug>/`（`signal.md` 先于实现的可证伪成功信号、`evidence/` 机器输出、`review.md` 独立视角结论）。覆盖产品全生命周期而非单特性交付；文件不限定内部格式。
+- **`skills/harness/scripts/harness.py`** — stdlib-only 证据协议脚本，只记录、不裁决：`init` 建产品骨架（从不覆盖）、`run` 包装真实命令并落盘原始输出 + 退出码 + git 状态 + sha256 内容哈希（透传退出码）、`check` 重算哈希校验证据完整性（手工篡改大声失败）。配 9 个 stdlib unittest（`test_harness.py`）。
+- **四份手册（建议，非约束）** — `references/shaping.md`（想法 → intent.md）、`building.md`（增量与信号）、`reviewing.md`（独立评审）、`releasing.md`（放行与沉淀）。偏离手册不需要批准；违反不变量永远不行。
+
+### Changed
+
+- **风险缩放从"配置"变为"涌现"** — 删除三档风险分级表与按档位规定的评审轮次；改 typo 时不变量成本近乎为零，数据迁移被不变量 3/6/7 自然逼出规格、评审与回滚方案。
+- **TDD 铁律泛化为"信号先行"** — 不再规定 red/green 标签与逐任务红绿日志；只要求可证伪的成功信号先于实现存在、且支撑主张的运行全部经 `harness.py run` 留证。经典 TDD 仍是满足该不变量的合法方式之一。
+- **状态恢复** — 从"逐阶段 gate check 探测"改为"读 `product/` 四件套 + 未完成 work/ 线 + 校验证据 + 真实运行验证入口"。
+- **`scripts/validate_skills.py`** — 适配单宪法布局：删除 ext-* 绑定阶段/触发条件检查，宪法正文上限 120 行。
+- **README / README.zh-CN / `.cursor/rules/harness-flow.mdc` / 插件元数据 / SECURITY / CONTRIBUTING / PR 模板** — 全部按 v4 范式重写。
+
+### Removed
+
+- **全部 v3 阶段技能与扩展** — `hf-workflow`、`hf-frame`、`hf-plan`、`hf-build`、`hf-verify`、`hf-review`、`hf-ship`、`ext-ui-design`、`ext-cpp`。阶段链、风险档位表、执行模式条文、扩展加载协议随之移除。
+- **`hf_gate.py` 阶段裁决** — `check --to <stage>` 及其全部阶段推进规则删除；证据留存与防篡改能力由 `harness.py` 以更简单的形式继承。
+- **`features/<NNN>-<slug>/` 工件体系** — 由 `product/` + `work/<slug>/` 取代；仓库内旧示例 `features/001-install-scripts-release` 一并移除。
 
 ## [3.1.0] - 2026-07-17
 
@@ -547,7 +572,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...v4.0.0
 [3.1.0]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/hujianbest/harness-flow/releases/tag/v3.0.0
 [0.5.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.1
