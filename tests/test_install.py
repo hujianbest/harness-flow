@@ -47,6 +47,27 @@ class InstallOpenCodeTests(unittest.TestCase):
             self.assertTrue((opencode_skills / "hf-workflow" / "scripts" / "hf_gate.py").is_file())
             self.assertTrue((opencode_skills / "custom-skill" / "SKILL.md").is_file())
 
+    def test_opencode_skills_are_generated_not_vendored_in_repo(self):
+        gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+        self.assertIn(".opencode/skills/", gitignore)
+        import subprocess
+        result = subprocess.run(
+            ["git", "ls-files", ".opencode"],
+            cwd=ROOT, capture_output=True, text=True, check=True,
+        )
+        self.assertEqual(result.stdout.strip(), "")
+
+    def test_install_opencode_into_repo_root_generates_skills(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "checkout"
+            skills_src = dest / "skills" / "hf-demo"
+            skills_src.mkdir(parents=True)
+            (skills_src / "SKILL.md").write_text(
+                "---\nname: hf-demo\ndescription: x\n---\n", encoding="utf-8"
+            )
+            install.install(target="opencode", dest=dest, mode="copy", source=dest)
+            self.assertTrue((dest / ".opencode" / "skills" / "hf-demo" / "SKILL.md").is_file())
+
 
 class InstallWrapperAndSymlinkTests(unittest.TestCase):
     def test_both_target_symlinks_cursor_and_opencode_skills(self):
@@ -82,8 +103,8 @@ class ReleaseDocsTests(unittest.TestCase):
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
 
-        self.assertEqual("3.1.0", plugin["version"])
-        self.assertIn("HarnessFlow v3.1.0", marketplace)
+        self.assertEqual("4.0.0", plugin["version"])
+        self.assertIn("HarnessFlow v4.0.0", marketplace)
         self.assertIn("install.py", marketplace)
 
         self.assertIn("python scripts/install.py --target cursor", readme)
@@ -94,9 +115,9 @@ class ReleaseDocsTests(unittest.TestCase):
         self.assertIn("python scripts/install.py --target opencode", readme_zh)
         self.assertIn("install.ps1 -Target both", readme_zh)
 
-        self.assertIn("## [3.1.0] - 2026-07-17", changelog)
-        self.assertIn("install scripts", changelog)
-        self.assertIn("[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...HEAD", changelog)
+        self.assertIn("## [4.0.0] - 2026-07-25", changelog)
+        self.assertIn("[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...HEAD", changelog)
+        self.assertIn("[4.0.0]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...v4.0.0", changelog)
         self.assertIn("[3.1.0]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...v3.1.0", changelog)
 
         self.assertIn("scripts/install.py", security)

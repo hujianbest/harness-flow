@@ -2,61 +2,85 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**A three-layer skill suite that drives AI coding agents toward stable delivery: main-chain discipline (SDD + TDD) + mechanical gates + pluggable domain extensions.**
+**A harness that drives AI coding agents from a raw idea to a working app — and through everyday feature delivery: product-layer shaping + main-chain discipline (SDD + TDD) + mechanical gates + demo-gated acceptance + pluggable domain extensions.**
 
-Core assumption: **the model is the least reliable component in the system.** A model that writes fake tests will just as happily write a fake "review passed". So HarnessFlow v3 does not entrust discipline to the model's goodwill — every gate that can be decided mechanically is decided by a script; every "tests pass / it runs" claim must be backed by raw command output on disk; every review must happen in an independent context that never saw the author's reasoning.
+HarnessFlow is designed against four unreliable factors, and every mechanism derives from one of them:
 
-1. **Layer 1 — main-chain discipline**: `frame → plan → build → verify → ship`, spec-driven + test-driven, with process overhead scaled by risk tier.
-2. **Layer 2 — mechanical gates**: `hf_gate.py` adjudicates stage transitions from files, verdict lines, exit codes and timestamps; evidence can only be produced by wrapping real command runs.
-3. **Layer 3 — extensions**: domain skills (UI design, language standards, …) load into the main chain per stage; they may only tighten, never relax.
+1. **The model is unreliable** → mechanical gates: stage transitions are adjudicated by `hf_gate.py` from files, verdict lines, exit codes and timestamps; evidence can only be produced by wrapping real command runs. Narrative is never evidence.
+2. **Intent is underspecified** → no silent gap-filling: whenever the user hasn't decided something, the agent proposes an opinionated default, records it in the `product/assumptions.md` ledger, and proceeds. Users can overturn any assumption later, triggering controlled rework.
+3. **Sessions die** → all state lives on disk; `hf_gate.py status` cold-starts any new session (product layer state, per-feature stage, next step).
+4. **Users don't read code** → demo-gated acceptance: user-perceivable slices can only ship with demo evidence (recording / screenshot / preview probe) plus an on-disk user acceptance. A user saying "looks good" to a spec is a cheap signal; reacting to the running product is the real one.
 
-## The main chain and risk tiers
+## Two entry paths
+
+**Idea → App (greenfield).** The user brings an idea; there is no code yet:
 
 ```
-frame → plan → build → verify → ship
+shape (hf-shape) → S-1 walking skeleton (hf-skeleton) → slice loop ⟲ → evolve
 ```
+
+- `hf-shape` runs a structured interview (who is it for / what pain / what does success look like / what's explicitly out) and produces the product layer: `product/product.md` (vision, MVP boundary, not-doing list), `decisions.md` (confirmed decisions), `assumptions.md` (defaults the agent chose), `backlog.md` (vertical, demoable slices). Tech stack comes from opinionated presets — non-technical users are never forced to pick a framework.
+- `hf-skeleton` makes slice S-1 a walking skeleton: scaffold, one-command `dev`/`test`, one thinnest real end-to-end path, something the user can open on day 0. Integration risk surfaces immediately and the feedback loop starts before any feature work.
+- Each subsequent slice runs the delivery chain and exits through a demo the user experiences; feedback flows back into the backlog and the ledgers at ship time.
+
+**Existing codebase delivery.** Requirements are known and code exists → enter directly at `hf-frame`. No product layer needed.
+
+## The delivery chain, dual modes, and risk tiers
+
+```
+build mode (default): frame → plan → build → verify → ship
+exploration mode:     frame → build → close      (disposable prototypes)
+```
+
+Mode is decided by one variable: **will the code be kept?** Build mode gets full discipline (TDD, reviews, evidence). Exploration mode is for validating a direction fast — tier 1 risk only, can never ship, closes with a `conclusion.md`; prototypes may only inform a rewrite, never be promoted.
 
 | Stage | Skill | Output | Gate |
 |-------|-------|--------|------|
-| Frame | `hf-frame` | `frame.md` — intent, risk tier, environment baseline evidence | `gate check` |
+| Shape | `hf-shape` | `product/` four files | `gate check --product` |
+| (S-1) | `hf-skeleton` | runnable app shell (via the delivery chain) | same as chain |
+| Frame | `hf-frame` | `frame.md` — intent, mode, risk tier, user-perceivable flag, environment baseline | `gate check` |
 | Plan | `hf-plan` | `plan.md` (tier 2) or `spec.md` + `design.md` (tier 3) | independent review + user confirmation + `gate check` |
 | Build | `hf-build` | code + tests, one task at a time, red→green→refactor with per-task logs | all tasks checked + `gate check` |
-| Verify | `hf-verify` | runtime smoke evidence + independent code review | `gate check` |
-| Ship | `hf-ship` | acceptance traced to every requirement, closeout report | all criteria closed |
+| Verify | `hf-verify` | runtime smoke + independent code review + demo acceptance | `gate check` |
+| Ship | `hf-ship` | acceptance traced to every requirement, feedback written back to the product layer | all criteria closed |
 
 Process overhead scales with risk: **tier 1** (micro changes) runs frame → build → verify → ship; **tier 2** (default) uses a single `plan.md`; only **tier 3** (data / security / cross-module) splits spec from design with three review rounds. Under-tiering is a blocking review finding.
 
-All artifacts and evidence live in `features/<NNN>-<slug>/` (`frame.md`, `plan.md`, `progress.md`, `evidence/`, `reviews/`). Any new session recovers the current stage by probing with `gate check` — never from chat memory.
+All artifacts and evidence live in `product/` and `features/<NNN>-<slug>/` (`frame.md`, `plan.md`, `progress.md`, `evidence/`, `reviews/`). Any new session recovers with one command — never from chat memory.
 
 ## Mechanical gates
 
 ```bash
-# Produce evidence — the only legitimate way to run tests/builds/smoke (raw output + exit code on disk):
-python3 skills/hf-workflow/scripts/hf_gate.py run --feature features/001-x --label t1-red -- pytest tests/
-
-# Check whether a stage transition is allowed (files, review verdicts, red/green logs, exit codes, timestamps):
-python3 skills/hf-workflow/scripts/hf_gate.py check --feature features/001-x --to build
+gate=skills/hf-workflow/scripts/hf_gate.py
+python3 $gate init                     # scaffold the product layer (greenfield first step)
+python3 $gate status                   # cold-start recovery: product layer + per-feature stage + next step
+python3 $gate next                     # first unfinished slice from the backlog
+python3 $gate run --feature features/001-x --label t1-red -- pytest tests/    # the only legitimate way to produce evidence
+python3 $gate check --feature features/001-x --to build                       # may we enter this stage?
+python3 $gate check --product                                                 # is shaping complete?
 ```
 
-Typical fabrications the gate blocks mechanically: a "red" with no failing run on record, a "green" whose latest run still fails, a full suite that was never rerun after the last change, missing smoke evidence, and a degraded (same-session) review auto-approving itself. The gate checks form only; semantic quality is owned by independent review — you need both.
+Typical fabrications the gate blocks mechanically: a "red" with no failing run on record, a "green" whose latest run still fails, a full suite never rerun after the last change, missing smoke evidence, a perceivable slice shipping without demo evidence or on-disk acceptance, an exploration prototype trying to ship, and a degraded (same-session) review auto-approving itself. The gate checks form only; semantic quality is owned by independent review and the user's demo acceptance — you need all of them.
 
 ## Skills
 
 | Skill | Role |
 |-------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry point: main chain, risk tiers, artifact/evidence layout, gate usage, state recovery, extension loading |
-| [hf-frame](skills/hf-frame/SKILL.md) | Pin down intent, risk tier, and the environment baseline (can this project actually be verified?) |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry point: entry paths, delivery chain, dual modes, risk tiers, artifact layout, gate usage, state recovery, extension loading |
+| [hf-shape](skills/hf-shape/SKILL.md) | Idea → product layer: structured interview, opinionated stack presets, assumption ledger, vertical-slice backlog |
+| [hf-skeleton](skills/hf-skeleton/SKILL.md) | Slice S-1: walking skeleton — scaffold, one-command dev/test, thinnest real end-to-end path, day-0 demo |
+| [hf-frame](skills/hf-frame/SKILL.md) | Pin down intent, mode, risk tier, user-perceivable flag, and the environment baseline |
 | [hf-plan](skills/hf-plan/SKILL.md) | Testable requirements + design + machine-readable task list; template-slot hallucination forbidden |
-| [hf-build](skills/hf-build/SKILL.md) | Red-green-refactor per task, every run logged via `hf_gate.py run` (TDD) |
-| [hf-verify](skills/hf-verify/SKILL.md) | Three-layer verification: runtime smoke, independent code review, mechanical gate |
+| [hf-build](skills/hf-build/SKILL.md) | Build mode: red-green-refactor per task, every run logged (TDD). Exploration mode: fast disposable prototypes closed with a conclusion |
+| [hf-verify](skills/hf-verify/SKILL.md) | Runtime smoke, independent code review, demo acceptance for perceivable slices, mechanical gate |
 | [hf-review](skills/hf-review/SKILL.md) | Review protocol: subagent/fresh-session only, degraded reviews cannot self-approve; code reviewers rerun tests themselves |
-| [hf-ship](skills/hf-ship/SKILL.md) | Final acceptance, docs, closeout |
+| [hf-ship](skills/hf-ship/SKILL.md) | Final acceptance, feedback write-back (backlog checkoff, new slices, assumption settlement), closeout |
 | [ext-ui-design](skills/ext-ui-design/SKILL.md) | Extension: UI features (IA, interaction states, design tokens, a11y, real-render evidence) |
 | [ext-cpp](skills/ext-cpp/SKILL.md) | Extension: C++ projects (GoogleTest discipline, RAII, test anti-patterns) |
 
-## Extensions (layer 3)
+## Extensions
 
-Extensions live in `skills/ext-*/` and declare **binding stages** (a subset of frame/plan/build/verify/ship) and **trigger conditions** in their frontmatter description. Before each stage, `hf-workflow` scans them and loads the ones that match the current feature (e.g. "feature has a UI", "project is C++"). Extensions may only tighten requirements — they can never relax the main-chain gates.
+Extensions live in `skills/ext-*/` and declare **binding stages** (a subset of shape/frame/plan/build/verify/ship) and **trigger conditions** in their frontmatter description. Before each stage, `hf-workflow` scans them and loads the ones that match the current feature (e.g. "feature has a UI", "project is C++"). Extensions may only tighten requirements — they can never relax the main-chain gates.
 
 To write your own, see [extension authoring](skills/hf-workflow/references/extension-authoring.md).
 
@@ -76,21 +100,23 @@ By default the installer copies HarnessFlow assets. Add `--mode symlink` (or `-M
 
 - **Cursor**: installs vendored skills under `.cursor/harness-flow-skills/` and writes `.cursor/rules/harness-flow.mdc` with paths rewritten for that layout.
 - **Claude Code**: install as a plugin (`/plugin marketplace add <this repo>`), or vendor `skills/` into your project — skills are discovered by their frontmatter descriptions.
-- **OpenCode / other clients**: installs HarnessFlow skills under `.opencode/skills/` while preserving any user-defined skills already there.
+- **OpenCode / other clients**: installs HarnessFlow skills under `.opencode/skills/` while preserving any user-defined skills already there. OpenCode only discovers skills under that path (not the top-level `skills/` source), so the copy is generated by the installer and is gitignored — `skills/` remains the single source of truth. To use this repo itself in OpenCode: `python scripts/install.py --target opencode --dest .`
 
-Then just ask for work naturally: *"Use HarnessFlow: I want to add rate limiting to the notifications API."* The agent enters `hf-workflow`, recovers the stage via the gate, and proceeds.
+Then just ask for work naturally: *"I have an idea: an app that helps me track my reading notes"* — the agent enters `hf-shape` and drives from idea to a running skeleton to shipped slices. Or: *"Use HarnessFlow: add rate limiting to the notifications API"* — the agent enters `hf-frame`, recovers the stage via the gate, and proceeds.
 
 ## Execution modes
 
-- `interactive` (default): after plan-layer reviews pass, the agent shows the verdict and waits for your confirmation.
-- `auto`: say "auto mode / don't wait for me" and passing reviews + a passing gate advance automatically. Two hard floors remain: reviews must run in a subagent/fresh session (a degraded review is a hard stop in auto), and the gate can never be bypassed.
+- `interactive` (default): after plan-layer reviews and at demo acceptance, the agent shows the verdict/demo and waits for your confirmation.
+- `auto`: say "auto mode / don't wait for me" and passing reviews + a passing gate advance automatically. Hard floors remain: reviews must run in a subagent/fresh session (a degraded review is a hard stop in auto), the gate can never be bypassed, every choice made on your behalf lands in the assumption ledger, and demo evidence is proactively presented at the next interaction.
 
 ## Design principles
 
 - **Evidence is machine output.** "All tests green" is not evidence; a raw log with an exit code in `evidence/` is.
+- **The product is the acceptance medium.** For anything users can perceive, acceptance happens against the running product, not a document.
+- **Underspecification is explicit.** Defaults are proposed and ledgered, never silently hallucinated.
 - **Machines judge form, reviews judge substance.** Anything mechanically decidable is never left to the model's discipline; anything requiring judgment happens in a clean context.
-- **Process overhead scales with risk.** Micro changes don't pay the full-ceremony tax; risky changes can't escape three review rounds.
-- **Process lives on disk.** Verdicts, approvals, and evidence logs are files, so any session can cold-start.
+- **Process overhead scales with risk — and with permanence.** Micro changes don't pay the full-ceremony tax; disposable prototypes don't pay the TDD tax (and can never ship).
+- **Process lives on disk.** Verdicts, approvals, ledgers and evidence logs are files, so any session can cold-start.
 - **Extensions are conventions, not code.** Adding a domain skill never requires touching the main chain.
 
 ## License

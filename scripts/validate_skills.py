@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
 CORE_BODY_LIMIT = 200
 EXT_BODY_LIMIT = 150
-VALID_STAGES = {"frame", "plan", "build", "verify", "ship"}
+VALID_STAGES = {"shape", "frame", "plan", "build", "verify", "ship"}
 
 errors: list[str] = []
 
