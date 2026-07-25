@@ -6,7 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v3.1.0 已切版；下一版本切片前，新增内容写在此处）
+（empty — v4.0.0 已切版；下一版本切片前，新增内容写在此处）
+
+## [4.0.0] - 2026-07-25
+
+> **从"特性交付 harness"升级为"想法→APP harness"。** v3 解决的是生产端可靠性（模型会撒谎 → 机械门禁 + 证据落盘），但它默认"需求已经清楚、代码库已经存在"。v4 从第一性原理补上需求端可靠性：**意图欠定**（用户的想法里 90% 的决策信息一开始不存在）与**用户不读代码**（想法→APP 的用户只能通过体验运行中的产品来验收）。机制上新增产品层（塑形 + 假设台账 + 垂直切片 backlog）、行走骨架里程碑、demo 即门禁、探索/建造双模式，并把 `hf_gate.py` 升级为带 `init/status/next` 的状态机 CLI。核心技能 7 → 9。
+
+### Added
+
+- **`hf-shape`（新阶段技能，想法→APP 入口）** — 结构化访谈（给谁用/解决什么/成功长什么样/明确不做什么）把想法定格为产品层四文件：`product/product.md`（愿景、MVP 边界、不做清单、用户确认行）、`decisions.md`（已确认决策，只追加）、`assumptions.md`（假设台账）、`backlog.md`（端到端可演示的垂直切片，S-1 固定为行走骨架）。技术选型用带观点的默认预设替用户决策并记入台账——让非技术用户选框架是把决策推给信息最少的一方。刻意不写详尽 PRD：第一次真实反馈之前，规格的边际价值极低、幻觉风险极高。
+- **`hf-skeleton`（新技能，切片 S-1）** — 行走骨架：按 decisions.md 的栈搭起可运行的应用空壳（脚手架、一键 dev/test、一条穿透全部关键层的最薄真实端到端路径、用户体验入口、可行时 CI）。集成风险第 0 天暴露；骨架 ship 前不得开始功能切片。mock 掉关键层的骨架不算"行走"。
+- **假设台账机制（对抗意图欠定）** — 遇到欠定点的标准动作：提出带默认值的选项 → 记入 `product/assumptions.md`（`A-<n> [生效|已确认|已推翻]`）→ 继续；禁止静默幻觉填补，也禁止因等待答复而停摆。用户确认 → 迁入 decisions.md；推翻 → 受控返工。
+- **demo 即门禁（对抗"用户不读代码"）** — frame.md 新增机器可读行 `- 用户可感知: 是|否`。可感知的特性 ship 前，gate 机械要求 `evidence/demo-*` 证据（录屏/截图直接有效，日志须最新一份 exit 0）+ `reviews/demo-acceptance.md`（`- 结论: 接受` + 确认行）。验收媒介是运行中的产品，不是文档；聊天里说"可以"不落盘不算。demo 反馈在 ship 时回写产品层（勾选切片、追加新切片、结算假设）。
+- **探索/建造双模式（模式由"代码是否会被保留"决定）** — frame.md 新增机器可读行 `- 模式: 探索|建造`。探索模式走 `frame → build → close`：不要求基线与 red/green（TDD 的第一性依据是对将保留的代码提供回归安全，对即弃原型强制红绿是负收益），但仅限风险档位 1、永远不能 ship（gate 机械拦截）、以 `conclusion.md` + smoke/demo 证据走 `check --to close` 收尾；原型只能作参考重写，禁止直接晋升。
+- **`hf_gate.py` 状态机子命令** — `init`（生成产品层四文件模板与 features/ 目录，不覆盖已有文件）；`status`（一条命令冷启动恢复：产品层就绪度 + 每个特性当前卡在的阶段（第一个 FAIL 的目标）+ 下一步建议）；`next`（取 backlog 第一个未完成切片）；`check --product`（产品层四文件非空 + product.md 用户确认行有效 + backlog 有可解析切片）。
+- **`tests/test_gate.py`** — 20 个 stdlib unittest 覆盖 init/产品层校验/frame 三行强制/探索模式(档位限制、免基线、禁 ship、close 要求)/demo 门禁/status/next/run。
+
+### Changed
+
+- **`hf-workflow`** — 重写为双入口结构：想法→APP（shape → S-1 骨架 → 切片循环 → 演化）与存量项目特性交付（直接 frame）。开篇改为四个不可靠因素→四条机制的推导（模型不可靠→机械门禁；意图欠定→假设台账;会话必死→磁盘状态;用户不读代码→demo 门禁）。硬性规则新增"欠定不静默填补""demo 即验收""探索产物即弃"。
+- **`hf-frame`** — frame.md 模板新增 `- 模式:`、`- 用户可感知:`、`- 切片: S-<n>|无` 三行（前两行 gate 强制）;新增模式判定（"做完会被扔掉重写"才是探索）与可感知判定（拿不准 → 是）;绿地分流:无产品层的从零想法先走 hf-shape。
+- **`hf-verify`** — 新增第 3 步"Demo 与用户验收"：产出覆盖切片演示判据的 demo 证据、给出最短体验路径、验收落盘 `reviews/demo-acceptance.md`;interactive 等用户裁决,auto 可 auto-approved 但下次交互必须主动呈上 demo 征求反馈。
+- **`hf-ship`** — 新增第 2 步"反馈回写产品层"：勾选 backlog 切片（唯一事实源）、新想法按垂直切片追加、假设台账结算;交付摘要新增"产品层回写"行;backlog 未清空时报告末尾给出下一片。
+- **`hf-build`** — 新增探索模式段（原型即弃、运行仍须留证、conclusion.md 收尾、禁止晋升）;TDD 铁律限定为建造模式内容。
+- **`hf-plan`** — 通用规则新增"对齐切片与产品层"：需求须闭合切片演示判据,设计遵循 decisions/assumptions,偏离先回写台账;探索模式不进 plan。
+- **状态恢复** — 从"人肉按序 gate check 逐阶段探测"改为 `hf_gate.py status` 一条命令。
+- **`scripts/validate_skills.py`** — ext 绑定阶段合法集合加入 `shape`。
+- **README / README.zh-CN / Cursor 规则 / 插件元数据** — 全部按 v4 双入口结构重写,版本升至 4.0.0。
+
+### Compatibility
+
+- **Breaking**: gate 现在强制 frame.md 含 `- 模式:` 与 `- 用户可感知:` 两行,v3 创建的进行中特性需补齐这两行才能通过 check(本仓库 `features/001-install-scripts-release` 已补)。`check` 子命令签名不变,新增的 `--product`/`init`/`status`/`next` 均为增量。
 
 ## [3.1.0] - 2026-07-17
 
@@ -547,7 +577,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...v4.0.0
 [3.1.0]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/hujianbest/harness-flow/releases/tag/v3.0.0
 [0.5.1]: https://github.com/hujianbest/harness-flow/releases/tag/v0.5.1
