@@ -1,24 +1,45 @@
 #!/usr/bin/env python3
-"""hf_gate.py — HarnessFlow 机械门禁（stdlib only）。
+"""hf_gate.py — HarnessFlow 机械门禁与状态机（stdlib only）。
 
-两个子命令:
+五个子命令:
+
+  init  在项目根初始化产品层 product/（product.md、decisions.md、
+        assumptions.md、backlog.md,已存在的文件不覆盖）与 features/ 目录。
+
+            python3 skills/hf-workflow/scripts/hf_gate.py init [--root .]
 
   run   包装执行一条命令，把原始输出连同命令、时间戳、退出码写入
         features/<id>/evidence/<label>-<UTC时间戳>.log，并向调用方透传退出码。
-        这是工作流中所有测试/构建/冒烟证据的唯一合法产生方式。
+        这是工作流中所有测试/构建/冒烟/demo 证据的唯一合法产生方式。
 
             python3 skills/hf-workflow/scripts/hf_gate.py run \
                 --feature features/012-x --label t3-green -- pytest tests/
 
-  check 机械校验能否进入目标阶段，只依据磁盘上的工件与证据日志，
-        不采信任何叙述性文本。PASS 退出码 0，FAIL 退出码 1，用法错误 2。
+  check 机械校验，只依据磁盘上的工件与证据日志，不采信任何叙述性文本。
+        PASS 退出码 0，FAIL 退出码 1，用法错误 2。
 
+            # 特性级: 能否进入目标阶段
             python3 skills/hf-workflow/scripts/hf_gate.py check \
                 --feature features/012-x --to build
+            # 产品层: 塑形是否完成、能否开始切片
+            python3 skills/hf-workflow/scripts/hf_gate.py check --product [--root .]
 
-校验规则（按目标阶段）:
+  status 一条命令恢复全局状态: 产品层是否就绪、每个特性当前卡在哪个阶段、
+        下一步做什么。新会话恢复状态用它，不依赖聊天记忆。
 
-  --to plan    frame.md 含风险档位(须 ≥2) + baseline 证据日志存在
+            python3 skills/hf-workflow/scripts/hf_gate.py status [--root .]
+
+  next  从 product/backlog.md 取出第一个未勾选的切片。
+
+            python3 skills/hf-workflow/scripts/hf_gate.py next [--root .]
+
+特性级校验规则（按目标阶段）:
+
+  frame.md 必须含三条机器可读行: `- 风险档位: 1|2|3`、`- 模式: 探索|建造`、
+  `- 用户可感知: 是|否`。
+
+  建造模式:
+  --to plan    frame 三行齐备(档位须 ≥2) + baseline 证据日志存在
   --to design  仅档位 3：spec.md 存在 + spec-review 通过且已确认
   --to build   档位 1：frame + baseline；
                档位 2：plan.md 含任务清单 + plan-review 通过且已确认；
@@ -26,9 +47,17 @@
   --to verify  build 前提 + 任务清单全部勾选 + 每个任务有 red(exit!=0)
                与 green(最新一份 exit==0) 证据日志
   --to ship    verify 前提 + code-review 通过且已确认 + suite 日志
-               (exit==0 且不早于最新 green) + smoke 冒烟证据
+               (exit==0 且不早于最新 green) + smoke 冒烟证据；
+               用户可感知为"是"时另需 demo 证据(evidence/demo-*)
+               + reviews/demo-acceptance.md(结论: 接受 + 用户确认)
 
-评审记录的机器可读行: `- 结论: 通过|需修改|待独立复核`、`- 用户确认: <值>`、
+  探索模式（原型即弃，链路 frame → build → close）:
+  仅限风险档位 1；不经 plan/design/verify，永远不能 ship（探索产物禁止
+  直接晋升为正式代码，正式实现另起建造模式特性）。
+  --to build   frame 三行齐备即可（不要求 baseline 与 red/green）
+  --to close   smoke 或 demo 证据至少一份有效 + conclusion.md 非空
+
+评审/验收记录的机器可读行: `- 结论: <值>`、`- 用户确认: <值>`、
 `- 评审方式: subagent|独立会话|主会话降级`。评审方式为"主会话降级"时，
 用户确认不得是 auto-approved（降级评审禁止自我确认）。
 """
@@ -44,11 +73,57 @@ from pathlib import Path
 
 LABEL_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 LOG_NAME_RE = re.compile(r"^(?P<label>[a-z0-9-]+)-(?P<ts>\d{8}T\d{6}Z)(?:-\d+)?\.log$")
-TIER_RE = re.compile(r"^-\s*风险档位:\s*([123])\b", re.MULTILINE)
-TASK_RE = re.compile(r"^- \[([ xX])\]\s*(T-\d+)\b", re.MULTILINE)
+TIER_RE = re.compile(r"^-[ \t]*风险档位:[ \t]*([123])\b", re.MULTILINE)
+MODE_RE = re.compile(r"^-[ \t]*模式:[ \t]*(探索|建造)\b", re.MULTILINE)
+PERCEIVABLE_RE = re.compile(r"^-[ \t]*用户可感知:[ \t]*(是|否)\b", re.MULTILINE)
+TASK_RE = re.compile(r"^- \[([ xX])\][ \t]*(T-\d+)\b", re.MULTILINE)
+SLICE_RE = re.compile(r"^- \[([ xX])\][ \t]*(S-\d+)[ \t]*(.*)$", re.MULTILINE)
+CONFIRM_RE = re.compile(r"^-[ \t]*用户确认:[ \t]*(\S.*)$", re.MULTILINE)
 EXIT_RE = re.compile(r"^# exit: (\d+)\s*$", re.MULTILINE)
 
-TARGETS = ("plan", "design", "build", "verify", "ship")
+TARGETS = ("plan", "design", "build", "verify", "ship", "close")
+
+PRODUCT_FILES = {
+    "product.md": """# 产品定义
+
+- 日期:
+- 想法一句话: <为谁、解决什么问题、做成什么>
+- 目标用户: <具体人群,不写"所有人">
+- 要解决的问题: <现状哪里痛>
+- 成功标准: <可观察的信号,如"用户能完成一次完整 X">
+- 用户确认:
+
+## MVP 边界（做什么）
+
+<第一版必须包含的最小能力集>
+
+## 不做清单（明确排除）
+
+<第一版明确不做的;防止范围蔓延的唯一手段是把"不做"写下来>
+""",
+    "decisions.md": """# 决策记录
+
+已确认的决策（用户确认过，或从假设台账迁入）。只追加，不删改历史。
+格式: `- D-<n> <日期> <决策内容> — 依据: <一句话>`
+
+- D-1 <日期> 技术栈: <待定> — 依据: <用户确认 / 预设默认迁入>
+""",
+    "assumptions.md": """# 假设台账
+
+agent 替用户做的默认选择。遇到欠定点的标准动作: 提出带默认值的选项 →
+记录一条假设 → 继续推进；禁止静默填补。
+状态: 生效 | 已确认（迁入 decisions.md）| 已推翻（评估波及,回对应阶段返工）。
+格式: `- A-<n> <日期> [状态] <假设内容> — 默认理由: <一句话>`
+""",
+    "backlog.md": """# 切片待办
+
+每片是端到端可演示的垂直切片，按优先级排序；S-1 固定为行走骨架。
+勾选只在切片 ship 后由 hf-ship 执行。用户反馈产生的新切片追加在合适位置。
+格式: `- [ ] S-<n> <切片名> — 演示判据: <用户能看到/做到什么>`
+
+- [ ] S-1 行走骨架 — 演示判据: 用户能按 README 一条命令启动并访问应用的最薄端到端路径
+""",
+}
 
 
 # ---------------------------------------------------------------- run
@@ -115,12 +190,17 @@ def evidence_logs(feature: Path, label_prefix: str) -> list[tuple[str, Path, int
     return sorted(out, key=lambda t: t[0])
 
 
-def read_tier(feature: Path) -> int | None:
+def read_frame_field(feature: Path, pattern: re.Pattern) -> str | None:
     frame = feature / "frame.md"
     if not frame.is_file():
         return None
-    m = TIER_RE.search(frame.read_text(encoding="utf-8"))
-    return int(m.group(1)) if m else None
+    m = pattern.search(frame.read_text(encoding="utf-8"))
+    return m.group(1) if m else None
+
+
+def read_tier(feature: Path) -> int | None:
+    value = read_frame_field(feature, TIER_RE)
+    return int(value) if value else None
 
 
 def read_review(feature: Path, name: str) -> dict | None:
@@ -150,6 +230,15 @@ def read_tasks(feature: Path, doc: str) -> list[tuple[str, bool]] | None:
             for mark, tid in TASK_RE.findall(path.read_text(encoding="utf-8"))]
 
 
+def read_slices(root: Path) -> list[tuple[str, bool, str]] | None:
+    """返回 backlog 里的 (切片ID, 是否完成, 描述) 列表；backlog 不存在返回 None。"""
+    path = root / "product" / "backlog.md"
+    if not path.is_file():
+        return None
+    return [(sid, mark.lower() == "x", rest.strip())
+            for mark, sid, rest in SLICE_RE.findall(path.read_text(encoding="utf-8"))]
+
+
 # ---------------------------------------------------------------- check 各项
 
 class Checker:
@@ -166,15 +255,27 @@ class Checker:
 
     # -- 基础件
 
-    def check_frame(self) -> int | None:
-        tier = read_tier(self.feature)
+    def check_frame(self) -> tuple[int | None, str | None, str | None]:
+        """校验 frame.md 三条机器可读行，返回 (档位, 模式, 用户可感知)。"""
         if not (self.feature / "frame.md").is_file():
             self.fail("frame.md 不存在 — 先完成 frame 阶段")
-        elif tier is None:
+            return None, None, None
+        tier = read_tier(self.feature)
+        mode = read_frame_field(self.feature, MODE_RE)
+        perceivable = read_frame_field(self.feature, PERCEIVABLE_RE)
+        if tier is None:
             self.fail("frame.md 缺少机器可读的 `- 风险档位: 1|2|3` 行")
         else:
             self.ok(f"frame.md 风险档位: {tier}")
-        return tier
+        if mode is None:
+            self.fail("frame.md 缺少机器可读的 `- 模式: 探索|建造` 行")
+        else:
+            self.ok(f"frame.md 模式: {mode}")
+        if perceivable is None:
+            self.fail("frame.md 缺少机器可读的 `- 用户可感知: 是|否` 行")
+        else:
+            self.ok(f"frame.md 用户可感知: {perceivable}")
+        return tier, mode, perceivable
 
     def check_baseline(self) -> None:
         logs = evidence_logs(self.feature, "baseline")
@@ -191,14 +292,14 @@ class Checker:
         else:
             self.ok(f"{doc} 存在")
 
-    def check_review(self, name: str) -> None:
+    def check_review(self, name: str, expected: str = "通过") -> None:
         review = read_review(self.feature, name)
         stem = name.removesuffix(".md")
         if review is None:
             self.fail(f"评审记录不存在: reviews/{name}（{stem} 未进行）")
             return
-        if review["verdict"] != "通过":
-            self.fail(f"{stem} 最新结论为 {review['verdict'] or '缺失'}，需要: 通过")
+        if review["verdict"] != expected:
+            self.fail(f"{stem} 最新结论为 {review['verdict'] or '缺失'}，需要: {expected}")
             return
         if not review["confirm"]:
             self.fail(f"{stem} 结论后缺 `- 用户确认:` 行（确认未落盘）")
@@ -206,7 +307,7 @@ class Checker:
         if review["method"] == "主会话降级" and review["confirm"].startswith("auto-approved"):
             self.fail(f"{stem} 评审方式为主会话降级，禁止 auto-approved 自我确认，需用户真实确认")
             return
-        self.ok(f"{stem}: 通过，已确认 ({review['confirm']})")
+        self.ok(f"{stem}: {expected}，已确认 ({review['confirm']})")
 
     # -- 任务与证据
 
@@ -256,7 +357,28 @@ class Checker:
             if reds and greens and greens[-1][2] == 0 and any(c not in (0, None) for _, _, c in reds):
                 self.ok(f"{tid} red→green 证据齐备")
 
-    def check_suite_and_smoke(self) -> None:
+    def check_runtime_evidence(self, label: str, desc: str, required: bool = True) -> bool:
+        """校验 evidence/<label>-* 运行时证据: 非日志文件（截图/录屏）直接有效，
+        日志文件要求最新一份 exit 0。返回是否有有效证据。"""
+        evidence = self.feature / "evidence"
+        files = sorted(evidence.glob(f"{label}-*")) if evidence.is_dir() else []
+        logs = evidence_logs(self.feature, label)
+        non_log = [p for p in files if not p.name.endswith(".log")]
+        if not files:
+            if required:
+                self.fail(f"缺{desc}证据: evidence/{label}-*（真实运行的日志或截图/录屏）")
+            return False
+        if non_log:
+            self.ok(f"{desc}证据: {', '.join(p.name for p in non_log)}")
+            return True
+        if logs and logs[-1][2] == 0:
+            self.ok(f"{desc}证据: {logs[-1][1].name} (exit 0)")
+            return True
+        if required:
+            self.fail(f"{label} 日志最新一份 exit 非 0，{desc}未通过")
+        return False
+
+    def check_suite(self) -> None:
         greens = evidence_logs(self.feature, "t")
         green_ts = [ts for ts, p, _ in greens if re.match(r"^t\d+-green-", p.name)]
         suites = evidence_logs(self.feature, "suite")
@@ -271,26 +393,36 @@ class Checker:
             else:
                 self.ok(f"suite 证据: {path.name} (exit 0)")
 
-        evidence = self.feature / "evidence"
-        smoke = sorted(evidence.glob("smoke-*")) if evidence.is_dir() else []
-        smoke_logs = evidence_logs(self.feature, "smoke")
-        non_log = [p for p in smoke if not p.name.endswith(".log")]
-        if not smoke:
-            self.fail("缺运行时冒烟证据: evidence/smoke-*（真实运行的日志或截图）")
-        elif non_log:
-            self.ok(f"smoke 证据: {', '.join(p.name for p in non_log)}")
-        elif smoke_logs and smoke_logs[-1][2] == 0:
-            self.ok(f"smoke 证据: {smoke_logs[-1][1].name} (exit 0)")
-        else:
-            self.fail("smoke 日志最新一份 exit 非 0，冒烟未通过")
 
-
-def check_target(feature: Path, target: str) -> tuple[Checker, int | None]:
+def check_target(feature: Path, target: str) -> Checker:
     c = Checker(feature)
-    tier = c.check_frame()
+    tier, mode, perceivable = c.check_frame()
+    if tier is None or mode is None:
+        return c
+
+    # ---- 探索模式: frame → build → close，原型即弃
+    if mode == "探索":
+        if tier != 1:
+            c.fail(f"探索模式仅限风险档位 1（现为 {tier}）— 触碰数据/安全/公共接口的工作不允许探索模式")
+        if target in ("plan", "design", "verify"):
+            c.fail(f"探索模式不经 {target} 阶段 — 链路为 frame → build → close")
+        elif target == "ship":
+            c.fail("探索模式特性永远不能 ship — 结论写入 conclusion.md 走 `check --to close`；"
+                   "正式实现另起建造模式特性，禁止直接晋升原型代码")
+        elif target == "close":
+            has_smoke = c.check_runtime_evidence("smoke", "运行时冒烟", required=False)
+            has_demo = c.check_runtime_evidence("demo", "demo", required=False)
+            if not (has_smoke or has_demo):
+                c.fail("探索收尾至少需要一份有效的 smoke 或 demo 证据（证明原型真的跑起来过）")
+            c.check_doc("conclusion.md")
+        return c
+
+    # ---- 建造模式
+    if target == "close":
+        c.fail("close 仅用于探索模式 — 建造模式走 verify → ship")
+        return c
+
     c.check_baseline()
-    if tier is None:
-        return c, tier
 
     if target == "plan":
         if tier < 2:
@@ -317,8 +449,12 @@ def check_target(feature: Path, target: str) -> tuple[Checker, int | None]:
             c.check_red_green(tasks)
         if target == "ship":
             c.check_review("code-review.md")
-            c.check_suite_and_smoke()
-    return c, tier
+            c.check_suite()
+            c.check_runtime_evidence("smoke", "运行时冒烟")
+            if perceivable == "是":
+                c.check_runtime_evidence("demo", "demo")
+                c.check_review("demo-acceptance.md", expected="接受")
+    return c
 
 
 def cmd_check(feature: Path, target: str) -> int:
@@ -327,7 +463,7 @@ def cmd_check(feature: Path, target: str) -> int:
         print(f"FAIL 特性目录不存在: {feature}")
         print("RESULT: FAIL")
         return 1
-    c, _ = check_target(feature, target)
+    c = check_target(feature, target)
     for msg in c.oks:
         print(f"OK   {msg}")
     for msg in c.failures:
@@ -336,6 +472,164 @@ def cmd_check(feature: Path, target: str) -> int:
         print(f"RESULT: FAIL ({len(c.failures)} 项未通过) — 不得进入 {target}")
         return 1
     print(f"RESULT: PASS — 可进入 {target}")
+    return 0
+
+
+# ---------------------------------------------------------------- 产品层
+
+def check_product_layer(root: Path) -> tuple[list[str], list[str]]:
+    """校验产品层四文件，返回 (oks, failures)。"""
+    oks: list[str] = []
+    failures: list[str] = []
+    product = root / "product"
+    if not product.is_dir():
+        failures.append("product/ 不存在 — 先运行 `hf_gate.py init` 并按 hf-shape 塑形")
+        return oks, failures
+    for name in PRODUCT_FILES:
+        path = product / name
+        if not path.is_file() or not path.read_text(encoding="utf-8").strip():
+            failures.append(f"product/{name} 不存在或为空")
+        else:
+            oks.append(f"product/{name} 存在")
+    product_md = product / "product.md"
+    if product_md.is_file():
+        m = CONFIRM_RE.search(product_md.read_text(encoding="utf-8"))
+        if not m or m.group(1).startswith("<"):
+            failures.append("product/product.md 缺有效的 `- 用户确认:` 行 — MVP 边界未经确认不得开始切片")
+        else:
+            oks.append(f"product.md 用户确认: {m.group(1)}")
+    slices = read_slices(root)
+    if slices is not None:
+        if not slices:
+            failures.append("product/backlog.md 没有可解析的切片行（格式: `- [ ] S-1 ...`）")
+        else:
+            done = sum(1 for _, d, _ in slices if d)
+            oks.append(f"backlog 切片: {len(slices)} 片（已完成 {done}）")
+    return oks, failures
+
+
+def cmd_check_product(root: Path) -> int:
+    print(f"== hf-gate check --product ({root})")
+    oks, failures = check_product_layer(root)
+    for msg in oks:
+        print(f"OK   {msg}")
+    for msg in failures:
+        print(f"FAIL {msg}")
+    if failures:
+        print(f"RESULT: FAIL ({len(failures)} 项未通过) — 产品层未就绪，不得开始切片")
+        return 1
+    print("RESULT: PASS — 产品层就绪，可开始切片")
+    return 0
+
+
+def cmd_init(root: Path) -> int:
+    product = root / "product"
+    product.mkdir(parents=True, exist_ok=True)
+    for name, template in PRODUCT_FILES.items():
+        path = product / name
+        if path.exists():
+            print(f"[hf-gate] 跳过（已存在）: {path}")
+        else:
+            path.write_text(template, encoding="utf-8")
+            print(f"[hf-gate] 已创建: {path}")
+    features = root / "features"
+    if not features.is_dir():
+        features.mkdir(parents=True)
+        print(f"[hf-gate] 已创建: {features}/")
+    print("[hf-gate] 产品层模板就绪 — 按 hf-shape 完成访谈与填写，再 `check --product`")
+    return 0
+
+
+# ---------------------------------------------------------------- status / next
+
+def stage_sequence(tier: int, mode: str) -> list[str]:
+    if mode == "探索":
+        return ["build", "close"]
+    if tier == 1:
+        return ["build", "verify", "ship"]
+    if tier == 2:
+        return ["plan", "build", "verify", "ship"]
+    return ["plan", "design", "build", "verify", "ship"]
+
+
+def probe_feature(feature: Path) -> tuple[str, list[str]]:
+    """探测特性当前所在阶段: 第一个 check FAIL 的目标即当前阶段。"""
+    tier = read_tier(feature)
+    mode = read_frame_field(feature, MODE_RE)
+    if tier is None or mode is None:
+        c = check_target(feature, "build")
+        return "frame", c.failures
+    for target in stage_sequence(tier, mode):
+        c = check_target(feature, target)
+        if c.failures:
+            return target, c.failures
+    return "done", []
+
+
+def cmd_status(root: Path) -> int:
+    print(f"== hf-gate status ({root.resolve()})")
+
+    product_ready = None
+    if (root / "product").is_dir():
+        _, failures = check_product_layer(root)
+        product_ready = not failures
+        if product_ready:
+            print("产品层: PASS（就绪）")
+        else:
+            print(f"产品层: FAIL（{len(failures)} 项未通过）")
+            for msg in failures:
+                print(f"  - {msg}")
+    else:
+        print("产品层: 无（存量项目特性交付模式；想法→APP 请先 `init` + hf-shape）")
+
+    features_dir = root / "features"
+    feature_dirs = sorted(p for p in features_dir.iterdir()
+                          if p.is_dir() and re.match(r"^\d{3}-", p.name)) if features_dir.is_dir() else []
+    active: tuple[Path, str, list[str]] | None = None
+    if not feature_dirs:
+        print("特性: 无")
+    for f in feature_dirs:
+        stage, failures = probe_feature(f)
+        tier = read_tier(f)
+        mode = read_frame_field(f, MODE_RE) or "?"
+        if stage == "done":
+            print(f"特性 {f.name}: done（档位 {tier} / {mode}）")
+        else:
+            print(f"特性 {f.name}: 当前卡在 → {stage}（档位 {tier or '?'} / {mode}）")
+            for msg in failures[:3]:
+                print(f"  - {msg}")
+            if len(failures) > 3:
+                print(f"  - …另有 {len(failures) - 3} 项，见 `check --feature {f} --to {stage}`")
+            if active is None:
+                active = (f, stage, failures)
+
+    if active:
+        f, stage, _ = active
+        print(f"下一步: 推进 {f.name} 通过 `check --to {stage}`（先补齐上列缺失项）")
+    elif product_ready:
+        slices = read_slices(root) or []
+        todo = [(sid, rest) for sid, done, rest in slices if not done]
+        if todo:
+            print(f"下一步: 开始下一个切片 {todo[0][0]} {todo[0][1]}（`next` 可再次查看）")
+        else:
+            print("下一步: backlog 已清空 — 与用户确认新切片或收尾")
+    elif product_ready is False:
+        print("下一步: 补齐产品层（hf-shape），`check --product` PASS 后开始切片")
+    else:
+        print("下一步: 无进行中的工作 — 新特性从 hf-frame 进入；想法→APP 从 `init` + hf-shape 进入")
+    return 0
+
+
+def cmd_next(root: Path) -> int:
+    slices = read_slices(root)
+    if slices is None:
+        print("product/backlog.md 不存在 — 先 `init` 并按 hf-shape 塑形")
+        return 1
+    todo = [(sid, rest) for sid, done, rest in slices if not done]
+    if not todo:
+        print("backlog 已清空 — 没有未完成的切片")
+        return 0
+    print(f"下一个切片: {todo[0][0]} {todo[0][1]}")
     return 0
 
 
@@ -353,12 +647,23 @@ def main(argv: list[str]) -> int:
 
     p_run = sub.add_parser("run", help="执行命令并把原始输出落盘为证据日志")
     p_run.add_argument("--feature", required=True, help="特性目录，如 features/012-x")
-    p_run.add_argument("--label", required=True, help="证据标签，如 baseline / t3-red / suite / smoke")
+    p_run.add_argument("--label", required=True, help="证据标签，如 baseline / t3-red / suite / smoke / demo")
     p_run.add_argument("--cwd", default=None, help="命令工作目录（默认当前目录）")
 
-    p_check = sub.add_parser("check", help="机械校验能否进入目标阶段")
-    p_check.add_argument("--feature", required=True)
-    p_check.add_argument("--to", required=True, choices=TARGETS, dest="target")
+    p_check = sub.add_parser("check", help="机械校验: 特性能否进入目标阶段 / 产品层是否就绪")
+    p_check.add_argument("--feature", default=None)
+    p_check.add_argument("--to", choices=TARGETS, dest="target", default=None)
+    p_check.add_argument("--product", action="store_true", help="校验产品层而非特性")
+    p_check.add_argument("--root", default=".", help="项目根目录（默认当前目录）")
+
+    p_init = sub.add_parser("init", help="初始化产品层 product/ 模板与 features/ 目录")
+    p_init.add_argument("--root", default=".")
+
+    p_status = sub.add_parser("status", help="恢复全局状态: 产品层 + 每个特性所在阶段 + 下一步")
+    p_status.add_argument("--root", default=".")
+
+    p_next = sub.add_parser("next", help="取 backlog 中第一个未完成的切片")
+    p_next.add_argument("--root", default=".")
 
     try:
         args = parser.parse_args(head)
@@ -367,7 +672,18 @@ def main(argv: list[str]) -> int:
 
     if args.cmd == "run":
         return cmd_run(Path(args.feature), args.label, command, args.cwd)
-    return cmd_check(Path(args.feature), args.target)
+    if args.cmd == "check":
+        if args.product:
+            return cmd_check_product(Path(args.root))
+        if not args.feature or not args.target:
+            print("错误: check 需要 --product，或 --feature 与 --to 同时给出")
+            return 2
+        return cmd_check(Path(args.feature), args.target)
+    if args.cmd == "init":
+        return cmd_init(Path(args.root))
+    if args.cmd == "status":
+        return cmd_status(Path(args.root))
+    return cmd_next(Path(args.root))
 
 
 if __name__ == "__main__":
