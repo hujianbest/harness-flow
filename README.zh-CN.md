@@ -100,7 +100,7 @@ python scripts/install.py --target both --dest /path/to/project
 
 - **Cursor**:安装到 `.cursor/harness-flow-skills/`,并写入路径已重写的 `.cursor/rules/harness-flow.mdc`。
 - **Claude Code**:作为插件安装(`/plugin marketplace add <本仓库>`),或直接 vendor `skills/`——技能靠 frontmatter description 被发现。
-- **OpenCode / 其他客户端**:安装到 `.opencode/skills/`,并保留用户已经放在该目录下的自定义 skills。
+- **OpenCode / 其他客户端**:安装到 `.opencode/skills/`,并保留用户已经放在该目录下的自定义 skills。OpenCode 只发现该路径下的技能(不认顶层 `skills/` 真源),因此这份拷贝由安装器生成并已 gitignore——`skills/` 是唯一真源。在本仓库内用 OpenCode 时跑:`python scripts/install.py --target opencode --dest .`
 
 然后自然地提需求即可:"我有个想法:做一个帮我管理读书笔记的应用"——代理进入 `hf-shape`,从想法牵引到可运行骨架再到逐片交付。或者:"用 HarnessFlow:给通知 API 加限流"——代理进入 `hf-frame`,用 gate 恢复阶段并推进。
 

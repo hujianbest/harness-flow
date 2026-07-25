@@ -47,6 +47,27 @@ class InstallOpenCodeTests(unittest.TestCase):
             self.assertTrue((opencode_skills / "hf-workflow" / "scripts" / "hf_gate.py").is_file())
             self.assertTrue((opencode_skills / "custom-skill" / "SKILL.md").is_file())
 
+    def test_opencode_skills_are_generated_not_vendored_in_repo(self):
+        gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+        self.assertIn(".opencode/skills/", gitignore)
+        import subprocess
+        result = subprocess.run(
+            ["git", "ls-files", ".opencode"],
+            cwd=ROOT, capture_output=True, text=True, check=True,
+        )
+        self.assertEqual(result.stdout.strip(), "")
+
+    def test_install_opencode_into_repo_root_generates_skills(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "checkout"
+            skills_src = dest / "skills" / "hf-demo"
+            skills_src.mkdir(parents=True)
+            (skills_src / "SKILL.md").write_text(
+                "---\nname: hf-demo\ndescription: x\n---\n", encoding="utf-8"
+            )
+            install.install(target="opencode", dest=dest, mode="copy", source=dest)
+            self.assertTrue((dest / ".opencode" / "skills" / "hf-demo" / "SKILL.md").is_file())
+
 
 class InstallWrapperAndSymlinkTests(unittest.TestCase):
     def test_both_target_symlinks_cursor_and_opencode_skills(self):

@@ -6,7 +6,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-（empty — v4.0.0 已切版；下一版本切片前，新增内容写在此处）
+### Changed
+
+- **`.opencode/skills/` 不再入库** — OpenCode 只发现 `.opencode/skills/`,但真源仍是顶层 `skills/`。去掉仓库内的镜像拷贝,改为由 `scripts/install.py --target opencode` 生成(已写入 `.gitignore`);在本仓库内用 OpenCode 时跑 `python scripts/install.py --target opencode --dest .`。
 
 ## [4.0.0] - 2026-07-25
 
