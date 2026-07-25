@@ -36,7 +36,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Compatibility
 
-- **Breaking**: gate 现在强制 frame.md 含 `- 模式:` 与 `- 用户可感知:` 两行,v3 创建的进行中特性需补齐这两行才能通过 check(本仓库 `features/001-install-scripts-release` 已补)。`check` 子命令签名不变,新增的 `--product`/`init`/`status`/`next` 均为增量。
+- **Breaking**: gate 现在强制 frame.md 含 `- 模式:` 与 `- 用户可感知:` 两行,v3 创建的进行中特性需补齐这两行才能通过 check。`check` 子命令签名不变,新增的 `--product`/`init`/`status`/`next` 均为增量。
 
 ## [3.1.0] - 2026-07-17
 
