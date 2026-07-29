@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - **`.opencode/skills/` 不再入库** — OpenCode 只发现 `.opencode/skills/`,但真源仍是顶层 `skills/`。去掉仓库内的镜像拷贝,改为由 `scripts/install.py --target opencode` 生成(已写入 `.gitignore`);在本仓库内用 OpenCode 时跑 `python scripts/install.py --target opencode --dest .`。
+- **Cursor 安装目录修正** — Cursor 目标改为自动发现的 `.cursor/skills/`,规则设为 `alwaysApply: true`,并在重装后清理旧的 `.cursor/harness-flow-skills/` 目录;安装仍保留 `.cursor/skills/` 中无关的用户技能。
 
 ## [4.0.0] - 2026-07-25
 

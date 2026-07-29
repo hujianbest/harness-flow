@@ -1,3 +1,8 @@
+---
+description: HarnessFlow development workflow
+alwaysApply: true
+---
+
 # HarnessFlow on Cursor
 
 This workspace ships HarnessFlow: a harness that drives an agent from a raw idea to a working app (and through everyday feature delivery) — main-chain discipline (SDD + TDD), mechanical gates, demo-gated acceptance, and pluggable domain extensions.

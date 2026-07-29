@@ -13,21 +13,40 @@ class InstallCursorTests(unittest.TestCase):
     def test_cursor_copy_installs_rule_and_skills_idempotently(self):
         with tempfile.TemporaryDirectory() as tmp:
             dest = Path(tmp) / "project"
+            custom_skill = dest / ".cursor" / "skills" / "custom-skill"
+            custom_skill.mkdir(parents=True)
+            (custom_skill / "SKILL.md").write_text(
+                "---\nname: custom-skill\ndescription: x\n---\n", encoding="utf-8"
+            )
+            legacy_skill = dest / ".cursor" / "harness-flow-skills" / "hf-workflow"
+            legacy_skill.mkdir(parents=True)
+            (legacy_skill / "SKILL.md").write_text("legacy", encoding="utf-8")
 
             install.install(target="cursor", dest=dest, mode="copy", source=ROOT)
             install.install(target="cursor", dest=dest, mode="copy", source=ROOT)
 
-            cursor_skills = dest / ".cursor" / "harness-flow-skills"
+            cursor_skills = dest / ".cursor" / "skills"
             rule = dest / ".cursor" / "rules" / "harness-flow.mdc"
 
             self.assertTrue((cursor_skills / "hf-workflow" / "SKILL.md").is_file())
             self.assertTrue((cursor_skills / "hf-workflow" / "scripts" / "hf_gate.py").is_file())
+            self.assertTrue((cursor_skills / "custom-skill" / "SKILL.md").is_file())
+            self.assertFalse((dest / ".cursor" / "harness-flow-skills").exists())
             self.assertTrue(rule.is_file())
 
             rule_text = rule.read_text(encoding="utf-8")
-            self.assertIn(".cursor/harness-flow-skills/hf-workflow/SKILL.md", rule_text)
-            self.assertIn(".cursor/harness-flow-skills/hf-workflow/scripts/hf_gate.py", rule_text)
+            self.assertIn("alwaysApply: true", rule_text)
+            self.assertIn(".cursor/skills/hf-workflow/SKILL.md", rule_text)
+            self.assertIn(".cursor/skills/hf-workflow/scripts/hf_gate.py", rule_text)
+            self.assertNotIn(".cursor/harness-flow-skills/", rule_text)
             self.assertNotIn("`skills/hf-workflow/SKILL.md`", rule_text)
+
+    def test_cursor_rule_rewrite_is_idempotent_and_migrates_legacy_paths(self):
+        legacy = "Load `.cursor/harness-flow-skills/hf-workflow/SKILL.md`."
+        rewritten = install._rewrite_cursor_rule(legacy)
+
+        self.assertEqual("Load `.cursor/skills/hf-workflow/SKILL.md`.", rewritten)
+        self.assertEqual(rewritten, install._rewrite_cursor_rule(rewritten))
 
 
 class InstallOpenCodeTests(unittest.TestCase):
@@ -76,7 +95,7 @@ class InstallWrapperAndSymlinkTests(unittest.TestCase):
 
             install.install(target="both", dest=dest, mode="symlink", source=ROOT)
 
-            cursor_skill = dest / ".cursor" / "harness-flow-skills" / "hf-workflow"
+            cursor_skill = dest / ".cursor" / "skills" / "hf-workflow"
             opencode_skill = dest / ".opencode" / "skills" / "hf-workflow"
 
             self.assertTrue(cursor_skill.is_symlink())

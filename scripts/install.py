@@ -42,13 +42,15 @@ def _install_cursor(source_root: Path, dest_root: Path, mode: str) -> None:
         raise FileNotFoundError(f"missing Cursor rule: {rule_src}")
 
     cursor_root = dest_root / ".cursor"
-    skills_dest = cursor_root / "harness-flow-skills"
+    skills_dest = cursor_root / "skills"
+    legacy_skills_dest = cursor_root / "harness-flow-skills"
     rules_dest = cursor_root / "rules"
 
     _sync_skill_dirs(skills_src, skills_dest, mode)
     rules_dest.mkdir(parents=True, exist_ok=True)
     rule_text = _rewrite_cursor_rule(rule_src.read_text(encoding="utf-8"))
     (rules_dest / "harness-flow.mdc").write_text(rule_text, encoding="utf-8")
+    _remove_path(legacy_skills_dest)
 
 
 def _install_opencode(source_root: Path, dest_root: Path, mode: str) -> None:
@@ -63,11 +65,7 @@ def _sync_skill_dirs(skills_src: Path, skills_dest: Path, mode: str) -> None:
     skills_dest.mkdir(parents=True, exist_ok=True)
     for skill_dir in sorted(p for p in skills_src.iterdir() if (p / "SKILL.md").is_file()):
         target_dir = skills_dest / skill_dir.name
-        if target_dir.exists():
-            if target_dir.is_symlink() or target_dir.is_file():
-                target_dir.unlink()
-            else:
-                shutil.rmtree(target_dir)
+        _remove_path(target_dir)
         if mode == "copy":
             shutil.copytree(skill_dir, target_dir)
         elif mode == "symlink":
@@ -76,8 +74,17 @@ def _sync_skill_dirs(skills_src: Path, skills_dest: Path, mode: str) -> None:
             raise ValueError(f"unsupported mode: {mode}")
 
 
+def _remove_path(path: Path) -> None:
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+    elif path.exists():
+        shutil.rmtree(path)
+
+
 def _rewrite_cursor_rule(rule_text: str) -> str:
-    return rule_text.replace("skills/", ".cursor/harness-flow-skills/")
+    for installed_prefix in (".cursor/harness-flow-skills/", ".cursor/skills/"):
+        rule_text = rule_text.replace(installed_prefix, "skills/")
+    return rule_text.replace("skills/", ".cursor/skills/")
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -49,7 +49,7 @@ shape(hf-shape 塑形) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ �
 | (S-1) | `hf-skeleton` | 可运行的应用空壳(走交付链,内容收紧) | 同交付链 |
 | frame | `hf-frame` | frame.md + 环境基线证据 | `check --to plan`(档位1/探索: `--to build`) |
 | plan | `hf-plan` | plan.md 或 spec.md + design.md | 评审通过+确认落盘, `check --to build` |
-| build | `hf-build` | 代码 + 测试 + 逐任务 red/green 证据 | 任务全勾, `check --to verify`(探索: `--to close`) |
+| build | `hf-build` | subagent 完成代码 + 测试 + 逐任务 red/green 证据 | 任务全勾, `check --to verify`(探索: `--to close`) |
 | verify | `hf-verify` | 冒烟证据 + 独立代码评审 + demo 验收 | `check --to ship` |
 | ship | `hf-ship` | 验收报告 + 反馈回写产品层 + 收尾 | 需求逐条闭合 |
 
@@ -110,18 +110,19 @@ python3 $gate check --product            # 产品层是否就绪
 ## 硬性规则
 
 - **门禁不可跳过**:gate check FAIL 时不进下一阶段;评审结论"需修改"时回作者阶段只修 findings,再评审。
+- **实现任务 subagent 化**:build 阶段的每个实现任务必须派给 subagent 执行;主会话只负责编排、提供必要工件路径、接收结果、运行/记录 gate 与推进状态。若当前环境不能使用 subagent,必须停下征求用户豁免,不得静默降级为主会话实现。
 - **作者/评审分离**:评审只承认 subagent 或全新会话;主会话冷读是降级路径且不得自我确认,见 `hf-review`。
 - **证据即机器输出**:一切"测试通过/构建成功/能运行"的声明必须有 evidence/ 日志支撑。
 - **欠定不静默填补**:替用户做的每个默认选择必须先记入假设台账再继续;用户推翻假设时评估波及、受控返工。
 - **demo 即验收**:用户可感知的特性,ship 前必须有 demo 证据与落盘的用户验收(`reviews/demo-acceptance.md`);"用户在聊天里说好"不落盘不算。
 - **探索产物即弃**:探索模式代码禁止直接晋升为正式代码;档位 >1 的工作禁止探索模式。
-- **单任务推进**:build 阶段同一时间只做一个任务;切片循环同一时间只做一个切片。
+- **单任务推进**:build 阶段同一时间只派发一个实现任务;切片循环同一时间只做一个切片。
 - **压力不是豁免**:用户明确坚持跳过某道门禁时,先说明风险,并在 progress.md 记录 `用户豁免 <门禁> <日期>` 后才可继续;口头催促不算豁免。
 
 ## 执行模式
 
 - `interactive`(默认):plan 层评审通过后与 demo 验收时,向用户展示并等待确认,确认后才推进。
-- `auto`:用户明确说"自动执行/不用等我确认"时启用。评审通过 + gate check PASS 即可推进,确认行写 `auto-approved <日期>`。三条底线:评审必须由 subagent/新会话执行(降级评审在 auto 下是硬停点);gate check 不可绕过;auto 下替用户做的一切选择必须入假设台账,demo 验收虽可 auto-approved,但下次与用户交互时必须主动呈上 demo 证据征求反馈。
+- `auto`:用户明确说"自动执行/不用等我确认"时启用。评审通过 + gate check PASS 即可推进,确认行写 `auto-approved <日期>`。四条底线:实现任务必须由 subagent 执行;评审必须由 subagent/新会话执行(降级评审在 auto 下是硬停点);gate check 不可绕过;auto 下替用户做的一切选择必须入假设台账,demo 验收虽可 auto-approved,但下次与用户交互时必须主动呈上 demo 证据征求反馈。
 
 ## 轻量通道
 

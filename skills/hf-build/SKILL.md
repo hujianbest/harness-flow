@@ -1,13 +1,23 @@
 ---
 name: hf-build
-description: HarnessFlow build 阶段。计划已批准(或档位 1 / 探索模式的 frame 已完成)、任务清单存在未完成任务时使用,也用于代码评审返回"需修改"后的修订。建造模式以红-绿-重构循环(TDD)逐个完成任务,每次测试运行都必须通过 hf_gate.py run 落盘为证据日志;探索模式允许直接搭原型但产物即弃,以 conclusion.md 收尾走 check --to close。gate check --to build 未通过时不得使用,先回上游。
+description: HarnessFlow build 阶段。计划已批准(或档位 1 / 探索模式的 frame 已完成)、任务清单存在未完成任务时使用,也用于代码评审返回"需修改"后的修订。每个实现任务必须派给 subagent 执行,主会话只负责编排与 gate 推进。建造模式以红-绿-重构循环(TDD)逐个完成任务,每次测试运行都必须通过 hf_gate.py run 落盘为证据日志;探索模式允许直接搭原型但产物即弃,以 conclusion.md 收尾走 check --to close。gate check --to build 未通过时不得使用,先回上游。
 ---
 
 # Build(实现)
 
 目标(建造模式):每一行实现代码都由一个**先失败后通过**的测试拉动,且红与绿都有落盘的机器证据,任何后续会话可以审计。
 
-前提:`gate check --to build` PASS(输出贴入 progress.md)。从任务清单锁定**首个未完成任务**;同一时间只做一个。档位 1 无任务清单,把整个改动当作 T-1。
+前提:`gate check --to build` PASS(输出贴入 progress.md)。从任务清单锁定**首个未完成任务**;同一时间只派发一个实现任务。档位 1 无任务清单,把整个改动当作 T-1。
+
+## 执行主体
+
+build 阶段的作者动作必须由 subagent 执行。主会话职责:
+
+- 派发首个未完成任务,只提供必要上下文:本技能路径、feature 目录、frame/plan/design 路径、已加载扩展、目标任务编号、允许的测试命令。
+- 要求 subagent 遵循本技能完成 RED/GREEN/REFACTOR,用 `hf_gate.py run` 留证,并只勾选自己完成的任务。
+- 接收 subagent 返回的改动摘要、证据日志路径、任务勾选状态与任何阻塞点;随后由主会话运行 `gate check`、更新 progress.md 并决定是否派发下一个任务。
+
+若当前环境不能启动 subagent,必须停下向用户说明并请求显式豁免;不得在主会话里静默完成实现。评审仍按 `hf-review` 另派独立 subagent 或全新会话,不能复用刚完成实现的 subagent 自评。
 
 ## 探索模式(原型即弃)
 
@@ -75,6 +85,7 @@ suite 必须 exit 0(确认没有破坏既有行为);check PASS 后进 `hf-verify
 ## 红线
 
 - 绕过 `hf_gate.py run` 直接跑测试,然后口头声称结果
+- 主会话静默执行实现任务,或复用实现 subagent 给自己的改动做独立评审
 - 测试一写就绿(说明它没有验证新行为,重写;gate 也会因缺少非 0 的 red 日志拦下)
 - 为了转绿弱化断言、跳过用例、在测试里复刻实现逻辑
 - 并行推进多个任务,或跳过任务清单顺序而不说明理由

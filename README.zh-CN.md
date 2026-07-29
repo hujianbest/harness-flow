@@ -40,7 +40,7 @@ shape(hf-shape 塑形) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ �
 | (S-1) | `hf-skeleton` | 可运行的应用空壳(走交付链) | 同交付链 |
 | 定格 | `hf-frame` | `frame.md` — 意图、模式、风险档位、用户可感知、环境基线 | `gate check` |
 | 计划 | `hf-plan` | `plan.md`(档位 2)或 `spec.md` + `design.md`(档位 3) | 独立评审 + 用户确认 + `gate check` |
-| 实现 | `hf-build` | 代码 + 测试,单任务红→绿→重构,逐任务 red/green 日志 | 任务全勾 + `gate check` |
+| 实现 | `hf-build` | subagent 完成代码 + 测试,单任务红→绿→重构,逐任务 red/green 日志 | 任务全勾 + `gate check` |
 | 验证 | `hf-verify` | 运行时冒烟 + 独立代码评审 + demo 验收 | `gate check` |
 | 交付 | `hf-ship` | 逐条需求验收闭环 + 反馈回写产品层 + 收尾 | 验收标准全部闭合 |
 
@@ -71,7 +71,7 @@ gate 机械拦截的典型造假:没有失败记录的"红"、最新一次仍失
 | [hf-skeleton](skills/hf-skeleton/SKILL.md) | 切片 S-1:行走骨架——脚手架、一键 dev/test、最薄真实端到端路径、第 0 天 demo |
 | [hf-frame](skills/hf-frame/SKILL.md) | 定格意图、模式、风险档位、用户可感知,建环境基线 |
 | [hf-plan](skills/hf-plan/SKILL.md) | 计划:可测需求 + 设计 + 机器可读任务清单;禁止槽位幻觉 |
-| [hf-build](skills/hf-build/SKILL.md) | 建造:逐任务红-绿-重构留证 (TDD);探索:即弃原型以结论收尾 |
+| [hf-build](skills/hf-build/SKILL.md) | 建造:每个实现任务由 subagent 执行,逐任务红-绿-重构留证 (TDD);探索:即弃原型以结论收尾 |
 | [hf-verify](skills/hf-verify/SKILL.md) | 运行时冒烟、独立代码评审、可感知切片的 demo 验收、机械门禁收口 |
 | [hf-review](skills/hf-review/SKILL.md) | 评审协议:只承认 subagent/新会话,降级不得自我确认;代码评审者自己跑测试 |
 | [hf-ship](skills/hf-ship/SKILL.md) | 最终验收、反馈回写(勾切片、追加新切片、结算假设)、收尾 |
@@ -98,7 +98,7 @@ python scripts/install.py --target both --dest /path/to/project
 
 默认安装方式是复制 HarnessFlow 资产。需要目标项目跟随当前 checkout 时,可追加 `--mode symlink`(PowerShell 使用 `-Mode symlink`)。
 
-- **Cursor**:安装到 `.cursor/harness-flow-skills/`,并写入路径已重写的 `.cursor/rules/harness-flow.mdc`。
+- **Cursor**:安装到 Cursor 会自动发现的 `.cursor/skills/`,保留项目中无关的自定义技能,并写入始终生效且路径已重写的 `.cursor/rules/harness-flow.mdc`。
 - **Claude Code**:作为插件安装(`/plugin marketplace add <本仓库>`),或直接 vendor `skills/`——技能靠 frontmatter description 被发现。
 - **OpenCode / 其他客户端**:安装到 `.opencode/skills/`,并保留用户已经放在该目录下的自定义 skills。OpenCode 只发现该路径下的技能(不认顶层 `skills/` 真源),因此这份拷贝由安装器生成并已 gitignore——`skills/` 是唯一真源。在本仓库内用 OpenCode 时跑:`python scripts/install.py --target opencode --dest .`
 
@@ -107,7 +107,7 @@ python scripts/install.py --target both --dest /path/to/project
 ## 执行模式
 
 - `interactive`(默认):plan 层评审通过后与 demo 验收时,代理展示结论/演示并等待你确认。
-- `auto`:说"自动执行/不用等我确认"后,评审通过 + gate PASS 即自动推进。底线不变:评审必须由 subagent/新会话执行(降级评审在 auto 下是硬停点)、gate 不可绕过、替你做的每个选择都进假设台账、demo 证据在下次交互时主动呈上。
+- `auto`:说"自动执行/不用等我确认"后,评审通过 + gate PASS 即自动推进。底线不变:实现任务必须由 subagent 执行、评审必须由独立 subagent/新会话执行(降级评审在 auto 下是硬停点)、gate 不可绕过、替你做的每个选择都进假设台账、demo 证据在下次交互时主动呈上。
 
 ## 设计原则
 
