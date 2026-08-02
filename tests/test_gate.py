@@ -48,13 +48,20 @@ def write_review(feature: Path, name, verdict="通过", confirm="2026-07-25",
     )
 
 
+def confirm(path: Path, date="2026-07-25"):
+    text = path.read_text(encoding="utf-8").replace(
+        "- 用户确认:", f"- 用户确认: {date}", 1)
+    path.write_text(text, encoding="utf-8")
+
+
 class InitAndProductTests(unittest.TestCase):
     def test_init_creates_product_layer_idempotently(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             code, out = run_gate(["init", "--root", str(root)])
             self.assertEqual(code, 0)
-            for name in ("product.md", "decisions.md", "assumptions.md", "backlog.md"):
+            for name in ("product.md", "architecture.md", "decisions.md",
+                         "assumptions.md", "backlog.md"):
                 self.assertTrue((root / "product" / name).is_file())
             self.assertTrue((root / "features").is_dir())
 
@@ -73,14 +80,22 @@ class InitAndProductTests(unittest.TestCase):
             self.assertEqual(code, 1)
             self.assertIn("用户确认", out)
 
+    def test_check_product_fails_when_architecture_unconfirmed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            run_gate(["init", "--root", str(root)])
+            confirm(root / "product" / "product.md")
+            code, out = run_gate(["check", "--product", "--root", str(root)])
+            self.assertEqual(code, 1)
+            self.assertIn("architecture.md", out)
+            self.assertIn("hf-architect", out)
+
     def test_check_product_passes_when_confirmed_with_slices(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             run_gate(["init", "--root", str(root)])
-            product_md = root / "product" / "product.md"
-            text = product_md.read_text(encoding="utf-8").replace(
-                "- 用户确认:", "- 用户确认: 2026-07-25")
-            product_md.write_text(text, encoding="utf-8")
+            confirm(root / "product" / "product.md")
+            confirm(root / "product" / "architecture.md")
             code, out = run_gate(["check", "--product", "--root", str(root)])
             self.assertEqual(code, 0)
             self.assertIn("RESULT: PASS", out)
@@ -223,6 +238,17 @@ class StatusAndNextTests(unittest.TestCase):
             code, out = run_gate(["status", "--root", tmp])
             self.assertEqual(code, 0)
             self.assertIn("产品层: 无", out)
+
+    def test_status_with_architecture_map_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            product = root / "product"
+            product.mkdir()
+            (product / "architecture.md").write_text("# 架构\n模块边界...\n", encoding="utf-8")
+            code, out = run_gate(["status", "--root", str(root)])
+            self.assertEqual(code, 0)
+            self.assertIn("仅架构地图", out)
+            self.assertNotIn("产品层: FAIL", out)
 
     def test_status_marks_done_feature(self):
         with tempfile.TemporaryDirectory() as tmp:

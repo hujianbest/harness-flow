@@ -15,6 +15,7 @@ description: HarnessFlow plan 阶段。frame 完成、建造模式且风险档�
 - **对齐切片与产品层**:frame 关联了切片(S-<n>)的,需求必须能闭合该切片在 backlog 中的演示判据;设计遵循 `product/decisions.md` 与 `assumptions.md` 的既定决策,要偏离先回写台账。
 - **禁止槽位幻觉**:模板任何小节可写"不适用: <一句理由>"。**严禁为填模板发明需求、约束或数字。** NFR 只在用户真实提出、或有真实依据(既有 SLA、现存性能问题)时才写;写则必须给出可判定阈值、验证方式和**出处**。
 - **顺着现有代码走**:设计必须复用现有约定(目录结构、既有模式、测试组织、错误处理),偏离要写明理由;全新项目由本计划确立初始约定。
+- **遵循架构地图**:有 `product/architecture.md` 时,设计不得越出其模块边界与横切约定;确需突破 → 在计划中显式标注"架构影响"供评审把关,ship 时回写地图。
 - **关键决策 ≥2 方案**:只对真实的决策点(存在不止一种合理做法且影响后续实现)做方案对比,理由可被评审冷读检验;没有真实决策点就写"不适用",不表演对比。
 - **YAGNI**:只为已确认的需求设计,不为想象中的未来引入抽象层、接口、配置项。
 
@@ -34,7 +35,7 @@ description: HarnessFlow plan 阶段。frame 完成、建造模式且风险档�
 
 ## 档位 2:一份 plan.md
 
-按 `references/plan-template.md` 写 `features/<NNN>-<slug>/plan.md`(需求 → 设计 → 测试策略 → 任务清单)。自检后按 `hf-review` 派发 **plan 评审**(需求章节对照 requirements-checklist,设计与任务章节对照 design-checklist,一轮完成),记录落 `reviews/plan-review.md`。
+按 `references/plan-template.md` 写 `features/<NNN>-<slug>/plan.md`(需求 → 设计 → 测试策略 → 任务清单),预算 ≤150 行。自检后按 `hf-review` 派发 **plan 评审**(需求章节对照 requirements-checklist,设计与任务章节对照 design-checklist,一轮完成),记录落 `reviews/plan-review.md`。
 
 ## 档位 3:spec.md 与 design.md 分离
 

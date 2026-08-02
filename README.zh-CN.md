@@ -13,17 +13,20 @@ HarnessFlow 对抗四个不可靠因素,每一个机制都由其一推出:
 
 ## 两条入口路径
 
-**想法 → APP(绿地)**:用户带着一个想法,代码还不存在:
+**想法 → APP(绿地)**:用户带着一个想法,代码还不存在。路径对齐经典软件工程生命周期——先定义产品,再做架构设计,然后拆解需求,最后逐条开发与测试:
 
 ```
-shape(hf-shape 塑形) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ → 演化
+shape(产品定义) → architect(架构与拆解) → S-1 行走骨架 → 切片循环 ⟲ → 演化
 ```
 
-- `hf-shape` 用结构化访谈(给谁用/解决什么痛/成功长什么样/明确不做什么)产出产品层:`product/product.md`(愿景、MVP 边界、不做清单)、`decisions.md`(已确认决策)、`assumptions.md`(代理替用户选的默认值)、`backlog.md`(端到端可演示的垂直切片)。技术栈来自带观点的预设——不逼非技术用户选框架。
-- `hf-skeleton` 把切片 S-1 定为行走骨架:脚手架、一键 `dev`/`test`、一条最薄的真实端到端路径、第 0 天用户就能打开的东西。集成风险当天暴露,反馈循环先于一切功能开发启动。
-- 之后每个切片走交付链,以用户体验 demo 收尾;反馈在 ship 时回写 backlog 与台账。
+- `hf-shape` 用结构化访谈(给谁用/解决什么痛/成功长什么样/明确不做什么)产出 `product/product.md`(愿景、成功标准、MVP 边界、不做清单)与决策/假设台账。
+- `hf-architect` 用带观点的预设做技术栈决策(不逼非技术用户选框架),画出**一页 `product/architecture.md`**(系统形态、模块边界、核心数据模型、关键流程、横切约定),再把 MVP 拆解为 `backlog.md`——端到端可演示、能指认落在哪个模块的垂直切片。
+- `hf-skeleton` 把切片 S-1 定为行走骨架:脚手架、一键 `dev`/`test`、一条最薄的真实端到端路径、第 0 天用户就能打开的东西。它是架构的第一次真实验证——集成风险当天暴露,反馈循环先于一切功能开发启动。
+- 之后每个切片走交付链,以用户体验 demo 收尾;反馈在 ship 时回写 backlog、台账与架构地图。
 
-**存量项目特性交付**:需求相对清楚、代码库已存在 → 直接从 `hf-frame` 进入,不需要产品层。
+**存量项目特性交付**:需求相对清楚、代码库已存在 → 直接从 `hf-frame` 进入,不需要产品层;反复交付的项目建议单独补一份 `product/architecture.md` 代码库地图(见 `hf-architect`)。
+
+`architecture.md` 兼作**代码库地图**:交付链每个阶段先读地图、再只读相关代码,禁止逐特性全库扫描——这是 HarnessFlow 最主要的 token 节省机制,配合按需加载技能、工件行数预算、给 subagent 传路径不贴全文。每个阶段同时对应一项经典软件工程活动(需求工程、架构设计、TDD、V&V、回顾……),代理在阶段切换时用一句话点名当前活动——使用者沿图行走即学会软件工程,教学成本只有一句话。
 
 ## 交付链、双模式与风险分级
 
@@ -36,7 +39,8 @@ shape(hf-shape 塑形) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ �
 
 | 阶段 | 技能 | 产出 | 门禁 |
 |------|------|------|------|
-| 塑形 | `hf-shape` | `product/` 四文件 | `gate check --product` |
+| 塑形 | `hf-shape` | `product.md`(产品定义)+ 台账 | 用户确认落盘 |
+| 架构 | `hf-architect` | 一页 `architecture.md` + 切片 `backlog.md` | `gate check --product` |
 | (S-1) | `hf-skeleton` | 可运行的应用空壳(走交付链) | 同交付链 |
 | 定格 | `hf-frame` | `frame.md` — 意图、模式、风险档位、用户可感知、环境基线 | `gate check` |
 | 计划 | `hf-plan` | `plan.md`(档位 2)或 `spec.md` + `design.md`(档位 3) | 独立评审 + 用户确认 + `gate check` |
@@ -57,7 +61,7 @@ python3 $gate status                   # 冷启动恢复:产品层 + 各特性�
 python3 $gate next                     # 取 backlog 中第一个未完成切片
 python3 $gate run --feature features/001-x --label t1-red -- pytest tests/    # 产生证据的唯一合法方式
 python3 $gate check --feature features/001-x --to build                       # 能否进入目标阶段
-python3 $gate check --product                                                 # 塑形是否完成
+python3 $gate check --product                                                 # 产品定义 + 架构是否均已确认
 ```
 
 gate 机械拦截的典型造假:没有失败记录的"红"、最新一次仍失败的"绿"、改完代码没重跑的全量测试、缺失的冒烟证据、可感知切片没有 demo 证据或落盘验收就想 ship、探索原型试图 ship、降级评审给自己写 auto-approved。gate 只看形式,语义质量由独立评审与用户 demo 验收把关——缺一不可。
@@ -66,9 +70,10 @@ gate 机械拦截的典型造假:没有失败记录的"红"、最新一次仍失
 
 | 技能 | 职责 |
 |------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口:入口路径、交付链、双模式、风险分级、工件布局、gate 用法、状态恢复、扩展加载 |
-| [hf-shape](skills/hf-shape/SKILL.md) | 想法→产品层:结构化访谈、带观点的技术栈预设、假设台账、垂直切片 backlog |
-| [hf-skeleton](skills/hf-skeleton/SKILL.md) | 切片 S-1:行走骨架——脚手架、一键 dev/test、最薄真实端到端路径、第 0 天 demo |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口:入口路径、软件工程地图、交付链、双模式、风险分级、工件布局、token 经济、gate 用法、状态恢复、扩展加载 |
+| [hf-shape](skills/hf-shape/SKILL.md) | 想法→产品定义:结构化访谈、MVP 边界、不做清单、假设台账 |
+| [hf-architect](skills/hf-architect/SKILL.md) | 架构与拆解:带观点的技术栈预设、一页架构/代码库地图、垂直切片 backlog |
+| [hf-skeleton](skills/hf-skeleton/SKILL.md) | 切片 S-1:行走骨架——脚手架、一键 dev/test、最薄真实端到端路径、第 0 天验证架构 |
 | [hf-frame](skills/hf-frame/SKILL.md) | 定格意图、模式、风险档位、用户可感知,建环境基线 |
 | [hf-plan](skills/hf-plan/SKILL.md) | 计划:可测需求 + 设计 + 机器可读任务清单;禁止槽位幻觉 |
 | [hf-build](skills/hf-build/SKILL.md) | 建造:每个实现任务由 subagent 执行,逐任务红-绿-重构留证 (TDD);探索:即弃原型以结论收尾 |
@@ -76,11 +81,10 @@ gate 机械拦截的典型造假:没有失败记录的"红"、最新一次仍失
 | [hf-review](skills/hf-review/SKILL.md) | 评审协议:只承认 subagent/新会话,降级不得自我确认;代码评审者自己跑测试 |
 | [hf-ship](skills/hf-ship/SKILL.md) | 最终验收、反馈回写(勾切片、追加新切片、结算假设)、收尾 |
 | [ext-ui-design](skills/ext-ui-design/SKILL.md) | 扩展:UI 特性(信息架构、交互三态、design token、可访问性、真实渲染证据) |
-| [ext-cpp](skills/ext-cpp/SKILL.md) | 扩展:C++ 项目(GoogleTest 纪律、RAII、测试反模式) |
 
 ## 扩展
 
-扩展放在 `skills/ext-*/`,在 frontmatter description 中声明**绑定阶段**(shape/frame/plan/build/verify/ship 的子集)与**触发条件**。每个阶段开始前,`hf-workflow` 扫描扩展并加载与当前特性匹配的(如"特性含用户界面""项目是 C++")。扩展只能收紧要求——永远不能放松主链门禁。
+扩展放在 `skills/ext-*/`,在 frontmatter description 中声明**绑定阶段**(shape/architect/frame/plan/build/verify/ship 的子集)与**触发条件**。每个阶段开始前,`hf-workflow` 扫描扩展并加载与当前特性匹配的(如"特性含用户界面""项目是 C++")。扩展只能收紧要求——永远不能放松主链门禁。
 
 编写自己的扩展见 [扩展编写指南](skills/hf-workflow/references/extension-authoring.md)。
 
@@ -102,7 +106,7 @@ python scripts/install.py --target both --dest /path/to/project
 - **Claude Code**:作为插件安装(`/plugin marketplace add <本仓库>`),或直接 vendor `skills/`——技能靠 frontmatter description 被发现。
 - **OpenCode / 其他客户端**:安装到 `.opencode/skills/`,并保留用户已经放在该目录下的自定义 skills。OpenCode 只发现该路径下的技能(不认顶层 `skills/` 真源),因此这份拷贝由安装器生成并已 gitignore——`skills/` 是唯一真源。在本仓库内用 OpenCode 时跑:`python scripts/install.py --target opencode --dest .`
 
-然后自然地提需求即可:"我有个想法:做一个帮我管理读书笔记的应用"——代理进入 `hf-shape`,从想法牵引到可运行骨架再到逐片交付。或者:"用 HarnessFlow:给通知 API 加限流"——代理进入 `hf-frame`,用 gate 恢复阶段并推进。
+然后自然地提需求即可:"我有个想法:做一个帮我管理读书笔记的应用"——代理进入 `hf-shape`,经产品定义、架构与拆解,牵引到可运行骨架再到逐片交付。或者:"用 HarnessFlow:给通知 API 加限流"——代理进入 `hf-frame`,用 gate 恢复阶段并推进。
 
 ## 执行模式
 
@@ -117,6 +121,9 @@ python scripts/install.py --target both --dest /path/to/project
 - **机器管形式,评审管语义。** 能机械裁决的绝不交给模型自觉;需要判断的必须在干净上下文里判断。
 - **流程开销随风险与存续期缩放。** 微改不付大流程的税,即弃原型不付 TDD 的税(但也永远不能 ship)。
 - **过程落盘。** 评审结论、确认记录、台账与证据日志都是文件,任何会话可以冷启动。
+- **架构一页即地图。** 一页回答"什么在哪里、约定是什么";各阶段先读地图再读相关代码,禁止逐特性全库扫描。
+- **Token 是用户的钱。** 按需加载技能、工件行数预算、单一事实源、给 subagent 传路径不贴全文、一句话教学。
+- **阶段图即软件工程教学。** 每个阶段在切换时点名它承载的经典软件工程活动,使用者边交付边掌握这门学科。
 - **扩展靠约定,不靠改代码。** 新增领域技能永远不需要动主链。
 
 ## License

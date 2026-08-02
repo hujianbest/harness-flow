@@ -1,11 +1,11 @@
 ---
 name: hf-workflow
-description: HarnessFlow 主工作流入口。凡是开发新功能、修改已有行为、修复缺陷、从一个想法搭建新应用,或用户提到"开始开发""继续""恢复进度""harness-flow"时,必须先加载本技能。它定义两条入口路径(想法→APP: shape → skeleton → 切片循环;存量项目: 直接进交付链)、交付链 frame → plan → build → verify → ship、探索/建造双模式、风险分级、产品层与特性工件布局、机械门禁 hf_gate.py 的用法、状态恢复规则,以及领域扩展技能 (ext-*) 的加载方式。不适用于纯问答、代码阅读等不产生代码变更的请求。
+description: HarnessFlow 主工作流入口。凡是开发新功能、修改已有行为、修复缺陷、从一个想法搭建新应用,或用户提到"开始开发""继续""恢复进度""harness-flow"时,必须先加载本技能。它定义两条入口路径(想法→APP: shape 产品定义 → architect 架构与拆解 → skeleton 骨架 → 切片循环;存量项目: 直接进交付链)、交付链 frame → plan → build → verify → ship、探索/建造双模式、风险分级、产品层与特性工件布局、架构地图与 token 经济纪律、机械门禁 hf_gate.py 的用法、状态恢复规则,以及领域扩展技能 (ext-*) 的加载方式。不适用于纯问答、代码阅读等不产生代码变更的请求。
 ---
 
 # HarnessFlow 主工作流
 
-HarnessFlow 对抗四个不可靠因素,全部机制由此推出:
+HarnessFlow 是一张软件工程阶段图:把"从想法到产品"的工程活动编成带机械门禁的图,让不掌握软件工程的使用者也能沿图走出可靠的应用。它对抗四个不可靠因素,全部机制由此推出:
 
 1. **模型不可靠** → 机械门禁:阶段推进由 `skills/hf-workflow/scripts/hf_gate.py` 机械裁决;证据 = 命令原始输出落盘,叙述不算证据。
 2. **意图欠定** → 欠定信息显式化:遇到用户没说清的决策点,标准动作是"提出带默认值的选项 → 记入 `product/assumptions.md` 假设台账 → 继续",禁止静默幻觉填补。
@@ -19,12 +19,27 @@ HarnessFlow 对抗四个不可靠因素,全部机制由此推出:
 **想法→APP(绿地)**:用户带着一个产品想法从零开始,或项目尚无 `product/` 产品层:
 
 ```
-shape(hf-shape 塑形) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ → 演化
+shape(产品定义) → architect(架构与拆解) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ → 演化
 ```
 
-塑形产出产品层四文件;`check --product` PASS 后,backlog 中的切片逐片走交付链;每片以 demo 验收收尾,用户反馈回写 backlog/decisions/assumptions,再取下一片(`hf_gate.py next`)。
+塑形产出 product.md 与台账;架构阶段做技术栈决策、产出一页 architecture.md 并把 MVP 拆解成垂直切片 backlog;`check --product` PASS 后,切片逐片走交付链;每片以 demo 验收收尾,用户反馈回写 backlog/decisions/assumptions/architecture,再取下一片(`hf_gate.py next`)。
 
-**存量项目特性交付**:需求相对清楚、代码库已存在 → 直接从 `hf-frame` 进入交付链,不需要产品层。
+**存量项目特性交付**:需求相对清楚、代码库已存在 → 直接从 `hf-frame` 进入交付链,不需要产品层;需要反复交付的项目建议按 `hf-architect` 补一份 `product/architecture.md` 代码库地图(仅此一件,不要求其余产品层文件)。
+
+## 软件工程地图
+
+每个阶段承载一项经典软件工程活动;与用户交互的关键节点(进入新阶段、交付报告)用**一句话**说明当前活动与理由——让使用者在使用中学会软件工程,但教学以一句话为限,用户追问时才展开本表:
+
+| 阶段 | 软件工程活动 | 为什么这样安排 |
+|------|--------------|----------------|
+| shape | 产品定义(需求工程·问题域) | 先钉死"为谁解决什么",防止拿方案找问题 |
+| architect | 架构/概要设计 + 需求拆解 | 最少决策集,恰好够拆切片;详尽设计推迟到有反馈时 |
+| skeleton | 集成先行(行走骨架) | 架构靠真实运行验证,不靠文档评审 |
+| frame | 变更定界与风险评估 | 流程开销随风险缩放的定档点 |
+| plan | 需求规格 + 详细设计 | 可测的验收标准让实现不需要猜 |
+| build | TDD 实现 | 失败先行的测试是需求的可执行形式 |
+| verify | 验证与确认(V&V)+ 独立评审 | 测试通过≠产品可用;独立性对抗自我偏好 |
+| ship | 发布 + 回顾与反馈回流 | 反馈是最贵的输入,固定时机回写产品层 |
 
 ## 交付链、双模式与风险分级
 
@@ -45,7 +60,8 @@ shape(hf-shape 塑形) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ �
 
 | 阶段 | 技能 | 产出 | 推进门禁 |
 |------|------|------|----------|
-| shape | `hf-shape` | product/ 四文件 | `check --product` |
+| shape | `hf-shape` | product.md(产品定义)+ 台账启用 | 用户确认落盘 |
+| architect | `hf-architect` | architecture.md(一页架构地图)+ backlog 切片 | `check --product` |
 | (S-1) | `hf-skeleton` | 可运行的应用空壳(走交付链,内容收紧) | 同交付链 |
 | frame | `hf-frame` | frame.md + 环境基线证据 | `check --to plan`(档位1/探索: `--to build`) |
 | plan | `hf-plan` | plan.md 或 spec.md + design.md | 评审通过+确认落盘, `check --to build` |
@@ -59,7 +75,8 @@ shape(hf-shape 塑形) → S-1 行走骨架(hf-skeleton) → 切片循环 ⟲ �
 
 ```
 product/               # 产品层(想法→APP 路径;hf_gate.py init 生成模板)
-  product.md           # 愿景、目标用户、MVP 边界、不做清单、用户确认 (hf-shape)
+  product.md           # 愿景、目标用户、成功标准、MVP 边界、不做清单、用户确认 (hf-shape)
+  architecture.md      # 一页架构地图: 技术栈、模块边界、数据模型、关键流程、横切约定 (hf-architect;ship 回写)
   decisions.md         # 已确认决策(含技术栈),只追加
   assumptions.md       # 假设台账:agent 替用户做的默认选择,状态可推翻
   backlog.md           # 垂直切片待办 `- [ ] S-<n> ...`,S-1 固定为行走骨架
@@ -86,6 +103,18 @@ features/<NNN>-<slug>/ # 每切片/特性一个目录,<NNN> 取下一个编号,�
 - 门禁输出: <最近一次 gate check 的 RESULT 行>
 ```
 
+## Token 经济
+
+流程的每个字都花用户的钱;纪律靠结构省 token,不靠省略步骤:
+
+- **按需加载**:只在进入阶段时读该阶段 SKILL.md 与匹配的扩展,不预读全链。
+- **架构即地图**:交付链一律先读 `product/architecture.md` 定位模块,再只读相关代码;禁止每个特性都全库扫描。
+- **单一事实源**:任何信息只写在一个文件里,其他地方引用路径;给 subagent 只传工件路径,不粘贴全文。
+- **证据引用不粘贴**:evidence 日志落盘后,对话与文档只引用文件名 + exit code。
+- **工件预算**:product.md ≤60 行、architecture.md ≤80 行、frame.md ≤30 行、档位 2 plan.md ≤150 行、评审记录只写结论与 findings。超预算说明该拆、该删或该升档。
+- **一句话教学**:软件工程概念的解释以一句话为限。
+- 仪式随风险缩放(档位)与随存续期缩放(探索模式),本身就是 token 经济的一部分。
+
 ## 机械门禁 (hf_gate.py)
 
 ```bash
@@ -95,7 +124,7 @@ python3 $gate status                     # 冷启动恢复:产品层 + 各特性
 python3 $gate next                       # 取 backlog 中第一个未完成切片
 python3 $gate run   --feature features/<NNN>-<slug> --label <label> -- <命令...>   # 产生证据
 python3 $gate check --feature features/<NNN>-<slug> --to <plan|design|build|verify|ship|close>
-python3 $gate check --product            # 产品层是否就绪
+python3 $gate check --product            # 产品层是否就绪(产品定义 + 架构均已确认)
 ```
 
 - **进入任何阶段前必须运行 check,并把 RESULT 行写进 progress.md。** FAIL 时不得进入,输出即待办清单。
@@ -130,7 +159,7 @@ python3 $gate check --product            # 产品层是否就绪
 
 ## 加载扩展技能
 
-扩展放在 `skills/ext-*/`,frontmatter description 声明**绑定阶段**(shape/frame/plan/build/verify/ship 的子集)与**触发条件**。进入每个阶段前:
+扩展放在 `skills/ext-*/`,frontmatter description 声明**绑定阶段**(shape/architect/frame/plan/build/verify/ship 的子集)与**触发条件**。进入每个阶段前:
 
 1. 列出 `skills/` 下所有 `ext-*` 目录,读取各自 frontmatter 的 description。
 2. 触发条件与当前特性匹配(如:特性含 UI、项目是 C++)且绑定阶段包含当前阶段的,加载其 SKILL.md 并遵循。description 是加载判定的唯一依据。拿不准时倾向加载(扩展只会收紧要求),判定理由记入 progress.md。
