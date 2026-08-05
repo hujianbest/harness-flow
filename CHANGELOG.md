@@ -6,8 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+> **补齐软件工程生命周期,显式化 token 经济。** v4 的绿地链把技术选型和需求拆解都挤在 shape 里,在没有任何系统视图的情况下就切 backlog——对照经典生命周期(定义产品 → 架构/概要设计 → 拆解需求 → 开发与测试),缺"架构设计"一层;同时没有持久的产品级架构文档,每个特性、每个新会话都要重新探索代码库。本次新增 architect 阶段与一页 `product/architecture.md`(兼作代码库地图),把绿地链对齐为 `shape(产品定义)→ architect(架构与拆解)→ 骨架 → 切片循环`,并把 token 经济与"阶段图即软件工程教学"写成显式纪律。
+
+### Added
+
+- **`hf-architect`(新阶段技能,架构设计与需求拆解)** — 产品定义确认后、任何切片开始前:技术栈决策(带观点的默认预设,自 hf-shape 移入)、一页 `product/architecture.md`(系统形态、模块边界 3~7 个、核心数据模型、关键流程、横切约定,≤80 行)、MVP 拆解为垂直切片 backlog(自 hf-shape 移入,新增判准"每片能指认落在哪个模块/哪条关键流程")。刻意不做大而全架构文档:架构靠 S-1 行走骨架当天运行验证,不靠文档评审。
+- **架构即地图(主要 token 节省机制)** — `architecture.md` 兼作代码库地图:frame 定位改动面、plan 做设计、评审冷读一律先读地图再只读相关代码,禁止逐特性全库扫描;结构变化由 hf-ship 回写,特性级细节(接口签名、字段)永远不下沉。存量项目可只建这一个文件(`status` 识别为"仅架构地图"模式,不触发产品层门禁)。
+- **软件工程地图与一句话教学(hf-workflow)** — 每个阶段标注它承载的经典软件工程活动(产品定义/架构与拆解/集成先行/变更定界/规格与详细设计/TDD/V&V/发布与回流);与用户交互的关键节点用一句话点名当前活动与理由,让使用者边交付边掌握软件工程,教学成本以一句话为限。
+- **Token 经济纪律(hf-workflow 新章节)** — 按需加载、架构即地图、单一事实源(给 subagent 传路径不贴全文)、证据引用不粘贴、工件行数预算(product.md ≤60、architecture.md ≤80、frame.md ≤30、档位 2 plan.md ≤150)、一句话教学。
+
 ### Changed
 
+- **`hf-shape` 瘦身为纯产品定义** — 只保留结构化访谈四问、product.md(愿景、成功标准、MVP 边界、不做清单)与台账纪律;技术选型与 backlog 拆解移入 hf-architect。绿地链变为 `shape → architect → skeleton → 切片循环`。
+- **`hf_gate.py`** — `init` 生成产品层五文件(新增 architecture.md 模板);`check --product` 增加 architecture.md 非空 + 用户确认行校验,FAIL 信息指明责任阶段(hf-shape / hf-architect);`status` 识别"仅架构地图"存量模式。
+- **交付链联动** — `hf-frame` 定改动面先读地图;`hf-plan` 新增"遵循架构地图"规则(越界须标注"架构影响",design-checklist 同步增项);`hf-skeleton` 定位为架构的第一次真实验证;`hf-ship` 回写新增架构地图小节更新。
+- **`scripts/validate_skills.py` / 扩展约定** — ext 绑定阶段合法集合加入 `architect`。
+- **README / README.zh-CN / Cursor 规则** — 按新阶段图、软件工程地图与 token 经济重写;移除不存在的 ext-cpp 条目。
 - **`.opencode/skills/` 不再入库** — OpenCode 只发现 `.opencode/skills/`,但真源仍是顶层 `skills/`。去掉仓库内的镜像拷贝,改为由 `scripts/install.py --target opencode` 生成(已写入 `.gitignore`);在本仓库内用 OpenCode 时跑 `python scripts/install.py --target opencode --dest .`。
 - **Cursor 安装目录修正** — Cursor 目标改为自动发现的 `.cursor/skills/`,规则设为 `alwaysApply: true`,并在重装后清理旧的 `.cursor/harness-flow-skills/` 目录;安装仍保留 `.cursor/skills/` 中无关的用户技能。
 

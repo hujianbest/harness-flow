@@ -13,17 +13,20 @@ HarnessFlow is designed against four unreliable factors, and every mechanism der
 
 ## Two entry paths
 
-**Idea → App (greenfield).** The user brings an idea; there is no code yet:
+**Idea → App (greenfield).** The user brings an idea; there is no code yet. The path mirrors the classic software-engineering lifecycle — define the product, design the architecture, break down the requirements, then build and test each one:
 
 ```
-shape (hf-shape) → S-1 walking skeleton (hf-skeleton) → slice loop ⟲ → evolve
+shape (product definition) → architect (architecture + breakdown) → S-1 walking skeleton → slice loop ⟲ → evolve
 ```
 
-- `hf-shape` runs a structured interview (who is it for / what pain / what does success look like / what's explicitly out) and produces the product layer: `product/product.md` (vision, MVP boundary, not-doing list), `decisions.md` (confirmed decisions), `assumptions.md` (defaults the agent chose), `backlog.md` (vertical, demoable slices). Tech stack comes from opinionated presets — non-technical users are never forced to pick a framework.
-- `hf-skeleton` makes slice S-1 a walking skeleton: scaffold, one-command `dev`/`test`, one thinnest real end-to-end path, something the user can open on day 0. Integration risk surfaces immediately and the feedback loop starts before any feature work.
-- Each subsequent slice runs the delivery chain and exits through a demo the user experiences; feedback flows back into the backlog and the ledgers at ship time.
+- `hf-shape` runs a structured interview (who is it for / what pain / what does success look like / what's explicitly out) and produces `product/product.md` (vision, success criteria, MVP boundary, not-doing list) plus the decision/assumption ledgers.
+- `hf-architect` makes the tech-stack decision from opinionated presets (non-technical users are never forced to pick a framework), sketches a **one-page `product/architecture.md`** (system shape, module boundaries, core data model, key flows, cross-cutting conventions), then breaks the MVP down into `backlog.md` — vertical, demoable slices that each map onto named modules and flows.
+- `hf-skeleton` makes slice S-1 a walking skeleton: scaffold, one-command `dev`/`test`, one thinnest real end-to-end path, something the user can open on day 0. It is the first real validation of the architecture — integration risk surfaces immediately and the feedback loop starts before any feature work.
+- Each subsequent slice runs the delivery chain and exits through a demo the user experiences; feedback flows back into the backlog, the ledgers, and the architecture map at ship time.
 
-**Existing codebase delivery.** Requirements are known and code exists → enter directly at `hf-frame`. No product layer needed.
+**Existing codebase delivery.** Requirements are known and code exists → enter directly at `hf-frame`. No product layer needed; projects with recurring delivery are encouraged to keep just a `product/architecture.md` codebase map (see `hf-architect`).
+
+`architecture.md` doubles as the **codebase map**: every delivery-chain stage reads the map first and then only the relevant code — never a whole-repo rescan per feature. This is HarnessFlow's main token-saving mechanism, alongside on-demand skill loading, per-artifact line budgets, and passing subagents file paths instead of pasted contents. Each stage also carries its classic software-engineering activity (requirements engineering, architecture design, TDD, V&V, retrospective…), and the agent names that activity in one sentence at each stage transition — users learn software engineering by walking the graph, at a one-sentence token cost.
 
 ## The delivery chain, dual modes, and risk tiers
 
@@ -36,7 +39,8 @@ Mode is decided by one variable: **will the code be kept?** Build mode gets full
 
 | Stage | Skill | Output | Gate |
 |-------|-------|--------|------|
-| Shape | `hf-shape` | `product/` four files | `gate check --product` |
+| Shape | `hf-shape` | `product.md` (product definition) + ledgers | on-disk user confirmation |
+| Architect | `hf-architect` | one-page `architecture.md` + sliced `backlog.md` | `gate check --product` |
 | (S-1) | `hf-skeleton` | runnable app shell (via the delivery chain) | same as chain |
 | Frame | `hf-frame` | `frame.md` — intent, mode, risk tier, user-perceivable flag, environment baseline | `gate check` |
 | Plan | `hf-plan` | `plan.md` (tier 2) or `spec.md` + `design.md` (tier 3) | independent review + user confirmation + `gate check` |
@@ -57,7 +61,7 @@ python3 $gate status                   # cold-start recovery: product layer + pe
 python3 $gate next                     # first unfinished slice from the backlog
 python3 $gate run --feature features/001-x --label t1-red -- pytest tests/    # the only legitimate way to produce evidence
 python3 $gate check --feature features/001-x --to build                       # may we enter this stage?
-python3 $gate check --product                                                 # is shaping complete?
+python3 $gate check --product                                                 # product definition + architecture both confirmed?
 ```
 
 Typical fabrications the gate blocks mechanically: a "red" with no failing run on record, a "green" whose latest run still fails, a full suite never rerun after the last change, missing smoke evidence, a perceivable slice shipping without demo evidence or on-disk acceptance, an exploration prototype trying to ship, and a degraded (same-session) review auto-approving itself. The gate checks form only; semantic quality is owned by independent review and the user's demo acceptance — you need all of them.
@@ -66,9 +70,10 @@ Typical fabrications the gate blocks mechanically: a "red" with no failing run o
 
 | Skill | Role |
 |-------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry point: entry paths, delivery chain, dual modes, risk tiers, artifact layout, gate usage, state recovery, extension loading |
-| [hf-shape](skills/hf-shape/SKILL.md) | Idea → product layer: structured interview, opinionated stack presets, assumption ledger, vertical-slice backlog |
-| [hf-skeleton](skills/hf-skeleton/SKILL.md) | Slice S-1: walking skeleton — scaffold, one-command dev/test, thinnest real end-to-end path, day-0 demo |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry point: entry paths, SE-activity map, delivery chain, dual modes, risk tiers, artifact layout, token economy, gate usage, state recovery, extension loading |
+| [hf-shape](skills/hf-shape/SKILL.md) | Idea → product definition: structured interview, MVP boundary, not-doing list, assumption ledger |
+| [hf-architect](skills/hf-architect/SKILL.md) | Architecture + breakdown: opinionated stack presets, one-page architecture/codebase map, vertical-slice backlog |
+| [hf-skeleton](skills/hf-skeleton/SKILL.md) | Slice S-1: walking skeleton — scaffold, one-command dev/test, thinnest real end-to-end path, day-0 architecture validation |
 | [hf-frame](skills/hf-frame/SKILL.md) | Pin down intent, mode, risk tier, user-perceivable flag, and the environment baseline |
 | [hf-plan](skills/hf-plan/SKILL.md) | Testable requirements + design + machine-readable task list; template-slot hallucination forbidden |
 | [hf-build](skills/hf-build/SKILL.md) | Build mode: each implementation task runs in a subagent with red-green-refactor logs (TDD). Exploration mode: fast disposable prototypes closed with a conclusion |
@@ -76,11 +81,10 @@ Typical fabrications the gate blocks mechanically: a "red" with no failing run o
 | [hf-review](skills/hf-review/SKILL.md) | Review protocol: subagent/fresh-session only, degraded reviews cannot self-approve; code reviewers rerun tests themselves |
 | [hf-ship](skills/hf-ship/SKILL.md) | Final acceptance, feedback write-back (backlog checkoff, new slices, assumption settlement), closeout |
 | [ext-ui-design](skills/ext-ui-design/SKILL.md) | Extension: UI features (IA, interaction states, design tokens, a11y, real-render evidence) |
-| [ext-cpp](skills/ext-cpp/SKILL.md) | Extension: C++ projects (GoogleTest discipline, RAII, test anti-patterns) |
 
 ## Extensions
 
-Extensions live in `skills/ext-*/` and declare **binding stages** (a subset of shape/frame/plan/build/verify/ship) and **trigger conditions** in their frontmatter description. Before each stage, `hf-workflow` scans them and loads the ones that match the current feature (e.g. "feature has a UI", "project is C++"). Extensions may only tighten requirements — they can never relax the main-chain gates.
+Extensions live in `skills/ext-*/` and declare **binding stages** (a subset of shape/architect/frame/plan/build/verify/ship) and **trigger conditions** in their frontmatter description. Before each stage, `hf-workflow` scans them and loads the ones that match the current feature (e.g. "feature has a UI", "project is C++"). Extensions may only tighten requirements — they can never relax the main-chain gates.
 
 To write your own, see [extension authoring](skills/hf-workflow/references/extension-authoring.md).
 
@@ -102,7 +106,7 @@ By default the installer copies HarnessFlow assets. Add `--mode symlink` (or `-M
 - **Claude Code**: install as a plugin (`/plugin marketplace add <this repo>`), or vendor `skills/` into your project — skills are discovered by their frontmatter descriptions.
 - **OpenCode / other clients**: installs HarnessFlow skills under `.opencode/skills/` while preserving any user-defined skills already there. OpenCode only discovers skills under that path (not the top-level `skills/` source), so the copy is generated by the installer and is gitignored — `skills/` remains the single source of truth. To use this repo itself in OpenCode: `python scripts/install.py --target opencode --dest .`
 
-Then just ask for work naturally: *"I have an idea: an app that helps me track my reading notes"* — the agent enters `hf-shape` and drives from idea to a running skeleton to shipped slices. Or: *"Use HarnessFlow: add rate limiting to the notifications API"* — the agent enters `hf-frame`, recovers the stage via the gate, and proceeds.
+Then just ask for work naturally: *"I have an idea: an app that helps me track my reading notes"* — the agent enters `hf-shape` and drives from idea through product definition and architecture to a running skeleton and shipped slices. Or: *"Use HarnessFlow: add rate limiting to the notifications API"* — the agent enters `hf-frame`, recovers the stage via the gate, and proceeds.
 
 ## Execution modes
 
@@ -117,6 +121,9 @@ Then just ask for work naturally: *"I have an idea: an app that helps me track m
 - **Machines judge form, reviews judge substance.** Anything mechanically decidable is never left to the model's discipline; anything requiring judgment happens in a clean context.
 - **Process overhead scales with risk — and with permanence.** Micro changes don't pay the full-ceremony tax; disposable prototypes don't pay the TDD tax (and can never ship).
 - **Process lives on disk.** Verdicts, approvals, ledgers and evidence logs are files, so any session can cold-start.
+- **The architecture page is the map.** One page answers "what lives where and what are the conventions"; stages read the map first and only the relevant code — never a whole-repo rescan per feature.
+- **Tokens are the user's money.** On-demand skill loading, per-artifact line budgets, single source of truth, paths-not-pastes for subagents, one-sentence teaching.
+- **The graph teaches software engineering.** Each stage names its classic SE activity at the transition, so users absorb the discipline while shipping.
 - **Extensions are conventions, not code.** Adding a domain skill never requires touching the main chain.
 
 ## License

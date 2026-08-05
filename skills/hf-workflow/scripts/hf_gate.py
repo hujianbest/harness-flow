@@ -3,8 +3,9 @@
 
 五个子命令:
 
-  init  在项目根初始化产品层 product/（product.md、decisions.md、
-        assumptions.md、backlog.md,已存在的文件不覆盖）与 features/ 目录。
+  init  在项目根初始化产品层 product/（product.md、architecture.md、
+        decisions.md、assumptions.md、backlog.md,已存在的文件不覆盖）
+        与 features/ 目录。
 
             python3 skills/hf-workflow/scripts/hf_gate.py init [--root .]
 
@@ -21,7 +22,7 @@
             # 特性级: 能否进入目标阶段
             python3 skills/hf-workflow/scripts/hf_gate.py check \
                 --feature features/012-x --to build
-            # 产品层: 塑形是否完成、能否开始切片
+            # 产品层: 产品定义(shape)与架构(architect)是否完成、能否开始切片
             python3 skills/hf-workflow/scripts/hf_gate.py check --product [--root .]
 
   status 一条命令恢复全局状态: 产品层是否就绪、每个特性当前卡在哪个阶段、
@@ -100,6 +101,33 @@ PRODUCT_FILES = {
 ## 不做清单（明确排除）
 
 <第一版明确不做的;防止范围蔓延的唯一手段是把"不做"写下来>
+""",
+    "architecture.md": """# 架构（一页,也是代码库地图）
+
+产品级架构由 hf-architect 产出;交付链各阶段先读本文件定位模块,再只读相关代码。
+保持一页（≤80 行）;结构变化时由 hf-ship 回写。特性级设计细节写在 features/*/ 的
+plan.md / design.md,不下沉到这里。
+
+- 日期:
+- 技术栈: <语言/框架/存储/部署;来自预设或用户指定,同步记入 decisions/assumptions>
+- 系统形态: <单体 Web 应用 | CLI | API 服务 + 前端 | ...>
+- 用户确认:
+
+## 模块边界
+
+<模块名 — 职责一句话 — 代码位置。每个切片/特性都应能指认它落在哪个模块。>
+
+## 核心数据模型
+
+<核心实体与关系,几行即可;字段级细节推迟到特性设计。>
+
+## 关键流程
+
+<1~3 条端到端主流程: 入口 → 模块 → 存储 → 出口。S-1 行走骨架至少穿透其中一条。>
+
+## 横切约定
+
+<错误处理、测试组织、目录布局、命名等;新代码必须遵循,偏离先回写这里。>
 """,
     "decisions.md": """# 决策记录
 
@@ -477,8 +505,19 @@ def cmd_check(feature: Path, target: str) -> int:
 
 # ---------------------------------------------------------------- 产品层
 
+def check_confirm(path: Path, oks: list[str], failures: list[str], fail_msg: str) -> None:
+    """校验文件含有效的 `- 用户确认:` 行（占位符 <...> 不算）。"""
+    if not path.is_file():
+        return
+    m = CONFIRM_RE.search(path.read_text(encoding="utf-8"))
+    if not m or m.group(1).startswith("<"):
+        failures.append(fail_msg)
+    else:
+        oks.append(f"{path.name} 用户确认: {m.group(1)}")
+
+
 def check_product_layer(root: Path) -> tuple[list[str], list[str]]:
-    """校验产品层四文件，返回 (oks, failures)。"""
+    """校验产品层五文件，返回 (oks, failures)。"""
     oks: list[str] = []
     failures: list[str] = []
     product = root / "product"
@@ -491,17 +530,14 @@ def check_product_layer(root: Path) -> tuple[list[str], list[str]]:
             failures.append(f"product/{name} 不存在或为空")
         else:
             oks.append(f"product/{name} 存在")
-    product_md = product / "product.md"
-    if product_md.is_file():
-        m = CONFIRM_RE.search(product_md.read_text(encoding="utf-8"))
-        if not m or m.group(1).startswith("<"):
-            failures.append("product/product.md 缺有效的 `- 用户确认:` 行 — MVP 边界未经确认不得开始切片")
-        else:
-            oks.append(f"product.md 用户确认: {m.group(1)}")
+    check_confirm(product / "product.md", oks, failures,
+                  "product/product.md 缺有效的 `- 用户确认:` 行 — 产品定义未经确认不得进架构（hf-shape）")
+    check_confirm(product / "architecture.md", oks, failures,
+                  "product/architecture.md 缺有效的 `- 用户确认:` 行 — 架构未经确认不得开始切片（hf-architect）")
     slices = read_slices(root)
     if slices is not None:
         if not slices:
-            failures.append("product/backlog.md 没有可解析的切片行（格式: `- [ ] S-1 ...`）")
+            failures.append("product/backlog.md 没有可解析的切片行（格式: `- [ ] S-1 ...`）— 需求拆解在 hf-architect 收尾时完成")
         else:
             done = sum(1 for _, d, _ in slices if d)
             oks.append(f"backlog 切片: {len(slices)} 片（已完成 {done}）")
@@ -536,7 +572,7 @@ def cmd_init(root: Path) -> int:
     if not features.is_dir():
         features.mkdir(parents=True)
         print(f"[hf-gate] 已创建: {features}/")
-    print("[hf-gate] 产品层模板就绪 — 按 hf-shape 完成访谈与填写，再 `check --product`")
+    print("[hf-gate] 产品层模板就绪 — 按 hf-shape 完成产品定义、hf-architect 完成架构与拆解，再 `check --product`")
     return 0
 
 
@@ -570,7 +606,11 @@ def cmd_status(root: Path) -> int:
     print(f"== hf-gate status ({root.resolve()})")
 
     product_ready = None
-    if (root / "product").is_dir():
+    product_dir = root / "product"
+    if (product_dir / "architecture.md").is_file() and not (product_dir / "product.md").is_file():
+        # 存量项目只建了架构地图,不走产品层门禁
+        print("产品层: 仅架构地图（存量项目模式；想法→APP 请先 hf-shape 补产品定义）")
+    elif product_dir.is_dir():
         _, failures = check_product_layer(root)
         product_ready = not failures
         if product_ready:
@@ -614,7 +654,7 @@ def cmd_status(root: Path) -> int:
         else:
             print("下一步: backlog 已清空 — 与用户确认新切片或收尾")
     elif product_ready is False:
-        print("下一步: 补齐产品层（hf-shape），`check --product` PASS 后开始切片")
+        print("下一步: 补齐产品层（产品定义 hf-shape → 架构与拆解 hf-architect），`check --product` PASS 后开始切片")
     else:
         print("下一步: 无进行中的工作 — 新特性从 hf-frame 进入；想法→APP 从 `init` + hf-shape 进入")
     return 0
