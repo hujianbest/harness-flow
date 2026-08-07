@@ -38,7 +38,7 @@ description: HarnessFlow 独立评审。plan 层工件(plan.md / spec.md / desig
 
 - 自己重跑全量测试套件,结果作为 findings 的依据
 - 读完整 git diff,对照任务清单核对改动面有无范围蔓延
-- 抽查 `evidence/` 日志与任务的对应关系(red 是否真是行为缺失、有无手工编辑痕迹)
+- 抽查测试与任务的对应关系(red 是否真是行为缺失)
 - 核对 frame 的风险档位与实际 diff 是否相符
 
 ### 3. 逐条检查并记 findings

@@ -52,9 +52,9 @@ description: UI 设计领域扩展。绑定阶段: plan、build、verify。触�
 
 ## 验证阶段 (verify) 规则
 
-- 运行时冒烟必须包含**真实渲染证据**：浏览器 / 模拟器中的截图存为 `evidence/smoke-<描述>.png`，或可自动化的渲染检查经 `hf_gate.py run --label smoke` 落盘；只有单元测试不构成 UI 冒烟
-- 交互三态至少各有一份可核对的证据（截图或断言三态的测试）
-- 可访问性用 axe / lighthouse 等工具跑一次自动检查，结果经 `hf_gate.py run --label a11y` 落盘；critical 违规必须修复后才能 ship
+- 运行时冒烟必须包含**真实渲染验证**：浏览器 / 模拟器中渲染确认页面正常；只有单元测试不构成 UI 冒烟
+- 交互三态至少各有一份可核对的验证（截图确认或断言三态的测试）
+- 可访问性用 axe / lighthouse 等工具跑一次自动检查；critical 违规必须修复后才能 ship
 
 ## 评审检查项
 
@@ -64,5 +64,5 @@ description: UI 设计领域扩展。绑定阶段: plan、build、verify。触�
 - [ ] (plan) 复用了既有 Design System / DESIGN.md，或偏离处有显式理由
 - [ ] (plan) 反 slop 硬拒绝项逐一排查，无侥幸产物
 - [ ] (code) 无硬编码视觉样式；可访问性要求有落实证据
-- [ ] (code) evidence/ 中有真实渲染的 smoke 证据，不只有单元测试
-- [ ] (code) 交互三态各有证据；a11y 自动检查无 critical 违规
+- [ ] (code) 真实渲染的 smoke 验证已完成，不只有单元测试
+- [ ] (code) 交互三态各有验证；a11y 自动检查无 critical 违规

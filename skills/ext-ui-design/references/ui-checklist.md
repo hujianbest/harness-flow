@@ -50,7 +50,7 @@
 - 禁用状态不只靠颜色区分
 - `prefers-reduced-motion` 下非必要动效停止
 
-**工具**：`npx @axe-core/cli <url>` 或浏览器 axe DevTools；结果经 `hf_gate.py run --label a11y -- <命令>` 落盘。
+**工具**：`npx @axe-core/cli <url>` 或浏览器 axe DevTools。
 
 ## 4. 动效性能（build）
 
@@ -76,20 +76,16 @@
 # Chrome DevTools Performance 录制 → 检查没有紫色 layout 条
 # 或 Lighthouse Performance 跑一次
 npx lighthouse <url> --only-categories=performance --output=json --output-path=./lh.json
-# 经 gate 落盘
-python3 skills/hf-workflow/scripts/hf_gate.py run \
-  --feature features/<NNN>-x --label motion-perf -- npx lighthouse <url> --only-categories=performance
 ```
 
-## 5. 交互三态证据模板
+## 5. 交互三态验证模板
 
-verify 阶段每个关键交互至少三张截图或断言：
+verify 阶段每个关键交互至少三态验证（截图确认或断言三态的测试）：
 
 ```
-evidence/
-  smoke-<交互名>-loading.png   # 或 aria-busy="true" 断言
-  smoke-<交互名>-empty.png      # 或空列表渲染断言
-  smoke-<交互名>-error.png      # 或错误边界渲染断言
+loading   — 确认骨架屏/aria-busy="true" 渲染正确
+empty     — 确认空状态渲染且含一个明确 CTA
+error     — 确认错误状态渲染正确
 ```
 
 高风险交互额外补：disabled、success、focus 各一份。

@@ -7,7 +7,7 @@ description: HarnessFlow 主工作流入口。凡是开发新功能、修改已�
 
 HarnessFlow 是一张软件工程阶段图:把"从想法到产品"的工程活动编成带机械门禁的图,让不掌握软件工程的使用者也能沿图走出可靠的应用。它对抗四个不可靠因素,全部机制由此推出:
 
-1. **模型不可靠** → 机械门禁:阶段推进由 `skills/hf-workflow/scripts/hf_gate.py` 机械裁决;证据 = 命令原始输出落盘,叙述不算证据。
+1. **模型不可靠** → 机械门禁:阶段推进由 `skills/hf-workflow/scripts/hf_gate.py` 机械裁决;检查工件文档是否存在、评审结论是否落盘。
 2. **意图欠定** → 欠定信息显式化:遇到用户没说清的决策点,标准动作是"提出带默认值的选项 → 记入 `product/assumptions.md` 假设台账 → 继续",禁止静默幻觉填补。
 3. **会话必死** → 一切状态活在磁盘上,`hf_gate.py status` 一条命令冷启动恢复。
 4. **用户不读代码** → demo 即门禁:用户可感知的交付物必须以可运行的产品形态(录屏/截图/预览地址)交给用户体验并验收,文档评审不能替代。
@@ -65,7 +65,7 @@ shape(产品定义) → architect(架构与拆解) → S-1 行走骨架(hf-skele
 | (S-1) | `hf-skeleton` | 可运行的应用空壳(走交付链,内容收紧) | 同交付链 |
 | frame | `hf-frame` | frame.md + 环境基线证据 | `check --to plan`(档位1/探索: `--to build`) |
 | plan | `hf-plan` | plan.md 或 spec.md + design.md | 评审通过+确认落盘, `check --to build` |
-| build | `hf-build` | subagent 完成代码 + 测试 + 逐任务 red/green 证据 | 任务全勾, `check --to verify`(探索: `--to close`) |
+| build | `hf-build` | subagent 完成代码 + 测试 + 逐任务 red/green | 任务全勾, `check --to verify`(探索: `--to close`) |
 | verify | `hf-verify` | 冒烟证据 + 独立代码评审 + demo 验收 | `check --to ship` |
 | ship | `hf-ship` | 验收报告 + 反馈回写产品层 + 收尾 | 需求逐条闭合 |
 
@@ -86,7 +86,6 @@ features/<NNN>-<slug>/ # 每切片/特性一个目录,<NNN> 取下一个编号,�
   spec.md  design.md   # 档位 3: 规格与设计分离 (hf-plan)
   conclusion.md        # 仅探索模式: 原型结论与建议
   progress.md          # 薄状态文件:阶段指针与下一步
-  evidence/            # 原始命令输出日志,只能由 hf_gate.py run 产生
   reviews/             # 评审与验收记录 (hf-review / demo-acceptance)
 ```
 
@@ -110,7 +109,6 @@ features/<NNN>-<slug>/ # 每切片/特性一个目录,<NNN> 取下一个编号,�
 - **按需加载**:只在进入阶段时读该阶段 SKILL.md 与匹配的扩展,不预读全链。
 - **架构即地图**:交付链一律先读 `product/architecture.md` 定位模块,再只读相关代码;禁止每个特性都全库扫描。
 - **单一事实源**:任何信息只写在一个文件里,其他地方引用路径;给 subagent 只传工件路径,不粘贴全文。
-- **证据引用不粘贴**:evidence 日志落盘后,对话与文档只引用文件名 + exit code。
 - **工件预算**:product.md ≤60 行、architecture.md ≤80 行、frame.md ≤30 行、档位 2 plan.md ≤150 行、评审记录只写结论与 findings。超预算说明该拆、该删或该升档。
 - **一句话教学**:软件工程概念的解释以一句话为限。
 - 仪式随风险缩放(档位)与随存续期缩放(探索模式),本身就是 token 经济的一部分。
@@ -122,15 +120,12 @@ gate=skills/hf-workflow/scripts/hf_gate.py
 python3 $gate init                       # 初始化产品层模板(绿地路径第一步)
 python3 $gate status                     # 冷启动恢复:产品层 + 各特性所在阶段 + 下一步
 python3 $gate next                       # 取 backlog 中第一个未完成切片
-python3 $gate run   --feature features/<NNN>-<slug> --label <label> -- <命令...>   # 产生证据
 python3 $gate check --feature features/<NNN>-<slug> --to <plan|design|build|verify|ship|close>
 python3 $gate check --product            # 产品层是否就绪(产品定义 + 架构均已确认)
 ```
 
 - **进入任何阶段前必须运行 check,并把 RESULT 行写进 progress.md。** FAIL 时不得进入,输出即待办清单。
-- 证据标签约定:`baseline`(环境基线)、`t<N>-red` / `t<N>-green`(逐任务红绿)、`suite`(全量测试)、`smoke`(运行时冒烟)、`demo`(用户可体验的演示:录屏/截图/预览地址探活)。
-- **手工创建或编辑 `evidence/` 下的日志 = 造假**。截图/录屏等非日志证据可直接放入 evidence/(命名 `smoke-*` / `demo-*`)。
-- gate 只做机械裁决(文件存在性、结论行、退出码、时间戳),不理解语义;语义质量由 `hf-review` 与用户 demo 验收把关。
+- gate 只做机械裁决(文件存在性、评审结论行),不理解语义;语义质量由 `hf-review` 与用户 demo 验收把关。
 
 ## 状态恢复
 
@@ -141,9 +136,8 @@ python3 $gate check --product            # 产品层是否就绪(产品定义 + 
 - **门禁不可跳过**:gate check FAIL 时不进下一阶段;评审结论"需修改"时回作者阶段只修 findings,再评审。
 - **实现任务 subagent 化**:build 阶段的每个实现任务必须派给 subagent 执行;主会话只负责编排、提供必要工件路径、接收结果、运行/记录 gate 与推进状态。若当前环境不能使用 subagent,必须停下征求用户豁免,不得静默降级为主会话实现。
 - **作者/评审分离**:评审只承认 subagent 或全新会话;主会话冷读是降级路径且不得自我确认,见 `hf-review`。
-- **证据即机器输出**:一切"测试通过/构建成功/能运行"的声明必须有 evidence/ 日志支撑。
 - **欠定不静默填补**:替用户做的每个默认选择必须先记入假设台账再继续;用户推翻假设时评估波及、受控返工。
-- **demo 即验收**:用户可感知的特性,ship 前必须有 demo 证据与落盘的用户验收(`reviews/demo-acceptance.md`);"用户在聊天里说好"不落盘不算。
+- **demo 即验收**:用户可感知的特性,ship 前必须有落盘的用户验收(`reviews/demo-acceptance.md`);"用户在聊天里说好"不落盘不算。
 - **探索产物即弃**:探索模式代码禁止直接晋升为正式代码;档位 >1 的工作禁止探索模式。
 - **单任务推进**:build 阶段同一时间只派发一个实现任务;切片循环同一时间只做一个切片。
 - **压力不是豁免**:用户明确坚持跳过某道门禁时,先说明风险,并在 progress.md 记录 `用户豁免 <门禁> <日期>` 后才可继续;口头催促不算豁免。

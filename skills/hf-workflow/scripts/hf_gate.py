@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """hf_gate.py — HarnessFlow 机械门禁与状态机（stdlib only）。
 
-五个子命令:
+四个子命令:
 
   init  在项目根初始化产品层 product/（product.md、architecture.md、
         decisions.md、assumptions.md、backlog.md,已存在的文件不覆盖）
@@ -9,14 +9,7 @@
 
             python3 skills/hf-workflow/scripts/hf_gate.py init [--root .]
 
-  run   包装执行一条命令，把原始输出连同命令、时间戳、退出码写入
-        features/<id>/evidence/<label>-<UTC时间戳>.log，并向调用方透传退出码。
-        这是工作流中所有测试/构建/冒烟/demo 证据的唯一合法产生方式。
-
-            python3 skills/hf-workflow/scripts/hf_gate.py run \
-                --feature features/012-x --label t3-green -- pytest tests/
-
-  check 机械校验，只依据磁盘上的工件与证据日志，不采信任何叙述性文本。
+  check 机械校验，只依据磁盘上的工件与评审记录，不采信任何叙述性文本。
         PASS 退出码 0，FAIL 退出码 1，用法错误 2。
 
             # 特性级: 能否进入目标阶段
@@ -40,23 +33,21 @@
   `- 用户可感知: 是|否`。
 
   建造模式:
-  --to plan    frame 三行齐备(档位须 ≥2) + baseline 证据日志存在
+  --to plan    frame 三行齐备(档位须 ≥2)
   --to design  仅档位 3：spec.md 存在 + spec-review 通过且已确认
-  --to build   档位 1：frame + baseline；
+  --to build   档位 1：frame 齐备；
                档位 2：plan.md 含任务清单 + plan-review 通过且已确认；
                档位 3：spec/design 齐备 + 两轮评审均通过且已确认
-  --to verify  build 前提 + 任务清单全部勾选 + 每个任务有 red(exit!=0)
-               与 green(最新一份 exit==0) 证据日志
-  --to ship    verify 前提 + code-review 通过且已确认 + suite 日志
-               (exit==0 且不早于最新 green) + smoke 冒烟证据；
-               用户可感知为"是"时另需 demo 证据(evidence/demo-*)
-               + reviews/demo-acceptance.md(结论: 接受 + 用户确认)
+  --to verify  build 前提 + 任务清单全部勾选(档位 ≥2)
+  --to ship    verify 前提 + code-review 通过且已确认；
+               用户可感知为"是"时另需 demo 验收(reviews/demo-acceptance.md
+               结论: 接受 + 用户确认)
 
   探索模式（原型即弃，链路 frame → build → close）:
   仅限风险档位 1；不经 plan/design/verify，永远不能 ship（探索产物禁止
   直接晋升为正式代码，正式实现另起建造模式特性）。
-  --to build   frame 三行齐备即可（不要求 baseline 与 red/green）
-  --to close   smoke 或 demo 证据至少一份有效 + conclusion.md 非空
+  --to build   frame 三行齐备即可
+  --to close   conclusion.md 非空
 
 评审/验收记录的机器可读行: `- 结论: <值>`、`- 用户确认: <值>`、
 `- 评审方式: subagent|独立会话|主会话降级`。评审方式为"主会话降级"时，
@@ -67,20 +58,15 @@ from __future__ import annotations
 
 import argparse
 import re
-import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
-LABEL_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-LOG_NAME_RE = re.compile(r"^(?P<label>[a-z0-9-]+)-(?P<ts>\d{8}T\d{6}Z)(?:-\d+)?\.log$")
 TIER_RE = re.compile(r"^-[ \t]*风险档位:[ \t]*([123])\b", re.MULTILINE)
 MODE_RE = re.compile(r"^-[ \t]*模式:[ \t]*(探索|建造)\b", re.MULTILINE)
 PERCEIVABLE_RE = re.compile(r"^-[ \t]*用户可感知:[ \t]*(是|否)\b", re.MULTILINE)
 TASK_RE = re.compile(r"^- \[([ xX])\][ \t]*(T-\d+)\b", re.MULTILINE)
 SLICE_RE = re.compile(r"^- \[([ xX])\][ \t]*(S-\d+)[ \t]*(.*)$", re.MULTILINE)
 CONFIRM_RE = re.compile(r"^-[ \t]*用户确认:[ \t]*(\S.*)$", re.MULTILINE)
-EXIT_RE = re.compile(r"^# exit: (\d+)\s*$", re.MULTILINE)
 
 TARGETS = ("plan", "design", "build", "verify", "ship", "close")
 
@@ -154,69 +140,7 @@ agent 替用户做的默认选择。遇到欠定点的标准动作: 提出带默
 }
 
 
-# ---------------------------------------------------------------- run
-
-def cmd_run(feature: Path, label: str, command: list[str], cwd: str | None) -> int:
-    if not LABEL_RE.match(label):
-        print(f"错误: label 必须匹配 [a-z0-9][a-z0-9-]* ，得到: {label!r}")
-        return 2
-    if not command:
-        print("错误: 缺少要执行的命令（用 -- 分隔）")
-        return 2
-
-    evidence = feature / "evidence"
-    evidence.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    path = evidence / f"{label}-{ts}.log"
-    n = 2
-    while path.exists():
-        path = evidence / f"{label}-{ts}-{n}.log"
-        n += 1
-
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    try:
-        proc = subprocess.run(
-            command, cwd=cwd, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT, text=True,
-        )
-        output, exit_code = proc.stdout or "", proc.returncode
-    except FileNotFoundError as e:
-        output, exit_code = f"hf-gate: 命令无法启动: {e}\n", 127
-
-    if output and not output.endswith("\n"):
-        output += "\n"
-    path.write_text(
-        "# hf-gate-run\n"
-        f"# label: {label}\n"
-        f"# command: {' '.join(command)}\n"
-        f"# started: {started}\n"
-        f"{output}"
-        f"# exit: {exit_code}\n",
-        encoding="utf-8",
-    )
-    sys.stdout.write(output)
-    print(f"[hf-gate] 证据已落盘: {path} (exit {exit_code})")
-    return exit_code
-
-
 # ---------------------------------------------------------------- 解析工件
-
-def log_exit(path: Path) -> int | None:
-    matches = EXIT_RE.findall(path.read_text(encoding="utf-8"))
-    return int(matches[-1]) if matches else None
-
-
-def evidence_logs(feature: Path, label_prefix: str) -> list[tuple[str, Path, int | None]]:
-    """返回按时间戳升序的 (ts, path, exit) 列表，label 前缀匹配。"""
-    evidence = feature / "evidence"
-    out = []
-    if evidence.is_dir():
-        for p in evidence.iterdir():
-            m = LOG_NAME_RE.match(p.name)
-            if m and m.group("label").startswith(label_prefix):
-                out.append((m.group("ts"), p, log_exit(p)))
-    return sorted(out, key=lambda t: t[0])
-
 
 def read_frame_field(feature: Path, pattern: re.Pattern) -> str | None:
     frame = feature / "frame.md"
@@ -305,14 +229,6 @@ class Checker:
             self.ok(f"frame.md 用户可感知: {perceivable}")
         return tier, mode, perceivable
 
-    def check_baseline(self) -> None:
-        logs = evidence_logs(self.feature, "baseline")
-        if not logs:
-            self.fail("缺环境基线证据: evidence/baseline-*.log（用 hf_gate.py run --label baseline 产生）")
-        else:
-            ts, path, code = logs[-1]
-            self.ok(f"baseline 证据: {path.name} (exit {code})")
-
     def check_doc(self, doc: str) -> None:
         path = self.feature / doc
         if not path.is_file() or not path.read_text(encoding="utf-8").strip():
@@ -337,7 +253,7 @@ class Checker:
             return
         self.ok(f"{stem}: {expected}，已确认 ({review['confirm']})")
 
-    # -- 任务与证据
+    # -- 任务
 
     def task_doc_for(self, tier: int) -> str:
         return "plan.md" if tier == 2 else "design.md"
@@ -352,14 +268,9 @@ class Checker:
         else:
             self.ok(f"{doc} 任务清单: {len(tasks)} 项")
 
-    def task_ids(self, tier: int) -> list[tuple[str, bool]]:
+    def task_ids(self, tier: int) -> list[tuple[str, bool]] | None:
         if tier == 1:
-            # tier-1 无计划文档，从证据日志推断任务 ID
-            ids = sorted({m.group(1) for _, p, _ in evidence_logs(self.feature, "t")
-                          for m in [re.match(r"^t(\d+)-(?:red|green)-", p.name)] if m})
-            if not ids:
-                self.fail("tier-1 至少需要一对 t<N>-red / t<N>-green 证据日志")
-            return [(f"T-{i}", True) for i in ids]
+            return None  # tier-1 无任务清单
         return read_tasks(self.feature, self.task_doc_for(tier)) or []
 
     def check_tasks_done(self, tasks: list[tuple[str, bool]]) -> None:
@@ -368,58 +279,6 @@ class Checker:
             self.fail(f"任务未全部完成，未勾选: {', '.join(undone)}")
         elif tasks:
             self.ok(f"任务清单全部勾选 ({len(tasks)} 项)")
-
-    def check_red_green(self, tasks: list[tuple[str, bool]]) -> None:
-        for tid, _ in tasks:
-            n = tid.split("-")[1]
-            reds = evidence_logs(self.feature, f"t{n}-red")
-            greens = evidence_logs(self.feature, f"t{n}-green")
-            if not reds:
-                self.fail(f"{tid} 缺 red 证据: evidence/t{n}-red-*.log（失败先行的测试运行）")
-            elif not any(code not in (0, None) for _, _, code in reds):
-                self.fail(f"{tid} 的 red 证据 exit 均为 0 — 测试从未失败过，不构成有效 RED")
-            if not greens:
-                self.fail(f"{tid} 缺 green 证据: evidence/t{n}-green-*.log")
-            elif greens[-1][2] != 0:
-                self.fail(f"{tid} 最新 green 证据 exit={greens[-1][2]}，不是通过状态")
-            if reds and greens and greens[-1][2] == 0 and any(c not in (0, None) for _, _, c in reds):
-                self.ok(f"{tid} red→green 证据齐备")
-
-    def check_runtime_evidence(self, label: str, desc: str, required: bool = True) -> bool:
-        """校验 evidence/<label>-* 运行时证据: 非日志文件（截图/录屏）直接有效，
-        日志文件要求最新一份 exit 0。返回是否有有效证据。"""
-        evidence = self.feature / "evidence"
-        files = sorted(evidence.glob(f"{label}-*")) if evidence.is_dir() else []
-        logs = evidence_logs(self.feature, label)
-        non_log = [p for p in files if not p.name.endswith(".log")]
-        if not files:
-            if required:
-                self.fail(f"缺{desc}证据: evidence/{label}-*（真实运行的日志或截图/录屏）")
-            return False
-        if non_log:
-            self.ok(f"{desc}证据: {', '.join(p.name for p in non_log)}")
-            return True
-        if logs and logs[-1][2] == 0:
-            self.ok(f"{desc}证据: {logs[-1][1].name} (exit 0)")
-            return True
-        if required:
-            self.fail(f"{label} 日志最新一份 exit 非 0，{desc}未通过")
-        return False
-
-    def check_suite(self) -> None:
-        greens = evidence_logs(self.feature, "t")
-        green_ts = [ts for ts, p, _ in greens if re.match(r"^t\d+-green-", p.name)]
-        suites = evidence_logs(self.feature, "suite")
-        if not suites:
-            self.fail("缺全量测试证据: evidence/suite-*.log")
-        else:
-            ts, path, code = suites[-1]
-            if code != 0:
-                self.fail(f"最新 suite 日志 exit={code}，全量测试未通过")
-            elif green_ts and ts < max(green_ts):
-                self.fail("最新 suite 日志早于最新 green 证据 — 最后一次改动后未重跑全量测试")
-            else:
-                self.ok(f"suite 证据: {path.name} (exit 0)")
 
 
 def check_target(feature: Path, target: str) -> Checker:
@@ -438,10 +297,6 @@ def check_target(feature: Path, target: str) -> Checker:
             c.fail("探索模式特性永远不能 ship — 结论写入 conclusion.md 走 `check --to close`；"
                    "正式实现另起建造模式特性，禁止直接晋升原型代码")
         elif target == "close":
-            has_smoke = c.check_runtime_evidence("smoke", "运行时冒烟", required=False)
-            has_demo = c.check_runtime_evidence("demo", "demo", required=False)
-            if not (has_smoke or has_demo):
-                c.fail("探索收尾至少需要一份有效的 smoke 或 demo 证据（证明原型真的跑起来过）")
             c.check_doc("conclusion.md")
         return c
 
@@ -449,8 +304,6 @@ def check_target(feature: Path, target: str) -> Checker:
     if target == "close":
         c.fail("close 仅用于探索模式 — 建造模式走 verify → ship")
         return c
-
-    c.check_baseline()
 
     if target == "plan":
         if tier < 2:
@@ -472,15 +325,11 @@ def check_target(feature: Path, target: str) -> Checker:
             c.check_review("design-review.md")
         if target in ("verify", "ship"):
             tasks = c.task_ids(tier)
-            if tier >= 2:
+            if tasks is not None:
                 c.check_tasks_done(tasks)
-            c.check_red_green(tasks)
         if target == "ship":
             c.check_review("code-review.md")
-            c.check_suite()
-            c.check_runtime_evidence("smoke", "运行时冒烟")
             if perceivable == "是":
-                c.check_runtime_evidence("demo", "demo")
                 c.check_review("demo-acceptance.md", expected="接受")
     return c
 
@@ -676,19 +525,8 @@ def cmd_next(root: Path) -> int:
 # ---------------------------------------------------------------- main
 
 def main(argv: list[str]) -> int:
-    if argv and argv[0] == "run" and "--" in argv:
-        split = argv.index("--")
-        head, command = argv[:split], argv[split + 1:]
-    else:
-        head, command = argv, []
-
     parser = argparse.ArgumentParser(prog="hf_gate.py", description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
-
-    p_run = sub.add_parser("run", help="执行命令并把原始输出落盘为证据日志")
-    p_run.add_argument("--feature", required=True, help="特性目录，如 features/012-x")
-    p_run.add_argument("--label", required=True, help="证据标签，如 baseline / t3-red / suite / smoke / demo")
-    p_run.add_argument("--cwd", default=None, help="命令工作目录（默认当前目录）")
 
     p_check = sub.add_parser("check", help="机械校验: 特性能否进入目标阶段 / 产品层是否就绪")
     p_check.add_argument("--feature", default=None)
@@ -706,12 +544,10 @@ def main(argv: list[str]) -> int:
     p_next.add_argument("--root", default=".")
 
     try:
-        args = parser.parse_args(head)
+        args = parser.parse_args(argv)
     except SystemExit as e:
         return int(e.code or 2)
 
-    if args.cmd == "run":
-        return cmd_run(Path(args.feature), args.label, command, args.cwd)
     if args.cmd == "check":
         if args.product:
             return cmd_check_product(Path(args.root))

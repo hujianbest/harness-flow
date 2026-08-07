@@ -21,8 +21,8 @@ description: HarnessFlow 行走骨架(切片 S-1)。产品层就绪(check --prod
 
 ## 证据与验收
 
-- `smoke`:真实启动、真实访问一次端到端路径(`hf_gate.py run --label smoke -- <探活命令>`,或渲染截图)。
-- `demo`:用户视角的证据——录屏/截图/预览地址探活日志,存 `evidence/demo-*`。
+- `smoke`:真实启动、真实访问一次端到端路径(探活命令或渲染截图)。
+- `demo`:用户视角的证据——录屏/截图/预览地址。
 - demo 验收(见 `hf-verify`):向用户交付一句话"怎么打开它"+ demo 证据;用户跑通即接受,落盘 `reviews/demo-acceptance.md`。
 - ship 时(见 `hf-ship`)把 backlog 的 `S-1` 勾选,反馈(如"跑不起来""想先看 X 功能")回写产品层。
 

@@ -13,7 +13,7 @@ description: HarnessFlow ship 阶段。verify 完成(gate check --to ship 通过
 
 ### 1. 最终验收(语义层,gate 管不到的部分)
 
-- 逐条对照需求(plan.md 需求章节,或 spec.md):每条 FR 的验收标准 → 指出对应的通过测试与 evidence 日志;每条 NFR → 指出验证证据;冒烟 → 指出对应 evidence 文件。
+- 逐条对照需求(plan.md 需求章节,或 spec.md):每条 FR 的验收标准 → 指出对应的通过测试;每条 NFR → 指出验证手段;冒烟 → 指出运行验证结果。
 - 任何一条闭合不了 → 停下,回对应上游阶段(缺测试 → `hf-build`;需求本身变了 → `hf-frame` 重估),不带着缺口交付。
 
 ### 2. 反馈回写产品层(有 `product/` 时)
@@ -39,7 +39,7 @@ demo 验收的反馈是最贵的输入,ship 是它回流的唯一固定时机:
 ## 交付摘要
 - 交付内容: <一句话>
 - 需求闭合: <N/N 条 FR、N/N 条 NFR 全部验收通过>
-- 证据索引: <baseline / suite / smoke / demo 与逐任务 red-green 的 evidence 文件名>
+- 证据索引: <全量测试与冒烟的运行结果概述、逐任务 red-green 结果>
 - 主要变更: <触碰的模块/文件概览>
 - 产品层回写: <勾选的切片、新增切片、假设结算;无产品层写"不适用">
 - 遗留事项: <非阻塞的建议级 findings、范围外推迟项;没有则写"无">
