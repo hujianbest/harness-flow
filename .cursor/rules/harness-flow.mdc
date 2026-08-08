@@ -5,24 +5,23 @@ alwaysApply: true
 
 # HarnessFlow on Cursor
 
-This workspace ships HarnessFlow: a harness that drives an agent from a raw idea to a working app (and through everyday feature delivery) — main-chain discipline (SDD + TDD), mechanical gates, demo-gated acceptance, and pluggable domain extensions.
+This workspace ships HarnessFlow: Matt-aligned main chain (grill → spec → architecture → tickets → implement → ship) plus mechanical gates, progress recovery, auto mode, and pluggable `ext-*` extensions. Skill bodies are adapted from mattpocock/skills (MIT, authorized copy) under `hf-*` names.
 
 ## On every development task
 
-1. Load `skills/hf-workflow/SKILL.md` first. It defines the two entry paths — idea→app (`shape → architect → skeleton → slice loop`) and existing-codebase delivery — the delivery chain `frame → plan → build → verify → ship`, the exploration path `frame → build → close`, risk tiers, the product-layer files under `product/` (including the one-page `architecture.md` codebase map), the artifact/evidence layout under `features/<NNN>-<slug>/`, the token-economy discipline, and the mechanical gate `skills/hf-workflow/scripts/hf_gate.py`.
-2. Follow the skill for the current stage: `hf-shape`, `hf-architect`, `hf-skeleton`, `hf-frame`, `hf-plan`, `hf-build`, `hf-verify`, `hf-ship`, with `hf-review` at every review gate — read the stage skill's `SKILL.md` when you enter that stage.
-3. Before each stage, check `skills/ext-*/` descriptions and load extensions whose binding stage and trigger conditions match.
+1. Load `skills/hf-workflow/SKILL.md` first.
+2. Follow the current stage skill: `hf-grill-with-docs` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`, with `hf-review` (and `hf-code-review` at the code gate) after spec, architecture, and implementation.
+3. Before each stage, load matching `skills/ext-*/` by frontmatter binding stage + trigger.
 
 ## Hard rules
 
-- Run `hf_gate.py check --to <stage>` (or `check --product`) before entering any stage and record the RESULT line in `progress.md`; a FAIL means you may not proceed.
-- Evidence is machine output only: every test/build/smoke/demo run goes through `hf_gate.py run` into `features/<id>/evidence/`. Hand-writing or editing evidence logs is fabrication.
-- Underspecification is never silently filled: propose a default, record it in `product/assumptions.md`, then proceed.
-- Read `product/architecture.md` (when present) before exploring code; never rescan the whole repository per feature. Keep artifacts within their line budgets and pass subagents file paths, not pasted contents.
-- User-perceivable slices are demo-gated: ship requires `evidence/demo-*` plus an on-disk acceptance in `reviews/demo-acceptance.md`; chat approval alone does not count.
-- Exploration prototypes are disposable: tier 1 only, can never ship, close via `conclusion.md` + `check --to close`; never promote prototype code directly.
-- Author/reviewer separation: reviews run in a subagent or fresh session; a same-session (degraded) review may not verdict "通过" and may never self-approve.
-- One task at a time in the build stage; no implementation code before a failing test (red log with nonzero exit) — build mode only.
-- Recover state with `hf_gate.py status`, not from chat memory.
+- Run `skills/hf-workflow/scripts/hf_gate.py check --to <stage>` (or `check --product`) before entering a stage; record RESULT in `progress.md`. FAIL means do not proceed.
+- Recover with `skills/hf-workflow/scripts/hf_gate.py status`, not chat memory.
+- Underspecification: propose a default, record in `product/assumptions.md`, then proceed.
+- Read `CONTEXT.md` / feature `architecture.md` before exploring code; no whole-repo rescan per feature.
+- User-perceivable slices need demo acceptance on disk before ship.
+- Exploration mode can never ship; close via `conclusion.md` + `check --to close`.
+- Author/reviewer separation: reviews in subagent or fresh session; degraded reviews must not self-approve; auto + degraded = hard stop.
+- Implement one frontier ticket at a time; build mode uses `hf-tdd` (failing test first).
 
-Pure Q&A or code-reading requests that produce no code changes do not need HarnessFlow.
+Pure Q&A or read-only requests need no HarnessFlow.

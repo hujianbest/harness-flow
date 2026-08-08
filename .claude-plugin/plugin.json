@@ -1,7 +1,7 @@
 {
   "name": "harness-flow",
-  "description": "HarnessFlow — a harness that drives AI coding agents from a raw idea to a working app: product-layer shaping (hf-shape/hf-skeleton), main-chain discipline (SDD + TDD) along frame -> plan -> build -> verify -> ship, exploration mode for disposable prototypes, mechanical gates (hf_gate.py init/status/next/run/check), demo-gated acceptance, and pluggable ext-* domain extensions.",
-  "version": "4.0.0",
+  "description": "HarnessFlow — Matt-aligned main chain under hf-* names (grill-with-docs → to-spec → to-architecture → to-tickets → implement → ship), cross-stage hf-review, mechanical gates (hf_gate.py), progress recovery, auto mode, demo-gated acceptance, and pluggable ext-* extensions. Skill prose adapted from mattpocock/skills (MIT).",
+  "version": "5.0.0",
   "author": {
     "name": "hujianbest"
   },

@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-08-08
+
+### Changed
+
+- **主链替换为 Matt 对齐流程（v5）** — 对外仍用 `hf-*` 前缀；阶段改为 `hf-workflow` → `hf-grill-with-docs` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`。规格/架构/代码均经 `hf-review`（代码门另用 `hf-code-review`）。技能散文改编自 mattpocock/skills（MIT，已获授权）。
+- **`hf_gate.py`** — `--to` 改为 `to-spec|to-architecture|to-tickets|implement|ship|close`；特性元数据改 `feature.md`（模式/可感知）；票清单 `tickets.md`；产品层改为 `CONTEXT.md` + `product/assumptions.md|decisions.md`。
+- **退役** — `hf-shape` / `hf-architect` / `hf-skeleton` / `hf-frame` / `hf-plan` / `hf-build` / `hf-verify`。
+- **扩展绑定** — `ext-ui-design` → to-spec/implement/code-review；`ext-design-md` → to-architecture/ship。
+- **保留** — auto、`progress.md` 恢复、机械门禁、跨阶段 review、demo 验收。
+
+## [4.x archive note]
+
+> 以下为 v4 architect 生命周期补齐纪要（历史）。
+
 > **补齐软件工程生命周期,显式化 token 经济。** v4 的绿地链把技术选型和需求拆解都挤在 shape 里,在没有任何系统视图的情况下就切 backlog——对照经典生命周期(定义产品 → 架构/概要设计 → 拆解需求 → 开发与测试),缺"架构设计"一层;同时没有持久的产品级架构文档,每个特性、每个新会话都要重新探索代码库。本次新增 architect 阶段与一页 `product/architecture.md`(兼作代码库地图),把绿地链对齐为 `shape(产品定义)→ architect(架构与拆解)→ 骨架 → 切片循环`,并把 token 经济与"阶段图即软件工程教学"写成显式纪律。
 
 ### Added
@@ -594,7 +608,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Per ADR-001 D9: the demo's **deliverable is the trail of HF main-chain artifacts**, not a finished product. The demo does not publish to a real Medium account; all HTTP is intercepted by `RecordingHttpClient`.
 - Per the user's 2026-04-29 delegation, the demo's product scope (target users / platforms / MVP / tech stack) was locked by the cursor agent and recorded as `seed input` in `examples/writeonce/docs/insights/2026-04-29-writeonce-discovery.md` section 0, then carried forward by `hf-specify`. Discovery / spec / design / tasks approval gates were each signed off by the cursor agent on that delegation.
 
-[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v5.0.0...HEAD
+[5.0.0]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...v4.0.0
 [3.1.0]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/hujianbest/harness-flow/releases/tag/v3.0.0
