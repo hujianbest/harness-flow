@@ -15,6 +15,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - **退役** — `hf-shape` / `hf-architect` / `hf-skeleton` / `hf-frame` / `hf-plan` / `hf-build` / `hf-verify`。
 - **扩展绑定** — `ext-ui-design` → to-spec/implement/code-review；`ext-design-md` → to-architecture/ship。
 - **保留** — auto、`progress.md` 恢复、机械门禁、跨阶段 review、demo 验收。
+- **`hf-setup-skills`** — 由 `hf-setup-matt-pocock-skills` 重命名。
 
 ## [4.x archive note]
 
