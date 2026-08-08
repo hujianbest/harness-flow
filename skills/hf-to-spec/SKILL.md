@@ -10,7 +10,7 @@ description: 把当前会话综合为规格并落入特性目录/issue tracker,�
 ## HarnessFlow 桥接
 
 1. `hf_gate.py check --feature features/<id> --to to-spec`,RESULT 写入 progress。FAIL 停。
-2. Tracker 未配置时默认把 spec 写入 `features/<id>/spec.md`;若已 `hf-setup-matt-pocock-skills` 则按其 issue-tracker 发布。
+2. Tracker 未配置时默认把 spec 写入 `features/<id>/spec.md`;若已 `hf-setup-skills` 则按其 issue-tracker 发布。
 3. 写完后走 `hf-review`(规格 checklist) → `reviews/spec-review.md` + 用户确认/`auto-approved`。
 4. 通过后才能 `check --to to-architecture`。
 

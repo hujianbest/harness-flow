@@ -49,7 +49,7 @@ Gates check artifacts and review verdict lines on disk — not model narration. 
 | [hf-code-review](skills/hf-code-review/SKILL.md) | Two-axis code review (Standards + Spec) |
 | [hf-ship](skills/hf-ship/SKILL.md) | Closeout + write-back |
 
-Meta / on-ramps include `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`, `hf-prototype`, `hf-setup-matt-pocock-skills`, and others under `skills/hf-*`.
+Meta / on-ramps include `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`, `hf-prototype`, `hf-setup-skills`, and others under `skills/hf-*`.
 
 ## Extensions
 

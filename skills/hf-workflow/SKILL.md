@@ -78,6 +78,6 @@ python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 
 ## Meta 技能(按需)
 
-`hf-grilling`、`hf-domain-modeling`、`hf-tdd`、`hf-codebase-design`、`hf-code-review`、`hf-prototype`、`hf-research`、`hf-handoff`、`hf-setup-matt-pocock-skills`、`hf-wayfinder`、`hf-triage`、`hf-diagnosing-bugs`、`hf-wizard`、`hf-improve-codebase-architecture`、`hf-grill-me`。
+`hf-grilling`、`hf-domain-modeling`、`hf-tdd`、`hf-codebase-design`、`hf-code-review`、`hf-prototype`、`hf-research`、`hf-handoff`、`hf-setup-skills`、`hf-wayfinder`、`hf-triage`、`hf-diagnosing-bugs`、`hf-wizard`、`hf-improve-codebase-architecture`、`hf-grill-me`。
 
-首次使用工程技能前,若缺 tracker 配置,先走 `hf-setup-matt-pocock-skills`(默认可用 local tickets)。
+首次使用工程技能前,若缺 tracker 配置,先走 `hf-setup-skills`(默认可用 local tickets)。

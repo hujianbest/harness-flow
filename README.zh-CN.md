@@ -49,7 +49,7 @@ python3 $gate check --feature features/001-x --to to-architecture
 | [hf-code-review](skills/hf-code-review/SKILL.md) | 代码双轴评审 |
 | [hf-ship](skills/hf-ship/SKILL.md) | 收尾与回写 |
 
-Meta / 旁路见 `skills/hf-*`（如 `hf-tdd`、`hf-grilling`、`hf-setup-matt-pocock-skills` 等）。
+Meta / 旁路见 `skills/hf-*`（如 `hf-tdd`、`hf-grilling`、`hf-setup-skills` 等）。
 
 ## 扩展
 
