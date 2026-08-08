@@ -7,7 +7,7 @@ import importlib.util
 import io
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -20,7 +20,7 @@ spec.loader.exec_module(gate)
 
 def run_gate(argv):
     out = io.StringIO()
-    with redirect_stdout(out):
+    with redirect_stdout(out), redirect_stderr(out):
         code = gate.main(argv)
     return code, out.getvalue()
 
@@ -79,6 +79,50 @@ class InitAndProductTests(unittest.TestCase):
             confirm_context(root)
             code, out = run_gate(["check", "--product", "--root", str(root)])
             self.assertEqual(code, 0)
+
+
+class CliLocalizationTests(unittest.TestCase):
+    def test_root_help_is_chinese_and_preserves_commands(self):
+        code, out = run_gate(["--help"])
+        self.assertEqual(code, 2)
+        self.assertIn("用法：", out)
+        self.assertIn("命令:", out)
+        self.assertIn("选项:", out)
+        for command in ("init", "check", "status", "next"):
+            self.assertIn(command, out)
+        self.assertNotIn("usage:", out)
+        self.assertNotIn("options:", out)
+        self.assertNotIn("show this help message and exit", out)
+
+    def test_check_help_is_chinese_and_preserves_parameters(self):
+        code, out = run_gate(["check", "--help"])
+        self.assertEqual(code, 2)
+        for parameter in ("--feature", "--to", "--product", "--root"):
+            self.assertIn(parameter, out)
+        self.assertIn("目标阶段", out)
+        self.assertIn("项目根目录", out)
+        self.assertNotIn("usage:", out)
+        self.assertNotIn("options:", out)
+
+    def test_invalid_choice_error_is_chinese_and_preserves_choices(self):
+        code, out = run_gate(
+            ["check", "--feature", "features/001-x", "--to", "nonsense"]
+        )
+        self.assertEqual(code, 2)
+        self.assertIn("错误：", out)
+        self.assertIn("无效选项", out)
+        self.assertIn("--to", out)
+        self.assertIn("nonsense", out)
+        for target in gate.TARGETS:
+            self.assertIn(target, out)
+        self.assertNotIn("invalid choice", out)
+
+    def test_missing_command_error_is_chinese(self):
+        code, out = run_gate([])
+        self.assertEqual(code, 2)
+        self.assertIn("错误：", out)
+        self.assertIn("缺少必需参数", out)
+        self.assertNotIn("the following arguments are required", out)
 
 
 class ChainGateTests(unittest.TestCase):

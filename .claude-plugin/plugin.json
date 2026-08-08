@@ -1,6 +1,6 @@
 {
   "name": "harness-flow",
-  "description": "HarnessFlow — Matt-aligned main chain under hf-* names (grill-with-docs → to-spec → to-architecture → to-tickets → implement → ship), cross-stage hf-review, mechanical gates (hf_gate.py), progress recovery, auto mode, demo-gated acceptance, and pluggable ext-* extensions. Skill prose adapted from mattpocock/skills (MIT).",
+  "description": "HarnessFlow — 采用 hf-* 名称、与 Matt 对齐的主链（grill-with-docs → to-spec → to-architecture → to-tickets → implement → ship）、跨阶段 hf-review、机械门禁（hf_gate.py）、进度恢复、auto 模式、由 demo 门禁把关的验收，以及可插拔的 ext-* 扩展。技能正文改编自 mattpocock/skills（MIT）。",
   "version": "5.0.0",
   "author": {
     "name": "hujianbest"

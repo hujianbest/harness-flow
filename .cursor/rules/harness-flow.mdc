@@ -1,27 +1,27 @@
 ---
-description: HarnessFlow development workflow
+description: HarnessFlow 开发工作流
 alwaysApply: true
 ---
 
-# HarnessFlow on Cursor
+# Cursor 上的 HarnessFlow
 
-This workspace ships HarnessFlow: Matt-aligned main chain (grill → spec → architecture → tickets → implement → ship) plus mechanical gates, progress recovery, auto mode, and pluggable `ext-*` extensions. Skill bodies are adapted from mattpocock/skills (MIT, authorized copy) under `hf-*` names.
+本工作区内置 HarnessFlow：与 Matt 对齐的主链（grill → spec → architecture → tickets → implement → ship），以及机械门禁、进度恢复、auto 模式和可插拔的 `ext-*` 扩展。技能正文改编自 mattpocock/skills（MIT，已获授权复制），并使用 `hf-*` 名称。
 
-## On every development task
+## 每项开发任务
 
-1. Load `skills/hf-workflow/SKILL.md` first.
-2. Follow the current stage skill: `hf-grill-with-docs` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`, with `hf-review` (and `hf-code-review` at the code gate) after spec, architecture, and implementation.
-3. Before each stage, load matching `skills/ext-*/` by frontmatter binding stage + trigger.
+1. 首先加载 `skills/hf-workflow/SKILL.md`。
+2. 遵循当前阶段技能：`hf-grill-with-docs` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`；在规格、架构和实施之后执行 `hf-review`（在代码门禁处还要执行 `hf-code-review`）。
+3. 每个阶段开始前，根据 frontmatter 中绑定的阶段 + 触发条件，加载匹配的 `skills/ext-*/`。
 
-## Hard rules
+## 硬性规则
 
-- Run `skills/hf-workflow/scripts/hf_gate.py check --to <stage>` (or `check --product`) before entering a stage; record RESULT in `progress.md`. FAIL means do not proceed.
-- Recover with `skills/hf-workflow/scripts/hf_gate.py status`, not chat memory.
-- Underspecification: propose a default, record in `product/assumptions.md`, then proceed.
-- Read `CONTEXT.md` / feature `architecture.md` before exploring code; no whole-repo rescan per feature.
-- User-perceivable slices need demo acceptance on disk before ship.
-- Exploration mode can never ship; close via `conclusion.md` + `check --to close`.
-- Author/reviewer separation: reviews in subagent or fresh session; degraded reviews must not self-approve; auto + degraded = hard stop.
-- Implement one frontier ticket at a time; build mode uses `hf-tdd` (failing test first).
+- 进入某个阶段前，运行 `skills/hf-workflow/scripts/hf_gate.py check --to <stage>`（或 `check --product`）；在 `progress.md` 中记录 RESULT。FAIL 表示不得继续。
+- 使用 `skills/hf-workflow/scripts/hf_gate.py status` 恢复状态，不依赖聊天记忆。
+- 规格不足时：提出默认方案，将其记录在 `product/assumptions.md` 中，然后继续。
+- 探索代码前先阅读 `CONTEXT.md` / 特性的 `architecture.md`；不得为每个特性重新扫描整个代码仓库。
+- 用户可感知的切片在 ship 前必须将 demo 验收结果写入磁盘。
+- 探索模式永远不能 ship；通过 `conclusion.md` + `check --to close` 收尾。
+- 作者/评审者分离：在 subagent 或全新会话中进行评审；降级评审不得自行批准；auto + 降级评审 = 硬停止。
+- 每次只实施一个前沿票据；构建模式使用 `hf-tdd`（先写失败测试）。
 
-Pure Q&A or read-only requests need no HarnessFlow.
+纯问答或只读请求无需使用 HarnessFlow。
