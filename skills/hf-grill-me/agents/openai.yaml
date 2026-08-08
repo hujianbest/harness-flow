@@ -1,5 +1,5 @@
 interface:
-  display_name: "Grill Me"
-  short_description: "Sharpen a plan through interview"
+  display_name: "盘问我"
+  short_description: "通过访谈打磨计划"
 policy:
   allow_implicit_invocation: false

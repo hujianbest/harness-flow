@@ -1,5 +1,5 @@
 interface:
-  display_name: "To Tickets"
-  short_description: "Split a plan into tracer-bullet tickets"
+  display_name: "转为票据"
+  short_description: "将计划拆分为曳光弹式票据"
 policy:
   allow_implicit_invocation: false

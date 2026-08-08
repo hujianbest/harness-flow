@@ -1,6 +1,6 @@
 ---
 name: ext-ui-design
-description: UI 设计领域扩展。绑定阶段: to-spec、implement、code-review。触发条件: 特性包含用户界面(页面、组件、可视交互)。注入反 AI-slop 视觉纪律、交互三态覆盖、可访问性底线、动效性能护栏，并把详细检查清单委托给 references/ui-checklist.md。
+description: UI 设计领域扩展。绑定阶段: to-spec、implement、code-review。触发条件: 特性包含用户界面(页面、组件、可视交互)。注入反 AI 粗制滥造视觉纪律、交互三态覆盖、可访问性底线、动效性能护栏，并把详细检查清单委托给 references/ui-checklist.md。
 ---
 
 # UI 设计扩展
@@ -12,45 +12,45 @@ description: UI 设计领域扩展。绑定阶段: to-spec、implement、code-re
 
 ## 规格阶段 (to-spec) 规则
 
-`spec.md` 的 Implementation / Testing Decisions 或专设 **UI 设计** 节须覆盖:
+`spec.md` 的实现决策 / 测试决策或专设的 **UI 设计** 一节须覆盖：
 
 ### 信息架构与交互先行
 
 - 先锁定页面结构、导航与内容分组，再进入组件与视觉细节
 - 每个关键交互至少覆盖 **loading / empty / error** 三态；高风险交互补齐 disabled / success / focus
-- 只画 happy path 视为不完整
+- 只绘制顺利路径视为不完整
 
-### 视觉系统与 token 纪律
+### 视觉系统与令牌纪律
 
-- 有既有 Design System / 品牌规范或 `DESIGN.md` 时**必须先冷读并复用**
-- 颜色、字号、间距、圆角、阴影一律走 design token，禁止硬编码字面量
-- 有 `DESIGN.md` 时优先取值（见 `ext-design-md`）；无则先在 spec 里命名 token
+- 有既有设计系统 / 品牌规范或 `DESIGN.md` 时，**必须先冷读并复用**
+- 颜色、字号、间距、圆角、阴影一律使用设计令牌，禁止硬编码字面量
+- 有 `DESIGN.md` 时优先从中取值（见 `ext-design-md`）；没有时先在规格中命名令牌
 - 缺资产时用语义占位符，不自画 SVG、不自编正文
 
-### 反 AI-slop 审美（硬拒绝项）
+### 反 AI 粗制滥造审美（硬拒绝项）
 
-除非用户在 decisions/ADR 明确要求，拒绝: 无理由紫渐变、Inter/Roboto 默认字体、左彩条圆角卡片 callout、emoji 当图标、无理由 glow、装饰性动效、大面积 glassmorphism、未回指需求的 section/徽标、空状态无 CTA。
+除非用户在决策记录/ADR 中明确要求，否则拒绝：无理由的紫色渐变、Inter/Roboto 默认字体、带左侧彩条的圆角卡片式提示框、用 emoji 充当图标、无理由的发光效果、装饰性动效、大面积玻璃拟态、无法回指需求的分区/徽标，以及没有 CTA 的空状态。
 
 ### 可访问性底线
 
-- 正文对比度 WCAG AA；键盘可达与焦点可见；icon-only 须 `aria-label`；触控目标 ≥ 44×44px
+- 正文对比度达到 WCAG AA；键盘可达且焦点可见；纯图标控件须有 `aria-label`；触控目标 ≥ 44×44px
 - 详见 `references/ui-checklist.md`
 
 ## 实现阶段 (implement) 规则
 
 - UI 相关票的测试覆盖交互三态可验证行为
-- token 纪律延续到代码；硬编码在重构步清理
-- 提请 code-review 前加载 `references/ui-checklist.md` 自查
+- 令牌纪律延续到代码；在重构步骤中清理硬编码
+- 提请进入 `code-review` 阶段前，加载 `references/ui-checklist.md` 自查
 
 ## 代码评审阶段 (code-review) 规则
 
-- 冒烟须含**真实渲染**验证；仅单测不构成 UI 冒烟
-- 交互三态各有可核对验证；a11y 自动检查无 critical
+- 冒烟测试须包含**真实渲染**验证；只有单元测试不构成 UI 冒烟测试
+- 交互三态各有可核对的验证；无严重级别的可访问性自动检查问题
 
 ## 评审检查项
 
-- [ ] (spec) UI 决策覆盖三态，视觉落到 token
-- [ ] (spec) 复用 Design System / DESIGN.md 或偏离有理由
-- [ ] (spec) 反 slop 硬拒绝项排查
-- [ ] (code) 无硬编码视觉样式；a11y 有落实证据
-- [ ] (code) 真实渲染验证完成；三态与 a11y 检查通过
+- [ ] （规格）UI 决策覆盖三态，视觉决策落实到令牌
+- [ ] （规格）复用设计系统 / `DESIGN.md`，或有充分理由偏离
+- [ ] （规格）排查反粗制滥造硬拒绝项
+- [ ] （代码）无硬编码视觉样式；有落实可访问性的证据
+- [ ] （代码）已完成真实渲染验证；三态与可访问性检查通过

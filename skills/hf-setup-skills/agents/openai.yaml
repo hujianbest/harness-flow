@@ -1,5 +1,5 @@
 interface:
-  display_name: "Setup Skills"
-  short_description: "Configure a repo for the skills"
+  display_name: "设置技能"
+  short_description: "为技能配置代码仓库"
 policy:
   allow_implicit_invocation: false

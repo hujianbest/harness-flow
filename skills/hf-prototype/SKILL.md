@@ -1,26 +1,26 @@
 ---
 name: hf-prototype
-description: Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.
+description: 构建一次性原型以回答设计问题。适用于用户想初步检查状态模型或逻辑是否合理，或探索 UI 应呈现何种样式时。
 ---
 
-# Prototype
+# 原型
 
-A prototype is **throwaway code that answers a question**. The question decides the shape.
+原型是**用来回答问题的一次性代码**。问题决定其形态。
 
-## Pick a branch
+## 选择分支
 
-Identify which question is being answered — from the user's prompt, the surrounding code, or by asking if the user is around:
+根据用户提示、周边代码，或在用户在线时询问，确定要回答的问题：
 
-- **"Does this logic / state model feel right?"** → [LOGIC.md](LOGIC.md). Build a single shareable HTML file — free-play buttons plus tabbed guided walkthroughs — that pushes the state machine through cases that are hard to reason about on paper, and that a non-developer can drive.
-- **"What should this look like?"** → [UI.md](UI.md). Generate several radically different UI variations on a single route, switchable via a URL search param and a floating bottom bar.
+- **“这个逻辑 / 状态模型合理吗？”** → [LOGIC.md](LOGIC.md)。构建单个可共享 HTML 文件——包含自由操作按钮和选项卡式引导演练——推动状态机经历难以在纸面上推理的情况，并使非开发者也能操作。
+- **“它应该是什么样子？”** → [UI.md](UI.md)。在单个路由上生成几种截然不同的 UI 变体，可通过 URL 查询参数和底部浮动栏切换。
 
-The two branches produce very different artifacts — getting this wrong wastes the whole prototype. If the question is genuinely ambiguous and the user isn't reachable, default to whichever branch better matches the surrounding code (a backend module → logic; a page or component → UI) and state the assumption at the top of the prototype.
+两个分支会产生非常不同的产物——选错会浪费整个原型。如果问题确实含糊且无法联系用户，默认选择更符合周边代码的分支（后端模块 → 逻辑；页面或组件 → UI），并在原型顶部声明该假设。
 
-## Rules that apply to both
+## 两者均适用的规则
 
-1. **Throwaway from day one, and clearly marked as such.** Locate the prototype code close to where it will actually be used (next to the module or page it's prototyping for) so context is obvious — but name it so a casual reader can see it's a prototype, not production. For throwaway UI routes, obey whatever routing convention the project already uses; don't invent a new top-level structure.
-2. **Trivial to run.** A UI prototype starts from one command in the project's task runner — `pnpm <name>`, `python <path>`, `bun <path>`, etc. A logic demo is a single HTML file the user double-clicks. Either way, no thinking required to start it.
-3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is _checking_, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE — wipe me" name.
-4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast.
-5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
-6. **Capture it when done.** Fold any validated decision into the real code, then capture the prototype itself as a **primary source**: commit it to a throwaway branch, out of main, and leave a context pointer to that branch on the implementation issue. Capture the answer too — the verdict and the question it settled — in the issue or a commit. The main branch keeps only the validated decision.
+1. **从第一天起就是一次性的，并明确如此标记。**将原型代码放在接近其实际使用位置的地方（紧邻所针对的模块或页面），使上下文一目了然——但命名要让普通读者看出它是原型，而非生产代码。对于一次性 UI 路由，遵循项目已有的路由约定；不要创造新的顶层结构。
+2. **运行极其简单。**UI 原型通过项目任务运行器中的一条命令启动——`pnpm <name>`、`python <path>`、`bun <path>` 等。逻辑演示是用户双击即可打开的单个 HTML 文件。无论哪种，启动都无需思考。
+3. **默认不持久化。**状态存放在内存中。持久化是原型要_检查_的内容，而不是原型应依赖的内容。如果问题明确涉及数据库，请使用临时数据库或名称明确写有“PROTOTYPE — wipe me”的本地文件。
+4. **跳过润色。**不写测试，不做超出让原型_可运行_所需的错误处理，不做抽象。目的在于快速学到东西。
+5. **展示状态。**每次操作后（逻辑）或每次变体切换时（UI），打印或渲染完整的相关状态，让用户看到发生了什么变化。
+6. **完成后留存。**将任何经过验证的决策融入真实代码，然后把原型本身作为**一手资料**留存：将其提交到 main 之外的一次性分支，并在实现议题中留下指向该分支的上下文指针。同时在议题或提交中记录答案——结论及其解决的问题。主分支只保留经过验证的决策。

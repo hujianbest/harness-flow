@@ -1,55 +1,55 @@
 ---
 name: hf-to-tickets
-description: 把已评审的 spec+architecture 拆成带 blocking edges 的垂直切片票。HarnessFlow 主链第五步;进入前 gate check --to to-tickets。默认写入 features/<id>/tickets.md。
+description: 把已评审的规格和架构拆成带阻塞边的垂直切片任务票。HarnessFlow 主链第五步；进入前运行 gate check --to to-tickets。默认写入 features/<id>/tickets.md。
 ---
 
-# To Tickets
+# hf-to-tickets
 
-Break a plan, spec, or architecture into **tickets** — tracer-bullet vertical slices, each declaring tickets that **block** it.
+把计划、规格或架构拆分为**任务票**——采用曳光弹式垂直切片，每张票都声明会**阻塞**它的其他任务票。
 
 ## HarnessFlow 桥接
 
-1. `check --feature features/<id> --to to-tickets`(须 architecture + architecture-review 已通过)。
-2. 默认发布到 `features/<id>/tickets.md`(机器可读 `- [ ] T-NN` 行);若已配置 tracker 则按其发布,并在特性目录留索引副本供 gate 解析。
+1. 运行 `check --feature features/<id> --to to-tickets`（须架构和 `architecture-review` 均已通过）。
+2. 默认发布到 `features/<id>/tickets.md`（机器可读的 `- [ ] T-NN` 行）；若已配置任务跟踪器，则按其配置发布，并在特性目录保留索引副本供门禁解析。
 3. 首张可执行票应为最薄端到端路径(行走骨架判据),除非架构已声明存量无需。
-4. 更新 progress;下一步 `check --to implement`。
+4. 更新 `progress.md`；下一步运行 `check --to implement`。
 
-## Process
+## 流程
 
-### 1. Gather context
+### 1. 收集上下文
 
-Read `spec.md`, `architecture.md`, reviews, `CONTEXT.md`.
+读取 `spec.md`、`architecture.md`、评审记录与 `CONTEXT.md`。
 
-### 2. Explore codebase (optional)
+### 2. 探索代码库（可选）
 
-Use domain vocabulary. Prefactor opportunities: make the change easy, then make the easy change.
+使用领域词汇。寻找预重构机会：先让变更变得容易，再完成这个容易的变更。
 
-### 3. Draft vertical slices
+### 3. 起草垂直切片
 
-- Each slice cuts a narrow COMPLETE path through layers — vertical, not horizontal
-- Demoable or verifiable alone; sized for one fresh context window
-- Prefactors first
-- Each ticket has **blocking edges**
+- 每个切片都贯穿各层形成一条狭窄但**完整**的路径——纵向而非横向
+- 每个切片都能单独演示或验证；规模应适合在一个全新上下文窗口内完成
+- 先做预重构
+- 每张任务票都包含**阻塞边**
 
-**Wide refactors** use expand–contract batches, not forced tracer bullets.
+**大范围重构**采用扩张—收缩批次，而不是强行拆成曳光弹式切片。
 
-### 4. Quiz the user
+### 4. 询问用户
 
-Present title / blocked-by / what it delivers. Iterate until approved (`auto`: ledger assumptions for granularity choices).
+展示标题 / `blocked-by` / 交付内容。反复调整直至获批（`auto`：将粒度选择所依赖的假设记入台账）。
 
-### 5. Publish
+### 5. 发布
 
-**Local / HF default** — `tickets.md`:
+**本地 / HF 默认方式**——`tickets.md`：
 
 ```markdown
-# Tickets
+# 任务票
 
 - [ ] T-01 <title> — Blocked by: None — <what it delivers>
 - [ ] T-02 <title> — Blocked by: T-01 — <what it delivers>
 ```
 
-Optional per-ticket files under `tickets/` for detail; **gate 只解析 `tickets.md` 的 `- [ ] T-NN` 行**。
+可选择在 `tickets/` 下为每张任务票创建详情文件；**门禁只解析 `tickets.md` 中的 `- [ ] T-NN` 行**。
 
-**Real tracker** — one issue per ticket with native blocking; keep `tickets.md` mirror for gate.
+**真实任务跟踪器**——每张任务票对应一个议题，并使用跟踪器原生的阻塞关系；保留 `tickets.md` 镜像供门禁使用。
 
-Do NOT close/modify unrelated parent issues beyond linking.
+除建立链接外，**不要**关闭或修改无关的父议题。

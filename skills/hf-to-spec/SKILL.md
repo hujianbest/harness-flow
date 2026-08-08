@@ -1,54 +1,54 @@
 ---
 name: hf-to-spec
-description: 把当前会话综合为规格并落入特性目录/issue tracker,不访谈。HarnessFlow 主链第三步;进入前 gate check --to to-spec。完成后必须经 hf-review 规格评审才能进 architecture。
+description: 把当前会话综合为规格并写入特性目录/任务跟踪器，不进行访谈。HarnessFlow 主链第三步；进入前运行 gate check --to to-spec。完成后必须经 hf-review 规格评审，才能进入 architecture 阶段。
 ---
 
-# To Spec
+# hf-to-spec
 
-综合已有对话与代码库理解产出 spec。**不要访谈**——只综合已知。
+综合已有对话与代码库理解，产出规格。**不要访谈**——只综合已知内容。
 
 ## HarnessFlow 桥接
 
-1. `hf_gate.py check --feature features/<id> --to to-spec`,RESULT 写入 progress。FAIL 停。
-2. Tracker 未配置时默认把 spec 写入 `features/<id>/spec.md`;若已 `hf-setup-skills` 则按其 issue-tracker 发布。
-3. 写完后走 `hf-review`(规格 checklist) → `reviews/spec-review.md` + 用户确认/`auto-approved`。
+1. 运行 `hf_gate.py check --feature features/<id> --to to-spec`，将 `RESULT` 写入 `progress.md`。结果为 `FAIL` 时停止。
+2. 未配置任务跟踪器时，默认把规格写入 `features/<id>/spec.md`；若已运行 `hf-setup-skills`，则按其任务跟踪器配置发布。
+3. 写完后执行 `hf-review`（规格检查清单）→ `reviews/spec-review.md` + 用户确认/`auto-approved`。
 4. 通过后才能 `check --to to-architecture`。
 
-## Process
+## 流程
 
-1. Explore the repo if needed. Use `CONTEXT.md` vocabulary; respect ADRs.
+1. 必要时探索仓库。使用 `CONTEXT.md` 中的词汇；遵守 ADR。
 
-2. Sketch test seams. Prefer existing seams; highest seam possible; fewer is better (ideal: one). Check seams with the user (`auto`: record assumption if you must choose).
+2. 勾勒测试缝。优先使用既有缝；尽可能选择最高层的缝；数量越少越好（理想情况：一个）。与用户确认这些缝（`auto`：如必须代为选择，则记录假设）。
 
-3. Write the spec with the template below. Apply `ready-for-agent` when publishing to a real tracker.
+3. 使用下方模板编写规格。发布到真实任务跟踪器时应用 `ready-for-agent`。
 
-## Spec template
+## 规格模板
 
-## Problem Statement
+## 问题陈述
 
-The problem from the user's perspective.
+从用户视角描述问题。
 
-## Solution
+## 解决方案
 
-The solution from the user's perspective.
+从用户视角描述解决方案。
 
-## User Stories
+## 用户故事
 
-A LONG numbered list:
+一份很长的编号列表：
 
-1. As an \<actor\>, I want a \<feature\>, so that \<benefit\>
+1. 作为 \<actor\>，我想要 \<feature\>，从而获得 \<benefit\>
 
-## Implementation Decisions
+## 实现决策
 
-Modules/interfaces touched, technical clarifications, schema/API contracts. No stale file-path laundry lists. Prototype snippets that encode a decision may be inlined and marked as such.
+涉及的模块/接口、技术澄清、模式/API 契约。不要罗列会过时的文件路径。可以内联体现某项决策的原型片段，并明确标注其为原型。
 
-## Testing Decisions
+## 测试决策
 
-What a good test is (external behavior); which modules/seams; prior art in the repo.
+说明什么是良好的测试（外部行为）、测试哪些模块/缝，以及仓库中可参考的既有做法。
 
-## Out of Scope
+## 范围外事项
 
-## Further Notes
+## 补充说明
 
 文末加:
 

@@ -33,7 +33,7 @@ def write_review(feature: Path, name: str, verdict="通过", confirm="2026-08-08
 
 def run_gate(argv: list[str]) -> tuple[int, str]:
     buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
+    with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
         code = hf_gate.main(argv)
     return code, buf.getvalue()
 
@@ -75,8 +75,23 @@ class GateChainTest(unittest.TestCase):
         self.assertEqual(code, 0)
 
     def test_unknown_target(self):
-        code, _ = run_gate(["check", "--feature", str(self.feature), "--to", "nonsense"])
+        code, out = run_gate(
+            ["check", "--feature", str(self.feature), "--to", "nonsense"]
+        )
         self.assertEqual(code, 2)
+        self.assertIn("错误：", out)
+        self.assertIn("无效选项", out)
+        self.assertIn("--to", out)
+        self.assertNotIn("invalid choice", out)
+
+    def test_help_is_chinese(self):
+        code, out = run_gate(["--help"])
+        self.assertEqual(code, 2)
+        self.assertIn("用法：", out)
+        self.assertIn("命令:", out)
+        self.assertIn("选项:", out)
+        self.assertNotIn("usage:", out)
+        self.assertNotIn("show this help message and exit", out)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 interface:
-  display_name: "Implement"
-  short_description: "Build work from a spec or tickets"
+  display_name: "实施"
+  short_description: "根据规格或票据完成构建"
 policy:
   allow_implicit_invocation: false

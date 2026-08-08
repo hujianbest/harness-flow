@@ -1,6 +1,6 @@
 ---
 name: hf-grill-me
-description: A relentless interview to sharpen a plan or design.
+description: 通过持续追问打磨计划或设计。
 ---
 
-Run a `hf-grilling` session.
+运行一次 `hf-grilling` 会话。

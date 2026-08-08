@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""hf_gate.py — HarnessFlow 机械门禁与状态机（stdlib only）。
+"""hf_gate.py — HarnessFlow 机械门禁与状态机（仅使用标准库）。
 
 主链: grill-with-docs → to-spec → to-architecture → to-tickets → implement → ship
 (探索: … → implement → close, 永不 ship)
@@ -32,7 +32,7 @@ TARGETS = (
 PRODUCT_FILES = {
     "assumptions.md": """# 假设台账
 
-agent 替用户做的默认选择。标准动作: 提出带默认值的选项 → 记录 → 继续。
+智能体替用户做的默认选择。标准动作: 提出带默认值的选项 → 记录 → 继续。
 状态: 生效 | 已确认 | 已推翻
 格式: `- A-<n> <日期> [状态] <假设内容> — 默认理由: <一句话>`
 """,
@@ -45,14 +45,78 @@ agent 替用户做的默认选择。标准动作: 提出带默认值的选项 �
 
 CONTEXT_TEMPLATE = """# CONTEXT
 
-项目领域共享语言(glossary)。由 hf-grill-with-docs / hf-domain-modeling 维护。
+项目领域共享语言（术语表）。由 hf-grill-with-docs / hf-domain-modeling 维护。
 
 - 用户确认:
 
-## Terms
+## 术语
 
-<!-- Term — definition -->
+<!-- 术语 — 定义 -->
 """
+
+
+def localize_argparse_error(message: str) -> str:
+    """把 argparse 可能产生的用户可见错误转换为简体中文。"""
+    replacements = (
+        (
+            r"^argument (.+?): invalid choice: (.+?) \(choose from (.+)\)$",
+            r"参数 \1：无效选项：\2（可选值：\3）",
+        ),
+        (
+            r"^the following arguments are required: (.+)$",
+            r"缺少必需参数：\1",
+        ),
+        (
+            r"^unrecognized arguments: (.+)$",
+            r"无法识别的参数：\1",
+        ),
+        (
+            r"^argument (.+?): expected one argument$",
+            r"参数 \1：需要一个值",
+        ),
+        (
+            r"^argument (.+?): ignored explicit argument (.+)$",
+            r"参数 \1：不能显式指定值 \2",
+        ),
+        (
+            r"^argument (.+?): not allowed with argument (.+)$",
+            r"参数 \1：不能与参数 \2 同时使用",
+        ),
+        (
+            r"^one of the arguments (.+) is required$",
+            r"必须提供以下参数之一：\1",
+        ),
+        (
+            r"^ambiguous option: (.+?) could match (.+)$",
+            r"选项 \1 有歧义，可能是：\2",
+        ),
+    )
+    for pattern, replacement in replacements:
+        localized, count = re.subn(pattern, replacement, message)
+        if count:
+            return localized
+    return "参数解析失败，请检查命令格式"
+
+
+class ChineseArgumentParser(argparse.ArgumentParser):
+    """输出简体中文帮助和错误，同时保持 argparse 的解析行为。"""
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("add_help", False)
+        super().__init__(*args, **kwargs)
+        self._positionals.title = "位置参数"
+        self._optionals.title = "选项"
+        self.add_argument("-h", "--help", action="help", help="显示此帮助信息并退出")
+
+    def format_usage(self) -> str:
+        return super().format_usage().replace("usage: ", "用法：", 1)
+
+    def format_help(self) -> str:
+        return super().format_help().replace("usage: ", "用法：", 1)
+
+    def error(self, message: str) -> None:
+        self.print_usage(sys.stderr)
+        self.exit(2, f"{self.prog}: 错误：{localize_argparse_error(message)}\n")
 
 
 def read_feature_field(feature: Path, pattern: re.Pattern) -> str | None:
@@ -173,7 +237,7 @@ def check_target(feature: Path, target: str) -> Checker:
 
     if mode == "探索":
         if target in ("to-spec", "to-architecture", "to-tickets"):
-            c.fail(f"探索模式不经 {target} — 链路为 feature → implement/prototype → close")
+            c.fail(f"探索模式不经 {target} — 链路为特性 → implement/prototype → close")
         elif target == "ship":
             c.fail("探索模式永远不能 ship — 写 conclusion.md 后 `check --to close`")
         elif target == "implement":
@@ -368,7 +432,7 @@ def cmd_status(root: Path) -> int:
         stage, failures = probe_feature(f)
         mode = read_feature_field(f, MODE_RE) or "?"
         if stage == "done":
-            print(f"特性 {f.name}: done（{mode}）")
+            print(f"特性 {f.name}: done（已完成，{mode}）")
         else:
             print(f"特性 {f.name}: 当前卡在 → {stage}（{mode}）")
             for msg in failures[:3]:
@@ -382,7 +446,7 @@ def cmd_status(root: Path) -> int:
         f, stage, _ = active
         print(f"下一步: 推进 {f.name} 通过 `check --to {stage}`")
     elif product_ready:
-        print("下一步: 开新特性目录或从 tracker 取票 → hf-to-spec / hf-implement")
+        print("下一步: 开新特性目录或从任务跟踪器取票 → hf-to-spec / hf-implement")
     elif product_ready is False:
         print("下一步: 补齐 CONTEXT/台账（hf-grill-with-docs），`check --product` PASS")
     else:
@@ -406,23 +470,53 @@ def cmd_next(root: Path) -> int:
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(prog="hf_gate.py", description=__doc__)
-    sub = parser.add_subparsers(dest="cmd", required=True)
+    parser = ChineseArgumentParser(prog="hf_gate.py", description=__doc__)
+    sub = parser.add_subparsers(
+        dest="cmd",
+        required=True,
+        title="命令",
+        metavar="{check,init,status,next}",
+        parser_class=ChineseArgumentParser,
+    )
 
-    p_check = sub.add_parser("check", help="机械校验")
-    p_check.add_argument("--feature", default=None)
-    p_check.add_argument("--to", choices=TARGETS, dest="target", default=None)
-    p_check.add_argument("--product", action="store_true")
-    p_check.add_argument("--root", default=".")
+    p_check = sub.add_parser("check", help="执行机械校验", description="执行机械门禁校验。")
+    p_check.add_argument(
+        "--feature",
+        default=None,
+        metavar="特性目录",
+        help="要校验的特性目录",
+    )
+    p_check.add_argument(
+        "--to",
+        choices=TARGETS,
+        dest="target",
+        default=None,
+        metavar="阶段",
+        help=f"目标阶段（可选值：{', '.join(TARGETS)}）",
+    )
+    p_check.add_argument("--product", action="store_true", help="校验产品层")
+    p_check.add_argument("--root", default=".", metavar="项目根目录", help="项目根目录")
 
-    p_init = sub.add_parser("init", help="初始化 CONTEXT/product/features")
-    p_init.add_argument("--root", default=".")
+    p_init = sub.add_parser(
+        "init",
+        help="初始化 CONTEXT/product/features",
+        description="初始化 HarnessFlow 目录和模板。",
+    )
+    p_init.add_argument("--root", default=".", metavar="项目根目录", help="项目根目录")
 
-    p_status = sub.add_parser("status", help="恢复全局状态")
-    p_status.add_argument("--root", default=".")
+    p_status = sub.add_parser(
+        "status",
+        help="恢复全局状态",
+        description="读取磁盘内容并显示全局状态。",
+    )
+    p_status.add_argument("--root", default=".", metavar="项目根目录", help="项目根目录")
 
-    p_next = sub.add_parser("next", help="下一个未完成特性")
-    p_next.add_argument("--root", default=".")
+    p_next = sub.add_parser(
+        "next",
+        help="显示下一个未完成特性",
+        description="显示下一个未完成特性及其当前阶段。",
+    )
+    p_next.add_argument("--root", default=".", metavar="项目根目录", help="项目根目录")
 
     try:
         args = parser.parse_args(argv)
