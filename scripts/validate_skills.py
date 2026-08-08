@@ -21,7 +21,16 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
 CORE_BODY_LIMIT = 200
 EXT_BODY_LIMIT = 150
-VALID_STAGES = {"shape", "architect", "frame", "plan", "build", "verify", "ship"}
+VALID_STAGES = {
+    "grill-with-docs",
+    "to-spec",
+    "to-architecture",
+    "to-tickets",
+    "implement",
+    "code-review",
+    "ship",
+    "close",
+}
 
 errors: list[str] = []
 
@@ -61,7 +70,8 @@ def check_skill(skill_dir: Path) -> None:
             errors.append(f"{skill_dir.name}: ext skill description must declare 绑定阶段")
         else:
             stage_seg = re.search(r"绑定阶段:\s*([^。]*)", desc)
-            stages = set(re.findall(r"[a-z]+", stage_seg.group(1))) if stage_seg else set()
+            raw = stage_seg.group(1) if stage_seg else ""
+            stages = {s for s in VALID_STAGES if re.search(rf"(?<![a-z-]){re.escape(s)}(?![a-z-])", raw)}
             if not stages:
                 errors.append(f"{skill_dir.name}: 绑定阶段 declares no stage names")
             elif not stages <= VALID_STAGES:

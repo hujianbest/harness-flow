@@ -122,8 +122,8 @@ class ReleaseDocsTests(unittest.TestCase):
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         security = (ROOT / "SECURITY.md").read_text(encoding="utf-8")
 
-        self.assertEqual("4.0.0", plugin["version"])
-        self.assertIn("HarnessFlow v4.0.0", marketplace)
+        self.assertEqual("5.0.0", plugin["version"])
+        self.assertIn("HarnessFlow v5.0.0", marketplace)
         self.assertIn("install.py", marketplace)
 
         self.assertIn("python scripts/install.py --target cursor", readme)
@@ -134,8 +134,10 @@ class ReleaseDocsTests(unittest.TestCase):
         self.assertIn("python scripts/install.py --target opencode", readme_zh)
         self.assertIn("install.ps1 -Target both", readme_zh)
 
+        self.assertIn("## [5.0.0] - 2026-08-08", changelog)
         self.assertIn("## [4.0.0] - 2026-07-25", changelog)
-        self.assertIn("[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...HEAD", changelog)
+        self.assertIn("[Unreleased]: https://github.com/hujianbest/harness-flow/compare/v5.0.0...HEAD", changelog)
+        self.assertIn("[5.0.0]: https://github.com/hujianbest/harness-flow/compare/v4.0.0...v5.0.0", changelog)
         self.assertIn("[4.0.0]: https://github.com/hujianbest/harness-flow/compare/v3.1.0...v4.0.0", changelog)
         self.assertIn("[3.1.0]: https://github.com/hujianbest/harness-flow/compare/v3.0.0...v3.1.0", changelog)
 

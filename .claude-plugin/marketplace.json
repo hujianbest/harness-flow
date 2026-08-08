@@ -4,7 +4,7 @@
     "name": "hujianbest"
   },
   "metadata": {
-    "description": "HarnessFlow — a harness that drives AI coding agents from a raw idea to a working app: product-layer shaping, main-chain discipline (SDD + TDD), mechanical gates, demo-gated acceptance, and pluggable ext-* domain extensions."
+    "description": "HarnessFlow — Matt-aligned hf-* main chain, mechanical gates, progress recovery, auto mode, demo acceptance, and ext-* extensions."
   },
   "plugins": [
     {
@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow v4.0.0: drives agents from a raw idea to a working app. 9 core skills: hf-shape turns an idea into a product layer (product.md, decisions.md, an assumptions ledger, a vertical-slice backlog) via structured interview and opinionated stack presets; hf-skeleton makes slice S-1 a walking skeleton; then each slice runs the risk-tiered delivery chain frame -> plan -> build -> verify -> ship (hf-frame, hf-plan, hf-build TDD, hf-verify with demo-gated user acceptance, hf-review with independent-context discipline, hf-ship with feedback write-back). Exploration mode (frame -> build -> close) covers disposable prototypes that can never ship. A stdlib-only mechanical gate (skills/hf-workflow/scripts/hf_gate.py: init/status/next/run/check) produces tamper-evident evidence logs and adjudicates every transition from files, verdict lines, exit codes and timestamps; hf_gate.py status cold-starts any session. Domain skills plug in as ext-* extensions loaded per stage (ext-ui-design and ext-cpp ship as seeds). Installs to Cursor/OpenCode via stdlib install.py (copy/symlink) with thin install.sh/install.ps1 wrappers."
+      "description": "HarnessFlow v5.0.0: main chain hf-workflow → hf-grill-with-docs → hf-to-spec → hf-to-architecture → hf-to-tickets → hf-implement → hf-ship, with cross-stage hf-review and hf-code-review. Mechanical gate hf_gate.py (init/status/next/check). Skill prose adapted from mattpocock/skills (MIT). Extensions: ext-ui-design, ext-design-md. Installs to Cursor/OpenCode via stdlib install.py (copy/symlink) with thin install.sh/install.ps1 wrappers."
     }
   ]
 }

@@ -1,62 +1,41 @@
 ---
 name: hf-ship
-description: HarnessFlow ship 阶段。verify 完成(gate check --to ship 通过)后使用:逐条对照需求验收闭环、把 demo 反馈回写产品层(勾选 backlog 切片、追加新切片、更新决策与假设台账)、同步文档、收尾状态并向用户交付总结报告。gate check --to ship 未通过时不得使用;探索模式特性不经本阶段(走 close)。
+description: 特性收尾:确认 code-review 与(可感知时)demo 验收,勾选票与反馈回写 CONTEXT/ADR/假设台账,更新 progress 为 done。HarnessFlow 主链最后一步;进入前 gate check --to ship。
 ---
 
-# Ship(交付)
+# Ship
 
-目标:确认"做的就是计划要的",把工作收尾到**别人(或下一个会话)不需要问你**就能接手的状态。
+发布与回顾:把已验证的实现正式收口,并把反馈写回产品层。
 
-前提:`gate check --to ship` PASS(输出贴入 progress.md)。
+## 前置
+
+1. `check --feature features/<id> --to ship`。须 tickets 全勾、`code-review` 通过已确认;用户可感知还须 `reviews/demo-acceptance.md` 结论为「接受」且已确认。
+2. FAIL 则不得宣称交付完成。
 
 ## 流程
 
-### 1. 最终验收(语义层,gate 管不到的部分)
+### 1. 验收对照
 
-- 逐条对照需求(plan.md 需求章节,或 spec.md):每条 FR 的验收标准 → 指出对应的通过测试;每条 NFR → 指出验证手段;冒烟 → 指出运行验证结果。
-- 任何一条闭合不了 → 停下,回对应上游阶段(缺测试 → `hf-build`;需求本身变了 → `hf-frame` 重估),不带着缺口交付。
+逐条核对 spec 用户故事 / 票验收标准是否闭合;缺口只能回 `hf-implement`+评审,不能在 ship「补做」。
 
-### 2. 反馈回写产品层(有 `product/` 时)
+### 2. 反馈回写
 
-demo 验收的反馈是最贵的输入,ship 是它回流的唯一固定时机:
+- 勾选外部 backlog/tracker 对应项(若有)
+- 新想法按垂直切片追加,不塞进已关闭特性
+- 结算 `product/assumptions.md`(确认→decisions/ADR;推翻→记波及)
+- 结构变化回写 `CONTEXT.md` 与特性/产品架构要点
 
-- **勾选切片**:把 backlog.md 中本切片的 `- [ ] S-<n>` 改为 `- [x]`(唯一事实源)。
-- **架构地图回写**:本特性改变了模块边界、核心数据模型、关键流程或横切约定 → 更新 `product/architecture.md` 的对应小节并保持一页(存量项目仅有地图时同样适用);无结构变化不动它。
-- **新想法 → 新切片**:反馈中超出本切片范围的诉求,按垂直切片写入 backlog 合适位置(带演示判据),不当场夹带实现。
-- **假设台账结算**:demo 中被用户实际确认的假设 → 状态改"已确认"迁入 decisions.md;被推翻的 → 状态改"已推翻",波及面大的与用户确认后追加返工切片。
-- backlog 优先级明显变化时,与用户确认后重排。
+### 3. Demo 反馈
 
-### 3. 文档与记录
+可感知特性:interactive 已验收则记录要点;auto 曾 `auto-approved` 的,本次与用户交互必须主动呈上 demo 征求反馈。
 
-- 项目有 CHANGELOG / 使用文档且本次改动影响对外行为 → 同步更新。
-- progress.md 的当前阶段改为 `done`。
+### 4. 收尾
 
-### 4. 交付报告
-
-在 progress.md 末尾追加收尾摘要,并向用户汇报:
-
-```markdown
-## 交付摘要
-- 交付内容: <一句话>
-- 需求闭合: <N/N 条 FR、N/N 条 NFR 全部验收通过>
-- 证据索引: <全量测试与冒烟的运行结果概述、逐任务 red-green 结果>
-- 主要变更: <触碰的模块/文件概览>
-- 产品层回写: <勾选的切片、新增切片、假设结算;无产品层写"不适用">
-- 遗留事项: <非阻塞的建议级 findings、范围外推迟项;没有则写"无">
-```
-
-有产品层且 backlog 尚有未完成切片时,报告末尾给出下一片(`hf_gate.py next` 的输出),邀请用户决定是否继续。
-
-### 5. 边界
-
-- 按项目惯例整理提交(commit);**不主动** push 到共享分支、打 tag、发版本、部署——除非用户明确要求。
-- 用户提出新需求或范围变化 → 写入 backlog(有产品层)或另起 `hf-frame`,不在 ship 里夹带实现。
+- `progress.md` 当前阶段 `done`,写交付摘要(一句话 + 回写列表)
+- 不删除 evidence/reviews(审计用)
 
 ## 红线
 
-- 只凭 gate PASS 就交付,不做逐条语义对照(gate 只看形式完整,不懂语义)
-- 交付报告不提遗留事项,把推迟项藏起来
-- demo 反馈只留在聊天里,不回写 backlog / 假设台账
-- 忘记勾选 backlog 切片,或替用户重排优先级而不确认
-- 在 ship 阶段偷偷修 bug 或加功能(发现问题 → 回上游阶段走流程)
-- 替用户做发布/部署决定
+- gate FAIL 时口头「做完了」
+- 探索模式走 ship
+- 把新范围塞进已评审批次而不回开票

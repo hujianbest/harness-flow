@@ -1,83 +1,48 @@
 ---
 name: hf-review
-description: HarnessFlow 独立评审。plan 层工件(plan.md / spec.md / design.md)与实现代码完成后,必须经本技能给出落盘的评审结论才能推进。核心纪律:评审只承认 subagent 或全新会话,主会话冷读是降级路径且不得自我确认;代码评审者必须自己跑测试、自己读 diff。不修改被评审对象,只产出结论与 findings。
+description: HarnessFlow 独立评审协议。规格(spec)、架构(architecture)、实现代码均须经本技能给出落盘结论才能门禁放行。核心纪律:只承认 subagent 或全新会话;主会话冷读为降级且不得自我确认通过。代码门另加载 hf-code-review。不修改被评对象,只产结论与 findings。
 ---
 
 # Review(独立评审)
 
-评审的产出是**落盘的结论**,不是聊天里一句"看起来不错"。评审存在的理由是对抗模型的自我偏好——模型系统性高估自己的产出,且只有当评审方"不知道作者是自己"时偏差才消失。所以独立性是硬约束,不是姿态。
+评审产出是**落盘结论**,对抗作者自我偏好。独立性是硬约束。
 
-## 独立性(硬约束)
+## 独立性
 
-| 执行方式 | 效力 | 要求 |
-|----------|------|------|
-| subagent(如 Cursor/Claude Code 的 Task 工具) | 完整 | 只给被评审工件路径、上游工件路径、本技能与 checklist 路径;**不带作者会话的推理过程** |
-| 全新会话 | 完整 | 同上,由用户或编排器开启 |
-| 主会话冷读 | **降级** | 仅当前两者都不可用;结论只能是"待独立复核"或"需修改",**不得给"通过"** |
+| 方式 | 效力 |
+|------|------|
+| subagent / 全新会话 | 完整 |
+| 主会话冷读 | 降级:结论只能「待独立复核」或「需修改」,不得「通过」 |
 
-降级评审的处理:`interactive` 模式下把 findings 与"待独立复核"结论呈给用户,由**用户裁决**后在记录中写 `- 用户确认: <日期>`;`auto` 模式下这是**硬停点**,必须停下等用户。降级评审的确认行**禁止**写 `auto-approved`(gate 会机械拦截)。
+`auto` 下降级是硬停点;确认行禁止 `auto-approved`(gate 拦截)。
 
-## 评审对象与 checklist
+## 评审对象
 
-| 评审对象 | Checklist | 记录路径 |
-|----------|-----------|----------|
+| 对象 | Checklist | 记录 |
+|------|-----------|------|
 | `spec.md` | `references/requirements-checklist.md` | `reviews/spec-review.md` |
-| `plan.md`(档位 2) | requirements + design 两份 checklist,一轮完成 | `reviews/plan-review.md` |
-| `design.md` | `references/design-checklist.md` | `reviews/design-review.md` |
-| 实现代码 + 测试 | `references/code-checklist.md` | `reviews/code-review.md` |
+| `architecture.md` | `references/design-checklist.md` | `reviews/architecture-review.md` |
+| 实现代码 | `references/code-checklist.md` + 加载 `hf-code-review` | `reviews/code-review.md` |
+
+读 `progress.md` 已加载扩展,把扩展声明的检查项并入本轮。
 
 ## 流程
 
-### 1. 冷读输入
-
-通读被评审工件与其上游(评 design 要读 spec;评代码要读计划与 frame)。读 progress.md 的"已加载扩展",把各扩展 SKILL.md 中声明的对应阶段评审检查项**并入本轮 checklist**。
-
-### 2. 代码评审的额外义务
-
-评审者**必须自己动手**,不采信作者叙述:
-
-- 自己重跑全量测试套件,结果作为 findings 的依据
-- 读完整 git diff,对照任务清单核对改动面有无范围蔓延
-- 抽查测试与任务的对应关系(red 是否真是行为缺失)
-- 核对 frame 的风险档位与实际 diff 是否相符
-
-### 3. 逐条检查并记 findings
-
-```markdown
-- [严重|一般|建议] <位置>: <问题描述> → <修改建议>
-```
-
-- **严重**:不修就会导致下游建立在错误基础上(需求不可测、设计漏需求、测试造假、风险档位定低)
-- **一般**:应当在批准前修复的质量问题
-- **建议**:可选改进,不阻塞
-
-### 4. 结论落盘(机器可读)
-
-写入对应的 `reviews/*.md`:
+1. 冷读被评工件与上游(评架构读 spec;评代码读 spec/architecture/tickets)。
+2. **代码门**:必须加载并遵循 `hf-code-review`(Standards + Spec 双轴,宜并行 subagent);评审者自己跑测试、自己读 `git diff`,不采信作者叙述。
+3. Findings 格式:`- [严重|一般|建议] <位置>: <问题> → <建议>`。有严重/一般 → `需修改`;仅建议可 `通过`;降级不得 `通过`。
+4. 落盘:
 
 ```markdown
 # <对象> 评审 (第 N 轮)
-
 - 日期: YYYY-MM-DD
 - 评审方式: subagent | 独立会话 | 主会话降级
 - 结论: 通过 | 需修改 | 待独立复核
-
 ## Findings
-<逐条列出;"通过"且无 findings 时写"无">
 ```
 
-结论规则:存在**严重**或**一般** finding → `需修改`;只有**建议**级 → 可以 `通过` 并附带建议;降级方式不得给 `通过`。不允许"通过但是……"的混合结论。
-
-### 5. 结论处理
-
-- `需修改` → 回作者阶段(hf-plan / hf-build),**只修 findings 指出的问题**,再送复审;复审只确认 findings 是否闭合,不从头再评、不翻案已闭合项。
-- `通过` → `interactive` 模式下向用户展示 1-2 句结论摘要并等待确认,确认后追加 `- 用户确认: <日期>`;`auto` 模式(且评审方式非降级)写 `- 用户确认: auto-approved <日期>`。**确认必须落盘在结论行之后**——这是 gate 机械判定"已批准"的依据。
+5. `需修改` → 回作者阶段只修 findings 再复审。`通过` → interactive 等用户确认后写 `- 用户确认: <日期>`;auto 非降级写 `auto-approved <日期>`。确认必须在结论行之后。
 
 ## 红线
 
-- 评审者顺手修改被评审对象("我帮你改了"→ 应写成 finding)
-- 用作者会话的记忆为问题开脱("我记得这里是有原因的")
-- findings 不指向具体位置,只有"整体感觉不够好"
-- 明知有严重问题仍给"通过",理由是"后面再补"
-- 代码评审不自己跑测试、不读 diff,靠作者的叙述下结论
-- 复审时重新翻案已闭合的 findings 或扩大评审范围
+- 评审者顺手改被评对象;用作者记忆开脱;无具体位置的空泛结论;混合「通过但是…」。
