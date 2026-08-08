@@ -4,9 +4,47 @@
 
 **A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus mechanical gates, progress recovery, auto mode, demo-gated acceptance, and pluggable `ext-*` extensions.**
 
-Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps the shell: `hf_gate.py`, `progress.md`, interactive/auto, and cross-stage `hf-review`.
+Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps the reliability shell: `hf_gate.py`, `progress.md`, interactive/auto, and cross-stage `hf-review`.
 
-## Main chain
+## Install
+
+```bash
+python scripts/install.py --target cursor --dest /path/to/project
+python scripts/install.py --target opencode --dest /path/to/project
+./install.sh --target both --dest /path/to/project
+./install.ps1 -Target both -Dest C:\path\to\project
+```
+
+- **Cursor**: copies skills into `.cursor/skills/` and writes an always-on `.cursor/rules/harness-flow.mdc` (paths rewritten). Unrelated project skills are preserved. Use `--mode symlink` to follow this checkout.
+- **OpenCode**: installs under `.opencode/skills/` (generated, gitignored); top-level `skills/` remains the source of truth.
+- **Claude Code**: install as a plugin from this repo’s marketplace, or vendor `skills/` into the project.
+
+In this repo itself (OpenCode): `python scripts/install.py --target opencode --dest .`
+
+## Usage
+
+### 1. One-time project setup
+
+In the target project, ask the agent once:
+
+> Run `hf-setup-skills` and configure the issue tracker (local files are fine), triage labels if needed, and where CONTEXT/ADRs live.
+
+Or let greenfield `hf_gate.py init` create `CONTEXT.md`, `product/assumptions.md`, `product/decisions.md`, `docs/adr/`, and `features/`, then refine with `hf-setup-skills` when you want a real tracker.
+
+### 2. Start work (talk naturally)
+
+The agent should load `hf-workflow` first. Example prompts:
+
+| Goal | Example |
+|------|---------|
+| Idea → app | “I have an idea: an app that tracks reading notes. Use HarnessFlow.” |
+| Existing codebase feature | “Use HarnessFlow: add rate limiting to the notifications API.” |
+| Continue after a break | “Continue” / “Resume HarnessFlow progress.” |
+| Auto mode | “Auto mode — don’t wait for my confirmation unless blocked.” |
+| Exploration / prototype | “Prototype whether this state model feels right (throwaway).” |
+| Incoming bug pile | “Triage open issues, then implement what’s ready-for-agent.” |
+
+### 3. Follow the main chain
 
 ```
 hf-workflow
@@ -18,22 +56,45 @@ hf-workflow
   → hf-ship
 ```
 
-Exploration: `hf-prototype` / `模式: 探索` → `check --to close` (never ship). Incoming issues: `hf-triage`. Hard bugs: `hf-diagnosing-bugs`.
+What you should see on disk as you go:
 
-## Mechanical gates
+| Stage | Typical artifacts |
+|-------|-------------------|
+| Grill | `CONTEXT.md`, ADRs, `product/assumptions.md`, `features/<NNN>-<slug>/feature.md` + `progress.md` |
+| Spec | `features/.../spec.md` + `reviews/spec-review.md` |
+| Architecture | `features/.../architecture.md` + `reviews/architecture-review.md` |
+| Tickets | `features/.../tickets.md` (`- [ ] T-01 ...`) |
+| Implement | code + tests via `hf-tdd`; tickets checked off |
+| Code review | `reviews/code-review.md` |
+| Ship | write-back to CONTEXT/assumptions; `progress` → `done` |
+| Perceivable UI | demo evidence + `reviews/demo-acceptance.md` before ship |
+
+Exploration path: `hf-prototype` or `模式: 探索` → `conclusion.md` + `check --to close` (**never ship**; no promoting prototype code).
+
+### 4. Recover anytime (don’t rely on chat)
 
 ```bash
-gate=skills/hf-workflow/scripts/hf_gate.py
-python3 $gate init
-python3 $gate status
-python3 $gate next
+gate=skills/hf-workflow/scripts/hf_gate.py   # after Cursor install: .cursor/skills/hf-workflow/scripts/hf_gate.py
+python3 $gate status                         # product layer + where each feature is stuck + next step
+python3 $gate next                           # next unfinished feature / stage
 python3 $gate check --product
 python3 $gate check --feature features/001-x --to to-architecture
 ```
 
 `--to` stages: `to-spec` | `to-architecture` | `to-tickets` | `implement` | `ship` | `close`.
 
-Gates check artifacts and review verdict lines on disk — not model narration. Semantic quality is owned by `hf-review` / `hf-code-review` and demo acceptance.
+**Rules of thumb**
+
+- Enter a stage only after `check --to <stage>` **PASS**; record the RESULT line in `progress.md`.
+- Gates judge files and verdict lines — not “looks good” in chat.
+- Spec / architecture / code each need an independent `hf-review` (code also uses `hf-code-review`).
+- Underspecified choices: propose a default → `product/assumptions.md` → continue.
+- Say **auto** only when you want reviews + gate PASS to advance without waiting; degraded same-session review is a hard stop in auto.
+
+### 5. Execution modes
+
+- **interactive** (default): wait for your confirmation after reviews and demo acceptance.
+- **auto**: you must say so explicitly. Passing review + gate advances with `auto-approved`. Floors: implement/review in subagents, no degraded self-approve, gate never skipped, assumptions ledgered; present demo evidence at the next human interaction.
 
 ## Skills (core)
 
@@ -48,26 +109,18 @@ Gates check artifacts and review verdict lines on disk — not model narration. 
 | [hf-review](skills/hf-review/SKILL.md) | Cross-stage review protocol |
 | [hf-code-review](skills/hf-code-review/SKILL.md) | Two-axis code review (Standards + Spec) |
 | [hf-ship](skills/hf-ship/SKILL.md) | Closeout + write-back |
+| [hf-setup-skills](skills/hf-setup-skills/SKILL.md) | Per-repo tracker / labels / domain docs |
 
-Meta / on-ramps include `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`, `hf-prototype`, `hf-setup-skills`, and others under `skills/hf-*`.
+Meta / on-ramps: `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`, `hf-prototype`, `hf-triage`, `hf-diagnosing-bugs`, `hf-wayfinder`, `hf-handoff`, `hf-wizard`, and others under `skills/hf-*`.
 
 ## Extensions
 
-`ext-ui-design` (to-spec / implement / code-review), `ext-design-md` (to-architecture / ship). See [extension authoring](skills/hf-workflow/references/extension-authoring.md).
+Loaded when frontmatter **binding stage** + **trigger** match:
 
-## Install
+- [ext-ui-design](skills/ext-ui-design/SKILL.md) — `to-spec` / `implement` / `code-review` when the feature has UI
+- [ext-design-md](skills/ext-design-md/SKILL.md) — `to-architecture` / `ship` when using a `DESIGN.md` token source
 
-```bash
-python scripts/install.py --target cursor --dest /path/to/project
-python scripts/install.py --target opencode --dest /path/to/project
-./install.sh --target both --dest /path/to/project
-./install.ps1 -Target both -Dest C:\path\to\project
-```
-
-## Execution modes
-
-- **interactive** (default): wait for confirmation after reviews and demo acceptance.
-- **auto**: say so explicitly; passing review + gate advances with `auto-approved`. Floors remain: subagent implement/review, no degraded self-approve, gate never skipped, assumptions ledgered.
+Extensions only tighten requirements. Authoring: [extension-authoring](skills/hf-workflow/references/extension-authoring.md).
 
 ## License
 
