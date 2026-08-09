@@ -21,7 +21,7 @@ description: <一句话> 绑定阶段: <合法阶段子集>。触发条件: <…
 
 ## 合法绑定阶段
 
-`grill-with-docs` / `to-spec` / `to-architecture` / `to-tickets` / `implement` / `code-review` / `ship` / `close`
+`grill-with-docs` / `to-product-architecture` / `to-spec` / `to-architecture` / `to-tickets` / `implement` / `code-review` / `ship` / `close`
 
 ## 硬性约束
 

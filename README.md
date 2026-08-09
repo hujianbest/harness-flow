@@ -29,7 +29,7 @@ In the target project, ask the agent once:
 
 > Run `hf-setup-skills` and configure the issue tracker (local files are fine), triage labels if needed, and where CONTEXT/ADRs live.
 
-Or let greenfield `hf_gate.py init` create `CONTEXT.md`, `product/assumptions.md`, `product/decisions.md`, `docs/adr/`, and `features/`, then refine with `hf-setup-skills` when you want a real tracker.
+Or let greenfield `hf_gate.py init` create `CONTEXT.md`, `product/assumptions.md`, `product/decisions.md`, `product/architecture.md`, `docs/adr/`, and `features/`, then refine with `hf-setup-skills` when you want a real tracker.
 
 ### 2. Start work (talk naturally)
 
@@ -49,6 +49,7 @@ The agent should load `hf-workflow` first. Example prompts:
 ```
 hf-workflow
   → hf-grill-with-docs
+  → hf-to-product-architecture — hf-review (product architecture) —
   → hf-to-spec            — hf-review (spec) —
   → hf-to-architecture    — hf-review (architecture) —
   → hf-to-tickets
@@ -60,13 +61,14 @@ What you should see on disk as you go:
 
 | Stage | Typical artifacts |
 |-------|-------------------|
-| Grill | `CONTEXT.md`, ADRs, `product/assumptions.md`, `features/<NNN>-<slug>/feature.md` + `progress.md` |
+| Grill | `CONTEXT.md`, ADRs, `product/assumptions.md`, optional `features/<NNN>-<slug>/` |
+| Product architecture | `product/architecture.md` + `product/reviews/product-architecture-review.md` |
 | Spec | `features/.../spec.md` + `reviews/spec-review.md` |
-| Architecture | `features/.../architecture.md` + `reviews/architecture-review.md` |
+| Architecture | `features/.../architecture.md` (incremental vs product map) + `reviews/architecture-review.md` |
 | Tickets | `features/.../tickets.md` (`- [ ] T-01 ...`) |
 | Implement | code + tests via `hf-tdd`; tickets checked off |
 | Code review | `reviews/code-review.md` |
-| Ship | write-back to CONTEXT/assumptions; `progress` → `done` |
+| Ship | write-back to CONTEXT / product architecture / assumptions; `progress` → `done` |
 | Perceivable UI | demo evidence + `reviews/demo-acceptance.md` before ship |
 
 Exploration path: `hf-prototype` or `模式: 探索` → `conclusion.md` + `check --to close` (**never ship**; no promoting prototype code).
@@ -87,7 +89,8 @@ python3 $gate check --feature features/001-x --to to-architecture
 
 - Enter a stage only after `check --to <stage>` **PASS**; record the RESULT line in `progress.md`.
 - Gates judge files and verdict lines — not “looks good” in chat.
-- Spec / architecture / code each need an independent `hf-review` (code also uses `hf-code-review`).
+- Spec / product architecture / feature architecture / code each need an independent `hf-review` (code also uses `hf-code-review`).
+- Full product layer: `check --product` must PASS before build-mode feature chain; feature architecture must declare alignment to `product/architecture.md`.
 - Underspecified choices: propose a default → `product/assumptions.md` → continue.
 - Say **auto** only when you want reviews + gate PASS to advance without waiting; degraded same-session review is a hard stop in auto.
 
@@ -102,8 +105,9 @@ python3 $gate check --feature features/001-x --to to-architecture
 |-------|------|
 | [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto, extensions, gate usage |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | Interview + CONTEXT.md / ADR |
+| [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | Product-level architecture map |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | Synthesize a spec |
-| [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | Feature architecture after spec |
+| [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | Feature architecture (incremental) after spec |
 | [hf-to-tickets](skills/hf-to-tickets/SKILL.md) | Tracer-bullet tickets + blockers |
 | [hf-implement](skills/hf-implement/SKILL.md) | Build tickets via `hf-tdd` |
 | [hf-review](skills/hf-review/SKILL.md) | Cross-stage review protocol |

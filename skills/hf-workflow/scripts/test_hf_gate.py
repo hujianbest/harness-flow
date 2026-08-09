@@ -93,6 +93,109 @@ class GateChainTest(unittest.TestCase):
         self.assertNotIn("usage:", out)
         self.assertNotIn("show this help message and exit", out)
 
+    def test_to_tickets_requires_product_arch_alignment_when_map_exists(self):
+        root = Path(self._tmp.name)
+        product = root / "product"
+        product.mkdir(parents=True)
+        (product / "architecture.md").write_text(
+            "# 产品架构\n- 用户确认: 2026-08-09\n",
+            encoding="utf-8",
+        )
+        write_feature(self.feature)
+        (self.feature / "spec.md").write_text("s", encoding="utf-8")
+        write_review(self.feature, "spec-review.md")
+        (self.feature / "architecture.md").write_text(
+            "# 架构\n## 模块边界\n",
+            encoding="utf-8",
+        )
+        write_review(self.feature, "architecture-review.md")
+        code, out = self.check("to-tickets")
+        self.assertEqual(code, 1)
+        self.assertIn("对齐产品架构", out)
+
+        (self.feature / "architecture.md").write_text(
+            "# 架构\n## 对齐产品架构\n见 `product/architecture.md`\n",
+            encoding="utf-8",
+        )
+        code, out = self.check("to-tickets")
+        self.assertEqual(code, 0)
+
+
+class ProductLayerTest(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_init_creates_architecture_template(self):
+        code, out = run_gate(["init", "--root", str(self.root)])
+        self.assertEqual(code, 0)
+        arch = self.root / "product" / "architecture.md"
+        self.assertTrue(arch.is_file())
+        text = arch.read_text(encoding="utf-8")
+        self.assertIn("原则与风格", text)
+        self.assertIn("用户确认:", text)
+
+    def test_check_product_requires_architecture_and_review(self):
+        run_gate(["init", "--root", str(self.root)])
+        (self.root / "CONTEXT.md").write_text(
+            "# CONTEXT\n- 用户确认: 2026-08-09\n\n## 术语\n",
+            encoding="utf-8",
+        )
+        code, out = run_gate(["check", "--product", "--root", str(self.root)])
+        self.assertEqual(code, 1)
+        self.assertIn("architecture.md", out)
+
+        arch = self.root / "product" / "architecture.md"
+        arch.write_text(
+            "# 产品架构\n- 用户确认: 2026-08-09\n\n## 原则与风格\n",
+            encoding="utf-8",
+        )
+        code, out = run_gate(["check", "--product", "--root", str(self.root)])
+        self.assertEqual(code, 1)
+        self.assertIn("product-architecture-review", out)
+
+        review_path = self.root / "product" / "reviews" / "product-architecture-review.md"
+        review_path.parent.mkdir(parents=True, exist_ok=True)
+        # init 可能已创建 reviews/；若异常为文件则清理后重建
+        if review_path.parent.is_file():
+            review_path.parent.unlink()
+            review_path.parent.mkdir(parents=True, exist_ok=True)
+        review_path.write_text(
+            "- 评审方式: subagent\n- 结论: 通过\n- 用户确认: 2026-08-09\n",
+            encoding="utf-8",
+        )
+        code, out = run_gate(["check", "--product", "--root", str(self.root)])
+        self.assertEqual(code, 0)
+        self.assertIn("RESULT: PASS", out)
+
+    def test_status_map_only_mode(self):
+        product = self.root / "product"
+        product.mkdir(parents=True)
+        (product / "architecture.md").write_text(
+            "# 产品架构\n- 用户确认: 2026-08-09\n",
+            encoding="utf-8",
+        )
+        code, out = run_gate(["status", "--root", str(self.root)])
+        self.assertEqual(code, 0)
+        self.assertIn("仅架构地图", out)
+
+    def test_build_feature_blocked_when_full_product_incomplete(self):
+        run_gate(["init", "--root", str(self.root)])
+        (self.root / "CONTEXT.md").write_text(
+            "# CONTEXT\n- 用户确认: 2026-08-09\n",
+            encoding="utf-8",
+        )
+        feature = self.root / "features" / "001-x"
+        write_feature(feature)
+        code, out = run_gate(
+            ["check", "--feature", str(feature), "--to", "to-spec"]
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("产品层", out)
+
 
 if __name__ == "__main__":
     unittest.main()
