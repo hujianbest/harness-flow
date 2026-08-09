@@ -140,7 +140,7 @@ class ProductLayerTest(unittest.TestCase):
         )
         code, out = run_gate(["check", "--product", "--root", str(self.root)])
         self.assertEqual(code, 0)
-        self.assertIn("RESULT: PASS", out)
+        self.assertIn("RESULT: OK", out)
         self.assertNotIn("product-architecture-review", out)
 
 

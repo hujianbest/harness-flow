@@ -7,7 +7,7 @@ HarnessFlow is a small, deliberately minimal skill suite: 7 core skills own the 
 - Bug fixes: broken links, typos, factual errors in `SKILL.md` files, gate script bugs (with a failing test first).
 - New `ext-*` extensions that follow [the authoring guide](skills/hf-workflow/references/extension-authoring.md): declare binding stages (frame/plan/build/verify/ship) + trigger conditions in the description, only tighten (never relax) main-chain gates, keep the body ≤ 150 lines.
 - Sharper checklist items in `skills/hf-review/references/` backed by a real failure they would have caught.
-- New mechanical checks in `hf_gate.py` that catch a real fabrication pattern — must come with unit tests in `skills/hf-workflow/scripts/test_hf_gate.py`.
+- New optional diagnostics in `hf_gate.py` that help surface missing artifacts — must come with unit tests in `skills/hf-workflow/scripts/test_hf_gate.py`. Do **not** reintroduce mandatory “FAIL blocks stage entry” rules in skills or Cursor rules.
 
 ## What needs an issue first
 

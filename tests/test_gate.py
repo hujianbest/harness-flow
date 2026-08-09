@@ -260,8 +260,8 @@ class StatusNextTests(unittest.TestCase):
             write_feature(feature)
             code, out = run_gate(["status", "--root", str(root)])
             self.assertEqual(code, 0)
-            self.assertIn("产品层: PASS", out)
-            # feature.md alone makes --to to-spec PASS; first FAIL is to-architecture
+            self.assertIn("产品层: OK", out)
+            # feature.md alone makes --to to-spec OK; first GAPS target is to-architecture
             self.assertIn("→ to-architecture", out)
             code, out = run_gate(["next", "--root", str(root)])
             self.assertEqual(code, 0)

@@ -5,24 +5,24 @@ alwaysApply: true
 
 # Cursor 上的 HarnessFlow
 
-本工作区内置 HarnessFlow：与 Matt 对齐的主链（grill → product-architecture → spec → architecture → tickets → implement → ship），以及机械门禁、进度恢复、auto 模式和可插拔的 `ext-*` 扩展。技能正文改编自 mattpocock/skills（MIT，已获授权复制），并使用 `hf-*` 名称。
+本工作区内置 HarnessFlow：与 Matt 对齐的主链（grill → product-architecture → spec → architecture → tickets → implement → ship），以及可选状态工具、进度恢复、auto 模式和可插拔的 `ext-*` 扩展。技能正文改编自 mattpocock/skills（MIT，已获授权复制），并使用 `hf-*` 名称。
 
 ## 每项开发任务
 
 1. 首先加载 `skills/hf-workflow/SKILL.md`。
-2. 遵循当前阶段技能：`hf-grill-with-docs` → `hf-to-product-architecture` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`；在产品架构、规格、架构和实施之后执行 `hf-review`（在代码门禁处还要执行 `hf-code-review`）。
+2. 遵循当前阶段技能：`hf-grill-with-docs` → `hf-to-product-architecture` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`；在产品架构、规格、架构和实施之后执行 `hf-review`（在代码门处还要执行 `hf-code-review`）。
 3. 每个阶段开始前，根据 frontmatter 中绑定的阶段 + 触发条件，加载匹配的 `skills/ext-*/`。
 
 ## 硬性规则
 
-- 进入某个阶段前，运行 `skills/hf-workflow/scripts/hf_gate.py check --to <stage>`（或 `check --product`）；在 `progress.md` 中记录 RESULT。FAIL 表示不得继续。
-- 使用 `skills/hf-workflow/scripts/hf_gate.py status` 恢复状态，不依赖聊天记忆。
-- 规格不足时：提出默认方案，将其记录在 `product/assumptions.md` 中，然后继续。
+- **无强制门禁**：不要求进入阶段前跑 `hf_gate.py check`；`check` 仅为可选自检/诊断，其 FAIL/缺口**不阻止**推进。
+- 可用 `skills/hf-workflow/scripts/hf_gate.py status` 恢复状态（可选），不依赖聊天记忆。
+- 规格不足时：提出默认方案，记入 `product/assumptions.md`，然后继续。
 - 探索代码前先阅读 `CONTEXT.md` / `product/architecture.md` / 特性的 `architecture.md`；不得为每个特性重新扫描整个代码仓库。
-- 产品架构与特性对齐由技能/`hf-review` 约束，不由 `hf_gate` 机械强制。
-- 用户可感知的切片在 ship 前必须将 demo 验收结果写入磁盘。
-- 探索模式永远不能 ship；通过 `conclusion.md` + `check --to close` 收尾。
-- 作者/评审者分离：在 subagent 或全新会话中进行评审；降级评审不得自行批准；auto + 降级评审 = 硬停止。
-- 每次只实施一个前沿票据；构建模式使用 `hf-tdd`（先写失败测试）。
+- 产品架构与特性对齐由技能/`hf-review` 约束，不由脚本机械拦截。
+- 用户可感知的切片在 ship 前宜将 demo 验收写入磁盘。
+- 探索模式不应 ship；以 `conclusion.md` 收尾，禁止直接晋升原型代码。
+- 作者/评审者分离：在 subagent 或全新会话中评审；降级评审不得自行批准「通过」；auto + 降级评审 = 硬停止。
+- 每次只实施一个前沿票据；建造模式使用 `hf-tdd`（先写失败测试）。
 
 纯问答或只读请求无需使用 HarnessFlow。

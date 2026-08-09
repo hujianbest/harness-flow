@@ -6,12 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- **取消强制机械门禁** — `hf_gate.py` 降为可选状态/自检工具：规则与各阶段技能不再要求进入前 `check` PASS，也不因缺口禁止推进；`check` 输出改为 `RESULT: OK` / `RESULT: GAPS`（仅供参考）。auto 不再依赖 gate PASS。评审/TDD/作者评审分离纪律保留。
+- 同步 Cursor 规则、README 中英、`hf-workflow` 与主链阶段技能、扩展编写指南。
+
 ### Added
 
 - **`hf-to-product-architecture`（产品级架构阶段）** — grill 确认共享语言之后、特性主链之前：一页 `product/architecture.md`（原则与风格、逻辑划分、开发视图、关键场景、横切与 ADR，≤120 行）+ `hf-review` 产品架构检查单 → `product/reviews/product-architecture-review.md`。特性架构改为产品地图的增量注解（须含对齐声明）。完整性由**技能与评审**约束，`hf_gate` **不做**产品架构强制校验。
 - **`hf_gate.py` init 模板** — 可选生成 `product/architecture.md`、`product/progress.md`、`product/reviews/`；`check --product` 仍只校验 CONTEXT/台账（与 v5 一致），不拦截特性主链、不对齐引用做机械检查。
 
-### Changed
+### Notes
 
 - 主链顺序：`grill-with-docs` → **`to-product-architecture`** → `to-spec` → …
 - `hf-grill-with-docs` / `hf-to-architecture` / `hf-ship` / `hf-review` / README / Cursor 规则 / `validate_skills` 合法绑定阶段同步。

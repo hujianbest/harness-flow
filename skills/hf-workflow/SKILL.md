@@ -1,11 +1,11 @@
 ---
 name: hf-workflow
-description: HarnessFlow 主工作流入口。凡开发新功能、修改行为、修复缺陷、从想法搭建应用，或用户提到开始开发/继续/恢复进度/harness-flow 时，必须先加载本技能。主链为 grill-with-docs → to-product-architecture → to-spec → to-architecture → to-tickets → implement → ship，横切 hf-review，机械门禁为 hf_gate.py，支持 interactive/auto 与 ext-* 扩展。不适用于纯问答、只读代码等无代码变更请求。
+description: HarnessFlow 主工作流入口。凡开发新功能、修改行为、修复缺陷、从想法搭建应用，或用户提到开始开发/继续/恢复进度/harness-flow 时，必须先加载本技能。主链为 grill-with-docs → to-product-architecture → to-spec → to-architecture → to-tickets → implement → ship，横切 hf-review；hf_gate.py 仅为可选状态/自检工具（无强制门禁），支持 interactive/auto 与 ext-* 扩展。不适用于纯问答、只读代码等无代码变更请求。
 ---
 
 # HarnessFlow 主工作流
 
-主链内容对齐 Matt Pocock 技能（MIT，已获授权复制），外壳保留 HarnessFlow 的门禁、进度恢复、`auto` 与扩展机制；并补回**产品级架构**阶段，避免大系统只有特性碎片、没有系统地图。
+主链内容对齐 Matt Pocock 技能（MIT，已获授权复制），外壳保留进度落盘、`auto`、扩展与**可选**状态工具；并含**产品级架构**阶段。**无强制机械门禁**：不因 `hf_gate check` 未通过而禁止进入下一阶段。
 
 ## 主链
 
@@ -20,7 +20,7 @@ hf-workflow
   → hf-ship
 ```
 
-探索旁路：`hf-prototype`（或特性 `模式: 探索`）→ 结论收尾 `check --to close`，**永远不能进入 `ship` 阶段**。
+探索旁路：`hf-prototype`（或特性 `模式: 探索`）→ 写 `conclusion.md` 收尾，**不应进入 `ship`**，禁止直接晋升原型代码。
 
 存量外来票：`hf-triage` → 就绪后 `hf-implement`。疑难缺陷：`hf-diagnosing-bugs`。
 
@@ -28,25 +28,25 @@ hf-workflow
 
 ## 进入规则
 
-1. 先跑 `python3 skills/hf-workflow/scripts/hf_gate.py status` 恢复磁盘状态,不靠聊天记忆。
-2. 进入任何阶段前运行 `check --to <stage>`（或绿地项目运行 `check --product`），把 `RESULT` 行写入该特性/`product` 的 `progress.md`；`FAIL` 时不得进入。
-3. 到达阶段时只读该阶段 `SKILL.md` 与匹配的 `ext-*`,不预读全链。
-4. 有 `CONTEXT.md` / `product/architecture.md` / 特性 `architecture.md` 时先读地图再读相关代码,禁止每特性全库扫描。
+1. 新会话可用 `python3 skills/hf-workflow/scripts/hf_gate.py status` **可选**恢复磁盘状态。
+2. **不要求**进入阶段前跑 `check`；若运行，仅作缺口清单，FAIL **不阻止**推进。可把结果记入 `progress.md` 供参考。
+3. 到达阶段时只读该阶段 `SKILL.md` 与匹配的 `ext-*`，不预读全链。
+4. 有 `CONTEXT.md` / `product/architecture.md` / 特性 `architecture.md` 时先读地图再读相关代码，禁止每特性全库扫描。
 
-## 机械门禁
+## 可选状态工具（非门禁）
 
 ```bash
 gate=skills/hf-workflow/scripts/hf_gate.py
 python3 $gate init
 python3 $gate status
 python3 $gate next
-python3 $gate check --product
+python3 $gate check --product          # 可选自检
 python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 ```
 
-`--to` 取值:`to-spec` | `to-architecture` | `to-tickets` | `implement` | `ship` | `close`。
+`--to` 取值：`to-spec` | `to-architecture` | `to-tickets` | `implement` | `ship` | `close`。
 
-门禁只裁决文件、结论行、勾选与确认；语义质量由 `hf-review` / `hf-code-review` 与用户演示验收把关。
+脚本只汇报文件/结论行/勾选等形式缺口；语义质量由 `hf-review` / `hf-code-review` 与用户演示把关。**不把脚本结果当作推进否决权。**
 
 ## `progress.md`
 
@@ -59,7 +59,7 @@ python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 - 执行模式: interactive | auto
 - 已加载扩展: <ext-* 或无>
 - 下一步: <一句话>
-- 门禁输出: <最近 RESULT 行>
+- 自检输出: <可选；最近一次 check 摘要>
 ```
 
 产品层另用 `product/progress.md`（阶段含 `to-product-architecture` | `ready`）。
@@ -67,22 +67,21 @@ python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 ## 执行模式
 
 - `interactive`（默认）：规格/架构/代码评审通过后以及演示验收时等待用户确认。
-- `auto`：用户明确要求自动执行时启用。评审通过且门禁为 `PASS` 即推进，确认行写 `auto-approved <日期>`。底线：实现与评审使用 subagent；降级评审在 `auto` 下硬停；不可绕过门禁；替用户作出的选择写入 `product/assumptions.md`；演示可先记为 `auto-approved`，下次交互必须主动呈上。
+- `auto`：用户明确要求自动执行时启用。评审通过即可推进，确认行写 `auto-approved <日期>`。底线：实现与评审使用 subagent；降级评审在 `auto` 下硬停；替用户作出的选择写入 `product/assumptions.md`；演示可先记为 `auto-approved`，下次交互必须主动呈上。**不依赖** gate PASS。
 
 ## 硬性规则
 
-- 门禁为 `FAIL` 时不进入下一阶段；评审结论为「需修改」时返回作者阶段，只修复发现项。
-- `hf-implement` 任务/票由 subagent 执行;主会话只编排。
-- 作者/评审分离见 `hf-review`;代码门另遵 `hf-code-review`。
+- 评审结论为「需修改」时返回作者阶段，只修复发现项（这是评审纪律，不是脚本门禁）。
+- `hf-implement` 任务/票由 subagent 执行；主会话只编排。
+- 作者/评审分离见 `hf-review`；代码门另遵 `hf-code-review`。
 - 欠定不静默填补 → 假设台账。
-- 用户可感知特性进入 `ship` 阶段前，须将演示验收结果落盘。
+- 用户可感知特性进入 `ship` 前，宜将演示验收结果落盘。
 - 探索产物禁止直接晋升。
-- 压力催促不算豁免；用户坚持跳过时须在 `progress.md` 中记录豁免。
-- 产品架构与特性对齐声明由技能/`hf-review` 约束；`hf_gate` 不对 `product/architecture.md` 做强制校验。
+- 无强制 `hf_gate` 拦截；用户若要求跳过评审等纪律，在 `progress.md` 记录豁免后再继续。
 
 ## 扩展
 
-进入阶段前扫描 `skills/ext-*/`，读取 `description` 中的绑定阶段与触发条件；匹配则加载。扩展只收紧、不放松。合法绑定阶段见 `references/extension-authoring.md`。
+进入阶段前扫描 `skills/ext-*/`，读取 `description` 中的绑定阶段与触发条件；匹配则加载。扩展只收紧流程建议、**不得**恢复强制脚本门禁。合法绑定阶段见 `references/extension-authoring.md`。
 
 ## 元技能（按需）
 

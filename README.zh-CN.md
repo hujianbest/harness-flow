@@ -2,9 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留机械门禁、progress 恢复、auto、demo 验收与可插拔 `ext-*`。**
+**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律、demo 验收与可插拔 `ext-*`。`hf_gate.py` 仅为可选状态/自检工具——无强制门禁。**
 
-主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留可靠性外壳：`hf_gate.py`、`progress.md`、interactive/auto、跨阶段 `hf-review`。
+主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留 `progress.md`、interactive/auto、跨阶段 `hf-review`。**无强制机械门禁。**
 
 ## 安装
 
@@ -71,9 +71,9 @@ hf-workflow
 | 收尾 | 回写 CONTEXT/产品架构/假设台账；`progress` → `done` |
 | 可感知 UI | ship 前还要 demo 证据 + `reviews/demo-acceptance.md` |
 
-探索路径：`hf-prototype` 或 `模式: 探索` → `conclusion.md` + `check --to close`（**永远不能 ship**；禁止直接晋升原型代码）。
+探索路径：`hf-prototype` 或 `模式: 探索` → `conclusion.md`（**永远不能 ship**；禁止直接晋升原型代码）。
 
-### 4. 随时恢复（不靠聊天记忆）
+### 4. 可选状态/自检（不靠聊天记忆）
 
 ```bash
 gate=skills/hf-workflow/scripts/hf_gate.py   # Cursor 安装后多为 .cursor/skills/hf-workflow/scripts/hf_gate.py
@@ -87,23 +87,22 @@ python3 $gate check --feature features/001-x --to to-architecture
 
 **要点**
 
-- 进入阶段前必须 `check --to <stage>` **PASS**，并把 RESULT 写入 `progress.md`。
-- 门禁看文件与结论行，不看聊天里的「可以」。
-- 规格 / 产品架构 / 特性架构 / 代码都要独立 `hf-review`（代码门另走 `hf-code-review`）。
-- 产品架构完整性由技能与 `hf-review` 约束，**不**由 `hf_gate` 机械强制。
+- **无强制门禁**：进入阶段**不要求** `check --to` PASS；`hf_gate.py check` 仅可选自检。
+- 中断后续上可用 `status` 从磁盘恢复进度。
+- 规格 / 产品架构 / 特性架构 / 代码仍宜独立 `hf-review`（代码门另走 `hf-code-review`）——这是评审纪律，不是脚本否决权。
 - 欠定：提出默认 → 记入 `product/assumptions.md` → 继续。
-- 只有你明确说 **自动执行** 时，评审通过 + gate PASS 才可不经等待推进；同会话降级评审在 auto 下硬停。
+- 只有你明确说 **自动执行** 时，评审通过即可不经等待推进；同会话降级评审在 auto 下硬停。auto **不依赖** gate PASS。
 
 ### 5. 执行模式
 
 - **interactive**（默认）：评审与 demo 验收后等待你确认。
-- **auto**：须明确开启。评审通过 + gate PASS 即推进（`auto-approved`）。底线：实现/评审走 subagent、降级禁自我确认、gate 不可绕、假设入台账；下次与人交互时主动呈上 demo。
+- **auto**：须明确开启。评审通过即推进（`auto-approved`）。底线：实现/评审走 subagent、降级禁自我确认、假设入台账；下次与人交互时主动呈上 demo。
 
 ## 核心技能
 
 | 技能 | 职责 |
 |------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展、门禁 |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展、可选状态工具 |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | 访谈 + CONTEXT.md / ADR |
 | [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | 产品级架构地图 |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | 综合规格 |

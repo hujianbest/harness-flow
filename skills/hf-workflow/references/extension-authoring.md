@@ -26,6 +26,6 @@ description: <一句话> 绑定阶段: <合法阶段子集>。触发条件: <…
 ## 硬性约束
 
 - `description` 必须包含「绑定阶段」与「触发条件」
-- **只收紧，不放松**主链门禁（评审、TDD、hf_gate.py、用户确认）
+- **只收紧建议，不放松评审/TDD 纪律**；**不得**恢复强制 `hf_gate` 拦截
 - 正文 ≤ 150 行；可判定规则；不复述主链
 - `python3 scripts/validate_skills.py` 须通过

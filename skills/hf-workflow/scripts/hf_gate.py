@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""hf_gate.py — HarnessFlow 机械门禁与状态机（仅使用标准库）。
+"""hf_gate.py — HarnessFlow 可选状态/自检工具（仅使用标准库）。
 
 主链: grill-with-docs → to-product-architecture → to-spec → to-architecture
       → to-tickets → implement → ship
-(探索: … → implement → close, 永不 ship)
+(探索: … → implement → close)
 
-产品架构由技能与评审约束；本门禁不对 product/architecture.md 做强制校验。
+本脚本是诊断与进度探测，**不是强制门禁**：技能与规则不得因 check 缺口
+而禁止进入下一阶段。产品架构亦不由本脚本强制校验。
 
 子命令:
   init / check / status / next
@@ -333,7 +334,7 @@ def cmd_check(feature: Path, target: str) -> int:
     print(f"== hf-gate check --to {target} ({feature})")
     if not feature.is_dir():
         print(f"FAIL 特性目录不存在: {feature}")
-        print("RESULT: FAIL")
+        print("RESULT: GAPS — 特性目录不存在（仅供参考）")
         return 1
     c = check_target(feature, target)
     for msg in c.oks:
@@ -341,10 +342,11 @@ def cmd_check(feature: Path, target: str) -> int:
     for msg in c.failures:
         print(f"FAIL {msg}")
     if c.failures:
-        print(f"RESULT: FAIL ({len(c.failures)} 项未通过) — 不得进入 {target}")
+        print(f"RESULT: GAPS ({len(c.failures)} 项) — 仅供参考，不强制拦截进入 {target}")
         return 1
-    print(f"RESULT: PASS — 可进入 {target}")
+    print(f"RESULT: OK — 形式检查未见缺口 ({target})")
     return 0
+
 
 
 def check_confirm(path: Path, oks: list[str], failures: list[str], fail_msg: str) -> None:
@@ -393,9 +395,9 @@ def cmd_check_product(root: Path) -> int:
     for msg in failures:
         print(f"FAIL {msg}")
     if failures:
-        print(f"RESULT: FAIL ({len(failures)} 项未通过) — 产品层未就绪")
+        print(f"RESULT: GAPS ({len(failures)} 项) — 产品层自检缺口，仅供参考，不强制拦截")
         return 1
-    print("RESULT: PASS — 产品层就绪")
+    print("RESULT: OK — 产品层形式检查未见缺口")
     return 0
 
 
@@ -470,9 +472,9 @@ def cmd_status(root: Path) -> int:
         _, failures = check_product_layer(root)
         product_ready = not failures
         if product_ready:
-            print("产品层: PASS（就绪）")
+            print("产品层: OK（形式未见缺口）")
         else:
-            print(f"产品层: FAIL（{len(failures)} 项未通过）")
+            print(f"产品层: GAPS（{len(failures)} 项，仅供参考）")
             for msg in failures:
                 print(f"  - {msg}")
     else:
@@ -503,7 +505,7 @@ def cmd_status(root: Path) -> int:
 
     if active:
         f, stage, _ = active
-        print(f"下一步: 推进 {f.name} 通过 `check --to {stage}`")
+        print(f"下一步: 推进 {f.name}（可选自检: check --to {stage}）")
     elif product_ready:
         print("下一步: 开新特性目录或从任务跟踪器取票 → hf-to-spec / hf-implement")
     elif product_ready is False:

@@ -1,6 +1,6 @@
 ---
 name: hf-ship
-description: 特性收尾：确认 code-review 与（用户可感知时）演示验收，勾选任务票并将反馈回写 CONTEXT/ADR/假设台账，把 progress.md 更新为 done。HarnessFlow 主链最后一步；进入前运行 gate check --to ship。
+description: 特性收尾：确认 code-review 与（用户可感知时）演示验收，勾选任务票并将反馈回写 CONTEXT/ADR/假设台账，把 progress.md 更新为 done。HarnessFlow 主链最后一步。无强制 gate。
 ---
 
 # hf-ship
@@ -9,8 +9,8 @@ description: 特性收尾：确认 code-review 与（用户可感知时）演示
 
 ## 前置
 
-1. `check --feature features/<id> --to ship`。须全部任务票已勾选、`code-review` 已通过并确认；用户可感知特性还须确保 `reviews/demo-acceptance.md` 的结论为「接受」且已确认。
-2. 结果为 `FAIL` 时不得宣称交付完成。
+1. 宜确认任务票已勾选、`code-review` 已通过并确认；用户可感知特性还宜有 `reviews/demo-acceptance.md`（结论「接受」且已确认）。可选跑 `check --to ship` 自检，缺口不拦截宣称收尾的纪律责任（仍应用评审结论约束）。
+2. 探索模式不应进入本阶段。
 
 ## 流程
 
@@ -36,6 +36,6 @@ description: 特性收尾：确认 code-review 与（用户可感知时）演示
 
 ## 红线
 
-- 门禁为 `FAIL` 时口头宣称「做完了」
+- 评审仍为「需修改」时口头宣称「做完了」
 - 探索模式进入 `ship` 阶段
 - 把新范围塞进已评审批次而不回开票
