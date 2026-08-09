@@ -12,7 +12,7 @@ After aligning the main chain with Matt Pocock's skills flow, feature work still
 
 Keep an explicit stage skill `hf-to-product-architecture` that writes or refreshes `product/architecture.md` (and related product-layer files as needed). The stage sits after grilling / docs and before `hf-to-spec`.
 
-Product architecture is **recommended** for greenfield and large brownfield delivery, not a hard blocker enforced by tooling. Agents should still read `product/architecture.md` when present before exploring code.
+Agents should read `product/architecture.md` when present before exploring code.
 
 ## Consequences
 
