@@ -1,6 +1,6 @@
 ---
 name: hf-to-architecture
-description: 基于已确认的规格产出特性级架构设计（模块边界、缝、数据与关键流程、ADR）。位于 hf-to-spec 与 hf-to-tickets 之间；进入前须运行 gate check --to to-architecture（包括 spec-review 通过）。特性架构是产品架构的增量注解；须对齐 product/architecture.md。使用 hf-codebase-design 词汇，必要时参考 hf-wayfinder。
+description: 基于已确认的规格产出特性级架构设计（模块边界、缝、数据与关键流程、ADR）。位于 hf-to-spec 与 hf-to-tickets 之间。特性架构是产品架构的增量注解；宜对齐 product/architecture.md。使用 hf-codebase-design 词汇，必要时参考 hf-wayfinder。
 ---
 
 # hf-to-architecture
@@ -9,9 +9,8 @@ description: 基于已确认的规格产出特性级架构设计（模块边界�
 
 ## 前置
 
-1. 运行 `python3 skills/hf-workflow/scripts/hf_gate.py check --feature features/<id> --to to-architecture`，将 `RESULT` 写入 `progress.md`。结果为 `FAIL` 时不得进入。
-2. 冷读 `spec.md`、`product/architecture.md`（若有）、`CONTEXT.md`(若有)、相关 ADR,以及 `product/` 假设台账。
-3. 加载 `hf-codebase-design`;大雾/多会话决策可参考 `hf-wayfinder` 的决策票思路,但本阶段产出仍落在本特性目录。
+1. 冷读 `spec.md`、`product/architecture.md`（若有）、`CONTEXT.md`(若有)、相关 ADR,以及 `product/` 假设台账。更新 `progress.md` 为 `to-architecture`。
+2. 加载 `hf-codebase-design`;大雾/多会话决策可参考 `hf-wayfinder` 的决策票思路,但本阶段产出仍落在本特性目录。
 
 ## 流程
 
@@ -46,6 +45,6 @@ description: 基于已确认的规格产出特性级架构设计（模块边界�
 ## 红线
 
 - 无 `spec-review` 通过记录，不得写入「已确认」架构并推进到 `to-tickets` 阶段
-- 存在 `product/architecture.md` 时，正文应含对齐声明（技能/评审约束；门禁不机械校验）
+- 存在 `product/architecture.md` 时，正文应含对齐声明（由技能与 `hf-review` 约束）
 - 不在本阶段实现代码或拆完整票单(拆票是 `hf-to-tickets`)
 - 不静默填补欠定:默认选择进 `product/assumptions.md`

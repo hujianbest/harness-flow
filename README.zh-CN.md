@@ -2,9 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留机械门禁、progress 恢复、auto、demo 验收与可插拔 `ext-*`。**
+**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律、demo 验收与可插拔 `ext-*`。**
 
-主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留可靠性外壳：`hf_gate.py`、`progress.md`、interactive/auto、跨阶段 `hf-review`。
+主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留 `progress.md`、interactive/auto、跨阶段 `hf-review`。
 
 ## 安装
 
@@ -29,7 +29,7 @@ python scripts/install.py --target opencode --dest /path/to/project
 
 > 请运行 `hf-setup-skills`，配置 issue tracker（用本地文件即可）、必要时的 triage 标签，以及 CONTEXT/ADR 存放位置。
 
-绿地也可先跑 `hf_gate.py init` 生成 `CONTEXT.md`、`product/assumptions.md`、`product/decisions.md`、`product/architecture.md`、`docs/adr/`、`features/`，需要接真实 tracker 时再跑 `hf-setup-skills`。
+绿地也可让代理按 `skills/hf-workflow/references/product-layer-templates.md` 落盘 `CONTEXT.md`、`product/…`、`docs/adr/`、`features/`（经 `hf-grill-with-docs`），需要接真实 tracker 时再跑 `hf-setup-skills`。
 
 ### 2. 用自然语言开工
 
@@ -71,39 +71,28 @@ hf-workflow
 | 收尾 | 回写 CONTEXT/产品架构/假设台账；`progress` → `done` |
 | 可感知 UI | ship 前还要 demo 证据 + `reviews/demo-acceptance.md` |
 
-探索路径：`hf-prototype` 或 `模式: 探索` → `conclusion.md` + `check --to close`（**永远不能 ship**；禁止直接晋升原型代码）。
+探索路径：`hf-prototype` 或 `模式: 探索` → `conclusion.md`（**永远不能 ship**；禁止直接晋升原型代码）。
 
-### 4. 随时恢复（不靠聊天记忆）
+### 4. 从磁盘恢复（不靠聊天记忆）
 
-```bash
-gate=skills/hf-workflow/scripts/hf_gate.py   # Cursor 安装后多为 .cursor/skills/hf-workflow/scripts/hf_gate.py
-python3 $gate status                         # 产品层 + 各特性卡点 + 下一步
-python3 $gate next                           # 下一个未完成特性/阶段
-python3 $gate check --product
-python3 $gate check --feature features/001-x --to to-architecture
-```
-
-`--to`：`to-spec` | `to-architecture` | `to-tickets` | `implement` | `ship` | `close`。
+阅读 `product/progress.md` 与各 `features/<id>/progress.md` 查看阶段与下一步。工件布局见各阶段技能与 `skills/hf-workflow/references/product-layer-templates.md`。
 
 **要点**
 
-- 进入阶段前必须 `check --to <stage>` **PASS**，并把 RESULT 写入 `progress.md`。
-- 门禁看文件与结论行，不看聊天里的「可以」。
-- 规格 / 产品架构 / 特性架构 / 代码都要独立 `hf-review`（代码门另走 `hf-code-review`）。
-- 产品架构完整性由技能与 `hf-review` 约束，**不**由 `hf_gate` 机械强制。
+- 规格 / 产品架构 / 特性架构 / 代码宜独立 `hf-review`（代码门另走 `hf-code-review`）。
 - 欠定：提出默认 → 记入 `product/assumptions.md` → 继续。
-- 只有你明确说 **自动执行** 时，评审通过 + gate PASS 才可不经等待推进；同会话降级评审在 auto 下硬停。
+- 只有你明确说 **自动执行** 时，评审通过即可不经等待推进；同会话降级评审在 auto 下硬停。
 
 ### 5. 执行模式
 
 - **interactive**（默认）：评审与 demo 验收后等待你确认。
-- **auto**：须明确开启。评审通过 + gate PASS 即推进（`auto-approved`）。底线：实现/评审走 subagent、降级禁自我确认、gate 不可绕、假设入台账；下次与人交互时主动呈上 demo。
+- **auto**：须明确开启。评审通过即推进（`auto-approved`）。底线：实现/评审走 subagent、降级禁自我确认、假设入台账；下次与人交互时主动呈上 demo。
 
 ## 核心技能
 
 | 技能 | 职责 |
 |------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展、门禁 |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展 |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | 访谈 + CONTEXT.md / ADR |
 | [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | 产品级架构地图 |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | 综合规格 |

@@ -6,15 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-### Added
+### Removed
 
-- **`hf-to-product-architecture`（产品级架构阶段）** — grill 确认共享语言之后、特性主链之前：一页 `product/architecture.md`（原则与风格、逻辑划分、开发视图、关键场景、横切与 ADR，≤120 行）+ `hf-review` 产品架构检查单 → `product/reviews/product-architecture-review.md`。特性架构改为产品地图的增量注解（须含对齐声明）。完整性由**技能与评审**约束，`hf_gate` **不做**产品架构强制校验。
-- **`hf_gate.py` init 模板** — 可选生成 `product/architecture.md`、`product/progress.md`、`product/reviews/`；`check --product` 仍只校验 CONTEXT/台账（与 v5 一致），不拦截特性主链、不对齐引用做机械检查。
+- `hf_gate.py` 及配套测试；产品层首次落盘改用 `skills/hf-workflow/references/product-layer-templates.md`。
 
 ### Changed
 
-- 主链顺序：`grill-with-docs` → **`to-product-architecture`** → `to-spec` → …
-- `hf-grill-with-docs` / `hf-to-architecture` / `hf-ship` / `hf-review` / README / Cursor 规则 / `validate_skills` 合法绑定阶段同步。
+- 进度与阶段推进以 `progress.md`、工件与 `hf-review` 为准；同步规则、技能、README、插件描述与安装测试。
 
 ## [5.0.0] - 2026-08-08
 

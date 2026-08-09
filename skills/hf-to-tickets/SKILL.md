@@ -1,6 +1,6 @@
 ---
 name: hf-to-tickets
-description: 把已评审的规格和架构拆成带阻塞边的垂直切片任务票。HarnessFlow 主链第五步；进入前运行 gate check --to to-tickets。默认写入 features/<id>/tickets.md。
+description: 把已评审的规格和架构拆成带阻塞边的垂直切片任务票。HarnessFlow 主链步骤；默认写入 features/<id>/tickets.md。
 ---
 
 # hf-to-tickets
@@ -9,10 +9,10 @@ description: 把已评审的规格和架构拆成带阻塞边的垂直切片任�
 
 ## HarnessFlow 桥接
 
-1. 运行 `check --feature features/<id> --to to-tickets`（须架构和 `architecture-review` 均已通过）。
-2. 默认发布到 `features/<id>/tickets.md`（机器可读的 `- [ ] T-NN` 行）；若已配置任务跟踪器，则按其配置发布，并在特性目录保留索引副本供门禁解析。
+1. 宜在规格与特性架构评审通过后拆票；更新 `progress.md` 为 `to-tickets`。
+2. 默认发布到 `features/<id>/tickets.md`（机器可读的 `- [ ] T-NN` 行）；若已配置任务跟踪器，则按其配置发布，并在特性目录保留索引副本便于进度阅读。
 3. 首张可执行票应为最薄端到端路径(行走骨架判据),除非架构已声明存量无需。
-4. 更新 `progress.md`；下一步运行 `check --to implement`。
+4. 更新 `progress.md`；下一步进入 `hf-implement`。
 
 ## 流程
 
@@ -48,8 +48,8 @@ description: 把已评审的规格和架构拆成带阻塞边的垂直切片任�
 - [ ] T-02 <title> — Blocked by: T-01 — <what it delivers>
 ```
 
-可选择在 `tickets/` 下为每张任务票创建详情文件；**门禁只解析 `tickets.md` 中的 `- [ ] T-NN` 行**。
+可选择在 `tickets/` 下为每张任务票创建详情文件；清单以 `tickets.md` 中的 `- [ ] T-NN` 行为准。
 
-**真实任务跟踪器**——每张任务票对应一个议题，并使用跟踪器原生的阻塞关系；保留 `tickets.md` 镜像供门禁使用。
+**真实任务跟踪器**——每张任务票对应一个议题，并使用跟踪器原生的阻塞关系；保留 `tickets.md` 镜像便于进度阅读。
 
 除建立链接外，**不要**关闭或修改无关的父议题。

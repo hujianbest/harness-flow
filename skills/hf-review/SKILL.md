@@ -1,6 +1,6 @@
 ---
 name: hf-review
-description: HarnessFlow 独立评审协议。规格、架构、实现代码均须经本技能给出落盘结论，门禁才能放行。核心纪律：只承认 subagent 或全新会话；主会话冷读属于降级评审，且不得自我确认通过。代码门另行加载 hf-code-review。不修改被评对象，只产出结论与发现项。
+description: HarnessFlow 独立评审协议。规格、架构、实现代码宜经本技能给出落盘结论再推进。核心纪律：只承认 subagent 或全新会话；主会话冷读属于降级评审，且不得自我确认通过。代码门另行加载 hf-code-review。不修改被评对象，只产出结论与发现项。
 ---
 
 # hf-review（独立评审）
@@ -14,7 +14,7 @@ description: HarnessFlow 独立评审协议。规格、架构、实现代码均�
 | subagent / 全新会话 | 完整 |
 | 主会话冷读 | 降级:结论只能「待独立复核」或「需修改」,不得「通过」 |
 
-`auto` 模式下降级评审是硬停点；确认行禁止写入 `auto-approved`（由门禁拦截）。
+`auto` 模式下降级评审是硬停点；确认行禁止写入 `auto-approved`。
 
 ## 评审对象
 

@@ -2,9 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus mechanical gates, progress recovery, auto mode, demo-gated acceptance, and pluggable `ext-*` extensions.**
+**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus progress recovery, auto mode, review discipline, demo acceptance, and pluggable `ext-*` extensions.**
 
-Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps the reliability shell: `hf_gate.py`, `progress.md`, interactive/auto, and cross-stage `hf-review`.
+Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps `progress.md`, interactive/auto, and cross-stage `hf-review`.
 
 ## Install
 
@@ -29,7 +29,7 @@ In the target project, ask the agent once:
 
 > Run `hf-setup-skills` and configure the issue tracker (local files are fine), triage labels if needed, and where CONTEXT/ADRs live.
 
-Or let greenfield `hf_gate.py init` create `CONTEXT.md`, `product/assumptions.md`, `product/decisions.md`, `product/architecture.md`, `docs/adr/`, and `features/`, then refine with `hf-setup-skills` when you want a real tracker.
+Or ask the agent (via `hf-grill-with-docs`) to create the product layer from `skills/hf-workflow/references/product-layer-templates.md` (`CONTEXT.md`, `product/…`, `docs/adr/`, `features/`), then refine with `hf-setup-skills` when you want a real tracker.
 
 ### 2. Start work (talk naturally)
 
@@ -71,39 +71,28 @@ What you should see on disk as you go:
 | Ship | write-back to CONTEXT / product architecture / assumptions; `progress` → `done` |
 | Perceivable UI | demo evidence + `reviews/demo-acceptance.md` before ship |
 
-Exploration path: `hf-prototype` or `模式: 探索` → `conclusion.md` + `check --to close` (**never ship**; no promoting prototype code).
+Exploration path: `hf-prototype` or `模式: 探索` → `conclusion.md` (**never ship**; no promoting prototype code).
 
-### 4. Recover anytime (don’t rely on chat)
+### 4. Recover from disk (don’t rely on chat)
 
-```bash
-gate=skills/hf-workflow/scripts/hf_gate.py   # after Cursor install: .cursor/skills/hf-workflow/scripts/hf_gate.py
-python3 $gate status                         # product layer + where each feature is stuck + next step
-python3 $gate next                           # next unfinished feature / stage
-python3 $gate check --product
-python3 $gate check --feature features/001-x --to to-architecture
-```
-
-`--to` stages: `to-spec` | `to-architecture` | `to-tickets` | `implement` | `ship` | `close`.
+Read `product/progress.md` and each `features/<id>/progress.md` to see stage and next step. Artifact layout is defined by the stage skills and `skills/hf-workflow/references/product-layer-templates.md`.
 
 **Rules of thumb**
 
-- Enter a stage only after `check --to <stage>` **PASS**; record the RESULT line in `progress.md`.
-- Gates judge files and verdict lines — not “looks good” in chat.
-- Spec / product architecture / feature architecture / code each need an independent `hf-review` (code also uses `hf-code-review`).
-- Product architecture completeness is enforced by skills + `hf-review`, **not** by `hf_gate` mechanical checks.
+- Spec / product architecture / feature architecture / code should get independent `hf-review` (code also uses `hf-code-review`).
 - Underspecified choices: propose a default → `product/assumptions.md` → continue.
-- Say **auto** only when you want reviews + gate PASS to advance without waiting; degraded same-session review is a hard stop in auto.
+- Say **auto** only when you want passing reviews to advance without waiting; degraded same-session review is a hard stop in auto.
 
 ### 5. Execution modes
 
 - **interactive** (default): wait for your confirmation after reviews and demo acceptance.
-- **auto**: you must say so explicitly. Passing review + gate advances with `auto-approved`. Floors: implement/review in subagents, no degraded self-approve, gate never skipped, assumptions ledgered; present demo evidence at the next human interaction.
+- **auto**: you must say so explicitly. Passing review advances with `auto-approved`. Floors: implement/review in subagents, no degraded self-approve, assumptions ledgered; present demo evidence at the next human interaction.
 
 ## Skills (core)
 
 | Skill | Role |
 |-------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto, extensions, gate usage |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto, extensions |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | Interview + CONTEXT.md / ADR |
 | [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | Product-level architecture map |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | Synthesize a spec |
