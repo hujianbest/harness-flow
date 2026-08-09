@@ -94,7 +94,7 @@ Read `product/progress.md` and each `features/<id>/progress.md` to see stage and
 |-------|------|
 | [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto, extensions |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | Interview + CONTEXT.md / ADR |
-| [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | Product-level architecture map |
+| [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | Product-level architecture map (characteristics-driven, volatility-based, evolutionary) |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | Synthesize a spec |
 | [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | Feature architecture (incremental) after spec |
 | [hf-to-tickets](skills/hf-to-tickets/SKILL.md) | Tracer-bullet tickets + blockers |

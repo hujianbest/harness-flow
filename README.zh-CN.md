@@ -94,7 +94,7 @@ hf-workflow
 |------|------|
 | [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展 |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | 访谈 + CONTEXT.md / ADR |
-| [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | 产品级架构地图 |
+| [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | 产品级架构地图（特征驱动 / 易变性划分 / 演进适应度） |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | 综合规格 |
 | [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | spec 后的特性架构（增量） |
 | [hf-to-tickets](skills/hf-to-tickets/SKILL.md) | 垂直切片票 + blocking |
