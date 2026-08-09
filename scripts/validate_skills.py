@@ -23,6 +23,7 @@ CORE_BODY_LIMIT = 200
 EXT_BODY_LIMIT = 150
 VALID_STAGES = {
     "grill-with-docs",
+    "to-product-architecture",
     "to-spec",
     "to-architecture",
     "to-tickets",

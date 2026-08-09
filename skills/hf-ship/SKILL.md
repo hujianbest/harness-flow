@@ -23,7 +23,7 @@ description: 特性收尾：确认 code-review 与（用户可感知时）演示
 - 勾选外部待办列表/任务跟踪器中的对应项（若有）
 - 新想法按垂直切片追加,不塞进已关闭特性
 - 结算 `product/assumptions.md`（确认→决策记录/ADR；推翻→记录影响范围）
-- 结构变化回写 `CONTEXT.md` 与特性/产品架构要点
+- 结构变化回写 `CONTEXT.md`；模块边界/关键场景/开发视图变化须回写 `product/architecture.md`（保持地图，不塞特性细节）
 
 ### 3. 演示反馈
 

@@ -1,17 +1,18 @@
 ---
 name: hf-workflow
-description: HarnessFlow 主工作流入口。凡开发新功能、修改行为、修复缺陷、从想法搭建应用，或用户提到开始开发/继续/恢复进度/harness-flow 时，必须先加载本技能。主链为 grill-with-docs → to-spec → to-architecture → to-tickets → implement → ship，横切 hf-review，机械门禁为 hf_gate.py，支持 interactive/auto 与 ext-* 扩展。不适用于纯问答、只读代码等无代码变更请求。
+description: HarnessFlow 主工作流入口。凡开发新功能、修改行为、修复缺陷、从想法搭建应用，或用户提到开始开发/继续/恢复进度/harness-flow 时，必须先加载本技能。主链为 grill-with-docs → to-product-architecture → to-spec → to-architecture → to-tickets → implement → ship，横切 hf-review，机械门禁为 hf_gate.py，支持 interactive/auto 与 ext-* 扩展。不适用于纯问答、只读代码等无代码变更请求。
 ---
 
 # HarnessFlow 主工作流
 
-主链内容对齐 Matt Pocock 技能（MIT，已获授权复制），外壳保留 HarnessFlow 的门禁、进度恢复、`auto` 与扩展机制。
+主链内容对齐 Matt Pocock 技能（MIT，已获授权复制），外壳保留 HarnessFlow 的门禁、进度恢复、`auto` 与扩展机制；并补回**产品级架构**阶段，避免大系统只有特性碎片、没有系统地图。
 
 ## 主链
 
 ```
 hf-workflow
   → hf-grill-with-docs
+  → hf-to-product-architecture ── hf-review(产品架构) ──►
   → hf-to-spec           ── hf-review(规格) ──►
   → hf-to-architecture   ── hf-review(架构) ──►
   → hf-to-tickets
@@ -23,12 +24,14 @@ hf-workflow
 
 存量外来票：`hf-triage` → 就绪后 `hf-implement`。疑难缺陷：`hf-diagnosing-bugs`。
 
+存量热修可只建 `product/architecture.md`（仅架构地图），不强制完整产品层。
+
 ## 进入规则
 
 1. 先跑 `python3 skills/hf-workflow/scripts/hf_gate.py status` 恢复磁盘状态,不靠聊天记忆。
-2. 进入任何阶段前运行 `check --to <stage>`（或绿地项目运行 `check --product`），把 `RESULT` 行写入该特性 `progress.md`；`FAIL` 时不得进入。
+2. 进入任何阶段前运行 `check --to <stage>`（或绿地项目运行 `check --product`），把 `RESULT` 行写入该特性/`product` 的 `progress.md`；`FAIL` 时不得进入。
 3. 到达阶段时只读该阶段 `SKILL.md` 与匹配的 `ext-*`,不预读全链。
-4. 有 `CONTEXT.md` / 特性 `architecture.md` 时先读地图再读相关代码,禁止每特性全库扫描。
+4. 有 `CONTEXT.md` / `product/architecture.md` / 特性 `architecture.md` 时先读地图再读相关代码,禁止每特性全库扫描。
 
 ## 机械门禁
 
@@ -47,6 +50,8 @@ python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 
 ## `progress.md`
 
+特性：
+
 ```markdown
 # 进度
 - 特性: <NNN>-<slug>
@@ -56,6 +61,8 @@ python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 - 下一步: <一句话>
 - 门禁输出: <最近 RESULT 行>
 ```
+
+产品层另用 `product/progress.md`（阶段含 `to-product-architecture` | `ready`）。
 
 ## 执行模式
 
@@ -71,6 +78,7 @@ python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 - 用户可感知特性进入 `ship` 阶段前，须将演示验收结果落盘。
 - 探索产物禁止直接晋升。
 - 压力催促不算豁免；用户坚持跳过时须在 `progress.md` 中记录豁免。
+- 完整产品层建造模式：特性主链前须 `check --product` PASS；特性架构须声明对齐 `product/architecture.md`。
 
 ## 扩展
 

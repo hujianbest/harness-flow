@@ -20,15 +20,16 @@ description: HarnessFlow 独立评审协议。规格、架构、实现代码均�
 
 | 对象 | 检查清单 | 记录 |
 |------|-----------|------|
+| `product/architecture.md` | `references/product-architecture-checklist.md` | `product/reviews/product-architecture-review.md` |
 | `spec.md` | `references/requirements-checklist.md` | `reviews/spec-review.md` |
-| `architecture.md` | `references/design-checklist.md` | `reviews/architecture-review.md` |
+| 特性 `architecture.md` | `references/design-checklist.md` | `reviews/architecture-review.md` |
 | 实现代码 | `references/code-checklist.md` + 加载 `hf-code-review` | `reviews/code-review.md` |
 
 读取 `progress.md` 中的已加载扩展，把扩展声明的检查项并入本轮。
 
 ## 流程
 
-1. 冷读被评工件与上游（评架构时读取规格；评代码时读取规格/架构/任务票）。
+1. 冷读被评工件与上游（评产品架构时读 CONTEXT/ADR；评特性架构时读规格与 `product/architecture.md`；评代码时读取规格/架构/任务票）。
 2. **代码门**：必须加载并遵循 `hf-code-review`（`Standards` + `Spec` 双轴，宜使用并行 subagent）；评审者自己运行测试、自己读取 `git diff`，不采信作者叙述。
 3. 发现项格式：`- [严重|一般|建议] <位置>: <问题> → <建议>`。存在严重/一般问题 → `需修改`；仅有建议时可判定为 `通过`；降级评审不得判定为 `通过`。
 4. 落盘:

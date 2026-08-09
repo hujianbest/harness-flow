@@ -29,7 +29,7 @@ python scripts/install.py --target opencode --dest /path/to/project
 
 > 请运行 `hf-setup-skills`，配置 issue tracker（用本地文件即可）、必要时的 triage 标签，以及 CONTEXT/ADR 存放位置。
 
-绿地也可先跑 `hf_gate.py init` 生成 `CONTEXT.md`、`product/assumptions.md`、`product/decisions.md`、`docs/adr/`、`features/`，需要接真实 tracker 时再跑 `hf-setup-skills`。
+绿地也可先跑 `hf_gate.py init` 生成 `CONTEXT.md`、`product/assumptions.md`、`product/decisions.md`、`product/architecture.md`、`docs/adr/`、`features/`，需要接真实 tracker 时再跑 `hf-setup-skills`。
 
 ### 2. 用自然语言开工
 
@@ -49,6 +49,7 @@ python scripts/install.py --target opencode --dest /path/to/project
 ```
 hf-workflow
   → hf-grill-with-docs
+  → hf-to-product-architecture — hf-review（产品架构）—
   → hf-to-spec            — hf-review（规格）—
   → hf-to-architecture    — hf-review（架构）—
   → hf-to-tickets
@@ -60,13 +61,14 @@ hf-workflow
 
 | 阶段 | 典型工件 |
 |------|----------|
-| 访谈 | `CONTEXT.md`、ADR、`product/assumptions.md`、`features/<NNN>-<slug>/feature.md` + `progress.md` |
+| 访谈 | `CONTEXT.md`、ADR、`product/assumptions.md`、可选特性目录 |
+| 产品架构 | `product/architecture.md` + `product/reviews/product-architecture-review.md` |
 | 规格 | `features/.../spec.md` + `reviews/spec-review.md` |
-| 架构 | `features/.../architecture.md` + `reviews/architecture-review.md` |
+| 架构 | `features/.../architecture.md`（相对产品地图的增量）+ `reviews/architecture-review.md` |
 | 拆票 | `features/.../tickets.md`（`- [ ] T-01 ...`） |
 | 实现 | 代码 + `hf-tdd` 测试；票勾选 |
 | 代码评审 | `reviews/code-review.md` |
-| 收尾 | 回写 CONTEXT/假设台账；`progress` → `done` |
+| 收尾 | 回写 CONTEXT/产品架构/假设台账；`progress` → `done` |
 | 可感知 UI | ship 前还要 demo 证据 + `reviews/demo-acceptance.md` |
 
 探索路径：`hf-prototype` 或 `模式: 探索` → `conclusion.md` + `check --to close`（**永远不能 ship**；禁止直接晋升原型代码）。
@@ -87,7 +89,8 @@ python3 $gate check --feature features/001-x --to to-architecture
 
 - 进入阶段前必须 `check --to <stage>` **PASS**，并把 RESULT 写入 `progress.md`。
 - 门禁看文件与结论行，不看聊天里的「可以」。
-- 规格 / 架构 / 代码都要独立 `hf-review`（代码门另走 `hf-code-review`）。
+- 规格 / 产品架构 / 特性架构 / 代码都要独立 `hf-review`（代码门另走 `hf-code-review`）。
+- 完整产品层：特性主链前须 `check --product` PASS；特性架构须声明对齐 `product/architecture.md`。
 - 欠定：提出默认 → 记入 `product/assumptions.md` → 继续。
 - 只有你明确说 **自动执行** 时，评审通过 + gate PASS 才可不经等待推进；同会话降级评审在 auto 下硬停。
 
@@ -102,8 +105,9 @@ python3 $gate check --feature features/001-x --to to-architecture
 |------|------|
 | [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展、门禁 |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | 访谈 + CONTEXT.md / ADR |
+| [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | 产品级架构地图 |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | 综合规格 |
-| [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | spec 后的特性架构 |
+| [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | spec 后的特性架构（增量） |
 | [hf-to-tickets](skills/hf-to-tickets/SKILL.md) | 垂直切片票 + blocking |
 | [hf-implement](skills/hf-implement/SKILL.md) | 按票实现（内驱 `hf-tdd`） |
 | [hf-review](skills/hf-review/SKILL.md) | 跨阶段评审协议 |
