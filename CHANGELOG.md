@@ -13,6 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - 进度与阶段推进以 `progress.md`、工件与 `hf-review` 为准；同步规则、技能、README、插件描述与安装测试。
+- `hf-to-product-architecture` 按架构方法论强化（目标：对抗复杂度、支撑长期演进）：新增「架构特征」驱动步骤（SEI 质量属性场景）、按易变性（Parnas 信息隐藏）的逻辑划分、以及「演进与适应度」节（演进路径、量化复核触发、适应度函数）；技法新增复杂度三问、可逆性分类与 ATAM-lite。方法论细节落在新增的 `references/architecture-methodology.md`；`product/architecture.md` 模板与 `hf-review` 产品架构检查清单同步更新。
 
 ## [5.0.0] - 2026-08-08
 
