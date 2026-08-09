@@ -2,9 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律、demo 验收与可插拔 `ext-*`。`hf_gate.py` 仅为可选状态/自检工具——无强制门禁。**
+**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律、demo 验收与可插拔 `ext-*`。已移除 `hf_gate.py`，无机械门禁脚本。**
 
-主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留 `progress.md`、interactive/auto、跨阶段 `hf-review`。**无强制机械门禁。**
+主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留 `progress.md`、interactive/auto、跨阶段 `hf-review`。**已完全移除 `hf_gate.py`。**
 
 ## 安装
 
@@ -29,7 +29,7 @@ python scripts/install.py --target opencode --dest /path/to/project
 
 > 请运行 `hf-setup-skills`，配置 issue tracker（用本地文件即可）、必要时的 triage 标签，以及 CONTEXT/ADR 存放位置。
 
-绿地也可先跑 `hf_gate.py init` 生成 `CONTEXT.md`、`product/assumptions.md`、`product/decisions.md`、`product/architecture.md`、`docs/adr/`、`features/`，需要接真实 tracker 时再跑 `hf-setup-skills`。
+绿地也可让代理按 `skills/hf-workflow/references/product-layer-templates.md` 落盘 `CONTEXT.md`、`product/…`、`docs/adr/`、`features/`（经 `hf-grill-with-docs`），需要接真实 tracker 时再跑 `hf-setup-skills`。
 
 ### 2. 用自然语言开工
 
@@ -73,25 +73,16 @@ hf-workflow
 
 探索路径：`hf-prototype` 或 `模式: 探索` → `conclusion.md`（**永远不能 ship**；禁止直接晋升原型代码）。
 
-### 4. 可选状态/自检（不靠聊天记忆）
+### 4. 从磁盘恢复（不靠聊天记忆）
 
-```bash
-gate=skills/hf-workflow/scripts/hf_gate.py   # Cursor 安装后多为 .cursor/skills/hf-workflow/scripts/hf_gate.py
-python3 $gate status                         # 产品层 + 各特性卡点 + 下一步
-python3 $gate next                           # 下一个未完成特性/阶段
-python3 $gate check --product
-python3 $gate check --feature features/001-x --to to-architecture
-```
-
-`--to`：`to-spec` | `to-architecture` | `to-tickets` | `implement` | `ship` | `close`。
+阅读 `product/progress.md` 与各 `features/<id>/progress.md` 查看阶段与下一步。工件布局见各阶段技能与 `skills/hf-workflow/references/product-layer-templates.md`。
 
 **要点**
 
-- **无强制门禁**：进入阶段**不要求** `check --to` PASS；`hf_gate.py check` 仅可选自检。
-- 中断后续上可用 `status` 从磁盘恢复进度。
-- 规格 / 产品架构 / 特性架构 / 代码仍宜独立 `hf-review`（代码门另走 `hf-code-review`）——这是评审纪律，不是脚本否决权。
+- **无 `hf_gate.py`，无机械门禁 CLI。**
+- 规格 / 产品架构 / 特性架构 / 代码仍宜独立 `hf-review`（代码门另走 `hf-code-review`）。
 - 欠定：提出默认 → 记入 `product/assumptions.md` → 继续。
-- 只有你明确说 **自动执行** 时，评审通过即可不经等待推进；同会话降级评审在 auto 下硬停。auto **不依赖** gate PASS。
+- 只有你明确说 **自动执行** 时，评审通过即可不经等待推进；同会话降级评审在 auto 下硬停。
 
 ### 5. 执行模式
 
@@ -102,7 +93,7 @@ python3 $gate check --feature features/001-x --to to-architecture
 
 | 技能 | 职责 |
 |------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展、可选状态工具 |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展 |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | 访谈 + CONTEXT.md / ADR |
 | [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | 产品级架构地图 |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | 综合规格 |

@@ -2,9 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus progress recovery, auto mode, review discipline, demo acceptance, and pluggable `ext-*` extensions. `hf_gate.py` is an optional status/self-check tool — not a mandatory gate.**
+**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus progress recovery, auto mode, review discipline, demo acceptance, and pluggable `ext-*` extensions. No `hf_gate.py`; no mechanical gate script.**
 
-Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps `progress.md`, interactive/auto, and cross-stage `hf-review`. There is **no forced mechanical gate**.
+Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps `progress.md`, interactive/auto, and cross-stage `hf-review`. **`hf_gate.py` has been removed.**
 
 ## Install
 
@@ -29,7 +29,7 @@ In the target project, ask the agent once:
 
 > Run `hf-setup-skills` and configure the issue tracker (local files are fine), triage labels if needed, and where CONTEXT/ADRs live.
 
-Or let greenfield `hf_gate.py init` create `CONTEXT.md`, `product/assumptions.md`, `product/decisions.md`, `product/architecture.md`, `docs/adr/`, and `features/`, then refine with `hf-setup-skills` when you want a real tracker.
+Or ask the agent (via `hf-grill-with-docs`) to create the product layer from `skills/hf-workflow/references/product-layer-templates.md` (`CONTEXT.md`, `product/…`, `docs/adr/`, `features/`), then refine with `hf-setup-skills` when you want a real tracker.
 
 ### 2. Start work (talk naturally)
 
@@ -73,25 +73,16 @@ What you should see on disk as you go:
 
 Exploration path: `hf-prototype` or `模式: 探索` → `conclusion.md` (**never ship**; no promoting prototype code).
 
-### 4. Optional status / self-check (don’t rely on chat)
+### 4. Recover from disk (don’t rely on chat)
 
-```bash
-gate=skills/hf-workflow/scripts/hf_gate.py   # after Cursor install: .cursor/skills/hf-workflow/scripts/hf_gate.py
-python3 $gate status                         # product layer + where each feature is stuck + next step
-python3 $gate next                           # next unfinished feature / stage
-python3 $gate check --product
-python3 $gate check --feature features/001-x --to to-architecture
-```
-
-`--to` stages: `to-spec` | `to-architecture` | `to-tickets` | `implement` | `ship` | `close`.
+Read `product/progress.md` and each `features/<id>/progress.md` to see stage and next step. Artifact layout is defined by the stage skills and `skills/hf-workflow/references/product-layer-templates.md`.
 
 **Rules of thumb**
 
-- **No mandatory gate**: you do **not** need `check --to` PASS to enter a stage. `hf_gate.py check` is optional diagnostics only.
-- Prefer `status` to recover progress from disk after a break.
-- Spec / product architecture / feature architecture / code should still get independent `hf-review` (code also uses `hf-code-review`) — that is review discipline, not a script veto.
+- There is **no** `hf_gate.py` and **no** mechanical gate CLI.
+- Spec / product architecture / feature architecture / code should still get independent `hf-review` (code also uses `hf-code-review`).
 - Underspecified choices: propose a default → `product/assumptions.md` → continue.
-- Say **auto** only when you want passing reviews to advance without waiting; degraded same-session review is a hard stop in auto. Auto does **not** require gate PASS.
+- Say **auto** only when you want passing reviews to advance without waiting; degraded same-session review is a hard stop in auto.
 
 ### 5. Execution modes
 
@@ -102,7 +93,7 @@ python3 $gate check --feature features/001-x --to to-architecture
 
 | Skill | Role |
 |-------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto, extensions, optional status tool |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto, extensions |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | Interview + CONTEXT.md / ADR |
 | [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | Product-level architecture map |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | Synthesize a spec |

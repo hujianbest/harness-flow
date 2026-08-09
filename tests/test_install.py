@@ -29,7 +29,10 @@ class InstallCursorTests(unittest.TestCase):
             rule = dest / ".cursor" / "rules" / "harness-flow.mdc"
 
             self.assertTrue((cursor_skills / "hf-workflow" / "SKILL.md").is_file())
-            self.assertTrue((cursor_skills / "hf-workflow" / "scripts" / "hf_gate.py").is_file())
+            self.assertFalse((cursor_skills / "hf-workflow" / "scripts" / "hf_gate.py").exists())
+            self.assertTrue(
+                (cursor_skills / "hf-workflow" / "references" / "product-layer-templates.md").is_file()
+            )
             self.assertTrue((cursor_skills / "custom-skill" / "SKILL.md").is_file())
             self.assertFalse((dest / ".cursor" / "harness-flow-skills").exists())
             self.assertTrue(rule.is_file())
@@ -37,7 +40,7 @@ class InstallCursorTests(unittest.TestCase):
             rule_text = rule.read_text(encoding="utf-8")
             self.assertIn("alwaysApply: true", rule_text)
             self.assertIn(".cursor/skills/hf-workflow/SKILL.md", rule_text)
-            self.assertIn(".cursor/skills/hf-workflow/scripts/hf_gate.py", rule_text)
+            self.assertNotIn("hf-workflow/scripts/hf_gate.py", rule_text)
             self.assertNotIn(".cursor/harness-flow-skills/", rule_text)
             self.assertNotIn("`skills/hf-workflow/SKILL.md`", rule_text)
 
@@ -63,7 +66,10 @@ class InstallOpenCodeTests(unittest.TestCase):
             opencode_skills = dest / ".opencode" / "skills"
 
             self.assertTrue((opencode_skills / "hf-workflow" / "SKILL.md").is_file())
-            self.assertTrue((opencode_skills / "hf-workflow" / "scripts" / "hf_gate.py").is_file())
+            self.assertFalse((opencode_skills / "hf-workflow" / "scripts" / "hf_gate.py").exists())
+            self.assertTrue(
+                (opencode_skills / "hf-workflow" / "references" / "product-layer-templates.md").is_file()
+            )
             self.assertTrue((opencode_skills / "custom-skill" / "SKILL.md").is_file())
 
     def test_opencode_skills_are_generated_not_vendored_in_repo(self):

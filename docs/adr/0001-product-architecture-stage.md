@@ -1,16 +1,21 @@
-# ADR-001: 恢复产品级架构阶段
+# ADR 0001: Product architecture stage
 
-- 状态: 已接受
-- 日期: 2026-08-09
+## Status
 
-## 上下文
+Accepted
 
-v5 Matt 对齐主链将架构下沉为特性级一页纸，产品层仅保留术语与台账。大系统缺少系统骨架，开发呈任务驱动碎片化。v4 曾有 `hf-architect` + `product/architecture.md`。
+## Context
 
-## 决策
+After aligning the main chain with Matt Pocock's skills flow, feature work still needed a durable **codebase map** so agents do not rescan the whole repository on every feature. The earlier HarnessFlow product layer used `product/architecture.md` for that purpose.
 
-增加仓库级阶段 `hf-to-product-architecture`；产品架构完整性由技能与 `hf-review` 约束，**不**由 `hf_gate` 强制拦截；特性架构为产品地图增量注解；存量允许「仅架构地图」。
+## Decision
 
-## 后果
+Keep an explicit stage skill `hf-to-product-architecture` that writes or refreshes `product/architecture.md` (and related product-layer files as needed). The stage sits after grilling / docs and before `hf-to-spec`.
 
-绿地建造链增加系统地图阶段；热修旁路保留；门禁仍只管特性主链文件/评审结论与产品台账（CONTEXT/assumptions/decisions）。
+Product architecture is **recommended** for greenfield and large brownfield delivery, not a hard blocker enforced by tooling. Agents should still read `product/architecture.md` when present before exploring code.
+
+## Consequences
+
+- Feature `architecture.md` (from `hf-to-architecture`) remains the per-feature design artifact.
+- Product `architecture.md` remains the repo-level map.
+- No mechanical gate script is required for this stage; progress is recorded in `progress.md` / human review.

@@ -1,6 +1,6 @@
 ---
 name: hf-to-product-architecture
-description: 仓库级产品架构设计：在 grill 确认共享语言之后、任何特性 spec 之前，产出一页 product/architecture.md（原则与风格、逻辑划分、开发视图、关键场景、横切与 ADR），经 hf-review 产品架构评审；完整性由技能与评审约束，hf_gate 不做强制校验。存量可仅建架构地图。
+description: 仓库级产品架构设计：在 grill 确认共享语言之后、任何特性 spec 之前，产出一页 product/architecture.md（原则与风格、逻辑划分、开发视图、关键场景、横切与 ADR），经 hf-review 产品架构评审；完整性由技能与评审约束。存量可仅建架构地图。
 ---
 
 # hf-to-product-architecture
@@ -9,8 +9,8 @@ description: 仓库级产品架构设计：在 grill 确认共享语言之后、
 
 ## 前置
 
-1. 绿地：已 `hf_gate.py init`，且 `hf-grill-with-docs` 已确认 `CONTEXT.md`（及台账）。
-2. 运行 `python3 skills/hf-workflow/scripts/hf_gate.py status`，确认产品层卡在 `to-product-architecture`（或尚未有架构确认）。
+1. 绿地：已按 `product-layer-templates` 落盘，且 `hf-grill-with-docs` 已确认 `CONTEXT.md`（及台账）。
+2. 读 `product/progress.md`（若有），确认当前在产品架构阶段或尚未确认架构。
 3. 加载 `hf-codebase-design` 词汇；领域边界不清时加载 `hf-domain-modeling`（可升 `CONTEXT-MAP.md`）。
 4. 更新 `product/progress.md`：当前阶段 `to-product-architecture`。
 
@@ -23,7 +23,7 @@ description: 仓库级产品架构设计：在 grill 确认共享语言之后、
 5. **横切与 ADR**：错误、鉴权、持久化、观测等只写约定与链接，不写字段级细节。
 6. **落盘** `product/architecture.md`（≤120 行），确认行先留空。
 7. **送审** `hf-review`（产品架构）→ `product/reviews/product-architecture-review.md`。
-8. 用户确认后写入架构与评审的确认行；更新 `product/progress.md` → `ready`。产品架构完备性由本技能与 `hf-review` 约束，**不**由 `hf_gate` 强制拦截特性主链。
+8. 用户确认后写入架构与评审的确认行；更新 `product/progress.md` → `ready`。
 
 ## 技法（按需）
 
