@@ -19,7 +19,7 @@ alwaysApply: true
 - 使用 `skills/hf-workflow/scripts/hf_gate.py status` 恢复状态，不依赖聊天记忆。
 - 规格不足时：提出默认方案，将其记录在 `product/assumptions.md` 中，然后继续。
 - 探索代码前先阅读 `CONTEXT.md` / `product/architecture.md` / 特性的 `architecture.md`；不得为每个特性重新扫描整个代码仓库。
-- 完整产品层建造模式须先通过产品架构评审；特性架构须声明对齐产品架构。
+- 产品架构与特性对齐由技能/`hf-review` 约束，不由 `hf_gate` 机械强制。
 - 用户可感知的切片在 ship 前必须将 demo 验收结果写入磁盘。
 - 探索模式永远不能 ship；通过 `conclusion.md` + `check --to close` 收尾。
 - 作者/评审者分离：在 subagent 或全新会话中进行评审；降级评审不得自行批准；auto + 降级评审 = 硬停止。

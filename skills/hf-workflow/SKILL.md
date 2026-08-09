@@ -78,7 +78,7 @@ python3 $gate check --feature features/<NNN>-<slug> --to <stage>
 - 用户可感知特性进入 `ship` 阶段前，须将演示验收结果落盘。
 - 探索产物禁止直接晋升。
 - 压力催促不算豁免；用户坚持跳过时须在 `progress.md` 中记录豁免。
-- 完整产品层建造模式：特性主链前须 `check --product` PASS；特性架构须声明对齐 `product/architecture.md`。
+- 产品架构与特性对齐声明由技能/`hf-review` 约束；`hf_gate` 不对 `product/architecture.md` 做强制校验。
 
 ## 扩展
 

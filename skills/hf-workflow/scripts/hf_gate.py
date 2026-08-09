@@ -5,6 +5,8 @@
       → to-tickets → implement → ship
 (探索: … → implement → close, 永不 ship)
 
+产品架构由技能与评审约束；本门禁不对 product/architecture.md 做强制校验。
+
 子命令:
   init / check / status / next
 """
@@ -20,10 +22,6 @@ MODE_RE = re.compile(r"^-[ \t]*模式:[ \t]*(探索|建造)\b", re.MULTILINE)
 PERCEIVABLE_RE = re.compile(r"^-[ \t]*用户可感知:[ \t]*(是|否)\b", re.MULTILINE)
 TICKET_RE = re.compile(r"^- \[([ xX])\][ \t]*(T-\d+)\b", re.MULTILINE)
 CONFIRM_RE = re.compile(r"^-[ \t]*用户确认:[ \t]*(\S.*)$", re.MULTILINE)
-PRODUCT_ARCH_REF_RE = re.compile(
-    r"(product/architecture\.md|对齐产品架构)",
-    re.IGNORECASE,
-)
 
 TARGETS = (
     "to-spec",
@@ -34,7 +32,8 @@ TARGETS = (
     "close",
 )
 
-PRODUCT_FILES = {
+# check --product 只校验台账；架构地图由 init 可选生成，不做门禁强制
+PRODUCT_LEDGER_FILES = {
     "assumptions.md": """# 假设台账
 
 智能体替用户做的默认选择。标准动作: 提出带默认值的选项 → 记录 → 继续。
@@ -46,9 +45,12 @@ PRODUCT_FILES = {
 已确认决策(用户确认或从假设台账迁入)。只追加。
 格式: `- D-<n> <日期> <决策内容> — 依据: <一句话>`
 """,
-    "architecture.md": """# 产品架构
+}
+
+PRODUCT_ARCH_TEMPLATE = """# 产品架构
 
 系统级架构地图（非特性实现设计）。由 hf-to-product-architecture 维护；≤120 行。
+门禁不强制本文件；完整性由技能与 hf-review 约束。
 
 - 日期:
 - 用户确认:
@@ -72,8 +74,7 @@ PRODUCT_FILES = {
 ## 横切与 ADR
 
 <!-- 错误/鉴权/持久化/观测… + docs/adr/ 链接 -->
-""",
-}
+"""
 
 PRODUCT_PROGRESS_TEMPLATE = """# 进度
 - 当前阶段: grill-with-docs | to-product-architecture | ready
@@ -168,7 +169,8 @@ def read_feature_field(feature: Path, pattern: re.Pattern) -> str | None:
     return None
 
 
-def read_review(path: Path) -> dict | None:
+def read_review(feature: Path, name: str) -> dict | None:
+    path = feature / "reviews" / name
     if not path.is_file():
         return None
     verdict = method = None
@@ -186,10 +188,6 @@ def read_review(path: Path) -> dict | None:
     return {"verdict": verdict, "method": method, "confirm": confirm}
 
 
-def read_feature_review(feature: Path, name: str) -> dict | None:
-    return read_review(feature / "reviews" / name)
-
-
 def read_tickets(feature: Path) -> list[tuple[str, bool]] | None:
     path = feature / "tickets.md"
     if not path.is_file():
@@ -198,37 +196,6 @@ def read_tickets(feature: Path) -> list[tuple[str, bool]] | None:
         (tid, mark.lower() == "x")
         for mark, tid in TICKET_RE.findall(path.read_text(encoding="utf-8"))
     ]
-
-
-def feature_root(feature: Path) -> Path:
-    """features/<id> → 项目根。"""
-    return feature.resolve().parent.parent
-
-
-def product_layer_mode(root: Path) -> str:
-    """返回 none | map | full。"""
-    product = root / "product"
-    arch = product / "architecture.md"
-    has_arch = arch.is_file() and bool(arch.read_text(encoding="utf-8").strip())
-    has_ledger = all(
-        (product / name).is_file() and (product / name).read_text(encoding="utf-8").strip()
-        for name in ("assumptions.md", "decisions.md")
-    )
-    has_context = (root / "CONTEXT.md").is_file() and bool(
-        (root / "CONTEXT.md").read_text(encoding="utf-8").strip()
-    )
-    if has_arch and not (has_ledger and has_context):
-        return "map"
-    if has_ledger or has_context or product.is_dir():
-        if has_ledger or has_context:
-            return "full"
-        # 空 product/ 目录（例如仅 init 一部分失败）仍视作在建完整产品层
-        if any(product.iterdir()) if product.is_dir() else False:
-            return "full"
-        return "none"
-    if has_arch:
-        return "map"
-    return "none"
 
 
 class Checker:
@@ -267,7 +234,7 @@ class Checker:
             self.ok(f"{doc} 存在")
 
     def check_review(self, name: str, expected: str = "通过") -> None:
-        review = read_feature_review(self.feature, name)
+        review = read_review(self.feature, name)
         stem = name.removesuffix(".md")
         if review is None:
             self.fail(f"评审记录不存在: reviews/{name}（{stem} 未进行）")
@@ -301,38 +268,6 @@ class Checker:
         elif tickets:
             self.ok(f"票全部勾选 ({len(tickets)} 张)")
 
-    def check_full_product_ready(self) -> None:
-        root = feature_root(self.feature)
-        if product_layer_mode(root) != "full":
-            return
-        oks, failures = check_product_layer(root)
-        if failures:
-            self.fail(
-                "产品层未就绪（完整产品层建造模式须先 hf-to-product-architecture + "
-                f"`check --product` PASS）: {failures[0]}"
-            )
-        else:
-            self.ok("产品层就绪")
-            for msg in oks[:1]:
-                pass
-
-    def check_product_arch_alignment(self) -> None:
-        root = feature_root(self.feature)
-        arch_map = root / "product" / "architecture.md"
-        if not arch_map.is_file() or not arch_map.read_text(encoding="utf-8").strip():
-            return
-        path = self.feature / "architecture.md"
-        if not path.is_file():
-            return
-        text = path.read_text(encoding="utf-8")
-        if not PRODUCT_ARCH_REF_RE.search(text):
-            self.fail(
-                "特性 architecture.md 缺少对齐产品架构声明"
-                "（须含 `## 对齐产品架构` 或引用 `product/architecture.md`）"
-            )
-        else:
-            self.ok("特性架构已声明对齐产品架构")
-
 
 def check_target(feature: Path, target: str) -> Checker:
     c = Checker(feature)
@@ -355,10 +290,6 @@ def check_target(feature: Path, target: str) -> Checker:
         c.fail("close 仅用于探索模式 — 建造模式走 implement → ship")
         return c
 
-    # 建造模式：完整产品层存在则特性主链任一门禁前须产品层就绪
-    if target in ("to-spec", "to-architecture", "to-tickets", "implement", "ship"):
-        c.check_full_product_ready()
-
     if target == "to-spec":
         return c
 
@@ -372,7 +303,6 @@ def check_target(feature: Path, target: str) -> Checker:
         c.check_review("spec-review.md")
         c.check_doc("architecture.md")
         c.check_review("architecture-review.md")
-        c.check_product_arch_alignment()
         return c
 
     if target == "implement":
@@ -380,7 +310,6 @@ def check_target(feature: Path, target: str) -> Checker:
         c.check_review("spec-review.md")
         c.check_doc("architecture.md")
         c.check_review("architecture-review.md")
-        c.check_product_arch_alignment()
         c.check_tickets_exist()
         return c
 
@@ -389,7 +318,6 @@ def check_target(feature: Path, target: str) -> Checker:
         c.check_review("spec-review.md")
         c.check_doc("architecture.md")
         c.check_review("architecture-review.md")
-        c.check_product_arch_alignment()
         tickets = c.check_tickets_exist()
         if tickets:
             c.check_tickets_done(tickets)
@@ -429,28 +357,6 @@ def check_confirm(path: Path, oks: list[str], failures: list[str], fail_msg: str
         oks.append(f"{path.name} 用户确认: {m.group(1)}")
 
 
-def check_product_review(root: Path, oks: list[str], failures: list[str]) -> None:
-    path = root / "product" / "reviews" / "product-architecture-review.md"
-    review = read_review(path)
-    if review is None:
-        failures.append(
-            "product/reviews/product-architecture-review.md 不存在 — hf-review(产品架构)"
-        )
-        return
-    if review["verdict"] != "通过":
-        failures.append(
-            f"产品架构评审结论为 {review['verdict'] or '缺失'}，需要: 通过"
-        )
-        return
-    if not review["confirm"]:
-        failures.append("产品架构评审结论后缺 `- 用户确认:` 行")
-        return
-    if review["method"] == "主会话降级" and review["confirm"].startswith("auto-approved"):
-        failures.append("产品架构评审为主会话降级，禁止 auto-approved 自我确认")
-        return
-    oks.append(f"产品架构评审: 通过，已确认 ({review['confirm']})")
-
-
 def check_product_layer(root: Path) -> tuple[list[str], list[str]]:
     oks: list[str] = []
     failures: list[str] = []
@@ -458,7 +364,7 @@ def check_product_layer(root: Path) -> tuple[list[str], list[str]]:
     if not product.is_dir():
         failures.append("product/ 不存在 — 先运行 `hf_gate.py init` 并按 hf-grill-with-docs")
         return oks, failures
-    for name in ("assumptions.md", "decisions.md"):
+    for name in PRODUCT_LEDGER_FILES:
         path = product / name
         if not path.is_file() or not path.read_text(encoding="utf-8").strip():
             failures.append(f"product/{name} 不存在或为空")
@@ -474,44 +380,14 @@ def check_product_layer(root: Path) -> tuple[list[str], list[str]]:
             "CONTEXT.md 缺有效的 `- 用户确认:` 行 — 未经确认不得开始特性主链",
         )
     arch = product / "architecture.md"
-    if not arch.is_file() or not arch.read_text(encoding="utf-8").strip():
-        failures.append(
-            "product/architecture.md 不存在或为空 — hf-to-product-architecture 产出"
-        )
-    else:
-        oks.append("product/architecture.md 存在")
-        check_confirm(
-            arch, oks, failures,
-            "product/architecture.md 缺有效的 `- 用户确认:` 行 — 未经确认不得开始特性主链",
-        )
-        # 仅当架构正文已确认时才要求评审（避免模板占位同时报两堆错时可分步）
-        if not any("architecture.md 缺有效" in f for f in failures):
-            check_product_review(root, oks, failures)
-    return oks, failures
-
-
-def check_map_only(root: Path) -> tuple[list[str], list[str]]:
-    oks: list[str] = []
-    failures: list[str] = []
-    arch = root / "product" / "architecture.md"
-    if not arch.is_file() or not arch.read_text(encoding="utf-8").strip():
-        failures.append("product/architecture.md 不存在或为空（仅架构地图模式）")
-        return oks, failures
-    oks.append("product/architecture.md 存在（仅架构地图）")
-    check_confirm(
-        arch, oks, failures,
-        "product/architecture.md 缺有效的 `- 用户确认:` 行（仅架构地图模式）",
-    )
+    if arch.is_file() and arch.read_text(encoding="utf-8").strip():
+        oks.append("product/architecture.md 存在（技能约束，门禁不强制）")
     return oks, failures
 
 
 def cmd_check_product(root: Path) -> int:
     print(f"== hf-gate check --product ({root})")
-    mode = product_layer_mode(root)
-    if mode == "map":
-        oks, failures = check_map_only(root)
-    else:
-        oks, failures = check_product_layer(root)
+    oks, failures = check_product_layer(root)
     for msg in oks:
         print(f"OK   {msg}")
     for msg in failures:
@@ -519,21 +395,26 @@ def cmd_check_product(root: Path) -> int:
     if failures:
         print(f"RESULT: FAIL ({len(failures)} 项未通过) — 产品层未就绪")
         return 1
-    label = "仅架构地图" if mode == "map" else "产品层"
-    print(f"RESULT: PASS — {label}就绪")
+    print("RESULT: PASS — 产品层就绪")
     return 0
 
 
 def cmd_init(root: Path) -> int:
     product = root / "product"
     product.mkdir(parents=True, exist_ok=True)
-    for name, template in PRODUCT_FILES.items():
+    for name, template in PRODUCT_LEDGER_FILES.items():
         path = product / name
         if path.exists():
             print(f"[hf-gate] 跳过（已存在）: {path}")
         else:
             path.write_text(template, encoding="utf-8")
             print(f"[hf-gate] 已创建: {path}")
+    arch = product / "architecture.md"
+    if arch.exists():
+        print(f"[hf-gate] 跳过（已存在）: {arch}")
+    else:
+        arch.write_text(PRODUCT_ARCH_TEMPLATE, encoding="utf-8")
+        print(f"[hf-gate] 已创建: {arch}")
     progress = product / "progress.md"
     if not progress.exists():
         progress.write_text(PRODUCT_PROGRESS_TEMPLATE, encoding="utf-8")
@@ -558,7 +439,7 @@ def cmd_init(root: Path) -> int:
     if not features.is_dir():
         features.mkdir(parents=True)
         print(f"[hf-gate] 已创建: {features}/")
-    print("[hf-gate] 初始化完成 — 按 hf-grill-with-docs → hf-to-product-architecture 后 check --product")
+    print("[hf-gate] 初始化完成 — 按 hf-grill-with-docs → hf-to-product-architecture（技能约束，非门禁强制）")
     return 0
 
 
@@ -580,62 +461,22 @@ def probe_feature(feature: Path) -> tuple[str, list[str]]:
     return "done", []
 
 
-def probe_product_stage(root: Path) -> tuple[str, list[str]]:
-    """返回产品层阶段名与失败项。"""
-    mode = product_layer_mode(root)
-    if mode == "none":
-        return "none", []
-    if mode == "map":
-        oks, failures = check_map_only(root)
-        return ("ready" if not failures else "to-product-architecture"), failures
-    # full
-    ctx = root / "CONTEXT.md"
-    if not ctx.is_file() or not CONFIRM_RE.search(ctx.read_text(encoding="utf-8") or ""):
-        return "grill-with-docs", ["CONTEXT 未确认 — hf-grill-with-docs"]
-    arch = root / "product" / "architecture.md"
-    arch_text = arch.read_text(encoding="utf-8") if arch.is_file() else ""
-    arch_confirm = CONFIRM_RE.search(arch_text) if arch_text else None
-    if (
-        not arch_text.strip()
-        or not arch_confirm
-        or arch_confirm.group(1).startswith("<")
-    ):
-        return "to-product-architecture", ["产品架构未确认 — hf-to-product-architecture"]
-    _, failures = check_product_layer(root)
-    if failures:
-        if any("product-architecture-review" in f or "产品架构评审" in f for f in failures):
-            return "to-product-architecture", failures
-        return "to-product-architecture", failures
-    return "ready", []
-
-
 def cmd_status(root: Path) -> int:
     print(f"== hf-gate status ({root.resolve()})")
 
     product_ready = None
-    mode = product_layer_mode(root)
-    if mode == "none":
-        print("产品层: 无（存量可直接开特性;绿地先 init + hf-grill-with-docs）")
-    elif mode == "map":
-        stage, failures = probe_product_stage(root)
-        if not failures:
-            print("产品层: 仅架构地图（PASS）")
-            product_ready = True
-        else:
-            print(f"产品层: 仅架构地图未就绪（{len(failures)} 项）")
-            for msg in failures:
-                print(f"  - {msg}")
-            product_ready = False
-    else:
-        stage, failures = probe_product_stage(root)
-        if stage == "ready":
+    product_dir = root / "product"
+    if product_dir.is_dir() or (root / "CONTEXT.md").is_file():
+        _, failures = check_product_layer(root)
+        product_ready = not failures
+        if product_ready:
             print("产品层: PASS（就绪）")
-            product_ready = True
         else:
-            print(f"产品层: FAIL — 当前 → {stage}（{len(failures)} 项未通过）")
+            print(f"产品层: FAIL（{len(failures)} 项未通过）")
             for msg in failures:
                 print(f"  - {msg}")
-            product_ready = False
+    else:
+        print("产品层: 无（存量可直接开特性;绿地先 init + hf-grill-with-docs）")
 
     features_dir = root / "features"
     feature_dirs = (
@@ -648,11 +489,11 @@ def cmd_status(root: Path) -> int:
         print("特性: 无")
     for f in feature_dirs:
         stage, failures = probe_feature(f)
-        mode_f = read_feature_field(f, MODE_RE) or "?"
+        mode = read_feature_field(f, MODE_RE) or "?"
         if stage == "done":
-            print(f"特性 {f.name}: done（已完成，{mode_f}）")
+            print(f"特性 {f.name}: done（已完成，{mode}）")
         else:
-            print(f"特性 {f.name}: 当前卡在 → {stage}（{mode_f}）")
+            print(f"特性 {f.name}: 当前卡在 → {stage}（{mode}）")
             for msg in failures[:3]:
                 print(f"  - {msg}")
             if len(failures) > 3:
@@ -660,19 +501,13 @@ def cmd_status(root: Path) -> int:
             if active is None:
                 active = (f, stage, failures)
 
-    if product_ready is False and mode == "full":
-        pstage, _ = probe_product_stage(root)
-        if pstage == "grill-with-docs":
-            print("下一步: 补齐 CONTEXT/台账（hf-grill-with-docs），再 hf-to-product-architecture")
-        else:
-            print("下一步: hf-to-product-architecture → 产品架构评审 → `check --product` PASS")
-    elif active:
+    if active:
         f, stage, _ = active
         print(f"下一步: 推进 {f.name} 通过 `check --to {stage}`")
     elif product_ready:
         print("下一步: 开新特性目录或从任务跟踪器取票 → hf-to-spec / hf-implement")
     elif product_ready is False:
-        print("下一步: 补齐产品架构地图确认后 `check --product` PASS")
+        print("下一步: 补齐 CONTEXT/台账（hf-grill-with-docs），`check --product` PASS")
     else:
         print("下一步: 新特性从 hf-workflow 进入;绿地 `init` + hf-grill-with-docs")
     return 0
