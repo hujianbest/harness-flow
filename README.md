@@ -90,7 +90,7 @@ python3 $gate check --feature features/001-x --to to-architecture
 - Enter a stage only after `check --to <stage>` **PASS**; record the RESULT line in `progress.md`.
 - Gates judge files and verdict lines — not “looks good” in chat.
 - Spec / product architecture / feature architecture / code each need an independent `hf-review` (code also uses `hf-code-review`).
-- Full product layer: `check --product` must PASS before build-mode feature chain; feature architecture must declare alignment to `product/architecture.md`.
+- Product architecture completeness is enforced by skills + `hf-review`, **not** by `hf_gate` mechanical checks.
 - Underspecified choices: propose a default → `product/assumptions.md` → continue.
 - Say **auto** only when you want reviews + gate PASS to advance without waiting; degraded same-session review is a hard stop in auto.
 

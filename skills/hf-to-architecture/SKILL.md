@@ -46,6 +46,6 @@ description: 基于已确认的规格产出特性级架构设计（模块边界�
 ## 红线
 
 - 无 `spec-review` 通过记录，不得写入「已确认」架构并推进到 `to-tickets` 阶段
-- 存在 `product/architecture.md` 时，正文必须含对齐声明（门禁在 `to-tickets` 起检查）
+- 存在 `product/architecture.md` 时，正文应含对齐声明（技能/评审约束；门禁不机械校验）
 - 不在本阶段实现代码或拆完整票单(拆票是 `hf-to-tickets`)
 - 不静默填补欠定:默认选择进 `product/assumptions.md`
