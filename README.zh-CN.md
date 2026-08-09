@@ -90,7 +90,7 @@ python3 $gate check --feature features/001-x --to to-architecture
 - 进入阶段前必须 `check --to <stage>` **PASS**，并把 RESULT 写入 `progress.md`。
 - 门禁看文件与结论行，不看聊天里的「可以」。
 - 规格 / 产品架构 / 特性架构 / 代码都要独立 `hf-review`（代码门另走 `hf-code-review`）。
-- 完整产品层：特性主链前须 `check --product` PASS；特性架构须声明对齐 `product/architecture.md`。
+- 产品架构完整性由技能与 `hf-review` 约束，**不**由 `hf_gate` 机械强制。
 - 欠定：提出默认 → 记入 `product/assumptions.md` → 继续。
 - 只有你明确说 **自动执行** 时，评审通过 + gate PASS 才可不经等待推进；同会话降级评审在 auto 下硬停。
 

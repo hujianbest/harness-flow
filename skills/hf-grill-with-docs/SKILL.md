@@ -15,7 +15,7 @@ description: 通过结构化访谈对齐想法/方案，并将结果写入 CONTE
 4. `feature.md` 必须含机器可读行:`- 模式: 建造|探索`、`- 用户可感知: 是|否`(拿不准则「是」)。
 5. 运行本技能主体(下节):访谈 + 更新 `CONTEXT.md` / ADR / `product/assumptions.md`。
 6. 用户确认共享理解后，在 `CONTEXT.md` 或本特性/`product` 的 `progress.md` 中记录确认；`auto` 模式下的默认选择必须先写入假设台账，再记为 `auto-approved`。
-7. 下一步（完整产品层）:进入 `hf-to-product-architecture`；`check --product` PASS 后再 `check --to to-spec`。存量热修且采用仅架构地图时，可直接开特性并冷读地图。
+7. 下一步（完整产品层）:进入 `hf-to-product-architecture`（技能约束），再开特性 `check --to to-spec`。存量热修且采用仅架构地图时，可直接开特性并冷读地图。产品架构**不**由 gate 强制拦截。
 
 ## 主体
 
