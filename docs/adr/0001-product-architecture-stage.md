@@ -18,4 +18,4 @@ Product architecture is **recommended** for greenfield and large brownfield deli
 
 - Feature `architecture.md` (from `hf-to-architecture`) remains the per-feature design artifact.
 - Product `architecture.md` remains the repo-level map.
-- No mechanical gate script is required for this stage; progress is recorded in `progress.md` / human review.
+- Progress for this stage is recorded in `product/progress.md` and confirmed via `hf-review`.

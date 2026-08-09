@@ -1,11 +1,11 @@
 ---
 name: hf-workflow
-description: HarnessFlow 主工作流入口。凡开发新功能、修改行为、修复缺陷、从想法搭建应用，或用户提到开始开发/继续/恢复进度/harness-flow 时，必须先加载本技能。主链为 grill-with-docs → to-product-architecture → to-spec → to-architecture → to-tickets → implement → ship，横切 hf-review；无 hf_gate.py / 无机械门禁脚本。支持 interactive/auto 与 ext-* 扩展。不适用于纯问答、只读代码等无代码变更请求。
+description: HarnessFlow 主工作流入口。凡开发新功能、修改行为、修复缺陷、从想法搭建应用，或用户提到开始开发/继续/恢复进度/harness-flow 时，必须先加载本技能。主链为 grill-with-docs → to-product-architecture → to-spec → to-architecture → to-tickets → implement → ship，横切 hf-review。支持 interactive/auto 与 ext-* 扩展。不适用于纯问答、只读代码等无代码变更请求。
 ---
 
 # HarnessFlow 主工作流
 
-主链内容对齐 Matt Pocock 技能（MIT，已获授权复制），外壳保留进度落盘、`auto` 与扩展；并含**产品级架构**阶段。**已移除 `hf_gate.py`**：无脚本门禁、无 `check`/`status`/`init` CLI。
+主链内容对齐 Matt Pocock 技能（MIT，已获授权复制），外壳保留进度落盘、`auto` 与扩展；并含**产品级架构**阶段。
 
 ## 主链
 
@@ -65,7 +65,7 @@ hf-workflow
 
 ## 扩展
 
-进入阶段前扫描 `skills/ext-*/`，读取 `description` 中的绑定阶段与触发条件；匹配则加载。扩展只收紧流程建议、**不得**引入替代机械门禁脚本。合法绑定阶段见 `references/extension-authoring.md`。
+进入阶段前扫描 `skills/ext-*/`，读取 `description` 中的绑定阶段与触发条件；匹配则加载。扩展只收紧流程建议，不放松评审/TDD 纪律。合法绑定阶段见 `references/extension-authoring.md`。
 
 ## 元技能（按需）
 

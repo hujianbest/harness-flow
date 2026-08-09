@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Cursor 上的 HarnessFlow
 
-本工作区内置 HarnessFlow：与 Matt 对齐的主链（grill → product-architecture → spec → architecture → tickets → implement → ship），以及进度落盘、auto 模式和可插拔的 `ext-*` 扩展。技能正文改编自 mattpocock/skills（MIT，已获授权复制），并使用 `hf-*` 名称。**无 `hf_gate.py`，无机械门禁脚本。**
+本工作区内置 HarnessFlow：与 Matt 对齐的主链（grill → product-architecture → spec → architecture → tickets → implement → ship），以及进度落盘、auto 模式和可插拔的 `ext-*` 扩展。技能正文改编自 mattpocock/skills（MIT，已获授权复制），并使用 `hf-*` 名称。
 
 ## 每项开发任务
 

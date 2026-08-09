@@ -1,6 +1,6 @@
 # Contributing to HarnessFlow
 
-HarnessFlow is a Markdown-based skill suite: Matt-aligned main chain under `hf-*` names (`grill-with-docs` → `to-product-architecture` → `to-spec` → `to-architecture` → `to-tickets` → `implement` → `ship`, with cross-stage `hf-review`), plus progress recovery, auto mode, demo acceptance, and pluggable `ext-*` extensions. There is **no** `hf_gate.py`.
+HarnessFlow is a Markdown-based skill suite: Matt-aligned main chain under `hf-*` names (`grill-with-docs` → `to-product-architecture` → `to-spec` → `to-architecture` → `to-tickets` → `implement` → `ship`, with cross-stage `hf-review`), plus progress recovery, auto mode, demo acceptance, and pluggable `ext-*` extensions.
 
 ## What lands easily
 
@@ -11,7 +11,7 @@ HarnessFlow is a Markdown-based skill suite: Matt-aligned main chain under `hf-*
 ## What needs an issue first
 
 - New core skills or changes to the main chain. Most "missing stage" proposals are better expressed as an extension or a checklist item.
-- Anything that adds meta-machinery (routers, profiles, state schemas, mechanical gate scripts).
+- Anything that adds meta-machinery (routers, profiles, state schemas).
 
 ## Quality bar for edits
 

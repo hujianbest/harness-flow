@@ -2,9 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律、demo 验收与可插拔 `ext-*`。已移除 `hf_gate.py`，无机械门禁脚本。**
+**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律、demo 验收与可插拔 `ext-*`。**
 
-主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留 `progress.md`、interactive/auto、跨阶段 `hf-review`。**已完全移除 `hf_gate.py`。**
+主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留 `progress.md`、interactive/auto、跨阶段 `hf-review`。
 
 ## 安装
 
@@ -79,8 +79,7 @@ hf-workflow
 
 **要点**
 
-- **无 `hf_gate.py`，无机械门禁 CLI。**
-- 规格 / 产品架构 / 特性架构 / 代码仍宜独立 `hf-review`（代码门另走 `hf-code-review`）。
+- 规格 / 产品架构 / 特性架构 / 代码宜独立 `hf-review`（代码门另走 `hf-code-review`）。
 - 欠定：提出默认 → 记入 `product/assumptions.md` → 继续。
 - 只有你明确说 **自动执行** 时，评审通过即可不经等待推进；同会话降级评审在 auto 下硬停。
 

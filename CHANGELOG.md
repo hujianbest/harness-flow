@@ -8,17 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
-- **完全移除 `hf_gate.py`** — 删除 `skills/hf-workflow/scripts/hf_gate.py`、`test_hf_gate.py`、`tests/test_gate.py` 及空的 `scripts/` 目录。产品层模板改由 `skills/hf-workflow/references/product-layer-templates.md` 提供；进度恢复靠 `progress.md` 与人工/代理判断，无 `check`/`status`/`init`/`run` CLI。
+- `hf_gate.py` 及配套测试；产品层首次落盘改用 `skills/hf-workflow/references/product-layer-templates.md`。
 
 ### Changed
 
-- 规则与各阶段技能不再引用机械门禁；auto 不依赖 gate。评审/TDD/作者评审分离纪律保留。
-- 同步 Cursor 规则、README 中英、插件描述、`CONTRIBUTING`/`SECURITY`、扩展编写指南、安装测试断言。
-
-### Notes
-
-- 主链顺序：`grill-with-docs` → **`to-product-architecture`** → `to-spec` → …
-- CHANGELOG 历史条目仍可提及曾存在的 gate（事实记录）；当前代码与文档以无 gate 为准。
+- 进度与阶段推进以 `progress.md`、工件与 `hf-review` 为准；同步规则、技能、README、插件描述与安装测试。
 
 ## [5.0.0] - 2026-08-08
 

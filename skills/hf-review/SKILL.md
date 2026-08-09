@@ -1,6 +1,6 @@
 ---
 name: hf-review
-description: HarnessFlow 独立评审协议。规格、架构、实现代码宜经本技能给出落盘结论再推进。核心纪律：只承认 subagent 或全新会话；主会话冷读属于降级评审，且不得自我确认通过。代码门另行加载 hf-code-review。不修改被评对象，只产出结论与发现项。无强制脚本门禁。
+description: HarnessFlow 独立评审协议。规格、架构、实现代码宜经本技能给出落盘结论再推进。核心纪律：只承认 subagent 或全新会话；主会话冷读属于降级评审，且不得自我确认通过。代码门另行加载 hf-code-review。不修改被评对象，只产出结论与发现项。
 ---
 
 # hf-review（独立评审）

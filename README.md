@@ -2,9 +2,9 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus progress recovery, auto mode, review discipline, demo acceptance, and pluggable `ext-*` extensions. No `hf_gate.py`; no mechanical gate script.**
+**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus progress recovery, auto mode, review discipline, demo acceptance, and pluggable `ext-*` extensions.**
 
-Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps `progress.md`, interactive/auto, and cross-stage `hf-review`. **`hf_gate.py` has been removed.**
+Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps `progress.md`, interactive/auto, and cross-stage `hf-review`.
 
 ## Install
 
@@ -79,8 +79,7 @@ Read `product/progress.md` and each `features/<id>/progress.md` to see stage and
 
 **Rules of thumb**
 
-- There is **no** `hf_gate.py` and **no** mechanical gate CLI.
-- Spec / product architecture / feature architecture / code should still get independent `hf-review` (code also uses `hf-code-review`).
+- Spec / product architecture / feature architecture / code should get independent `hf-review` (code also uses `hf-code-review`).
 - Underspecified choices: propose a default → `product/assumptions.md` → continue.
 - Say **auto** only when you want passing reviews to advance without waiting; degraded same-session review is a hard stop in auto.
 
