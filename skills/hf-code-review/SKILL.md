@@ -10,7 +10,7 @@ description: HarnessFlow 代码门评审（由 hf-review 调用）。沿两个�
 
 两个轴都通过**并行 subagent** 运行，避免相互污染上下文，然后由本技能汇总各自的发现项。
 
-任务跟踪器应已提供；若缺少 `docs/agents/issue-tracker.md`，请运行 `hf-setup-skills`。
+规格轴对照特性目录中的 `spec.md` / `architecture.md` / `tickets.md`（及已批准评审）。
 
 ## 流程
 

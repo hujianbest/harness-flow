@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hujianbest/harness-flow"
       },
-      "description": "HarnessFlow v5.0.0：主链 hf-workflow → hf-grill-with-docs → hf-to-product-architecture → hf-to-spec → hf-to-architecture → hf-to-tickets → hf-implement → hf-ship，配有跨阶段的 hf-review 和 hf-code-review。技能正文改编自 mattpocock/skills（MIT）。扩展：ext-ui-design、ext-design-md。通过 stdlib install.py（copy/symlink）安装到 Cursor/OpenCode，并由轻量的 install.sh/install.ps1 包装脚本提供入口。"
+      "description": "HarnessFlow v5.0.0：主链 hf-workflow → hf-grill-with-docs → hf-to-product-architecture → hf-to-spec → hf-to-architecture → hf-to-tickets → hf-implement → hf-ship，配有跨阶段的 hf-review 和 hf-code-review。技能正文改编自 mattpocock/skills（MIT）。扩展：ext-ui-design。通过 stdlib install.py（copy/symlink）安装到 Cursor/OpenCode，并由轻量的 install.sh/install.ps1 包装脚本提供入口。"
     }
   ]
 }

@@ -25,11 +25,7 @@ In this repo itself (OpenCode): `python scripts/install.py --target opencode --d
 
 ### 1. One-time project setup
 
-In the target project, ask the agent once:
-
-> Run `hf-setup-skills` and configure the issue tracker (local files are fine), triage labels if needed, and where CONTEXT/ADRs live.
-
-Or ask the agent (via `hf-grill-with-docs`) to create the product layer from `skills/hf-workflow/references/product-layer-templates.md` (`CONTEXT.md`, `product/…`, `docs/adr/`, `features/`), then refine with `hf-setup-skills` when you want a real tracker.
+Ask the agent to run `hf-grill-with-docs` and create the product layer from `skills/hf-workflow/references/product-layer-templates.md` (`CONTEXT.md`, `product/…`, `docs/adr/`, `features/`). Specs and tickets live under `features/<id>/`.
 
 ### 2. Start work (talk naturally)
 
@@ -42,7 +38,6 @@ The agent should load `hf-workflow` first. Example prompts:
 | Continue after a break | “Continue” / “Resume HarnessFlow progress.” |
 | Auto mode | “Auto mode — don’t wait for my confirmation unless blocked.” |
 | Exploration / prototype | “Prototype whether this state model feels right (throwaway).” |
-| Incoming bug pile | “Triage open issues, then implement what’s ready-for-agent.” |
 
 ### 3. Follow the main chain
 
@@ -102,16 +97,14 @@ Read `product/progress.md` and each `features/<id>/progress.md` to see stage and
 | [hf-review](skills/hf-review/SKILL.md) | Cross-stage review protocol |
 | [hf-code-review](skills/hf-code-review/SKILL.md) | Two-axis code review (Standards + Spec) |
 | [hf-ship](skills/hf-ship/SKILL.md) | Closeout + write-back |
-| [hf-setup-skills](skills/hf-setup-skills/SKILL.md) | Per-repo tracker / labels / domain docs |
 
-Meta / on-ramps: `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`, `hf-prototype`, `hf-triage`, `hf-diagnosing-bugs`, `hf-wayfinder`, `hf-handoff`, `hf-wizard`, and others under `skills/hf-*`.
+Meta: `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`, `hf-prototype`.
 
 ## Extensions
 
 Loaded when frontmatter **binding stage** + **trigger** match:
 
 - [ext-ui-design](skills/ext-ui-design/SKILL.md) — `to-spec` / `implement` / `code-review` when the feature has UI
-- [ext-design-md](skills/ext-design-md/SKILL.md) — `to-architecture` / `ship` when using a `DESIGN.md` token source
 
 Extensions only tighten requirements. Authoring: [extension-authoring](skills/hf-workflow/references/extension-authoring.md).
 

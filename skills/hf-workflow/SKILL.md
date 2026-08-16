@@ -22,9 +22,7 @@ hf-workflow
 
 探索旁路：`hf-prototype`（或特性 `模式: 探索`）→ 写 `conclusion.md` 收尾，**不应进入 `ship`**，禁止直接晋升原型代码。
 
-存量外来票：`hf-triage` → 就绪后 `hf-implement`。疑难缺陷：`hf-diagnosing-bugs`。
-
-存量热修可只建 `product/architecture.md`（仅架构地图），不强制完整产品层。
+存量热修可只建 `product/architecture.md`（仅架构地图），不强制完整产品层。规格与任务票默认落在 `features/<id>/`。
 
 ## 进入规则
 
@@ -69,6 +67,4 @@ hf-workflow
 
 ## 元技能（按需）
 
-`hf-grilling`、`hf-domain-modeling`、`hf-tdd`、`hf-codebase-design`、`hf-code-review`、`hf-prototype`、`hf-research`、`hf-handoff`、`hf-setup-skills`、`hf-wayfinder`、`hf-triage`、`hf-diagnosing-bugs`、`hf-wizard`、`hf-improve-codebase-architecture`、`hf-grill-me`。
-
-首次使用工程技能前，若缺少任务跟踪器配置，先执行 `hf-setup-skills`（默认可使用本地任务票）。
+`hf-grilling`、`hf-domain-modeling`、`hf-tdd`、`hf-codebase-design`、`hf-code-review`、`hf-prototype`。

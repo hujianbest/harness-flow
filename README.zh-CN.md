@@ -25,11 +25,7 @@ python scripts/install.py --target opencode --dest /path/to/project
 
 ### 1. 每个项目先配置一次
 
-在目标项目里对代理说一次：
-
-> 请运行 `hf-setup-skills`，配置 issue tracker（用本地文件即可）、必要时的 triage 标签，以及 CONTEXT/ADR 存放位置。
-
-绿地也可让代理按 `skills/hf-workflow/references/product-layer-templates.md` 落盘 `CONTEXT.md`、`product/…`、`docs/adr/`、`features/`（经 `hf-grill-with-docs`），需要接真实 tracker 时再跑 `hf-setup-skills`。
+让代理跑 `hf-grill-with-docs`，并按 `skills/hf-workflow/references/product-layer-templates.md` 落盘 `CONTEXT.md`、`product/…`、`docs/adr/`、`features/`。规格与任务票放在 `features/<id>/`。
 
 ### 2. 用自然语言开工
 
@@ -42,7 +38,6 @@ python scripts/install.py --target opencode --dest /path/to/project
 | 中断后续上 | 「继续」/「恢复 HarnessFlow 进度。」 |
 | 全自动 | 「自动执行，不用等我确认（除非硬停）。」 |
 | 探索原型 | 「先原型验证这个状态模型（即弃）。」 |
-| 外来 issue | 「先 triage 开放 issue，再实现 ready-for-agent 的。」 |
 
 ### 3. 沿主链推进
 
@@ -102,16 +97,14 @@ hf-workflow
 | [hf-review](skills/hf-review/SKILL.md) | 跨阶段评审协议 |
 | [hf-code-review](skills/hf-code-review/SKILL.md) | 代码双轴评审 |
 | [hf-ship](skills/hf-ship/SKILL.md) | 收尾与回写 |
-| [hf-setup-skills](skills/hf-setup-skills/SKILL.md) | 每仓 tracker / 标签 / 领域文档配置 |
 
-Meta / 旁路：`hf-tdd`、`hf-grilling`、`hf-domain-modeling`、`hf-codebase-design`、`hf-prototype`、`hf-triage`、`hf-diagnosing-bugs`、`hf-wayfinder`、`hf-handoff`、`hf-wizard` 等，见 `skills/hf-*`。
+Meta：`hf-tdd`、`hf-grilling`、`hf-domain-modeling`、`hf-codebase-design`、`hf-prototype`。
 
 ## 扩展
 
 按 frontmatter 的**绑定阶段**与**触发条件**加载：
 
 - [ext-ui-design](skills/ext-ui-design/SKILL.md) — 有 UI 时绑定 `to-spec` / `implement` / `code-review`
-- [ext-design-md](skills/ext-design-md/SKILL.md) — 使用 `DESIGN.md` 时绑定 `to-architecture` / `ship`
 
 扩展只收紧、不放松主链。编写指南：[extension-authoring](skills/hf-workflow/references/extension-authoring.md)。
 

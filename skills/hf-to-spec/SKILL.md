@@ -1,6 +1,6 @@
 ---
 name: hf-to-spec
-description: 把当前会话综合为规格并写入特性目录/任务跟踪器，不进行访谈。HarnessFlow 主链步骤；完成后宜经 hf-review 规格评审再进 architecture。
+description: 把当前会话综合为规格并写入 features/<id>/spec.md，不进行访谈。HarnessFlow 主链步骤；完成后宜经 hf-review 规格评审再进 architecture。
 ---
 
 # hf-to-spec
@@ -10,7 +10,7 @@ description: 把当前会话综合为规格并写入特性目录/任务跟踪器
 ## HarnessFlow 桥接
 
 1. 更新 `progress.md` 当前阶段为 `to-spec`。
-2. 未配置任务跟踪器时，默认把规格写入 `features/<id>/spec.md`；若已运行 `hf-setup-skills`，则按其任务跟踪器配置发布。
+2. 把规格写入 `features/<id>/spec.md`。
 3. 写完后执行 `hf-review`（规格检查清单）→ `reviews/spec-review.md` + 用户确认/`auto-approved`。
 4. 评审通过后进入 `hf-to-architecture`。
 
@@ -20,7 +20,7 @@ description: 把当前会话综合为规格并写入特性目录/任务跟踪器
 
 2. 勾勒测试缝。优先使用既有缝；尽可能选择最高层的缝；数量越少越好（理想情况：一个）。与用户确认这些缝（`auto`：如必须代为选择，则记录假设）。
 
-3. 使用下方模板编写规格。发布到真实任务跟踪器时应用 `ready-for-agent`。
+3. 使用下方模板编写规格。
 
 ## 规格模板
 
