@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律、demo 验收与可插拔 `ext-*`。**
+**牵引 AI 编码代理从想法到交付的 harness：以 `hf-*` 命名承载 Matt 主链内容，保留 progress 恢复、auto、评审纪律与 demo 验收。**
 
 主链技能内容改编自 [mattpocock/skills](https://github.com/mattpocock/skills)（MIT，已获授权复制）。HarnessFlow 保留 `progress.md`、interactive/auto、跨阶段 `hf-review`。
 
@@ -37,7 +37,7 @@ python scripts/install.py --target opencode --dest /path/to/project
 | 存量特性 | 「用 HarnessFlow：给通知 API 加限流。」 |
 | 中断后续上 | 「继续」/「恢复 HarnessFlow 进度。」 |
 | 全自动 | 「自动执行，不用等我确认（除非硬停）。」 |
-| 探索原型 | 「先原型验证这个状态模型（即弃）。」 |
+| 探索 | 「这个状态模型先按探索模式做，即弃。」 |
 
 ### 3. 沿主链推进
 
@@ -48,7 +48,7 @@ hf-workflow
   → hf-to-spec            — hf-review（规格）—
   → hf-to-architecture    — hf-review（架构）—
   → hf-to-tickets
-  → hf-implement          — hf-review → hf-code-review —
+  → hf-implement          — hf-review（含代码门）—
   → hf-ship
 ```
 
@@ -66,7 +66,7 @@ hf-workflow
 | 收尾 | 回写 CONTEXT/产品架构/假设台账；`progress` → `done` |
 | 可感知 UI | ship 前还要 demo 证据 + `reviews/demo-acceptance.md` |
 
-探索路径：`hf-prototype` 或 `模式: 探索` → `conclusion.md`（**永远不能 ship**；禁止直接晋升原型代码）。
+探索路径：`模式: 探索` → `conclusion.md`（**永远不能 ship**；禁止直接晋升探索产物）。
 
 ### 4. 从磁盘恢复（不靠聊天记忆）
 
@@ -74,7 +74,7 @@ hf-workflow
 
 **要点**
 
-- 规格 / 产品架构 / 特性架构 / 代码宜独立 `hf-review`（代码门另走 `hf-code-review`）。
+- 规格 / 产品架构 / 特性架构 / 代码宜独立 `hf-review`（代码门为其中的 Standards + Spec 双轴）。
 - 欠定：提出默认 → 记入 `product/assumptions.md` → 继续。
 - 只有你明确说 **自动执行** 时，评审通过即可不经等待推进；同会话降级评审在 auto 下硬停。
 
@@ -87,26 +87,18 @@ hf-workflow
 
 | 技能 | 职责 |
 |------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto、扩展 |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | 入口、路由、auto |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | 访谈 + CONTEXT.md / ADR |
 | [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | 产品级架构地图（特征驱动 / 易变性划分 / 演进适应度） |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | 综合规格 |
 | [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | spec 后的特性架构（增量） |
 | [hf-to-tickets](skills/hf-to-tickets/SKILL.md) | 垂直切片票 + blocking |
 | [hf-implement](skills/hf-implement/SKILL.md) | 按票实现（内驱 `hf-tdd`） |
-| [hf-review](skills/hf-review/SKILL.md) | 跨阶段评审协议 |
-| [hf-code-review](skills/hf-code-review/SKILL.md) | 代码双轴评审 |
+| [hf-review](skills/hf-review/SKILL.md) | 跨阶段评审，含代码双轴门 |
 | [hf-ship](skills/hf-ship/SKILL.md) | 收尾与回写 |
+| [hf-ui-design](skills/hf-ui-design/SKILL.md) | 有 UI 时的视觉与交互纪律 |
 
-Meta：`hf-tdd`、`hf-grilling`、`hf-domain-modeling`、`hf-codebase-design`、`hf-prototype`。
-
-## 扩展
-
-按 frontmatter 的**绑定阶段**与**触发条件**加载：
-
-- [ext-ui-design](skills/ext-ui-design/SKILL.md) — 有 UI 时绑定 `to-spec` / `implement` / `code-review`
-
-扩展只收紧、不放松主链。编写指南：[extension-authoring](skills/hf-workflow/references/extension-authoring.md)。
+Meta：`hf-tdd`、`hf-grilling`、`hf-domain-modeling`、`hf-codebase-design`。
 
 ## License
 

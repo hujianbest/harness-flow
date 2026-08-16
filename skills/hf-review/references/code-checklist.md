@@ -1,6 +1,6 @@
 # 代码评审检查清单
 
-对照实现、测试与已批准的 `spec.md` / `architecture.md` / 任务票。**须自己重新运行测试、自己读取完整的 `git diff`。** 并遵循 `hf-code-review` 双轴。加载的 `ext-*` 追加项一并检查。
+对照实现、测试与已批准的 `spec.md` / `architecture.md` / 任务票。**须自己重新运行测试、自己读取完整的 `git diff`。** 按 `hf-review` 的 Standards + Spec 双轴。有 UI 时并入 `hf-ui-design` 检查项。
 
 ## 证据与范围
 
@@ -19,3 +19,8 @@
 - [ ] 遵循架构中的模块边界与横切约定；偏离有记录
 - [ ] 使用 CONTEXT 领域词汇命名
 - [ ] 错误处理与声明的失败模式一致
+
+## 双轴
+
+- [ ] Standards：仓库标准 + 异味基线（见 `code-smells.md`）已分轴报告
+- [ ] Spec：规格要求已覆盖，无未要求的范围蔓延

@@ -1,11 +1,13 @@
 ---
-name: ext-ui-design
-description: UI 设计领域扩展。绑定阶段: to-spec、implement、code-review。触发条件: 特性包含用户界面(页面、组件、可视交互)。注入反 AI 粗制滥造视觉纪律、交互三态覆盖、可访问性底线、动效性能护栏，并把详细检查清单委托给 references/ui-checklist.md。
+name: hf-ui-design
+description: UI 设计技能。绑定阶段: to-spec、implement、code-review。触发条件: 特性包含用户界面(页面、组件、可视交互)。注入反 AI 粗制滥造视觉纪律、交互三态覆盖、可访问性底线、动效性能护栏，详细检查清单见 references/ui-checklist.md。
 ---
 
-# UI 设计扩展
+# UI 设计
 
-## 绑定
+有 UI 的特性在 `to-spec` / `implement` / 代码评审时加载本技能。
+
+## 加载
 
 - 绑定阶段: to-spec、implement、code-review
 - 触发条件: 特性包含用户界面(页面 / 组件 / 可视交互)

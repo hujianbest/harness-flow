@@ -7,7 +7,7 @@
 ## Change type
 
 - [ ] Fix (typo, broken link, factual error)
-- [ ] New / updated `ext-*` extension
+- [ ] New / updated domain skill (`hf-ui-design` or `ext-*`)
 - [ ] Review checklist improvement
 - [ ] Core skill / main chain change (needs prior issue discussion)
 - [ ] Docs / tooling

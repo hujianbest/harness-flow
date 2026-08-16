@@ -4,7 +4,7 @@
 
 HarnessFlow is a Markdown-based skill suite for AI coding agents plus a small stdlib-only installer and validation toolchain. The security surface that this policy covers is narrow:
 
-- Skill content authored under `skills/` (core `hf-*` skills and `ext-*` extensions)
+- Skill content authored under `skills/` (`hf-*` skills)
 - The `scripts/install.py` installer and its writes into HarnessFlow-managed `.cursor/` and `.opencode/` paths in a user-selected project
 - The `scripts/validate_skills.py` validation script
 - The `.claude-plugin/` plugin manifest registered with Claude Code's marketplace

@@ -5,13 +5,13 @@ alwaysApply: true
 
 # Cursor 上的 HarnessFlow
 
-本工作区内置 HarnessFlow：与 Matt 对齐的主链（grill → product-architecture → spec → architecture → tickets → implement → ship），以及进度落盘、auto 模式和可插拔的 `ext-*` 扩展。技能正文改编自 mattpocock/skills（MIT，已获授权复制），并使用 `hf-*` 名称。
+本工作区内置 HarnessFlow：与 Matt 对齐的主链（grill → product-architecture → spec → architecture → tickets → implement → ship），以及进度落盘与 auto 模式。技能正文改编自 mattpocock/skills（MIT，已获授权复制），并使用 `hf-*` 名称。
 
 ## 每项开发任务
 
 1. 首先加载 `skills/hf-workflow/SKILL.md`。
-2. 遵循当前阶段技能：`hf-grill-with-docs` → `hf-to-product-architecture` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`；在产品架构、规格、架构和实施之后执行 `hf-review`（在代码门处还要执行 `hf-code-review`）。
-3. 每个阶段开始前，根据 frontmatter 中绑定的阶段 + 触发条件，加载匹配的 `skills/ext-*/`。
+2. 遵循当前阶段技能：`hf-grill-with-docs` → `hf-to-product-architecture` → `hf-to-spec` → `hf-to-architecture` → `hf-to-tickets` → `hf-implement` → `hf-ship`；在产品架构、规格、架构和实施之后执行 `hf-review`（代码门含在该技能内）。
+3. 特性含用户界面时，在 `to-spec` / `implement` / 代码评审加载 `hf-ui-design`。
 
 ## 硬性规则
 
@@ -20,7 +20,7 @@ alwaysApply: true
 - 探索代码前先阅读 `CONTEXT.md` / `product/architecture.md` / 特性的 `architecture.md`；不得为每个特性重新扫描整个代码仓库。
 - 产品架构与特性对齐由技能/`hf-review` 约束。
 - 用户可感知的切片在 ship 前宜将 demo 验收写入磁盘。
-- 探索模式不应 ship；以 `conclusion.md` 收尾，禁止直接晋升原型代码。
+- 探索模式不应 ship；以 `conclusion.md` 收尾，禁止直接晋升探索产物。
 - 作者/评审者分离：在 subagent 或全新会话中评审；降级评审不得自行批准「通过」；auto + 降级评审 = 硬停止。
 - 每次只实施一个前沿票据；建造模式使用 `hf-tdd`（先写失败测试）。
 

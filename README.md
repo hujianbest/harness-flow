@@ -2,7 +2,7 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus progress recovery, auto mode, review discipline, demo acceptance, and pluggable `ext-*` extensions.**
+**A harness that drives AI coding agents from idea to shipped work — Matt-aligned main chain under `hf-*` names, plus progress recovery, auto mode, review discipline, and demo acceptance.**
 
 Main-chain skill content is adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT; copying authorized). HarnessFlow keeps `progress.md`, interactive/auto, and cross-stage `hf-review`.
 
@@ -37,7 +37,7 @@ The agent should load `hf-workflow` first. Example prompts:
 | Existing codebase feature | “Use HarnessFlow: add rate limiting to the notifications API.” |
 | Continue after a break | “Continue” / “Resume HarnessFlow progress.” |
 | Auto mode | “Auto mode — don’t wait for my confirmation unless blocked.” |
-| Exploration / prototype | “Prototype whether this state model feels right (throwaway).” |
+| Exploration | “Try this state model as throwaway exploration.” |
 
 ### 3. Follow the main chain
 
@@ -48,7 +48,7 @@ hf-workflow
   → hf-to-spec            — hf-review (spec) —
   → hf-to-architecture    — hf-review (architecture) —
   → hf-to-tickets
-  → hf-implement          — hf-review → hf-code-review —
+  → hf-implement          — hf-review (incl. code gate) —
   → hf-ship
 ```
 
@@ -66,7 +66,7 @@ What you should see on disk as you go:
 | Ship | write-back to CONTEXT / product architecture / assumptions; `progress` → `done` |
 | Perceivable UI | demo evidence + `reviews/demo-acceptance.md` before ship |
 
-Exploration path: `hf-prototype` or `模式: 探索` → `conclusion.md` (**never ship**; no promoting prototype code).
+Exploration path: `模式: 探索` → `conclusion.md` (**never ship**; no promoting exploration code).
 
 ### 4. Recover from disk (don’t rely on chat)
 
@@ -74,7 +74,7 @@ Read `product/progress.md` and each `features/<id>/progress.md` to see stage and
 
 **Rules of thumb**
 
-- Spec / product architecture / feature architecture / code should get independent `hf-review` (code also uses `hf-code-review`).
+- Spec / product architecture / feature architecture / code should get independent `hf-review` (code gate is Standards + Spec inside that skill).
 - Underspecified choices: propose a default → `product/assumptions.md` → continue.
 - Say **auto** only when you want passing reviews to advance without waiting; degraded same-session review is a hard stop in auto.
 
@@ -87,26 +87,18 @@ Read `product/progress.md` and each `features/<id>/progress.md` to see stage and
 
 | Skill | Role |
 |-------|------|
-| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto, extensions |
+| [hf-workflow](skills/hf-workflow/SKILL.md) | Entry, routing, auto |
 | [hf-grill-with-docs](skills/hf-grill-with-docs/SKILL.md) | Interview + CONTEXT.md / ADR |
 | [hf-to-product-architecture](skills/hf-to-product-architecture/SKILL.md) | Product-level architecture map (characteristics-driven, volatility-based, evolutionary) |
 | [hf-to-spec](skills/hf-to-spec/SKILL.md) | Synthesize a spec |
 | [hf-to-architecture](skills/hf-to-architecture/SKILL.md) | Feature architecture (incremental) after spec |
 | [hf-to-tickets](skills/hf-to-tickets/SKILL.md) | Tracer-bullet tickets + blockers |
 | [hf-implement](skills/hf-implement/SKILL.md) | Build tickets via `hf-tdd` |
-| [hf-review](skills/hf-review/SKILL.md) | Cross-stage review protocol |
-| [hf-code-review](skills/hf-code-review/SKILL.md) | Two-axis code review (Standards + Spec) |
+| [hf-review](skills/hf-review/SKILL.md) | Cross-stage review, including Standards + Spec code gate |
 | [hf-ship](skills/hf-ship/SKILL.md) | Closeout + write-back |
+| [hf-ui-design](skills/hf-ui-design/SKILL.md) | UI discipline when the feature has a user interface |
 
-Meta: `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`, `hf-prototype`.
-
-## Extensions
-
-Loaded when frontmatter **binding stage** + **trigger** match:
-
-- [ext-ui-design](skills/ext-ui-design/SKILL.md) — `to-spec` / `implement` / `code-review` when the feature has UI
-
-Extensions only tighten requirements. Authoring: [extension-authoring](skills/hf-workflow/references/extension-authoring.md).
+Meta: `hf-tdd`, `hf-grilling`, `hf-domain-modeling`, `hf-codebase-design`.
 
 ## License
 

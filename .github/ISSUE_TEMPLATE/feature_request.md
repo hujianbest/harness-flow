@@ -8,12 +8,12 @@ assignees: ''
 
 ## Pre-flight
 
-- [ ] I have read `README.md` and `CONTRIBUTING.md`. Most domain needs should be an `ext-*` extension or a checklist item — changes to the 6-skill main chain need a strong reason.
+- [ ] I have read `README.md` and `CONTRIBUTING.md`. Most domain needs should be a checklist item or `hf-ui-design` — changes to the main chain need a strong reason.
 - [ ] This is not a request for deployment / monitoring / rollback capabilities (documented scope choice: HarnessFlow stops at `hf-ship`).
 
 ## Proposal type
 
-- [ ] New `ext-*` extension (state the binding stages and trigger conditions)
+- [ ] New domain skill (state when it loads)
 - [ ] New checklist item for `hf-review` (state which real failure it would have caught)
 - [ ] Change to a core skill / the main chain (explain why an extension can't express it)
 - [ ] Other

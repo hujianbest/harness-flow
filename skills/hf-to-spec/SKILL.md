@@ -9,7 +9,7 @@ description: 把当前会话综合为规格并写入 features/<id>/spec.md，不
 
 ## HarnessFlow 桥接
 
-1. 更新 `progress.md` 当前阶段为 `to-spec`。
+1. 更新 `progress.md` 当前阶段为 `to-spec`。有 UI 时加载 `hf-ui-design`。
 2. 把规格写入 `features/<id>/spec.md`。
 3. 写完后执行 `hf-review`（规格检查清单）→ `reviews/spec-review.md` + 用户确认/`auto-approved`。
 4. 评审通过后进入 `hf-to-architecture`。

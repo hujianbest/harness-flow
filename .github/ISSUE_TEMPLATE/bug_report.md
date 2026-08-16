@@ -14,7 +14,6 @@ assignees: ''
 ## Where
 
 - [ ] A core skill (`skills/hf-*/`)
-- [ ] An extension (`skills/ext-*/`)
 - [ ] A review checklist (`skills/hf-review/references/`)
 - [ ] `scripts/validate_skills.py`
 - [ ] Client wiring (`.cursor/rules/`, `.claude-plugin/`, `.opencode/`)
