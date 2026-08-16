@@ -1,6 +1,6 @@
 ---
 name: hf-to-architecture
-description: 基于已确认的规格产出特性级架构设计（模块边界、缝、数据与关键流程、ADR）。位于 hf-to-spec 与 hf-to-tickets 之间。特性架构是产品架构的增量注解；宜对齐 product/architecture.md。使用 hf-codebase-design 词汇，必要时参考 hf-wayfinder。
+description: 基于已确认的规格产出特性级架构设计（模块边界、缝、数据与关键流程、ADR）。位于 hf-to-spec 与 hf-to-tickets 之间。特性架构是产品架构的增量注解；宜对齐 product/architecture.md。使用 hf-codebase-design 词汇。
 ---
 
 # hf-to-architecture
@@ -10,7 +10,7 @@ description: 基于已确认的规格产出特性级架构设计（模块边界�
 ## 前置
 
 1. 冷读 `spec.md`、`product/architecture.md`（若有）、`CONTEXT.md`(若有)、相关 ADR,以及 `product/` 假设台账。更新 `progress.md` 为 `to-architecture`。
-2. 加载 `hf-codebase-design`;大雾/多会话决策可参考 `hf-wayfinder` 的决策票思路,但本阶段产出仍落在本特性目录。
+2. 加载 `hf-codebase-design`。本阶段产出仍落在本特性目录。
 
 ## 流程
 

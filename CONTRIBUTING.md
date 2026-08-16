@@ -1,11 +1,11 @@
 # Contributing to HarnessFlow
 
-HarnessFlow is a Markdown-based skill suite: Matt-aligned main chain under `hf-*` names (`grill-with-docs` → `to-product-architecture` → `to-spec` → `to-architecture` → `to-tickets` → `implement` → `ship`, with cross-stage `hf-review`), plus progress recovery, auto mode, demo acceptance, and pluggable `ext-*` extensions.
+HarnessFlow is a Markdown-based skill suite: Matt-aligned main chain under `hf-*` names (`grill-with-docs` → `to-product-architecture` → `to-spec` → `to-architecture` → `to-tickets` → `implement` → `ship`, with cross-stage `hf-review`), plus progress recovery, auto mode, and demo acceptance.
 
 ## What lands easily
 
 - Bug fixes: broken links, typos, factual errors in `SKILL.md` files.
-- New `ext-*` extensions that follow [the authoring guide](skills/hf-workflow/references/extension-authoring.md): declare binding stages + trigger conditions in the description, only tighten (never relax) review/TDD discipline, keep the body ≤ 150 lines.
+- New domain skills that follow [the authoring guide](skills/hf-workflow/references/extension-authoring.md): declare binding stages + trigger conditions in the description, only tighten (never relax) review/TDD discipline, keep the body ≤ 150 lines if using the `ext-*` convention.
 - Sharper checklist items in `skills/hf-review/references/` backed by a real failure they would have caught.
 
 ## What needs an issue first

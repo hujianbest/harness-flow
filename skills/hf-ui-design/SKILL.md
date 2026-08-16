@@ -1,11 +1,13 @@
 ---
-name: ext-ui-design
-description: UI 设计领域扩展。绑定阶段: to-spec、implement、code-review。触发条件: 特性包含用户界面(页面、组件、可视交互)。注入反 AI 粗制滥造视觉纪律、交互三态覆盖、可访问性底线、动效性能护栏，并把详细检查清单委托给 references/ui-checklist.md。
+name: hf-ui-design
+description: UI 设计技能。绑定阶段: to-spec、implement、code-review。触发条件: 特性包含用户界面(页面、组件、可视交互)。注入反 AI 粗制滥造视觉纪律、交互三态覆盖、可访问性底线、动效性能护栏，详细检查清单见 references/ui-checklist.md。
 ---
 
-# UI 设计扩展
+# UI 设计
 
-## 绑定
+有 UI 的特性在 `to-spec` / `implement` / 代码评审时加载本技能。
+
+## 加载
 
 - 绑定阶段: to-spec、implement、code-review
 - 触发条件: 特性包含用户界面(页面 / 组件 / 可视交互)
@@ -24,7 +26,7 @@ description: UI 设计领域扩展。绑定阶段: to-spec、implement、code-re
 
 - 有既有设计系统 / 品牌规范或 `DESIGN.md` 时，**必须先冷读并复用**
 - 颜色、字号、间距、圆角、阴影一律使用设计令牌，禁止硬编码字面量
-- 有 `DESIGN.md` 时优先从中取值（见 `ext-design-md`）；没有时先在规格中命名令牌
+- 有 `DESIGN.md` 或既有令牌文件时优先从中取值；没有时先在规格中命名令牌
 - 缺资产时用语义占位符，不自画 SVG、不自编正文
 
 ### 反 AI 粗制滥造审美（硬拒绝项）

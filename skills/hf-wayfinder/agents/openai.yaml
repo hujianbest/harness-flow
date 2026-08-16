@@ -1,5 +1,0 @@
-interface:
-  display_name: "路径规划"
-  short_description: "将大型工作规划为决策票据"
-policy:
-  allow_implicit_invocation: false

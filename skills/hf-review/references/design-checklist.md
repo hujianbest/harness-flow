@@ -1,6 +1,6 @@
 # 设计/架构评审检查清单
 
-适用于特性 `architecture.md`(对照已批准的 `spec.md`)。加载的 `ext-*` 追加项一并检查。
+适用于特性 `architecture.md`(对照已批准的 `spec.md`)。有 UI 时并入 `hf-ui-design` 检查项。
 
 ## 产品对齐
 

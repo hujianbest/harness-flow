@@ -1,6 +1,6 @@
 ---
 name: hf-ship
-description: 特性收尾：确认 code-review 与（用户可感知时）演示验收，勾选任务票并将反馈回写 CONTEXT/ADR/假设台账，把 progress.md 更新为 done。HarnessFlow 主链最后一步。
+description: 特性收尾：确认 hf-review 代码门与（用户可感知时）演示验收，勾选任务票并将反馈回写 CONTEXT/ADR/假设台账，把 progress.md 更新为 done。HarnessFlow 主链最后一步。
 ---
 
 # hf-ship
