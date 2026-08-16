@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-16
+
 ### Removed
 
 - 精简技能面：删除 `hf-grill-me`、`hf-handoff`、`hf-wizard`、`hf-wayfinder`、`hf-improve-codebase-architecture`、`hf-research`、`hf-triage`、`hf-setup-skills`、`hf-diagnosing-bugs`、`ext-design-md`、`hf-prototype`。规格与任务票默认 `features/<id>/`；产品层仍由 `hf-grill-with-docs` + 模板落盘。
